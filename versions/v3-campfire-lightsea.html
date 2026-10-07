@@ -1,0 +1,783 @@
+<title>Minion 森林之家</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700&family=LXGW+WenKai+TC:wght@400&display=swap">
+<style>
+/* Layout: 全螢幕 3D 場景 + 紙片風浮層 UI。場景：森林 → 家 1F → 2F 臥室 → 閣樓禱告房；家的後門 → 舞台（獨立空間）。單一淺色紙模型風格。 */
+:root{
+  --paper:#FFF8EC; --ink:#3E2E24; --muted:#7A6555; --accent:#D9583F;
+  --shadow:0 2px 0 rgba(62,46,36,.12),0 8px 18px rgba(62,46,36,.18);
+  --f:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-hand:"LXGW WenKai TC","Kaiti TC",serif;
+  color-scheme:light;
+}
+html,body{height:100%;margin:0;overflow:hidden;background:#CFE3D6}
+body{font-family:var(--f);color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.chip{background:var(--paper);border:0;border-radius:12px;box-shadow:var(--shadow);padding:10px 14px}
+.hud-tl{position:fixed;left:16px;top:calc(14px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:2px;pointer-events:none}
+.hud-tl b{font-size:16px;letter-spacing:.04em}
+.hud-tl span{font-size:13px;color:var(--muted)}
+.hud-tr{position:fixed;right:16px;top:calc(14px + env(safe-area-inset-top,0px));display:flex;gap:8px}
+.hud-tr button{min-height:44px;font-weight:700;font-size:14px}
+.prompt{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);min-height:52px;padding:12px 22px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:14px;box-shadow:var(--shadow);border:0;white-space:nowrap}
+.prompt small{font-weight:500;opacity:.75;font-size:13px}
+.hint{position:fixed;left:50%;top:calc(76px + env(safe-area-inset-top,0px));transform:translateX(-50%);font-size:13px;color:var(--muted);transition:opacity .6s;text-align:center;max-width:calc(100% - 32px);pointer-events:none}
+.joy{position:fixed;left:24px;bottom:calc(24px + env(safe-area-inset-bottom,0px));width:120px;height:120px;border-radius:50%;background:rgba(255,248,236,.45);box-shadow:inset 0 0 0 2px rgba(255,248,236,.85);touch-action:none}
+.joy i{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:var(--paper);box-shadow:var(--shadow)}
+.prompt[hidden],.joy[hidden]{display:none}
+.fade{position:fixed;inset:0;background:#2A211B;opacity:0;pointer-events:none;transition:opacity .28s}
+.fade.on{opacity:1}
+.sheet-bg{position:fixed;inset:0;background:rgba(42,33,27,.35);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.sheet{width:min(440px,100%);max-height:calc(100% - 32px);overflow:auto;background:var(--paper);border-radius:18px;box-shadow:var(--shadow);padding:22px 22px 18px;display:flex;flex-direction:column;gap:12px}
+.sheet .tag{font-size:12px;letter-spacing:.14em;color:var(--muted)}
+.sheet h2{margin:0;font-size:22px}
+.sheet p{margin:0;line-height:1.7;font-size:15px}
+.sheet .quote{font-family:var(--f-hand);font-size:22px;line-height:1.6;padding:6px 0}
+.sheet ul{margin:0;padding-left:20px;line-height:1.8;font-size:14px}
+.sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:12px;border:0;font-weight:700;font-size:14px;text-decoration:none}
+.btn.dark{background:var(--ink);color:var(--paper)}
+.btn.light{background:#EFE3D0;color:var(--ink)}
+.btn.off{background:#EFE3D0;color:var(--muted);cursor:default}
+.places{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.places button{text-align:left;padding:10px 12px;border-radius:12px;border:0;background:#F3E8D6;min-height:52px}
+.places button b{display:block;font-size:14px}
+.places button span{font-size:12px;color:var(--muted)}
+.places h3{grid-column:1/-1;margin:6px 0 0;font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:700}
+.err{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;background:#CFE3D6}
+@media (prefers-reduced-motion:reduce){.fade,.hint{transition:none}}
+</style>
+
+<canvas id="c" tabindex="0" aria-label="森林之家 3D 場景。點地面行走，拖曳轉動視角。"></canvas>
+<div class="hud-tl chip"><b>Minion 森林之家</b><span id="where">森林</span></div>
+<div class="hud-tr">
+  <button class="chip" id="viewBtn" aria-label="切換視角">第三人稱</button>
+  <button class="chip" id="menuBtn" aria-label="打開地點選單">地點</button>
+</div>
+<div class="hint chip" id="hint">點地面走過去 · 拖曳轉動視角 · 電腦可用 WASD 或方向鍵</div>
+<button class="prompt" id="prompt" hidden></button>
+<div class="joy" id="joy" hidden><i id="knob"></i></div>
+<div class="fade" id="fade"></div>
+<div id="sheetRoot"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+/* Minion 森林之家 · v3：營火與螢火蟲、舞台燈海、白水木移到臥室、流水盆移到禱告房 */
+if(!window.THREE){document.body.insertAdjacentHTML('beforeend','<div class="err">3D 元件沒有載入成功，請重新整理頁面。</div>');return;}
+const R=THREE;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+const rand=rng(20261006);
+const sm=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* ---------- renderer ---------- */
+const canvas=$('#c');
+let renderer;
+try{renderer=new R.WebGLRenderer({canvas,antialias:true});}
+catch(e){document.body.insertAdjacentHTML('beforeend','<div class="err">這台裝置的瀏覽器沒有開啟 3D（WebGL），所以無法顯示森林之家。</div>');return;}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=R.PCFSoftShadowMap;
+const camera=new R.PerspectiveCamera(58,1,0.08,420);
+camera.rotation.order='YXZ';
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+addEventListener('resize',resize);resize();
+
+const mat=(color,o)=>new R.MeshStandardMaterial(Object.assign({color,roughness:.88,metalness:0,flatShading:true},o||{}));
+function mesh(geo,m,x,y,z,parent,cast=true,recv=true){const o=new R.Mesh(geo,m);o.position.set(x||0,y||0,z||0);o.castShadow=cast;o.receiveShadow=recv;if(parent)parent.add(o);return o;}
+function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
+function makeLabel(text,sub,scale=1){
+  const c=document.createElement('canvas');c.width=512;c.height=sub?168:128;const g=c.getContext('2d');
+  const w=512,h=c.height;g.fillStyle='rgba(62,46,36,.18)';rr(g,10,14,w-20,h-20,26);g.fill();
+  g.fillStyle='#FFF8EC';rr(g,8,6,w-16,h-20,26);g.fill();
+  g.fillStyle='#3E2E24';g.textAlign='center';g.textBaseline='middle';
+  g.font='700 54px "Noto Sans TC","PingFang TC",sans-serif';g.fillText(text,w/2,sub?60:58);
+  if(sub){g.fillStyle='#7A6555';g.font='500 34px "Noto Sans TC","PingFang TC",sans-serif';g.fillText(sub,w/2,118);}
+  const t=new R.CanvasTexture(c);t.anisotropy=4;
+  const s=new R.Sprite(new R.SpriteMaterial({map:t,depthWrite:false,transparent:true}));
+  s.scale.set(3.2*scale,3.2*scale*h/512,1);s.renderOrder=5;return s;
+}
+function label(scene,text,x,y,z,sub,scale){const l=makeLabel(text,sub,scale);l.position.set(x,y,z);scene.add(l);return l;}
+function canvasTex(w,h,draw,rep){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new R.CanvasTexture(c);if(rep){t.wrapS=t.wrapT=R.RepeatWrapping;t.repeat.set(rep[0],rep[1]);}return t;}
+const planksTex=(r)=>canvasTex(512,512,(g)=>{const cs=['#C9A27A','#BF956C','#D1AC84','#C49C72'];for(let i=0;i<16;i++){g.fillStyle=cs[i%4];g.fillRect(0,i*32,512,32);g.fillStyle='rgba(62,46,36,.18)';g.fillRect(0,i*32+31,512,1);g.fillRect((i*137)%512,i*32,1,32);}},r);
+const graniteTex=canvasTex(256,256,(g,w,h)=>{g.fillStyle='#5E6266';g.fillRect(0,0,w,h);const r2=rng(7);for(let i=0;i<2600;i++){const v=r2();g.fillStyle=v<.45?'rgba(240,240,236,.85)':v<.8?'rgba(30,32,34,.8)':'rgba(150,154,158,.9)';g.fillRect(r2()*w,r2()*h,1+r2()*2.5,1+r2()*2.5);}},[2,1]);
+
+
+const flameTex=canvasTex(64,128,(g)=>{const gr=g.createRadialGradient(32,92,2,32,80,60);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.35,'rgba(255,255,255,.75)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.beginPath();g.moveTo(32,4);g.bezierCurveTo(46,40,62,70,56,96);g.bezierCurveTo(50,124,14,124,8,96);g.bezierCurveTo(2,70,18,40,32,4);g.fill();});
+const glowTex=canvasTex(64,64,(g)=>{const gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.25,'rgba(255,255,255,.85)');gr.addColorStop(.6,'rgba(255,255,255,.18)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);});
+function seg(parent,a,b,r0,r1,m){const d=new R.Vector3().subVectors(b,a),L=d.length();const o=new R.Mesh(new R.CylinderGeometry(r1,r0,L,7),m);o.position.copy(a).addScaledVector(d,.5);o.quaternion.setFromUnitVectors(new R.Vector3(0,1,0),d.clone().normalize());o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
+const leafGeo=(()=>{const sh=new R.Shape();sh.moveTo(0,0);sh.bezierCurveTo(.09,.05,.14,.22,.085,.34);sh.bezierCurveTo(.05,.395,-.05,.395,-.085,.34);sh.bezierCurveTo(-.14,.22,-.09,.05,0,0);
+  const g=new R.ShapeGeometry(sh,8);const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i);p.setZ(i,4*x*x-.25*y*y);}g.computeVertexNormals();return g;})();
+/* 白水木：灰白枝幹、枝頭一圈圈銀綠色的葉子、捲曲的小白花 */
+function makeHeliotrope(parent,x,z,sc=1){
+  const G=new R.Group();G.position.set(x,0,z);G.scale.setScalar(sc);parent.add(G);
+  const pot=new R.Mesh(new R.LatheGeometry([new R.Vector2(.001,0),new R.Vector2(.19,0),new R.Vector2(.22,.03),new R.Vector2(.26,.36),new R.Vector2(.29,.40),new R.Vector2(.285,.43),new R.Vector2(.255,.43),new R.Vector2(.245,.39)],32),
+    new R.MeshStandardMaterial({color:0xEDE7DC,roughness:.55}));pot.castShadow=pot.receiveShadow=true;G.add(pot);
+  const band=new R.Mesh(new R.CylinderGeometry(.268,.262,.04,32,1,true),new R.MeshStandardMaterial({color:0xB9A58C,roughness:.6}));band.position.y=.3;G.add(band);
+  const soil=new R.Mesh(new R.CircleGeometry(.245,24),new R.MeshStandardMaterial({color:0x5A4434,roughness:1}));soil.rotation.x=-Math.PI/2;soil.position.y=.395;G.add(soil);
+  const bark=new R.MeshStandardMaterial({color:0x9A8E80,roughness:.9});
+  const V=(a,b,c)=>new R.Vector3(a,b,c);
+  const base=V(0,.39,0),k1=V(.03,.78,.01);
+  seg(G,base,k1,.055,.042,bark);
+  const tips=[[V(-.16,1.02,.05),V(-.3,1.22,.09)],[V(.15,.98,-.05),V(.31,1.17,-.1)],[V(.02,1.08,.1),V(.06,1.4,.16)],[V(.1,.9,.15),V(.21,1.03,.27)],[V(-.05,.98,-.14),V(-.1,1.16,-.27)]];
+  const leafA=new R.MeshStandardMaterial({color:0xA6B9A4,roughness:.85,side:R.DoubleSide}),leafB=new R.MeshStandardMaterial({color:0xC2D0BE,roughness:.85,side:R.DoubleSide}),flower=new R.MeshStandardMaterial({color:0xFBF8F0,roughness:.7});
+  tips.forEach(([mid,tip],ti)=>{seg(G,k1,mid,.036,.026,bark);seg(G,mid,tip,.026,.016,bark);
+    const n=10+(ti%2);
+    for(let k=0;k<n;k++){const a=k/n*Math.PI*2+ti,el=.35+((k*7)%5)*.09,ls=.82+((k*3)%4)*.1;
+      const holder=new R.Group();holder.position.copy(tip);holder.rotation.y=a;G.add(holder);
+      const l=new R.Mesh(leafGeo,k%2?leafA:leafB);l.scale.setScalar(ls);l.rotation.x=-(Math.PI/2-el)*.95;l.castShadow=true;holder.add(l);}
+    if(ti===0||ti===2){for(let j=0;j<9;j++){const a=j*.42,r=.05+j*.006;const f=new R.Mesh(new R.SphereGeometry(.014,6,4),flower);f.position.set(tip.x+Math.cos(a)*r,tip.y+.1+j*.006,tip.z+Math.sin(a)*r);G.add(f);}}
+  });
+  return G;
+}
+/* 轉運流水盆：花崗岩雙層盆、上層流水、橘色轉運球、金魚 */
+function makeFountain(parent,x,z){
+  const G=new R.Group();G.position.set(x,0,z);parent.add(G);
+  const wood=new R.MeshStandardMaterial({color:0x8C6646,roughness:.8});
+  const stand=new R.Mesh(new R.BoxGeometry(1.0,.42,.8),wood);stand.position.y=.21;stand.castShadow=stand.receiveShadow=true;G.add(stand);
+  const gt=graniteTex.clone();gt.needsUpdate=true;gt.repeat.set(5,1);
+  const stone=new R.MeshStandardMaterial({map:gt,roughness:.55});
+  const basin=new R.Mesh(new R.LatheGeometry([new R.Vector2(.001,0),new R.Vector2(.36,0),new R.Vector2(.43,.04),new R.Vector2(.46,.15),new R.Vector2(.455,.2),new R.Vector2(.425,.215),new R.Vector2(.4,.16),new R.Vector2(.37,.1),new R.Vector2(.001,.1)],40),stone);
+  basin.position.y=.42;basin.castShadow=basin.receiveShadow=true;G.add(basin);
+  const water=new R.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{t:{value:0}},
+    vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader:'uniform float t;varying vec2 vUv;void main(){vec2 p=vUv-.5;float r=length(p-vec2(-.18,.08));float w=sin(r*90.-t*6.)*.5+.5;w*=1.-smoothstep(.0,.6,r);vec3 c=mix(vec3(.30,.52,.55),vec3(.85,.95,.96),w*.45+length(p)*.6);gl_FragColor=vec4(c,.62);}'});
+  const wd=new R.Mesh(new R.CircleGeometry(.4,32),water);wd.rotation.x=-Math.PI/2;wd.position.y=.42+.17;wd.renderOrder=2;G.add(wd);
+  const rock=new R.Mesh(new R.DodecahedronGeometry(.13,0),stone);rock.position.set(.13,.42+.18,-.09);rock.scale.set(1,1.3,1);rock.castShadow=true;G.add(rock);
+  const bowl=new R.Mesh(new R.LatheGeometry([new R.Vector2(.001,0),new R.Vector2(.1,0),new R.Vector2(.16,.045),new R.Vector2(.175,.1),new R.Vector2(.16,.112),new R.Vector2(.14,.075),new R.Vector2(.001,.07)],28),stone);
+  bowl.position.set(.13,.42+.3,-.09);bowl.castShadow=true;G.add(bowl);
+  const ball=new R.Mesh(new R.SphereGeometry(.085,24,16),new R.MeshStandardMaterial({color:0xFFA040,emissive:0xE0701A,emissiveIntensity:.55,roughness:.15,transparent:true,opacity:.92}));
+  ball.position.set(.13,.42+.3+.15,-.09);G.add(ball);
+  const curve=new R.CatmullRomCurve3([new R.Vector3(-.02,.42+.4,-.04),new R.Vector3(-.07,.42+.34,-.01),new R.Vector3(-.09,.42+.2,.01)]);
+  const spill=new R.Mesh(new R.TubeGeometry(curve,12,.014,6,false),new R.MeshBasicMaterial({color:0xE4F3F5,transparent:true,opacity:.6}));G.add(spill);
+  const green=new R.MeshStandardMaterial({color:0x4F8A4A,roughness:.7,side:R.DoubleSide});
+  for(let k=0;k<9;k++){const h=new R.Group();h.position.set(-.27,.42+.2,-.17);h.rotation.y=k*.7;G.add(h);const l=new R.Mesh(leafGeo,green);l.scale.setScalar(.45+(k%3)*.08);l.rotation.x=-1.0+(k%3)*.25;h.add(l);}
+  const fishes=[],body=new R.MeshStandardMaterial({color:0xFF6A1F,roughness:.4}),fin=new R.MeshStandardMaterial({color:0xFFB27A,roughness:.5,transparent:true,opacity:.85,side:R.DoubleSide});
+  const tailSh=new R.Shape();tailSh.moveTo(0,0);tailSh.quadraticCurveTo(-.03,-.06,-.045,-.085);tailSh.quadraticCurveTo(0,-.06,.045,-.085);tailSh.quadraticCurveTo(.03,-.06,0,0);const tailGeo=new R.ShapeGeometry(tailSh,6);
+  for(let i=0;i<3;i++){const f=new R.Group();const b=new R.Mesh(new R.SphereGeometry(.03,12,8),body);b.scale.set(.75,.8,1.6);f.add(b);
+    const tl=new R.Mesh(tailGeo,fin);tl.rotation.x=-Math.PI/2;tl.position.z=-.04;f.add(tl);f.userData.tail=tl;
+    const dor=new R.Mesh(new R.ConeGeometry(.012,.03,4),fin);dor.position.set(0,.025,0);f.add(dor);
+    f.position.y=.42+.155;G.add(f);fishes.push({o:f,a:i*2.1,r:.2+i*.06,s:.55+i*.18});}
+  const pl=new R.PointLight(0xFFB070,.3,2.5);pl.position.set(.13,.42+.55,-.09);G.add(pl);
+  return (dt,t)=>{water.uniforms.t.value=t;ball.rotation.y=t*.7;spill.material.opacity=.5+Math.sin(t*8)*.1;
+    fishes.forEach(f=>{f.a+=dt*f.s;f.o.position.x=Math.cos(f.a)*f.r-.04;f.o.position.z=Math.sin(f.a)*f.r+.03;f.o.rotation.y=-f.a;f.o.userData.tail.rotation.y=Math.sin(t*12+f.a)*.6;});};
+}
+
+/* =========================================================
+   SCENE REGISTRY
+   ========================================================= */
+const SC={};
+function addScene(id,o){SC[id]=Object.assign({id,col:[],hots:[],indoor:true,camDist:5.6,camMin:.78,ceil:null,update:null},o);return SC[id];}
+function makeRoom({W,D,WH,bg=0x3A302A,wall=0xF6EBDA,floorMap,floorColor,hemi=.45,sunI=.5,shadow=14}){
+  const s=new R.Scene();s.background=new R.Color(bg);
+  s.add(new R.HemisphereLight(0xFFF3E0,0x6B5440,hemi));
+  const L=new R.DirectionalLight(0xFFE7C2,sunI);L.position.set(-6,14,-10);L.castShadow=true;L.shadow.mapSize.set(1024,1024);
+  Object.assign(L.shadow.camera,{left:-shadow,right:shadow,top:shadow,bottom:-shadow,near:1,far:40});L.shadow.bias=-.0008;s.add(L);
+  const floor=new R.Mesh(new R.PlaneGeometry(W,D),new R.MeshStandardMaterial(floorMap?{map:floorMap,roughness:.85}:{color:floorColor,roughness:.9}));
+  floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;s.add(floor);s.userData.ground=floor;
+  if(WH){const wm=new R.MeshStandardMaterial({color:wall,roughness:.95});
+    [[0,-D/2,0,W],[0,D/2,Math.PI,W],[-W/2,0,Math.PI/2,D],[W/2,0,-Math.PI/2,D]].forEach(([x,z,ry,w])=>{
+      const m=new R.Mesh(new R.PlaneGeometry(w,WH),wm);m.position.set(x,WH/2,z);m.rotation.y=ry;m.receiveShadow=true;s.add(m);
+      const b=new R.Mesh(new R.PlaneGeometry(w,.22),mat(0xC7AE90));b.position.set(x,.11,z);b.rotation.y=ry;b.translateZ(.01);s.add(b);});}
+  return {scene:s,floor};
+}
+function ceiling(s,W,D,H){const c=new R.Mesh(new R.PlaneGeometry(W,D),new R.MeshStandardMaterial({color:0xF3E6D2,emissive:0x4A3E32,roughness:1}));c.rotation.x=Math.PI/2;c.position.y=H;c.visible=false;s.add(c);return c;}
+function boxIn(sc,w,h,d,c,x,y,z,collide,m){const o=mesh(new R.BoxGeometry(w,h,d),m||mat(c),x,y,z,sc.scene);if(collide)sc.col.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});return o;}
+
+/* =========================================================
+   1 · FOREST 森林（只留安靜的東西：河、蘑菇攝影棚、人際、家）
+   ========================================================= */
+const out=new R.Scene();
+out.fog=new R.Fog(0xCFE3D6,28,105);
+const sky=new R.Mesh(new R.SphereGeometry(200,24,12),new R.ShaderMaterial({side:R.BackSide,depthWrite:false,fog:false,
+  uniforms:{top:{value:new R.Color(0x8EC3DB)},bot:{value:new R.Color(0xE7F1E3)}},
+  vertexShader:'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:'uniform vec3 top;uniform vec3 bot;varying vec3 vP;void main(){float h=normalize(vP).y;gl_FragColor=vec4(mix(bot,top,smoothstep(-.02,.55,h)),1.);}'}));
+out.add(sky);
+out.add(new R.HemisphereLight(0xDDEBF5,0x4E6B3A,.5));
+const sun=new R.DirectionalLight(0xFFEAC8,.78);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-38,right:38,top:38,bottom:-38,near:1,far:140});sun.shadow.bias=-.0006;
+out.add(sun);out.add(sun.target);
+const SUN_OFF=new R.Vector3(28,46,18);
+
+function riverX(z){return -20+4*Math.sin(z*.07)+2*Math.sin(z*.17+1.3);}
+function heightAt(x,z){
+  const r=Math.hypot(x,z);
+  let h=.7*Math.sin(x*.11)*Math.cos(z*.09)+.4*Math.sin(x*.23+z*.17);
+  h*=sm(12,28,Math.hypot(x-2,z+4));
+  h+=Math.pow(Math.max(0,r-44),1.35)*.13;
+  const d=Math.abs(x-riverX(z));
+  h-=1.15*(1-sm(2.6,5,d));
+  return h;
+}
+const hx=0,hz=-8,mz=10,mx=riverX(10)+8;
+const FX=16,FZ=5;
+const PATHS=[[0,26,0,-3.5],[0,14,mx+3,mz],[0,12,FX-2.5,FZ+1.5],[0,4,riverX(2)+5,2]];
+function segD(px,pz,a){const[x1,z1,x2,z2]=a,dx=x2-x1,dz=z2-z1,L=dx*dx+dz*dz;let t=L?((px-x1)*dx+(pz-z1)*dz)/L:0;t=clamp(t,0,1);return Math.hypot(px-(x1+t*dx),pz-(z1+t*dz));}
+const pathD=(x,z)=>Math.min(...PATHS.map(p=>segD(x,z,p)));
+const F=addScene('forest',{scene:out,indoor:false,camDist:7.2,camMin:.12,where:'森林',
+  floor:(x,z)=>Math.max(heightAt(x,z),-.95),bounds:null});
+
+{ // ground
+  const g=new R.PlaneGeometry(170,170,150,150);g.rotateX(-Math.PI/2);
+  const p=g.attributes.position,cols=[];
+  const cG=new R.Color(0x7FA35F),cM=new R.Color(0x6B9653),cD=new R.Color(0xD2B98E),cB=new R.Color(0x9A9886),tmp=new R.Color();
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i),z=p.getZ(i);p.setY(i,heightAt(x,z));
+    const d=Math.abs(x-riverX(z));
+    tmp.copy(cG).lerp(cM,(1-sm(4,11,d))*.85);
+    if(d<4.6)tmp.lerp(cB,1-sm(3,4.6,d));
+    tmp.lerp(cD,(1-sm(.9,1.8,pathD(x,z)))*.9);
+    tmp.offsetHSL(0,0,(rand()-.5)*.05);
+    cols.push(tmp.r,tmp.g,tmp.b);
+  }
+  g.setAttribute('color',new R.Float32BufferAttribute(cols,3));g.computeVertexNormals();
+  const ground=new R.Mesh(g,new R.MeshStandardMaterial({vertexColors:true,roughness:.95,flatShading:true}));
+  ground.receiveShadow=true;out.add(ground);out.userData.ground=ground;
+}
+const waterMat=new R.ShaderMaterial({transparent:true,depthWrite:false,
+  uniforms:{t:{value:0},deep:{value:new R.Color(0x4F8E8F)},shallow:{value:new R.Color(0x9CC9B4)},skyc:{value:new R.Color(0xD5EAF0)},fogc:{value:new R.Color(0xCFE3D6)}},
+  vertexShader:'uniform float t;varying vec2 vUv;varying vec3 vW;void main(){vUv=uv;vec3 p=position;p.y+=sin(p.z*.9+t*1.4)*.025+sin(p.x*1.7-t)*.02;vec4 w=modelMatrix*vec4(p,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
+  fragmentShader:`uniform float t;uniform vec3 deep;uniform vec3 shallow;uniform vec3 skyc;uniform vec3 fogc;varying vec2 vUv;varying vec3 vW;
+  void main(){float e=abs(vUv.x-.5)*2.;vec3 col=mix(deep,shallow,smoothstep(.15,1.,e));
+  float f=vUv.y*3.-t*.55;float a=sin(f*6.+sin(vUv.x*9.+t)*1.6)*.5+.5;float b=sin(f*13.+vUv.x*23.-t*1.3)*.5+.5;float c=sin(f*4.-vUv.x*15.+t*.7)*.5+.5;
+  float sp=pow(a*b*c,6.);vec3 V=normalize(cameraPosition-vW);float fr=pow(1.-max(V.y,0.),2.5);
+  col=mix(col,skyc,fr*.55+(a-.5)*.08);col+=sp*.6;
+  float d=length(cameraPosition-vW);col=mix(col,fogc,smoothstep(28.,105.,d));
+  gl_FragColor=vec4(col,mix(.74,.93,fr)*(1.-smoothstep(.93,1.,e)*.6));}`});
+{
+  const segs=220,z0=-85,z1=85,hw=4.2,pos=[],uv=[],idx=[];
+  for(let i=0;i<=segs;i++){const z=z0+(z1-z0)*i/segs,cx=riverX(z),v=i/segs*28;pos.push(cx-hw,-.55,z,cx+hw,-.55,z);uv.push(0,v,1,v);
+    if(i<segs){const a=i*2;idx.push(a,a+2,a+1,a+1,a+2,a+3);}}
+  const g=new R.BufferGeometry();g.setAttribute('position',new R.Float32BufferAttribute(pos,3));g.setAttribute('uv',new R.Float32BufferAttribute(uv,2));g.setIndex(idx);
+  const w=new R.Mesh(g,waterMat);w.renderOrder=2;out.add(w);
+}
+{ // rocks
+  const n=70,im=new R.InstancedMesh(new R.DodecahedronGeometry(1,0),mat(0xffffff),n),m=new R.Matrix4(),q=new R.Quaternion(),e=new R.Euler(),c=new R.Color();
+  for(let i=0;i<n;i++){const z=-70+rand()*140,side=rand()<.5?-1:1,off=rand()<.3?rand()*2.5:3+rand()*2.6,x=riverX(z)+side*off,s=.25+rand()*.9;
+    e.set(rand()*3,rand()*3,rand()*3);q.setFromEuler(e);m.compose(new R.Vector3(x,heightAt(x,z)+s*.25,z),q,new R.Vector3(s*1.3,s*.75,s));im.setMatrixAt(i,m);
+    c.set(rand()<.45?0x7E9A62:0xB8B6A8).offsetHSL(0,0,(rand()-.5)*.08);im.setColorAt(i,c);}
+  im.castShadow=true;im.receiveShadow=true;out.add(im);
+}
+{ // trees
+  const spots=[];let tries=0;
+  while(spots.length<200&&tries<9000){tries++;
+    const x=-62+rand()*124,z=-62+rand()*124,r=Math.hypot(x,z);if(r>64)continue;
+    const d=Math.abs(x-riverX(z));if(d<5.2)continue;
+    if(Math.hypot(x-hx,z-(hz+3))<15.5)continue;
+    if(Math.hypot(x-FX,z-FZ)<8||Math.hypot(x-mx,z-mz)<6.5)continue;
+    if(pathD(x,z)<2.4)continue;
+    if(spots.some(s=>Math.hypot(s[0]-x,s[1]-z)<2.6))continue;
+    spots.push([x,z,d<10?1.35+rand()*.5:.85+rand()*.6,rand()<.42]);
+  }
+  const broad=spots.filter(s=>!s[3]),conif=spots.filter(s=>s[3]);
+  const trunks=new R.InstancedMesh(new R.CylinderGeometry(.18,.3,1,6),mat(0x8C6646),spots.length);
+  const canA=new R.InstancedMesh(new R.IcosahedronGeometry(1,0),mat(0xffffff),broad.length);
+  const canB=new R.InstancedMesh(new R.IcosahedronGeometry(1,0),mat(0xffffff),broad.length);
+  const cones=new R.InstancedMesh(new R.ConeGeometry(1,1,7),mat(0xffffff),conif.length*2);
+  const m=new R.Matrix4(),q=new R.Quaternion(),e=new R.Euler(),c=new R.Color(),v=new R.Vector3(),sv=new R.Vector3();
+  spots.forEach((s,i)=>{const[x,z,k]=s,y=heightAt(x,z),th=2.6*k;m.compose(v.set(x,y+th/2,z),q.identity(),sv.set(k,th,k));trunks.setMatrixAt(i,m);F.col.push({x,z,r:.35*k+.1});});
+  broad.forEach((s,i)=>{const[x,z,k]=s,y=heightAt(x,z);
+    e.set(rand(),rand()*3,rand());q.setFromEuler(e);m.compose(v.set(x,y+3.6*k,z),q,sv.set(1.8*k,1.6*k,1.8*k));canA.setMatrixAt(i,m);
+    c.set(0x6E9A5B).offsetHSL((rand()-.5)*.04,0,(rand()-.5)*.08);canA.setColorAt(i,c);
+    e.set(rand(),rand()*3,rand());q.setFromEuler(e);m.compose(v.set(x+.6*k,y+4.7*k,z-.3*k),q,sv.set(1.25*k,1.15*k,1.25*k));canB.setMatrixAt(i,m);
+    c.set(0x8DB86C).offsetHSL((rand()-.5)*.04,0,(rand()-.5)*.08);canB.setColorAt(i,c);});
+  conif.forEach((s,i)=>{const[x,z,k]=s,y=heightAt(x,z);
+    m.compose(v.set(x,y+3.7*k,z),q.identity(),sv.set(1.7*k,3.2*k,1.7*k));cones.setMatrixAt(i*2,m);c.set(0x4F7E4E).offsetHSL(0,0,(rand()-.5)*.06);cones.setColorAt(i*2,c);
+    m.compose(v.set(x,y+5.4*k,z),q.identity(),sv.set(1.2*k,2.4*k,1.2*k));cones.setMatrixAt(i*2+1,m);c.set(0x5E8F57).offsetHSL(0,0,(rand()-.5)*.06);cones.setColorAt(i*2+1,c);});
+  [trunks,canA,canB,cones].forEach(o=>{o.castShadow=true;o.receiveShadow=true;out.add(o);});
+}
+{ // 家（外觀）
+  const H=new R.Group(),y0=heightAt(hx,hz);H.position.set(hx,y0,hz);out.add(H);
+  mesh(new R.BoxGeometry(10.6,.5,8.6),mat(0xC7B39A),0,.25,0,H);
+  mesh(new R.BoxGeometry(10,6.4,8),mat(0xFFF6E8),0,3.7,0,H);
+  mesh(new R.BoxGeometry(10.2,.25,8.2),mat(0xD9C3A5),0,3.55,0,H);
+  const sh=new R.Shape();sh.moveTo(-5.7,0);sh.lineTo(5.7,0);sh.lineTo(0,3.4);sh.lineTo(-5.7,0);
+  const rg=new R.ExtrudeGeometry(sh,{depth:9,bevelEnabled:false});rg.translate(0,0,-4.5);
+  mesh(rg,mat(0xD9724F),0,6.9,0,H);
+  mesh(new R.BoxGeometry(.9,2,.9),mat(0xB8A48C),3,9.2,-1.5,H);
+  const glow=new R.MeshBasicMaterial({color:0xFFE0A6}),frame=mat(0xA97C55);
+  [[-3,2.3],[3,2.3],[-3,5.2],[0,5.2],[3,5.2]].forEach(([x,y])=>{mesh(new R.BoxGeometry(1.6,1.4,.12),frame,x,y,4.02,H,false);mesh(new R.PlaneGeometry(1.3,1.1),glow,x,y,4.1,H,false,false);});
+  mesh(new R.PlaneGeometry(1.1,1.1),glow,0,8.3,4.6,H,false,false);
+  mesh(new R.BoxGeometry(1.6,2.5,.2),mat(0x9C6B45),0,1.75,4.05,H);
+  mesh(new R.SphereGeometry(.08,8,6),mat(0xF2C04E,{metalness:.4}),.5,1.7,4.2,H,false);
+  mesh(new R.BoxGeometry(2.6,.15,1.4),mat(0xA97C55),0,3.25,4.6,H);
+  mesh(new R.BoxGeometry(2.4,.3,1.2),mat(0xC7B39A),0,.15,4.9,H);
+  const lamp=new R.PointLight(0xFFC77A,.6,9);lamp.position.set(0,3,5.4);H.add(lamp);
+  F.col.push({x0:hx-5.3,x1:hx+5.3,z0:hz-4.3,z1:hz+4.3});
+  label(out,'家',hx,y0+10.4,hz+4.4,'點門進去');
+}
+{ // 蘑菇攝影棚
+  const G=new R.Group(),y0=heightAt(mx,mz);G.position.set(mx,y0,mz);G.rotation.y=Math.PI/2*.9;out.add(G);
+  mesh(new R.CylinderGeometry(1.35,1.7,3.3,12),mat(0xFFF6E8),0,1.65,0,G);
+  const cap=mesh(new R.SphereGeometry(3.3,18,10,0,Math.PI*2,0,Math.PI/2),mat(0xD9583F),0,3.0,0,G);cap.scale.y=.78;
+  const dm=mat(0xFFFFFF);for(let i=0;i<14;i++){const a=rand()*Math.PI*2,b=.25+rand()*1.05,r=3.3;
+    const d=mesh(new R.SphereGeometry(.22+rand()*.25,8,6),dm,Math.cos(a)*Math.sin(b)*r,3.0+Math.cos(b)*r*.78,Math.sin(a)*Math.sin(b)*r,G,false);d.scale.y=.5;d.lookAt(0,3,0);}
+  mesh(new R.BoxGeometry(.9,1.7,.2),mat(0x8C6646),0,.9,1.55,G);
+  mesh(new R.CylinderGeometry(.35,.35,.1,14),new R.MeshBasicMaterial({color:0xFFE0A6}),0,2.2,1.52,G,false).rotation.x=Math.PI/2;
+  const pl=new R.PointLight(0xFFC77A,.55,8);pl.position.set(0,2,2.6);G.add(pl);
+  F.col.push({x:mx,z:mz,r:1.8});
+  label(out,'蘑菇攝影棚',mx,y0+6.6,mz,'自媒體');
+}
+let fireUpdate;
+{ // 營火（鐵粉）＋ 螢火蟲（通訊錄）
+  const y0=heightAt(FX,FZ),G=new R.Group();G.position.set(FX,y0,FZ);out.add(G);
+  const stoneM=mat(0x9A988C);for(let i=0;i<11;i++){const a=i/11*Math.PI*2;const st=mesh(new R.DodecahedronGeometry(.22,0),stoneM,Math.cos(a)*.85,.1,Math.sin(a)*.85,G);st.scale.set(1.2,.7,1);st.rotation.y=a;}
+  const logM=mat(0x7A5434);for(let i=0;i<4;i++){const l=mesh(new R.CylinderGeometry(.09,.1,1.2,7),logM,0,.18,0,G);l.rotation.set(Math.PI/2-.35,i*Math.PI/2+.4,0);}
+  const ash=mesh(new R.CircleGeometry(.7,20),mat(0x3A3230),0,.03,0,G,false);ash.rotation.x=-Math.PI/2;
+  const fl=[];
+  [[0,.55,0,1.15,0xFF6A1A],[.14,.5,.08,.9,0xFF8A2A],[-.13,.48,-.06,.95,0xFF7A22],[.05,.62,-.1,.8,0xFFB040],[0,.5,0,.6,0xFFE48A]].forEach(([x,y,z,h,c],i)=>{
+    const sp=new R.Sprite(new R.SpriteMaterial({map:flameTex,color:c,transparent:true,depthWrite:false,blending:R.AdditiveBlending}));sp.position.set(x,y+h*.35,z);sp.scale.set(h*.7,h*1.3,1);sp.userData={h,base:y+h*.35};G.add(sp);fl.push(sp);});
+  const halo=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xFF8A30,transparent:true,opacity:.55,depthWrite:false,blending:R.AdditiveBlending}));halo.position.y=.8;halo.scale.set(3.2,3.2,1);G.add(halo);
+  const fireL=new R.PointLight(0xFF9A40,1.3,14);fireL.position.set(0,1.2,0);G.add(fireL);
+  // 兩根坐的原木
+  [[-2.2,1.2,.4],[2.1,1.6,-.5]].forEach(([x,z,r])=>{const l=mesh(new R.CylinderGeometry(.26,.28,1.6,9),logM,x,.26,z,G);l.rotation.set(0,r,Math.PI/2);});
+  F.col.push({x:FX,z:FZ,r:1.05});
+  // 火星
+  const nE=40,eP=new Float32Array(nE*3),eS=[];for(let i=0;i<nE;i++){eS.push({y:Math.random()*2.5,a:Math.random()*6.28,s:.5+Math.random()});}
+  const eG=new R.BufferGeometry();eG.setAttribute('position',new R.BufferAttribute(eP,3));
+  const emb=new R.Points(eG,new R.PointsMaterial({color:0xFFB050,size:.09,map:glowTex,transparent:true,depthWrite:false,blending:R.AdditiveBlending}));emb.position.copy(G.position);out.add(emb);
+  // 螢火蟲：通訊錄（散在森林、路邊比較多）
+  const nK=180,kP=new Float32Array(nK*3),kB=[];
+  for(let i=0;i<nK;i++){let x,z;if(i<70){const a=rand()*6.28,r=rand()*6;x=6+Math.cos(a)*r;z=11+Math.sin(a)*r;}else{const a=rand()*6.28,r=8+rand()*36;x=Math.cos(a)*r;z=Math.sin(a)*r;}
+    kB.push({x,z,y:heightAt(x,z)+.6+rand()*2.4,p:rand()*6.28,s:.4+rand()*.6});}
+  const kG=new R.BufferGeometry();kG.setAttribute('position',new R.BufferAttribute(kP,3));
+  const known=new R.Points(kG,new R.PointsMaterial({color:0xF2FF9E,size:.45,map:glowTex,transparent:true,depthWrite:false}));out.add(known);
+  // 被火吸引來的光：鐵粉（你不一定認識他們，他們從遠方被火吸引過來）
+  const nF=70,fP=new Float32Array(nF*3),fB=[];
+  for(let i=0;i<nF;i++){fB.push({a:rand()*6.28,r:6+rand()*22,tr:1.5+rand()*3,y:.8+rand()*2.4,s:.25+rand()*.5,in:.15+rand()*.5});}
+  const fG=new R.BufferGeometry();fG.setAttribute('position',new R.BufferAttribute(fP,3));
+  const fans=new R.Points(fG,new R.PointsMaterial({color:0xFFC46A,size:.48,map:glowTex,transparent:true,depthWrite:false}));fans.position.copy(G.position);out.add(fans);
+  fireUpdate=(dt,t)=>{
+    fl.forEach((f,i)=>{const k=1+Math.sin(t*(9+i*3))*.14+Math.sin(t*(21+i))*.07,h=f.userData.h;f.scale.set(h*.7*(1-(k-1)*.6),h*1.3*k,1);f.position.y=f.userData.base+(k-1)*.3;f.material.rotation=Math.sin(t*(5+i))*.08;});
+    fireL.intensity=1.2+Math.sin(t*11)*.15+Math.sin(t*27)*.08;
+    eS.forEach((e,i)=>{e.y+=dt*e.s;if(e.y>3){e.y=0;e.a=Math.random()*6.28;}eP[i*3]=Math.cos(e.a+e.y)*.15*e.y;eP[i*3+1]=.4+e.y;eP[i*3+2]=Math.sin(e.a+e.y)*.15*e.y;});eG.attributes.position.needsUpdate=true;
+    kB.forEach((b,i)=>{kP[i*3]=b.x+Math.sin(t*b.s+b.p)*.6;kP[i*3+1]=b.y+Math.sin(t*b.s*1.7+b.p)*.35;kP[i*3+2]=b.z+Math.cos(t*b.s*.8+b.p)*.6;});kG.attributes.position.needsUpdate=true;
+    known.material.opacity=.65+Math.sin(t*2)*.2;
+    fB.forEach((b,i)=>{if(b.r>b.tr)b.r=Math.max(b.tr,b.r-dt*b.in);b.a+=dt*b.s*(2.2/b.r);fP[i*3]=Math.cos(b.a)*b.r;fP[i*3+1]=b.y+Math.sin(t*1.3+i)*.25;fP[i*3+2]=Math.sin(b.a)*b.r;});fG.attributes.position.needsUpdate=true;
+  };
+  label(out,'營火',FX,y0+3.6,FZ,'鐵粉被熱情吸引過來');
+  label(out,'螢火蟲',6,heightAt(6,11)+3.4,11,'通訊錄');
+}
+{const x=riverX(2)+5.4,z=2;label(out,'記錄之河',x-3,heightAt(x,z)+3.6,z,'每天都流進來');}
+const pollen=(()=>{const n=260,p=new Float32Array(n*3);for(let i=0;i<n;i++){p[i*3]=(rand()-.5)*60;p[i*3+1]=.5+rand()*7;p[i*3+2]=(rand()-.5)*60;}
+  const g=new R.BufferGeometry();g.setAttribute('position',new R.BufferAttribute(p,3));
+  const o=new R.Points(g,new R.PointsMaterial({color:0xFFF4C8,size:.11,transparent:true,opacity:.8,depthWrite:false}));out.add(o);return o;})();
+F.hots=[
+  {id:'house',name:'家',verb:'進門',x:hx,z:hz+5.6,r:2.6,go:()=>goto('f1','front')},
+  {id:'river',name:'記錄之河',verb:'查看',x:riverX(2)+5,z:2,r:3.2},
+  {id:'studio',name:'蘑菇攝影棚',verb:'進入',x:mx+2.6,z:mz+.3,r:2.8},
+  {id:'campfire',name:'營火',verb:'坐下',x:FX,z:FZ+1.6,r:3},
+  {id:'fireflies',name:'螢火蟲',verb:'看看',x:6,z:11,r:3}
+];
+F.spawns={start:[0,15,Math.PI,0],door:[hx,hz+6.6,0,Math.PI],river:[riverX(2)+5.6,2,-Math.PI/2,Math.PI/2],studio:[mx+4,mz+.5,-Math.PI/2,Math.PI/2],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[6,14.5,Math.PI,0]};
+F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
+  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);};
+
+/* shared materials */
+const portalMat=new R.ShaderMaterial({uniforms:{t:{value:0}},side:R.DoubleSide,
+  vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:'uniform float t;varying vec2 vUv;float n(vec2 p){return sin(p.x*3.1+t*.4)*sin(p.y*2.3-t*.3)*.5+.5;}void main(){vec3 a=vec3(.98,.86,.62),b=vec3(.55,.78,.9);vec3 c=mix(a,b,smoothstep(.0,.8,vUv.y));float cl=smoothstep(.55,.9,n(vUv*vec2(3.,2.)+vec2(t*.05,0.)));c=mix(c,vec3(1.),cl*.6);gl_FragColor=vec4(c,1.);}'});
+const beamMat=new R.MeshBasicMaterial({color:0xFFF3D2,transparent:true,opacity:.12,depthWrite:false,blending:R.AdditiveBlending,side:R.DoubleSide});
+
+/* =========================================================
+   2 · HOME 1F
+   ========================================================= */
+const W1=18,D1=14,H1=3.6;
+const f1r=makeRoom({W:W1,D:D1,WH:H1,floorMap:planksTex([3,3])});
+const H1S=addScene('f1',{scene:f1r.scene,where:'家 · 1F',floor:()=>0,bounds:[-W1/2+.45,W1/2-.45,-D1/2+.45,D1/2-.45]});
+H1S.ceil=ceiling(f1r.scene,W1,D1,H1);
+{
+  const s=f1r.scene,glow=new R.MeshBasicMaterial({color:0xFFF0CC});
+  [[-6,-D1/2+.02],[-2.8,-D1/2+.02]].forEach(([x,z])=>mesh(new R.PlaneGeometry(1.8,1.5),glow,x,2.2,z,s,false,false));
+  const rug=mesh(new R.CircleGeometry(3.2,32),mat(0xCDAE8A,{flatShading:false}),0,.01,.5,s,false);rug.rotation.x=-Math.PI/2;
+  const now=new Date();
+  const cal=new R.Mesh(new R.PlaneGeometry(3.4,2.65),new R.MeshStandardMaterial({roughness:.9,map:canvasTex(512,400,(g)=>{
+    g.fillStyle='#FFFDF7';g.fillRect(0,0,512,400);g.fillStyle='#D9583F';g.fillRect(0,0,512,70);
+    g.fillStyle='#FFF8EC';g.font='700 40px "Noto Sans TC",sans-serif';g.textBaseline='middle';g.fillText((now.getMonth()+1)+' 月',24,36);
+    g.strokeStyle='#D8C8B2';g.lineWidth=2;for(let i=0;i<=7;i++){g.beginPath();g.moveTo(i*73,70);g.lineTo(i*73,400);g.stroke();}for(let j=0;j<=5;j++){g.beginPath();g.moveTo(0,70+j*66);g.lineTo(512,70+j*66);g.stroke();}
+    const first=new Date(now.getFullYear(),now.getMonth(),1).getDay(),days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+    g.font='500 22px "Noto Sans TC",sans-serif';g.textBaseline='top';
+    for(let d=1;d<=days;d++){const k=first+d-1,cx=(k%7)*73,cy=70+Math.floor(k/7)*66;if(cy>390)break;
+      if(d===now.getDate()){g.fillStyle='#F2C04E';g.fillRect(cx+2,cy+2,69,62);}g.fillStyle='#3E2E24';g.fillText(String(d),cx+8,cy+6);
+      if(d%7===3||d%9===1){g.fillStyle=['#7DB7C4','#8DB86C','#D9583F'][d%3];g.beginPath();g.arc(cx+52,cy+44,7,0,7);g.fill();}}})}));
+  cal.position.set(-W1/2+.12,2.05,.4);cal.rotation.y=Math.PI/2;s.add(cal);
+  boxIn(H1S,.12,2.85,3.6,0xA97C55,-W1/2+.04,2.05,.4,false);
+  boxIn(H1S,4.6,1,1,0xE9D8BF,-6.4,.5,-6.4,true);boxIn(H1S,4.6,.12,1.1,0xA97C55,-6.4,1.04,-6.4,false);boxIn(H1S,.9,.3,.6,0x7DB7C4,-7.4,1.25,-6.4,false);
+  boxIn(H1S,2.4,.12,1.4,0xA97C55,-5,.85,-3.4,false);[[-6,-3.9],[-4,-3.9],[-6,-2.9],[-4,-2.9]].forEach(([x,z])=>boxIn(H1S,.1,.8,.1,0x8C6646,x,.4,z,false));
+  H1S.col.push({x0:-6.3,x1:-3.7,z0:-4.2,z1:-2.6});
+  mesh(new R.CylinderGeometry(.22,.18,.3,10),mat(0xF2C04E),-5.3,1.06,-3.4,s);
+  boxIn(H1S,1,2.8,4,0xEFE3D0,W1/2-.6,1.4,3.6,true);
+  const cc=[0xD9583F,0x7DB7C4,0xF2C04E,0x8DB86C,0xC98BB0,0xFFF6E8];for(let i=0;i<6;i++)boxIn(H1S,.5,1.2+((i*37)%5)*.12,.42,cc[i],W1/2-1.3,1.7,2.0+i*.62,false);
+  boxIn(H1S,.06,.06,3.8,0x8C6646,W1/2-1.3,2.4,3.6,false);
+  mesh(new R.BoxGeometry(.08,1.8,.9),new R.MeshStandardMaterial({color:0xDDEFF2,roughness:.15,metalness:.3}),W1/2-.05,1.4,6.2,s);
+  mesh(new R.BoxGeometry(3,.06,1.6),mat(0x8DB86C),5.6,.03,-.8,s,false);
+  boxIn(H1S,.5,.5,.5,0x5E6A70,4.4,.25,-2.4,false);boxIn(H1S,.5,.5,.5,0x5E6A70,5.2,.25,-2.4,false);
+  boxIn(H1S,1.6,.9,.6,0x4E5A60,7.6,.45,-.8,true);mesh(new R.CylinderGeometry(.05,.05,1.2,6),mat(0x2A211B),7.6,1.1,-.8,s).rotation.x=Math.PI/2;
+  boxIn(H1S,1.6,1.9,1.4,0x7F949E,7.4,.95,-5.6,true);
+  mesh(new R.CylinderGeometry(.28,.28,.1,16),mat(0xE3ECF0,{metalness:.5,roughness:.4}),6.58,1.1,-5.6,s,false).rotation.z=Math.PI/2;
+  for(let i=0;i<7;i++)boxIn(H1S,1.6,.3*(i+1),.55,0xC9A27A,-7.9,.15*(i+1),6.4-i*.55,false);
+  H1S.col.push({x0:-8.8,x1:-7.1,z0:2.3,z1:6.7});
+  boxIn(H1S,2.6,.8,1,0xE39A6D,3.5,.4,5.6,true);boxIn(H1S,2.6,.7,.3,0xD9724F,3.5,.95,6.0,false);
+  boxIn(H1S,1.5,2.6,.15,0xB8402F,-.6,1.3,-D1/2+.08,false);
+  const sh=new R.Shape();sh.moveTo(-.75,0);sh.lineTo(.75,0);sh.lineTo(.75,1.9);sh.absarc(0,1.9,.75,0,Math.PI,false);sh.lineTo(-.75,0);
+  mesh(new R.ShapeGeometry(sh,20),portalMat,2.6,0,-D1/2+.06,s,false,false);
+  boxIn(H1S,.22,2.8,.25,0xE9D8BF,1.75,1.4,-D1/2+.12,false);boxIn(H1S,.22,2.8,.25,0xE9D8BF,3.45,1.4,-D1/2+.12,false);
+  const fd=mesh(new R.PlaneGeometry(1.6,2.6),new R.MeshStandardMaterial({color:0x9C6B45,roughness:.9}),0,1.3,D1/2-.03,s,false);fd.rotation.y=Math.PI;
+  const lampIn=new R.PointLight(0xFFD49A,.32,16);lampIn.position.set(0,3.2,1);s.add(lampIn);
+}
+const dog=new R.Group();{const fur=mat(0xC79B6D),dark=mat(0x6B4A30);
+  mesh(new R.BoxGeometry(.38,.3,.62),fur,0,.32,0,dog);mesh(new R.BoxGeometry(.34,.32,.32),fur,0,.55,.34,dog);
+  mesh(new R.BoxGeometry(.1,.14,.06),dark,-.13,.74,.3,dog);mesh(new R.BoxGeometry(.1,.14,.06),dark,.13,.74,.3,dog);
+  mesh(new R.SphereGeometry(.04,6,4),mat(0x2A211B),0,.53,.52,dog,false);
+  [[-.12,.2],[.12,.2],[-.12,-.2],[.12,-.2]].forEach(([x,z])=>mesh(new R.BoxGeometry(.08,.2,.08),dark,x,.1,z,dog));
+  const tail=mesh(new R.BoxGeometry(.06,.06,.26),fur,0,.45,-.38,dog);tail.rotation.x=-.6;dog.userData.tail=tail;}
+dog.position.set(1.5,0,1);f1r.scene.add(dog);const dogAI={tx:1.5,tz:1,wait:1};
+[['日曆牆',-W1/2+1.2,3.4,.4],['廚房餐廳',-5.6,2.8,-4.6],['衣帽間',W1/2-1.4,3.5,3.6],['健身房',5.8,2.4,-1.4],['金庫',7.4,2.8,-5.6],['樓梯 · 上樓',-7.4,3.6,4.4],['舞台門',-.6,3.3,-D1/2+.6],['世界之門',2.6,3.6,-D1/2+.6]].forEach(([t,x,y,z])=>label(f1r.scene,t,x,y,z,null,.62));
+H1S.hots=[
+  {id:'cal',name:'日曆牆',verb:'查看',x:-W1/2+1.6,z:.4,r:2},
+  {id:'kitchen',name:'廚房餐廳',verb:'查看',x:-5,z:-1.9,r:2},
+  {id:'lucky',name:'Lucky',verb:'摸摸',dyn:true,r:1.7},
+  {id:'closet',name:'衣帽間',verb:'打開',x:W1/2-2.2,z:3.6,r:2},
+  {id:'gym',name:'健身房',verb:'開始',x:5.6,z:-.8,r:2},
+  {id:'vault',name:'金庫',verb:'打開',x:6.2,z:-5.2,r:1.8},
+  {id:'stairs',name:'樓梯',verb:'上樓',x:-6.4,z:3.9,r:1.3,go:()=>goto('f2','stairs')},
+  {id:'stagedoor',name:'舞台門',verb:'開門',x:-.6,z:-D1/2+1.3,r:1.4,go:()=>goto('stage','back')},
+  {id:'worlddoor',name:'世界之門',verb:'穿過',x:2.6,z:-D1/2+1.3,r:1.4},
+  {id:'front',name:'回到森林',verb:'出門',x:0,z:D1/2-1.2,r:1.5,go:()=>goto('forest','door')}
+];
+H1S.spawns={front:[0,D1/2-2.4,Math.PI,0],stairs:[-6.0,3.6,Math.PI/2,-Math.PI/2],stage:[-.6,-D1/2+1.8,0,Math.PI],cal:[-W1/2+2,.4,-Math.PI/2,Math.PI/2],kitchen:[-5,-1.6,Math.PI,0],closet:[W1/2-2.6,3.6,Math.PI/2,-Math.PI/2],gym:[5.6,1,Math.PI,0],vault:[5.8,-4.4,Math.PI,0]};
+H1S.update=(dt,t)=>{
+  const dx=dogAI.tx-dog.position.x,dz=dogAI.tz-dog.position.z,d=Math.hypot(dx,dz);
+  if(d>.1){dog.position.x+=dx/d*dt*1.6;dog.position.z+=dz/d*dt*1.6;dog.rotation.y=Math.atan2(dx,dz);}
+  else{dogAI.wait-=dt;if(dogAI.wait<0){const near=Math.hypot(P.x-dog.position.x,P.z-dog.position.z)<5&&rand()<.6;
+    dogAI.tx=near?clamp(P.x+(rand()-.5)*1.6,-3,3):(rand()-.5)*6;dogAI.tz=near?clamp(P.z+(rand()-.5)*1.6,-2.5,3.5):(rand()-.5)*5+.5;dogAI.wait=1+rand()*2.5;}}
+  dog.userData.tail.rotation.y=Math.sin(t*14)*.6;
+};
+
+/* =========================================================
+   3 · 2F 臥室
+   ========================================================= */
+const W2=14,D2=10,H2=3.3;
+const f2r=makeRoom({W:W2,D:D2,WH:H2,floorMap:planksTex([2.4,1.8]),wall:0xEFE6F0,hemi:.42,sunI:.38,shadow:10});
+const B2=addScene('f2',{scene:f2r.scene,where:'家 · 2F 臥室',floor:()=>0,bounds:[-W2/2+.45,W2/2-.45,-D2/2+.45,D2/2-.45],camDist:5.2});
+B2.ceil=ceiling(f2r.scene,W2,D2,H2);
+{
+  const s=f2r.scene;
+  mesh(new R.PlaneGeometry(2.6,1.6),new R.ShaderMaterial({vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader:'varying vec2 vUv;void main(){vec3 c=mix(vec3(.98,.82,.62),vec3(.42,.55,.78),smoothstep(.0,1.,vUv.y));float s=step(.995,fract(sin(dot(floor(vUv*80.),vec2(12.9,78.2)))*43758.5));c+=s*.5*vUv.y;gl_FragColor=vec4(c,1.);}'}),0,2,-D2/2+.03,s,false,false);
+  boxIn(B2,2.9,.12,.2,0xF4EFE6,0,1.15,-D2/2+.1,false);
+  boxIn(B2,.18,1.9,.1,0xC98BB0,-1.56,2,-D2/2+.08,false);boxIn(B2,.18,1.9,.1,0xC98BB0,1.56,2,-D2/2+.08,false);
+  boxIn(B2,2.6,.45,3.2,0xC9A27A,3.6,.22,-2.9,true);
+  boxIn(B2,2.5,.25,3.0,0xFFF8EC,3.6,.57,-2.9,false);
+  boxIn(B2,2.55,.12,1.9,0x7DB7C4,3.6,.72,-2.3,false);
+  boxIn(B2,.9,.18,.5,0xFFFFFF,3.1,.78,-4.0,false);boxIn(B2,.9,.18,.5,0xFFFFFF,4.1,.78,-4.0,false);
+  boxIn(B2,2.7,1.3,.15,0xA97C55,3.6,.85,-4.55,false);
+  boxIn(B2,.6,.55,.5,0xC9A27A,5.5,.28,-4.3,true);
+  mesh(new R.CylinderGeometry(.14,.18,.25,10),mat(0xF4EFE6),5.5,.68,-4.3,s);
+  mesh(new R.ConeGeometry(.22,.24,12,1,true),new R.MeshStandardMaterial({color:0xFFE6B0,emissive:0xFFC77A,emissiveIntensity:.7,side:R.DoubleSide}),5.5,.95,-4.3,s,false);
+  const lamp=new R.PointLight(0xFFC77A,.55,7);lamp.position.set(5.5,1.2,-4);s.add(lamp);
+  mesh(new R.BoxGeometry(.2,.16,.08),mat(0xD9583F),5.3,.64,-4.2,s,false);
+  const rug=mesh(new R.PlaneGeometry(3.6,2.4),mat(0xE9DDEB),1.6,.01,0,s,false);rug.rotation.x=-Math.PI/2;
+  boxIn(B2,1.8,.1,.8,0xA97C55,-3.6,.85,-4.4,true);[[-4.4,-4.7],[-2.8,-4.7],[-4.4,-4.1],[-2.8,-4.1]].forEach(([x,z])=>boxIn(B2,.08,.8,.08,0x8C6646,x,.4,z,false));
+  boxIn(B2,.5,.05,.36,0xF2C04E,-3.7,.93,-4.3,false);
+  const lad=mat(0x8C6646);for(const x of [-6.0,-5.2])mesh(new R.BoxGeometry(.08,3.3,.08),lad,x,1.65,-4.6,s);
+  for(let i=0;i<8;i++)mesh(new R.BoxGeometry(.8,.06,.06),lad,-5.6,.3+i*.38,-4.6,s);
+  const hole=mesh(new R.PlaneGeometry(1.8,2.2),new R.MeshBasicMaterial({color:0x5A4636}),-5.8,.012,3.4,s,false);hole.rotation.x=-Math.PI/2;
+  boxIn(B2,.06,.9,2.2,0xA97C55,-4.85,.45,3.4,false);
+  B2.col.push({x0:-6.8,x1:-4.9,z0:2.3,z1:4.5});
+  makeHeliotrope(s,-2.05,-4.3,1.1);B2.col.push({x:-2.05,z:-4.3,r:.4});
+}
+[['白水木',-2.05,2.3,-4.1],['床 · 作息',3.6,2.4,-2.6],['書桌 · 記錄',-3.6,2.2,-4.2],['閣樓梯子',-5.6,3.2,-4],['樓梯 · 下樓',-5.8,2,3.4]].forEach(([t,x,y,z])=>label(f2r.scene,t,x,y,z,null,.6));
+B2.hots=[
+  {id:'bed',name:'床',verb:'躺下',x:2.0,z:-2.0,r:1.8},
+  {id:'plant',name:'白水木',verb:'看看',x:-1.6,z:-3.2,r:1.1},
+  {id:'desk',name:'書桌',verb:'寫一點',x:-3.6,z:-3.3,r:1.3},
+  {id:'ladder',name:'閣樓梯子',verb:'爬上去',x:-5.6,z:-3.7,r:1.2,go:()=>goto('attic','ladder')},
+  {id:'down',name:'樓梯',verb:'下樓',x:-4.3,z:3.4,r:1.2,go:()=>goto('f1','stairs')}
+];
+B2.spawns={stairs:[-3.8,3.4,Math.PI/2,-Math.PI/2],ladder:[-5.6,-3.0,0,Math.PI],bed:[1.6,-1.6,Math.PI/2,-Math.PI/2]};
+
+/* =========================================================
+   4 · 閣樓 禱告房
+   ========================================================= */
+const WA=8,DA=8,HA=1.6,RIDGE=3.9;
+const atr=makeRoom({W:WA,D:DA,WH:0,floorMap:planksTex([1.5,1.5]),bg:0x2E2620,hemi:.32,sunI:.25,shadow:6});
+const AT=addScene('attic',{scene:atr.scene,where:'閣樓 · 禱告房',floor:()=>0,bounds:[-WA/2+.5,WA/2-.5,-DA/2+.5,DA/2-.5],camDist:4.4,camMin:.9});
+let flame;
+{
+  const s=atr.scene,wm=new R.MeshStandardMaterial({color:0xF6EEDF,roughness:.95});
+  [[-WA/2,Math.PI/2],[WA/2,-Math.PI/2]].forEach(([x,ry])=>{const m=new R.Mesh(new R.PlaneGeometry(DA,HA),wm);m.position.set(x,HA/2,0);m.rotation.y=ry;s.add(m);});
+  const gs=new R.Shape();gs.moveTo(-WA/2,0);gs.lineTo(WA/2,0);gs.lineTo(WA/2,HA);gs.lineTo(0,RIDGE);gs.lineTo(-WA/2,HA);gs.lineTo(-WA/2,0);
+  const back=new R.Mesh(new R.ShapeGeometry(gs),wm);back.position.z=-DA/2;s.add(back);
+  const front=new R.Mesh(new R.ShapeGeometry(gs),wm);front.position.z=DA/2;front.rotation.y=Math.PI;s.add(front);
+  const roof=new R.Group(),rm=new R.MeshStandardMaterial({color:0xE6D3B8,roughness:1,side:R.DoubleSide,emissive:0x3A2E24});
+  const sl=Math.hypot(WA/2,RIDGE-HA),ang=Math.atan2(RIDGE-HA,WA/2);
+  [-1,1].forEach(sg=>{const m=new R.Mesh(new R.PlaneGeometry(sl,DA),rm);m.rotation.order='YXZ';m.rotation.x=-Math.PI/2;m.rotation.y=-sg*ang;m.position.set(sg*WA/4,(HA+RIDGE)/2,0);roof.add(m);});
+  roof.visible=false;s.add(roof);AT.ceil=roof;
+  const beam=new R.Mesh(new R.CylinderGeometry(.5,1.1,RIDGE-.2,20,1,true),beamMat);beam.position.set(0,(RIDGE-.2)/2,-.4);s.add(beam);
+  const spot=new R.SpotLight(0xFFF1D0,.9,8,.35,.6);spot.position.set(0,RIDGE,-.4);spot.target.position.set(0,0,-.4);spot.castShadow=true;s.add(spot);s.add(spot.target);
+  mesh(new R.CircleGeometry(.55,24),new R.MeshBasicMaterial({color:0xFFE9C4}),0,2.5,-DA/2+.02,s,false,false);
+  mesh(new R.CylinderGeometry(.55,.6,.14,20),mat(0xD9583F,{flatShading:false}),0,.07,-.4,s);
+  boxIn(AT,1.2,.08,.6,0xA97C55,0,.4,-1.9,true);[[-.5,-2.1],[.5,-2.1],[-.5,-1.7],[.5,-1.7]].forEach(([x,z])=>boxIn(AT,.06,.38,.06,0x8C6646,x,.19,z,false));
+  mesh(new R.CylinderGeometry(.06,.06,.22,10),mat(0xFFF8EC,{flatShading:false}),-.3,.55,-1.9,s);
+  flame=mesh(new R.SphereGeometry(.045,8,6),new R.MeshBasicMaterial({color:0xFFC14D}),-.3,.7,-1.9,s,false);flame.scale.y=1.7;
+  AT.light=new R.PointLight(0xFFB15A,.5,5);AT.light.position.set(-.3,.9,-1.9);s.add(AT.light);
+  boxIn(AT,.4,.06,.3,0xF4EFE6,.25,.47,-1.9,false);
+  [[-3.3,-3.3],[3.3,-3.3]].forEach(([x,z])=>{boxIn(AT,.4,.4,.4,0xC98B6A,x,.2,z,false);mesh(new R.IcosahedronGeometry(.42,0),mat(0x6E9A5B),x,.75,z,s);});
+  const hole=mesh(new R.PlaneGeometry(1.2,1.2),new R.MeshBasicMaterial({color:0x5A4636}),2.6,.012,3.0,s,false);hole.rotation.x=-Math.PI/2;
+  AT.col.push({x0:2.0,x1:3.2,z0:2.4,z1:3.6});
+}
+const fountainUpdate=makeFountain(atr.scene,-2.9,1.0);AT.col.push({x0:-3.45,x1:-2.35,z0:.55,z1:1.45});
+label(atr.scene,'轉運流水盆',-2.9,1.7,1.0,null,.5);
+label(atr.scene,'禱告',0,2.2,-.4,'晨間宣告 · 信念',.6);label(atr.scene,'梯子 · 下樓',2.6,1.8,3,null,.55);
+AT.hots=[
+  {id:'pray',name:'禱告墊',verb:'跪下禱告',x:0,z:-.4,r:1.3},
+  {id:'fountain',name:'轉運流水盆',verb:'看金魚',x:-2.0,z:1.0,r:1.1},
+  {id:'downA',name:'梯子',verb:'下樓',x:1.8,z:3.0,r:1.1,go:()=>goto('f2','ladder')}
+];
+AT.spawns={ladder:[1.4,2.2,Math.PI,0]};
+AT.update=(dt,t)=>{fountainUpdate(dt,t);const k=.85+Math.sin(t*9)*.08+Math.sin(t*23)*.05;AT.light.intensity=.5*k;flame.scale.set(1,1.7*k,1);};
+
+/* =========================================================
+   5 · 舞台（獨立空間：從家裡的舞台門進來）
+   ========================================================= */
+const ST=addScene('stage',{scene:null,where:'舞台',camDist:7,camMin:.38,bounds:[-14,14,-6.1,5.5],
+  floor:(x,z)=>(z>-6.05&&Math.hypot(x,z+6)<7)?.8:0});
+let followSpot;
+{
+  const s=new R.Scene();s.background=new R.Color(0x14110F);s.fog=new R.Fog(0x14110F,22,60);ST.scene=s;
+  s.add(new R.HemisphereLight(0x8A7A9C,0x241C18,.42));
+  const floor=new R.Mesh(new R.PlaneGeometry(60,50),new R.MeshStandardMaterial({color:0x2A2420,roughness:.9}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;
+  const gnd=new R.Group();gnd.add(floor);s.add(gnd);s.userData.ground=gnd;
+  const top=mesh(new R.CylinderGeometry(7,7.2,.8,40,1,false,-Math.PI/2,Math.PI),new R.MeshStandardMaterial({map:planksTex([4,4]),roughness:.7}),0,.4,-6,null);gnd.add(top);
+  const rim=mesh(new R.TorusGeometry(7.05,.05,6,40,Math.PI),new R.MeshBasicMaterial({color:0xFFD68A}),0,.82,-6,s,false,false);rim.rotation.x=-Math.PI/2;
+  [[12,.9,-7],[11,1.5,-7.9],[10,2.1,-8.8]].forEach(([w,h,z])=>mesh(new R.BoxGeometry(w,h,.9),mat(0xE9D8BF),0,h/2,z,s));
+  ST.col.push({x0:-6.2,x1:6.2,z0:-9.3,z1:-6.5});
+  const choirM=mat(0x5A4E6A);
+  [[.9,-7,11],[1.5,-7.9,10],[2.1,-8.8,9]].forEach(([h,z,n])=>{for(let i=0;i<n;i++){const x=-(n-1)*.5+i;mesh(new R.CylinderGeometry(.16,.22,.9,8),choirM,x,h+.45,z,s);mesh(new R.SphereGeometry(.16,8,6),choirM,x,h+1.08,z,s);}});
+  mesh(new R.BoxGeometry(18,9,.4),mat(0x7E2A20),0,4.5,-10.2,s);
+  for(let i=0;i<14;i++)mesh(new R.BoxGeometry(.5,9,.3),mat(i%2?0x8E3226:0x6E241B),-6.5+i,4.5,-9.95,s,false);
+  const truss=mat(0x3A3634,{metalness:.5,roughness:.5});
+  mesh(new R.BoxGeometry(18,.3,.3),truss,0,8.5,-3,s,false);mesh(new R.BoxGeometry(.3,8.5,.3),truss,-9,4.25,-3,s);mesh(new R.BoxGeometry(.3,8.5,.3),truss,9,4.25,-3,s);
+  [0xFFD68A,0x9FD6E0,0xF2A2C0,0xFFD68A].forEach((c,i)=>{const x=-6+i*4,tx=x*.4,ty=.8,tz=-6.5;
+    mesh(new R.CylinderGeometry(.2,.28,.5,10),mat(0x2A2624),x,8.1,-3,s,false);
+    const sp=new R.SpotLight(c,.55,22,.32,.7);sp.position.set(x,8,-3);sp.target.position.set(tx,ty,tz);s.add(sp);s.add(sp.target);
+    const a=new R.Vector3(x,8,-3),b=new R.Vector3(tx,ty,tz),L=a.distanceTo(b);
+    const cone=new R.Mesh(new R.CylinderGeometry(.15,1.6,L,16,1,true),new R.MeshBasicMaterial({color:c,transparent:true,opacity:.07,depthWrite:false,blending:R.AdditiveBlending,side:R.DoubleSide}));
+    cone.position.copy(a).add(b).multiplyScalar(.5);cone.quaternion.setFromUnitVectors(new R.Vector3(0,1,0),a.clone().sub(b).normalize());s.add(cone);});
+  followSpot=new R.SpotLight(0xFFF1D6,1.1,26,.18,.5);followSpot.position.set(0,12,8);followSpot.castShadow=true;s.add(followSpot);s.add(followSpot.target);
+  mesh(new R.CylinderGeometry(.03,.03,1.5,6),mat(0x2A2624,{metalness:.6}),0,1.55,-3.2,s);
+  mesh(new R.CylinderGeometry(.22,.22,.04,14),mat(0x2A2624,{metalness:.6}),0,.83,-3.2,s);
+  mesh(new R.SphereGeometry(.1,10,8),mat(0x777777,{metalness:.7,roughness:.3}),0,2.35,-3.2,s);
+  boxIn(ST,2,.1,1,0xA97C55,8.5,.85,-2,true);[[7.6,-2.4],[9.4,-2.4],[7.6,-1.6],[9.4,-1.6]].forEach(([x,z])=>boxIn(ST,.08,.8,.08,0x8C6646,x,.4,z,false));
+  mesh(new R.CylinderGeometry(.08,.1,.28,10),mat(0x2A2624),8.5,1.05,-2.1,s);mesh(new R.SphereGeometry(.09,10,8),mat(0x555555,{metalness:.6}),8.5,1.25,-2.1,s);
+  boxIn(ST,.6,.04,.4,0x3A3634,9.1,.92,-1.9,false);
+  mesh(new R.PlaneGeometry(1.4,.45),new R.MeshBasicMaterial({map:canvasTex(256,82,(g)=>{g.fillStyle='#B8402F';g.fillRect(0,0,256,82);g.fillStyle='#FFF1E6';g.font='700 38px "Noto Sans TC",sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('ON AIR',128,44);})}),8.5,2.4,-2.6,s,false,false);
+  const pd=new R.PointLight(0xFF9A70,.5,5);pd.position.set(8.5,2,-1.6);s.add(pd);
+  const seat=new R.InstancedMesh(new R.BoxGeometry(.7,.5,.6),mat(0x6E241B),170),m=new R.Matrix4(),q=new R.Quaternion(),v=new R.Vector3(),one=new R.Vector3(1,1,1),up=new R.Vector3(0,1,0);let k=0;
+  for(let row=0;row<6;row++){const r=12+row*1.5,n=18+row*2;for(let i=0;i<n&&k<170;i++){const a=-.95+i*(1.9/(n-1));if(Math.abs(a)<.06)continue;
+    q.setFromAxisAngle(up,a+Math.PI);m.compose(v.set(Math.sin(a)*r,.25+row*.4,-6+Math.cos(a)*r),q,one);seat.setMatrixAt(k++,m);}}
+  seat.count=k;seat.receiveShadow=true;s.add(seat);
+  { const n=k,pos=new Float32Array(n*3),col=new Float32Array(n*3),base=[],pal=[0xFFF1D6,0x9FD6E0,0xF2A2C0,0xFFD68A,0xB9A6F0],cc=new R.Color();
+    for(let row=0,j=0;row<6;row++){const r=12+row*1.5,nn=18+row*2;for(let i=0;i<nn&&j<n;i++){const a=-.95+i*(1.9/(nn-1));if(Math.abs(a)<.06)continue;
+      base.push([Math.sin(a)*r,.25+row*.4+1.05,-6+Math.cos(a)*r]);cc.set(pal[(i*7+row)%pal.length]);col.set([cc.r,cc.g,cc.b],j*3);j++;}}
+    const g=new R.BufferGeometry();g.setAttribute('position',new R.BufferAttribute(pos,3));g.setAttribute('color',new R.BufferAttribute(col,3));
+    const sea=new R.Points(g,new R.PointsMaterial({size:.55,map:glowTex,vertexColors:true,transparent:true,opacity:.3,depthWrite:false,blending:R.AdditiveBlending}));s.add(sea);
+    ST.sea={pts:sea,base}; }
+  boxIn(ST,.3,2.8,1.8,0x3A3634,-14.2,1.4,-3,false);
+  const dr=mesh(new R.PlaneGeometry(1.3,2.4),new R.MeshStandardMaterial({color:0x9C6B45,emissive:0x2A1A10}),-14.04,1.2,-3,s,false);dr.rotation.y=Math.PI/2;
+  const exitL=new R.PointLight(0x9FE0B0,.4,4);exitL.position.set(-13.6,2.8,-3);s.add(exitL);
+}
+label(ST.scene,'主唱麥克風',0,3.4,-3.2,'街演 · 接演 · 歌單',.7);label(ST.scene,'合唱台',0,4.6,-8,null,.7);label(ST.scene,'Podcast',8.5,3.4,-2,'不專業音樂電台',.65);label(ST.scene,'回家',-13.6,3.6,-3,null,.6);
+ST.hots=[
+  {id:'mic',name:'主唱麥克風',verb:'開唱',x:0,z:-2.4,r:1.5},
+  {id:'choir',name:'合唱台',verb:'加入',x:0,z:-5.4,r:1.5},
+  {id:'podcast',name:'Podcast 桌',verb:'開錄',x:8.5,z:-.9,r:1.5},
+  {id:'home',name:'後台門',verb:'回家',x:-13,z:-3,r:1.6,go:()=>goto('f1','stage')}
+];
+ST.spawns={back:[-12,-3,Math.PI/2,-Math.PI/2],mic:[0,-1.4,Math.PI,0],choir:[0,-4.6,Math.PI,0],podcast:[8.5,0,Math.PI,0]};
+ST.update=(dt,t)=>{followSpot.target.position.set(P.x,P.y,P.z);const on=P.y>.4;followSpot.intensity=on?1.3:.5;
+  const sea=ST.sea,pa=sea.pts.geometry.attributes.position;sea.base.forEach((b,i)=>{const w=on?Math.sin(t*3.2+b[0]*.35+b[2]*.1)*.22:Math.sin(t*1.2+i)*.05;pa.setXYZ(i,b[0]+(on?Math.sin(t*3.2+b[0]*.35)*.12:0),b[1]+w,b[2]);});pa.needsUpdate=true;
+  sea.pts.material.opacity+=((on?1:.3)-sea.pts.material.opacity)*Math.min(1,dt*2.5);};
+
+/* ---------- 內容 ---------- */
+const QUOTES=['先把呼吸放慢，今天要做的事就會排好隊。','我不需要一次做完全部，我只需要把眼前這一件做好。','穩定的節奏比偶爾的爆發更走得遠。','我的時間有限，所以我只把它交給真正重要的事。','紀錄是給未來的自己的禮物，今天也留下一點。','平靜不是什麼都不做，而是知道自己正在做什麼。','先完成，再完美；先出發，再調整。'];
+const todayQuote=()=>QUOTES[Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5)%QUOTES.length];
+const INFO={
+  river:{tag:'森林 · 記錄之河',title:'記錄之河',body:'每天的日記、照片、影音、想法，都流進這條河。所有作品的原料都在這裡。',list:['快速記錄：文字 / 照片 / 語音','時間軸：回頭看任何一天'],soon:true},
+  studio:{tag:'森林 · 蘑菇攝影棚',title:'自媒體',body:'從記錄之河撈起素材，用你的萬用公式（積木）組成作品。',list:['腳本範本','發行排程','酸民與緊急事件 SOP'],soon:true},
+  campfire:{tag:'森林 · 營火',title:'鐵粉',body:'火是你的熱情。很多人是先看到你的表演、影片或 Podcast 才找過來的，你不一定認識他們，但他們會被火吸引，慢慢圍到火邊。這是最輕鬆的鐵粉。',list:['他們從哪裡認識你','回訪與互動','你可以為他們做的事'],soon:true},
+  fireflies:{tag:'森林 · 螢火蟲',title:'通訊錄',body:'每一點光，是一個跟你有連結的人。點開就是他的卡片：客觀事實、標籤、相處邊界。',soon:true},
+  cal:{tag:'家 · 日曆牆',title:'每日與每週',body:'今天要做的事、每週固定排程、Focus 專注。',list:['今天只做三件事','番茄鐘','每週固定排程'],soon:true},
+  kitchen:{tag:'家 · 廚房餐廳',title:'飲食公式',body:'固定的飲食組合，少做一個決定。',soon:true},
+  lucky:{tag:'家 · Lucky',title:'Lucky',body:'尾巴搖個不停。',links:[['打開 Lucky 手冊','https://fuwei0618-cmd.github.io/Lucky/']]},
+  closet:{tag:'家 · 衣帽間',title:'穿搭與外型',body:'穿搭公式、妝髮、醫美、正顎恢復、體態。',links:[['打開正顎手冊 OGS','https://fuwei0618-cmd.github.io/OGS/']],soon:true},
+  gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',soon:true},
+  vault:{tag:'家 · 金庫',title:'金庫',body:'理財、保險健檢、投資。',links:[['保險手冊（連結待設定）','']],soon:true},
+  fountain:{tag:'閣樓 · 禱告房',title:'轉運流水盆',body:'上層的小盆流水不停，橘色的轉運球慢慢轉，三隻金魚在下面游。禱告的時候，耳邊一直有流水聲。'},
+  plant:{tag:'2F · 臥室窗邊',title:'白水木',body:'銀綠色、毛茸茸的葉子一叢一叢長在枝頭。這盆植物代表什麼，可以由你來定義。'},
+  worlddoor:{tag:'家 · 世界之門',title:'旅遊手冊 World',body:'行程、旅行日誌、足跡地圖、人文史地。',links:[['打開旅遊手冊 World','https://fuwei0618-cmd.github.io/World/']]},
+  bed:{tag:'2F · 臥室',title:'作息與睡眠',body:'睡眠時間、起床感受、一天結束時的收尾。',soon:true},
+  desk:{tag:'2F · 書桌',title:'睡前寫一點',body:'今天的心情、想法，寫完就流進記錄之河。',soon:true},
+  pray:{tag:'閣樓 · 禱告房',title:'今日宣告',quote:true,body:'讀出聲音一次，深呼吸三次，再下樓開始今天。'},
+  mic:{tag:'舞台 · 主唱',title:'我是主唱',body:'聚光燈會一直跟著你。你一站上台，觀眾席就亮起整片燈海，為眾生而唱。',list:['街演：場地、時段、器材','接演：邀約、報價、檔期','歌單：依場合分類、Key 與熟練度'],soon:true},
+  choir:{tag:'舞台 · 合唱台',title:'合唱團',body:'站在後方的階梯上，跟大家一起唱。',list:['練唱進度','排練與演出行程'],soon:true},
+  podcast:{tag:'舞台 · 側台',title:'不專業音樂電台',body:'單集企劃、錄音、剪輯、上架。',soon:true}
+};
+
+/* =========================================================
+   PLAYER
+   ========================================================= */
+const player=new R.Group();const body={};
+{const skin=mat(0xF2CDB3),hair=mat(0x3E2E24),dress=mat(0x7DB7C4),dark=mat(0x4A3A30);
+  body.legL=mesh(new R.BoxGeometry(.13,.55,.13),dark,-.1,.28,0,player);body.legR=mesh(new R.BoxGeometry(.13,.55,.13),dark,.1,.28,0,player);
+  mesh(new R.ConeGeometry(.42,.85,8),dress,0,.86,0,player);
+  mesh(new R.CylinderGeometry(.17,.22,.35,8),dress,0,1.24,0,player);
+  body.armL=mesh(new R.BoxGeometry(.1,.5,.1),skin,-.27,1.12,0,player);body.armR=mesh(new R.BoxGeometry(.1,.5,.1),skin,.27,1.12,0,player);
+  [body.armL,body.armR].forEach(a=>{a.geometry.translate(0,-.2,0);a.position.y=1.32;});
+  mesh(new R.SphereGeometry(.22,12,10),skin,0,1.56,0,player);
+  const h=mesh(new R.SphereGeometry(.245,12,10,0,Math.PI*2,0,Math.PI*.62),hair,0,1.58,-.02,player);h.rotation.x=-.25;
+  mesh(new R.SphereGeometry(.11,8,6),hair,0,1.76,-.17,player);
+  mesh(new R.BoxGeometry(.36,.42,.08),hair,0,1.42,-.2,player);
+}
+const P={x:0,z:15,y:0,face:Math.PI,yaw:0,pitch:-.08,orbit:.42,speed:6.2,walkT:0,moving:false};
+let cur=SC.forest,view='third';
+cur.scene.add(player);
+
+/* ---------- input ---------- */
+const keys={};
+addEventListener('keydown',e=>{if(sheetOpen())return;const k=e.key.toLowerCase();keys[k]=true;if(k==='e'||k==='enter'){if(curHot){e.preventDefault();act(curHot);}}if(k==='v')toggleView();});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
+let target=null,lastProg=0,stuckT=0;
+const ray=new R.Raycaster(),ndc=new R.Vector2();
+let drag=null;
+canvas.addEventListener('pointerdown',e=>{canvas.focus({preventScroll:true});drag={id:e.pointerId,x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,t:performance.now(),moved:false};canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
+  if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>8)drag.moved=true;
+  if(drag.moved){P.yaw-=dx*.0055;if(view==='first')P.pitch=clamp(P.pitch-dy*.004,-1.1,1.0);else P.orbit=clamp(P.orbit+dy*.004,.12,1.2);}});
+canvas.addEventListener('pointerup',e=>{if(!drag||e.pointerId!==drag.id)return;const d=drag;drag=null;
+  if(!d.moved&&performance.now()-d.t<450){const r=canvas.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
+    ray.setFromCamera(ndc,camera);const hit=ray.intersectObject(cur.scene.userData.ground,true)[0];
+    if(hit){target={x:hit.point.x,z:hit.point.z};lastProg=1e9;stuckT=0;showMarker(hit.point);}}});
+canvas.addEventListener('pointercancel',()=>{drag=null;});
+const coarse=matchMedia('(pointer:coarse)').matches;const joy=$('#joy'),knob=$('#knob');joy.hidden=!coarse;
+const J={x:0,y:0,id:null};
+joy.addEventListener('pointerdown',e=>{J.id=e.pointerId;joy.setPointerCapture(e.pointerId);jmove(e);});
+joy.addEventListener('pointermove',e=>{if(e.pointerId===J.id)jmove(e);});
+const jend=e=>{if(e.pointerId!==J.id)return;J.id=null;J.x=J.y=0;knob.style.transform='';};
+joy.addEventListener('pointerup',jend);joy.addEventListener('pointercancel',jend);
+function jmove(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const L=Math.hypot(dx,dy),M=42;if(L>M){dx*=M/L;dy*=M/L;}
+  J.x=dx/M;J.y=dy/M;knob.style.transform=`translate(${dx}px,${dy}px)`;target=null;}
+const marker=new R.Mesh(new R.RingGeometry(.35,.5,24),new R.MeshBasicMaterial({color:0xFFF8EC,transparent:true,opacity:0,depthWrite:false}));marker.rotation.x=-Math.PI/2;marker.renderOrder=3;
+function showMarker(p){marker.position.set(p.x,p.y+.06,p.z);marker.material.opacity=.9;marker.scale.setScalar(1);if(marker.parent!==cur.scene)cur.scene.add(marker);}
+
+/* ---------- movement ---------- */
+function resolve(p){
+  for(const c of cur.col){
+    if(c.r!==undefined){const dx=p.x-c.x,dz=p.z-c.z,d=Math.hypot(dx,dz),m=c.r+.32;if(d<m&&d>1e-4){p.x=c.x+dx/d*m;p.z=c.z+dz/d*m;}}
+    else{const m=.32;if(p.x>c.x0-m&&p.x<c.x1+m&&p.z>c.z0-m&&p.z<c.z1+m){const pen=[p.x-(c.x0-m),(c.x1+m)-p.x,p.z-(c.z0-m),(c.z1+m)-p.z];const i=pen.indexOf(Math.min(...pen));
+      if(i===0)p.x=c.x0-m;else if(i===1)p.x=c.x1+m;else if(i===2)p.z=c.z0-m;else p.z=c.z1+m;}}
+  }
+  if(cur.bounds){const[a,b,c,d]=cur.bounds;p.x=clamp(p.x,a,b);p.z=clamp(p.z,c,d);}
+  else{const r=Math.hypot(p.x,p.z);if(r>58){p.x*=58/r;p.z*=58/r;}}
+}
+function step(dt){
+  let ix=0,iy=0;
+  if(keys['w']||keys['arrowup'])iy+=1;if(keys['s']||keys['arrowdown'])iy-=1;if(keys['a']||keys['arrowleft'])ix-=1;if(keys['d']||keys['arrowright'])ix+=1;
+  ix+=J.x;iy-=J.y;
+  let mx_=0,mz_=0;
+  if(Math.hypot(ix,iy)>.08){target=null;const s=Math.min(1,Math.hypot(ix,iy)),L=Math.hypot(ix,iy);ix/=L;iy/=L;
+    const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw);mx_=(fx*iy+rx*ix)*s;mz_=(fz*iy+rz*ix)*s;}
+  else if(target){const dx=target.x-P.x,dz=target.z-P.z,d=Math.hypot(dx,dz);
+    if(d<.18){target=null;}else{mx_=dx/d*Math.min(1,d/.6);mz_=dz/d*Math.min(1,d/.6);
+      if(d<lastProg-.01){lastProg=d;stuckT=0;}else{stuckT+=dt;if(stuckT>.5)target=null;}}}
+  const sp=P.speed*(cur.indoor?(cur.id==='stage'?.8:.6):1);
+  P.moving=Math.hypot(mx_,mz_)>.05;
+  if(P.moving){const p={x:P.x+mx_*sp*dt,z:P.z+mz_*sp*dt};resolve(p);P.x=p.x;P.z=p.z;
+    const want=Math.atan2(mx_,mz_);let df=want-P.face;df=Math.atan2(Math.sin(df),Math.cos(df));P.face+=df*Math.min(1,dt*12);P.walkT+=dt*sp*1.6;}
+  P.y+=(cur.floor(P.x,P.z)-P.y)*Math.min(1,dt*14);
+  player.position.set(P.x,P.y,P.z);player.rotation.y=P.face;
+  const sw=P.moving?Math.sin(P.walkT):0;body.legL.rotation.x=sw*.6;body.legR.rotation.x=-sw*.6;body.armL.rotation.x=-sw*.5;body.armR.rotation.x=sw*.5;
+  player.position.y+=P.moving?Math.abs(Math.cos(P.walkT))*.05:0;
+}
+const camPos=new R.Vector3(),look=new R.Vector3();let camInit=true;
+function updateCamera(dt){
+  if(cur.ceil)cur.ceil.visible=view==='first';
+  if(view==='first'){player.visible=false;camera.position.set(P.x,P.y+1.5,P.z);camera.rotation.set(P.pitch,P.yaw,0);camInit=true;return;}
+  player.visible=true;
+  const dist=cur.camDist,ph=Math.max(P.orbit,cur.camMin);
+  const want=new R.Vector3(P.x+Math.sin(P.yaw)*Math.cos(ph)*dist,P.y+1.4+Math.sin(ph)*dist,P.z+Math.cos(P.yaw)*Math.cos(ph)*dist);
+  if(!cur.indoor)want.y=Math.max(want.y,heightAt(want.x,want.z)+.8);
+  if(camInit){camPos.copy(want);camInit=false;}else camPos.lerp(want,Math.min(1,dt*7));
+  camera.position.copy(camPos);look.set(P.x,P.y+1.25,P.z);camera.lookAt(look);
+}
+
+/* ---------- hotspots ---------- */
+let curHot=null;const prompt=$('#prompt');
+function checkHot(){
+  let best=null,bd=1e9;
+  for(const h of cur.hots){const hx_=h.dyn?dog.position.x:h.x,hz_=h.dyn?dog.position.z:h.z,d=Math.hypot(P.x-hx_,P.z-hz_);if(d<h.r&&d<bd){bd=d;best=h;}}
+  if(best!==curHot){curHot=best;if(best){prompt.innerHTML=`${esc(best.verb)} · ${esc(best.name)} <small>${coarse?'':'E'}</small>`;prompt.hidden=false;}else prompt.hidden=true;}
+}
+prompt.addEventListener('click',()=>{if(curHot)act(curHot);});
+function act(h){if(h.go)h.go();else openInfo(h.id);}
+
+/* ---------- scene switching ---------- */
+const fade=$('#fade');
+function goto(id,spawn){closeSheet();fade.classList.add('on');setTimeout(()=>{
+  cur.scene.remove(player);if(marker.parent)marker.parent.remove(marker);
+  cur=SC[id];cur.scene.add(player);curHot=null;prompt.hidden=true;target=null;
+  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);
+  $('#where').textContent=cur.where;camInit=true;setTimeout(()=>fade.classList.remove('on'),60);},280);}
+
+/* ---------- sheets ---------- */
+const root=$('#sheetRoot');
+const sheetOpen=()=>!!root.firstChild;
+function closeSheet(){if(!root.firstChild)return;root.innerHTML='';canvas.focus({preventScroll:true});}
+function openSheet(html){root.innerHTML=`<div class="sheet-bg" id="sbg"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  $('#sbg').addEventListener('click',e=>{if(e.target.id==='sbg'||e.target.closest('[data-close]'))closeSheet();});
+  const f=root.querySelector('button,a');if(f)f.focus();}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen())closeSheet();});
+function openInfo(id){const x=INFO[id];if(!x)return;
+  const links=(x.links||[]).map(([t,u])=>u?`<a class="btn dark" href="${u}" target="_blank" rel="noopener">${esc(t)} ↗</a>`:`<span class="btn off">${esc(t)}</span>`).join('');
+  openSheet(`<div class="tag">${esc(x.tag)}</div><h2>${esc(x.title)}</h2>${x.quote?`<p class="quote">${esc(todayQuote())}</p>`:''}<p>${esc(x.body)}</p>${x.list?`<ul>${x.list.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:''}
+    ${x.soon?`<p style="font-size:13px;color:var(--muted)">這個地方的工具會在之後接上。</p>`:''}
+    <div class="row">${links}<button class="btn light" data-close>回到場景</button></div>`);}
+const PLACES=[
+  ['森林',[['森林入口','起點',['forest','start']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']]]],
+  ['家 · 1F',[['玄關','1F',['f1','front']],['日曆牆','每日 · 每週',['f1','cal']],['廚房餐廳','飲食',['f1','kitchen']],['衣帽間','穿搭 · 外型',['f1','closet']],['健身房','身體',['f1','gym']],['金庫','理財 · 保險',['f1','vault']]]],
+  ['樓上',[['2F 臥室','作息 · 白水木',['f2','bed']],['閣樓禱告房','晨間宣告 · 流水盆',['attic','ladder']]]],
+  ['舞台',[['後台入口','從家裡的舞台門進來',['stage','back']],['主唱麥克風','街演 · 接演',['stage','mic']],['合唱台','合唱團',['stage','choir']],['Podcast 桌','不專業音樂電台',['stage','podcast']]]]
+];
+$('#menuBtn').addEventListener('click',()=>{
+  openSheet(`<div class="tag">快速移動</div><h2>想去哪裡？</h2><div class="places">${PLACES.map(([g,items],gi)=>`<h3>${g}</h3>${items.map(([n,s],i)=>`<button data-p="${gi}-${i}"><b>${n}</b><span>${s}</span></button>`).join('')}`).join('')}</div><div class="row"><button class="btn light" data-close>關閉</button></div>`);
+  root.querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',()=>{const[g,i]=b.dataset.p.split('-').map(Number);const[id,sp]=PLACES[g][1][i][2];goto(id,sp);}));
+});
+function toggleView(){view=view==='third'?'first':'third';$('#viewBtn').textContent=view==='third'?'第三人稱':'第一人稱';if(view==='first')P.pitch=-.05;camInit=true;}
+$('#viewBtn').addEventListener('click',toggleView);
+setTimeout(()=>{$('#hint').style.opacity='0';},7000);
+
+/* ---------- loop ---------- */
+const clock=new R.Clock();
+function frame(){
+  const dt=Math.min(.05,clock.getDelta()),t=clock.elapsedTime;
+  if(!sheetOpen())step(dt);
+  updateCamera(dt);checkHot();
+  waterMat.uniforms.t.value=t;portalMat.uniforms.t.value=t;
+  if(cur.update)cur.update(dt,t);
+  if(marker.material.opacity>0){marker.material.opacity=Math.max(0,marker.material.opacity-dt*1.2);marker.scale.multiplyScalar(1+dt*.6);}
+  renderer.render(cur.scene,camera);
+  requestAnimationFrame(frame);
+}
+P.y=cur.floor(P.x,P.z);
+requestAnimationFrame(frame);
+window.__goto=goto;
+})();
+</script>

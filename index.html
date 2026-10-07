@@ -437,8 +437,6 @@ H1S.ceil=ceiling(f1r.scene,W1,D1,H1);
   mesh(new R.BoxGeometry(3,.06,1.6),mat(0x8DB86C),5.6,.03,-.8,s,false);
   boxIn(H1S,.5,.5,.5,0x5E6A70,4.4,.25,-2.4,false);boxIn(H1S,.5,.5,.5,0x5E6A70,5.2,.25,-2.4,false);
   boxIn(H1S,1.6,.9,.6,0x4E5A60,7.6,.45,-.8,true);mesh(new R.CylinderGeometry(.05,.05,1.2,6),mat(0x2A211B),7.6,1.1,-.8,s).rotation.x=Math.PI/2;
-  boxIn(H1S,1.6,1.9,1.4,0x7F949E,7.4,.95,-5.6,true);
-  mesh(new R.CylinderGeometry(.28,.28,.1,16),mat(0xE3ECF0,{metalness:.5,roughness:.4}),6.58,1.1,-5.6,s,false).rotation.z=Math.PI/2;
   for(let i=0;i<7;i++)boxIn(H1S,1.6,.3*(i+1),.55,0xC9A27A,-7.9,.15*(i+1),6.4-i*.55,false);
   H1S.col.push({x0:-8.8,x1:-7.1,z0:2.3,z1:6.7});
   boxIn(H1S,2.6,.8,1,0xE39A6D,3.5,.4,5.6,true);boxIn(H1S,2.6,.7,.3,0xD9724F,3.5,.95,6.0,false);
@@ -449,6 +447,44 @@ H1S.ceil=ceiling(f1r.scene,W1,D1,H1);
   const fd=mesh(new R.PlaneGeometry(1.6,2.6),new R.MeshStandardMaterial({color:0x9C6B45,roughness:.9}),0,1.3,D1/2-.03,s,false);fd.rotation.y=Math.PI;
   const lampIn=new R.PointLight(0xFFD49A,.32,16);lampIn.position.set(0,3.2,1);s.add(lampIn);
 }
+
+/* 金庫 · 噴水池：水不停往上噴，金幣被你吸過來、砸在身上，躲都躲不掉 */
+const moneyFountain=(()=>{
+  const s=f1r.scene,FX0=6.6,FZ0=-4.9,G=new R.Group();G.position.set(FX0,0,FZ0);s.add(G);
+  const stoneM=new R.MeshStandardMaterial({color:0xE8E2D6,roughness:.5});
+  const basin=new R.Mesh(new R.LatheGeometry([new R.Vector2(.001,0),new R.Vector2(1.15,0),new R.Vector2(1.25,.1),new R.Vector2(1.25,.42),new R.Vector2(1.12,.46),new R.Vector2(1.08,.3),new R.Vector2(.001,.3)],48),stoneM);basin.castShadow=basin.receiveShadow=true;G.add(basin);
+  const wm=new R.MeshStandardMaterial({color:0x8CC3C8,roughness:.1,metalness:.1,transparent:true,opacity:.75});
+  const wd=new R.Mesh(new R.CircleGeometry(1.08,40),wm);wd.rotation.x=-Math.PI/2;wd.position.y=.38;G.add(wd);
+  const ped=new R.Mesh(new R.CylinderGeometry(.14,.22,1.0,16),stoneM);ped.position.y=.8;ped.castShadow=true;G.add(ped);
+  const bowl=new R.Mesh(new R.LatheGeometry([new R.Vector2(.001,0),new R.Vector2(.18,0),new R.Vector2(.45,.12),new R.Vector2(.48,.18),new R.Vector2(.42,.17),new R.Vector2(.001,.06)],32),stoneM);bowl.position.y=1.3;bowl.castShadow=true;G.add(bowl);
+  for(let i=0;i<18;i++){const c=new R.Mesh(new R.CylinderGeometry(.07,.07,.015,12),new R.MeshStandardMaterial({color:0xE2B84E,metalness:.8,roughness:.25}));const a=i*2.4,r=.3+((i*37)%7)/10;c.position.set(Math.cos(a)*r,.33,Math.sin(a)*r);c.rotation.z=(i%3)*.2;G.add(c);}
+  // 水柱粒子
+  const nW=160,wP=new Float32Array(nW*3),wS=[];for(let i=0;i<nW;i++)wS.push({t:Math.random()*1.2,a:Math.random()*6.28,s:.8+Math.random()*.4});
+  const wG=new R.BufferGeometry();wG.setAttribute('position',new R.BufferAttribute(wP,3));
+  const water=new R.Points(wG,new R.PointsMaterial({color:0xDDF2F4,size:.07,transparent:true,opacity:.85,depthWrite:false}));water.position.copy(G.position);s.add(water);
+  // 金幣
+  const N=70,coinGeo=new R.CylinderGeometry(.075,.075,.016,14),coinMat=new R.MeshStandardMaterial({color:0xF0C556,emissive:0x5A3A00,emissiveIntensity:.35,metalness:.85,roughness:.22});
+  const coins=new R.InstancedMesh(coinGeo,coinMat,N);coins.castShadow=true;s.add(coins);
+  const C=[];for(let i=0;i<N;i++)C.push({p:new R.Vector3(FX0,-5,FZ0),v:new R.Vector3(),life:-Math.random()*3,spin:Math.random()*6,sp:4+Math.random()*6,hit:false});
+  const m4=new R.Matrix4(),q=new R.Quaternion(),e=new R.Euler(),one=new R.Vector3(1,1,1),chest=new R.Vector3();
+  const pl=new R.PointLight(0xFFD27A,.45,5);pl.position.set(FX0,1.8,FZ0);s.add(pl);
+  function spawn(c){const a=Math.random()*6.28,o=1.2+Math.random()*1.6;c.p.set(FX0,1.55,FZ0);c.v.set(Math.cos(a)*o,3.6+Math.random()*1.8,Math.sin(a)*o);c.life=0;c.hit=false;}
+  return {x:FX0,z:FZ0,update(dt,t){
+    for(let i=0;i<nW;i++){const w=wS[i];w.t+=dt*w.s;if(w.t>1.1){w.t=0;w.a=Math.random()*6.28;}const k=w.t;wP[i*3]=Math.cos(w.a)*.35*k;wP[i*3+1]=1.45+2.6*k-2.9*k*k;wP[i*3+2]=Math.sin(w.a)*.35*k;}wG.attributes.position.needsUpdate=true;
+    const dP=Math.hypot(P.x-FX0,P.z-FZ0),near=dP<5.5;chest.set(P.x,P.y+1.3,P.z);
+    C.forEach((c,i)=>{
+      if(c.life<0){c.life+=dt*(near?3:1);if(c.life>=0)spawn(c);m4.compose(c.p.set(0,-9,0),q,one);coins.setMatrixAt(i,m4);return;}
+      c.life+=dt;
+      if(near&&!c.hit&&c.life>.25){const d=chest.clone().sub(c.p),L=d.length();c.v.addScaledVector(d.normalize(),dt*(10+14/Math.max(.5,L)));if(L<.42){c.hit=true;c.v.set((Math.random()-.5)*3,1.2+Math.random(),(Math.random()-.5)*3);}}
+      c.v.y-=dt*9.8;c.p.addScaledVector(c.v,dt);
+      if(c.p.y<.02){c.p.y=.02;if(Math.abs(c.v.y)>1.2){c.v.y*=-.35;c.v.x*=.6;c.v.z*=.6;}else{c.v.set(0,0,0);}}
+      const inB=Math.hypot(c.p.x-FX0,c.p.z-FZ0)<1.1;if(inB&&c.p.y<.36&&c.v.y<0){c.p.y=.36;c.v.set(0,0,0);}
+      c.p.x=Math.max(-8.6,Math.min(8.6,c.p.x));c.p.z=Math.max(-6.6,Math.min(6.6,c.p.z));
+      if(c.life>(near?4.5:3)){c.life=-(near?Math.random()*.3:.5+Math.random()*2);}
+      c.spin+=dt*c.sp;e.set(c.spin,c.spin*.7,0);q.setFromEuler(e);m4.compose(c.p,q,one);coins.setMatrixAt(i,m4);});
+    coins.instanceMatrix.needsUpdate=true;q.identity();}};
+})();
+H1S.col.push({x:moneyFountain.x,z:moneyFountain.z,r:1.25});
 const dog=new R.Group();{const fur=mat(0xC79B6D),dark=mat(0x6B4A30);
   mesh(new R.BoxGeometry(.38,.3,.62),fur,0,.32,0,dog);mesh(new R.BoxGeometry(.34,.32,.32),fur,0,.55,.34,dog);
   mesh(new R.BoxGeometry(.1,.14,.06),dark,-.13,.74,.3,dog);mesh(new R.BoxGeometry(.1,.14,.06),dark,.13,.74,.3,dog);
@@ -456,21 +492,21 @@ const dog=new R.Group();{const fur=mat(0xC79B6D),dark=mat(0x6B4A30);
   [[-.12,.2],[.12,.2],[-.12,-.2],[.12,-.2]].forEach(([x,z])=>mesh(new R.BoxGeometry(.08,.2,.08),dark,x,.1,z,dog));
   const tail=mesh(new R.BoxGeometry(.06,.06,.26),fur,0,.45,-.38,dog);tail.rotation.x=-.6;dog.userData.tail=tail;}
 dog.position.set(1.5,0,1);f1r.scene.add(dog);const dogAI={tx:1.5,tz:1,wait:1};
-[['日曆牆',-W1/2+1.2,3.4,.4],['廚房餐廳',-5.6,2.8,-4.6],['衣帽間',W1/2-1.4,3.5,3.6],['健身房',5.8,2.4,-1.4],['金庫',7.4,2.8,-5.6],['樓梯 · 上樓',-7.4,3.6,4.4],['舞台門',-.6,3.3,-D1/2+.6],['世界之門',2.6,3.6,-D1/2+.6]].forEach(([t,x,y,z])=>label(f1r.scene,t,x,y,z,null,.62));
+[['日曆牆',-W1/2+1.2,3.4,.4],['廚房餐廳',-5.6,2.8,-4.6],['衣帽間',W1/2-1.4,3.5,3.6],['健身房',5.8,2.4,-1.4],['金庫 · 噴水池',6.6,3.4,-4.9],['樓梯 · 上樓',-7.4,3.6,4.4],['舞台門',-.6,3.3,-D1/2+.6],['世界之門',2.6,3.6,-D1/2+.6]].forEach(([t,x,y,z])=>label(f1r.scene,t,x,y,z,null,.62));
 H1S.hots=[
   {id:'cal',name:'日曆牆',verb:'查看',x:-W1/2+1.6,z:.4,r:2},
   {id:'kitchen',name:'廚房餐廳',verb:'查看',x:-5,z:-1.9,r:2},
   {id:'lucky',name:'Lucky',verb:'摸摸',dyn:true,r:1.7},
   {id:'closet',name:'衣帽間',verb:'打開',x:W1/2-2.2,z:3.6,r:2},
   {id:'gym',name:'健身房',verb:'開始',x:5.6,z:-.8,r:2},
-  {id:'vault',name:'金庫',verb:'打開',x:6.2,z:-5.2,r:1.8},
+  {id:'vault',name:'金庫 · 噴水池',verb:'看看',x:5.2,z:-3.6,r:1.8},
   {id:'stairs',name:'樓梯',verb:'上樓',x:-6.4,z:3.9,r:1.3,go:()=>goto('f2','stairs')},
   {id:'stagedoor',name:'舞台門',verb:'開門',x:-.6,z:-D1/2+1.3,r:1.4,go:()=>goto('stage','back')},
   {id:'worlddoor',name:'世界之門',verb:'穿過',x:2.6,z:-D1/2+1.3,r:1.4},
   {id:'front',name:'回到森林',verb:'出門',x:0,z:D1/2-1.2,r:1.5,go:()=>goto('forest','door')}
 ];
-H1S.spawns={front:[0,D1/2-2.4,Math.PI,0],stairs:[-6.0,3.6,Math.PI/2,-Math.PI/2],stage:[-.6,-D1/2+1.8,0,Math.PI],cal:[-W1/2+2,.4,-Math.PI/2,Math.PI/2],kitchen:[-5,-1.6,Math.PI,0],closet:[W1/2-2.6,3.6,Math.PI/2,-Math.PI/2],gym:[5.6,1,Math.PI,0],vault:[5.8,-4.4,Math.PI,0]};
-H1S.update=(dt,t)=>{
+H1S.spawns={front:[0,D1/2-2.4,Math.PI,0],stairs:[-6.0,3.6,Math.PI/2,-Math.PI/2],stage:[-.6,-D1/2+1.8,0,Math.PI],cal:[-W1/2+2,.4,-Math.PI/2,Math.PI/2],kitchen:[-5,-1.6,Math.PI,0],closet:[W1/2-2.6,3.6,Math.PI/2,-Math.PI/2],gym:[5.6,1,Math.PI,0],vault:[4.6,-2.8,Math.PI*.75,-Math.PI/4]};
+H1S.update=(dt,t)=>{moneyFountain.update(dt,t);
   const dx=dogAI.tx-dog.position.x,dz=dogAI.tz-dog.position.z,d=Math.hypot(dx,dz);
   if(d>.1){dog.position.x+=dx/d*dt*1.6;dog.position.z+=dz/d*dt*1.6;dog.rotation.y=Math.atan2(dx,dz);}
   else{dogAI.wait-=dt;if(dogAI.wait<0){const near=Math.hypot(P.x-dog.position.x,P.z-dog.position.z)<5&&rand()<.6;
@@ -565,8 +601,8 @@ AT.update=(dt,t)=>{fountainUpdate(dt,t);const k=.85+Math.sin(t*9)*.08+Math.sin(t
 /* =========================================================
    5 · 舞台（獨立空間：從家裡的舞台門進來）
    ========================================================= */
-const ST=addScene('stage',{scene:null,where:'舞台',camDist:7,camMin:.5,bounds:[-14,14,-6.1,5.5],
-  floor:(x,z)=>(z>-6.05&&Math.hypot(x,z+6)<7)?.8:0});
+const ST=addScene('stage',{scene:null,where:'舞台',camDist:7,camMin:.5,bounds:[-14,14,-9.2,5.5],
+  floor:(x,z)=>{if(z>-6.05&&Math.hypot(x,z+6)<7)return .8;const ax=Math.abs(x);if(z<=-6.05&&z>-7.45&&ax<6)return .9;if(z<=-7.45&&z>-8.35&&ax<5.5)return 1.5;if(z<=-8.35&&ax<5)return 2.1;return 0;}});
 let followSpot;
 {
   const s=new R.Scene();s.background=new R.Color(0x14110F);s.fog=new R.Fog(0x14110F,22,60);ST.scene=s;
@@ -576,9 +612,9 @@ let followSpot;
   const top=mesh(new R.CylinderGeometry(7,7.2,.8,40,1,false,-Math.PI/2,Math.PI),new R.MeshStandardMaterial({map:planksTex([4,4]),roughness:.7}),0,.4,-6,null);gnd.add(top);
   const rim=mesh(new R.TorusGeometry(7.05,.05,6,40,Math.PI),new R.MeshBasicMaterial({color:0xFFD68A}),0,.82,-6,s,false,false);rim.rotation.x=-Math.PI/2;
   [[12,.9,-7],[11,1.5,-7.9],[10,2.1,-8.8]].forEach(([w,h,z])=>mesh(new R.BoxGeometry(w,h,.9),mat(0xE9D8BF),0,h/2,z,s));
-  ST.col.push({x0:-6.2,x1:6.2,z0:-9.3,z1:-6.5});
+  ST.col.push({x0:-7,x1:7,z0:-9.6,z1:-9.35});
   const choirM=mat(0x5A4E6A);
-  [[.9,-7,11],[1.5,-7.9,10],[2.1,-8.8,9]].forEach(([h,z,n])=>{for(let i=0;i<n;i++){const x=-(n-1)*.5+i;mesh(new R.CylinderGeometry(.16,.22,.9,8),choirM,x,h+.45,z,s);mesh(new R.SphereGeometry(.16,8,6),choirM,x,h+1.08,z,s);}});
+  [[.9,-7,11],[1.5,-7.9,10],[2.1,-8.8,9]].forEach(([h,z,n])=>{for(let i=0;i<n;i++){const x=-(n-1)*.5+i;if(n===9&&i===4)continue;mesh(new R.CylinderGeometry(.16,.22,.9,8),choirM,x,h+.45,z,s);mesh(new R.SphereGeometry(.16,8,6),choirM,x,h+1.08,z,s);}});
   mesh(new R.PlaneGeometry(18,9),mat(0x7E2A20),0,4.5,-10.0,s);
   for(let i=0;i<14;i++)mesh(new R.PlaneGeometry(.5,9),mat(i%2?0x8E3226:0x6E241B),-6.5+i,4.5,-9.95,s,false);
   const truss=mat(0x3A3634,{metalness:.5,roughness:.5});
@@ -596,6 +632,7 @@ let followSpot;
   boxIn(ST,2,.1,1,0xA97C55,8.5,.85,-2,true);[[7.6,-2.4],[9.4,-2.4],[7.6,-1.6],[9.4,-1.6]].forEach(([x,z])=>boxIn(ST,.08,.8,.08,0x8C6646,x,.4,z,false));
   mesh(new R.CylinderGeometry(.08,.1,.28,10),mat(0x2A2624),8.5,1.05,-2.1,s);mesh(new R.SphereGeometry(.09,10,8),mat(0x555555,{metalness:.6}),8.5,1.25,-2.1,s);
   boxIn(ST,.6,.04,.4,0x3A3634,9.1,.92,-1.9,false);
+  boxIn(ST,.6,.08,.6,0x3A3634,8.5,.5,-.95,false);boxIn(ST,.6,.7,.08,0x3A3634,8.5,.85,-.62,false);
   mesh(new R.PlaneGeometry(1.4,.45),new R.MeshBasicMaterial({map:canvasTex(256,82,(g)=>{g.fillStyle='#B8402F';g.fillRect(0,0,256,82);g.fillStyle='#FFF1E6';g.font='700 38px "Noto Sans TC",sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('ON AIR',128,44);})}),8.5,2.4,-2.6,s,false,false);
   const pd=new R.PointLight(0xFF9A70,.5,5);pd.position.set(8.5,2,-1.6);s.add(pd);
   const seat=new R.InstancedMesh(new R.BoxGeometry(.7,.5,.6),mat(0x6E241B),170),m=new R.Matrix4(),q=new R.Quaternion(),v=new R.Vector3(),one=new R.Vector3(1,1,1),up=new R.Vector3(0,1,0);let k=0;
@@ -615,11 +652,11 @@ let followSpot;
 label(ST.scene,'主唱麥克風',0,3.4,-3.2,'街演 · 接演 · 歌單',.7);label(ST.scene,'合唱台',0,4.6,-8,null,.7);label(ST.scene,'Podcast',8.5,3.4,-2,'不專業音樂電台',.65);label(ST.scene,'回家',-13.6,3.6,-3,null,.6);
 ST.hots=[
   {id:'mic',name:'主唱麥克風',verb:'開唱',x:0,z:-2.4,r:1.5},
-  {id:'choir',name:'合唱台',verb:'加入',x:0,z:-5.4,r:1.5},
+  {id:'choir',name:'合唱台',verb:'加入',x:0,z:-8.8,r:1.2},
   {id:'podcast',name:'Podcast 桌',verb:'開錄',x:8.5,z:-.9,r:1.5},
   {id:'home',name:'後台門',verb:'回家',x:-13,z:-3,r:1.6,go:()=>goto('f1','stage')}
 ];
-ST.spawns={back:[-12,-3,Math.PI/2,-Math.PI/2],mic:[0,-1.6,0,Math.PI],choir:[0,-5.1,0,Math.PI],podcast:[8.5,-.6,0,Math.PI]};
+ST.spawns={back:[-12,-3,Math.PI/2,-Math.PI/2],mic:[0,-2.4,0,Math.PI],choir:[0,-8.8,0,Math.PI],podcast:[8.5,-.9,Math.PI,0,.22]};
 ST.update=(dt,t)=>{followSpot.target.position.set(P.x,P.y,P.z);const on=P.y>.4;followSpot.intensity=on?1.3:.5;
   const sea=ST.sea,pa=sea.pts.geometry.attributes.position;sea.base.forEach((b,i)=>{const w=on?Math.sin(t*3.2+b[0]*.35+b[2]*.1)*.22:Math.sin(t*1.2+i)*.05;pa.setXYZ(i,b[0]+(on?Math.sin(t*3.2+b[0]*.35)*.12:0),b[1]+w,b[2]);});pa.needsUpdate=true;
   sea.pts.material.opacity+=((on?1:.3)-sea.pts.material.opacity)*Math.min(1,dt*2.5);};
@@ -637,7 +674,7 @@ const INFO={
   lucky:{tag:'家 · Lucky',title:'Lucky',body:'尾巴搖個不停。',links:[['打開 Lucky 手冊','https://fuwei0618-cmd.github.io/Lucky/']]},
   closet:{tag:'家 · 衣帽間',title:'穿搭與外型',body:'穿搭公式、妝髮、醫美、正顎恢復、體態。',links:[['打開正顎手冊 OGS','https://fuwei0618-cmd.github.io/OGS/']],soon:true},
   gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',soon:true},
-  vault:{tag:'家 · 金庫',title:'金庫',body:'理財、保險健檢、投資。',links:[['保險手冊（連結待設定）','']],soon:true},
+  vault:{tag:'家 · 金庫',title:'源源不絕',body:'噴水池的水不停往上噴，金幣被你吸引過來、砸在你身上，閃都閃不掉。理財、保險健檢、投資都在這裡。',links:[['保險手冊（連結待設定）','']],soon:true},
   fountain:{tag:'閣樓 · 禱告房',title:'轉運流水盆',body:'上層的小盆流水不停，橘色的轉運球慢慢轉，三隻金魚在下面游。禱告的時候，耳邊一直有流水聲。'},
   plant:{tag:'2F · 臥室窗邊',title:'白水木',body:'銀綠色、毛茸茸的葉子一叢一叢長在枝頭。這盆植物代表什麼，可以由你來定義。'},
   worlddoor:{tag:'家 · 世界之門',title:'旅遊手冊 World',body:'行程、旅行日誌、足跡地圖、人文史地。',links:[['打開旅遊手冊 World','https://fuwei0618-cmd.github.io/World/']]},
@@ -752,7 +789,7 @@ const fade=$('#fade');
 function goto(id,spawn){closeSheet();fade.classList.add('on');setTimeout(()=>{
   cur.scene.remove(player);if(marker.parent)marker.parent.remove(marker);
   cur=SC[id];cur.scene.add(player);curHot=null;prompt.hidden=true;target=null;
-  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);
+  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;
   $('#where').textContent=cur.where;camInit=true;setTimeout(()=>fade.classList.remove('on'),60);},280);}
 
 /* ---------- sheets ---------- */

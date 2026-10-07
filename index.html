@@ -565,7 +565,7 @@ AT.update=(dt,t)=>{fountainUpdate(dt,t);const k=.85+Math.sin(t*9)*.08+Math.sin(t
 /* =========================================================
    5 · 舞台（獨立空間：從家裡的舞台門進來）
    ========================================================= */
-const ST=addScene('stage',{scene:null,where:'舞台',camDist:7,camMin:.38,bounds:[-14,14,-6.1,5.5],
+const ST=addScene('stage',{scene:null,where:'舞台',camDist:7,camMin:.5,bounds:[-14,14,-6.1,5.5],
   floor:(x,z)=>(z>-6.05&&Math.hypot(x,z+6)<7)?.8:0});
 let followSpot;
 {
@@ -579,8 +579,8 @@ let followSpot;
   ST.col.push({x0:-6.2,x1:6.2,z0:-9.3,z1:-6.5});
   const choirM=mat(0x5A4E6A);
   [[.9,-7,11],[1.5,-7.9,10],[2.1,-8.8,9]].forEach(([h,z,n])=>{for(let i=0;i<n;i++){const x=-(n-1)*.5+i;mesh(new R.CylinderGeometry(.16,.22,.9,8),choirM,x,h+.45,z,s);mesh(new R.SphereGeometry(.16,8,6),choirM,x,h+1.08,z,s);}});
-  mesh(new R.BoxGeometry(18,9,.4),mat(0x7E2A20),0,4.5,-10.2,s);
-  for(let i=0;i<14;i++)mesh(new R.BoxGeometry(.5,9,.3),mat(i%2?0x8E3226:0x6E241B),-6.5+i,4.5,-9.95,s,false);
+  mesh(new R.PlaneGeometry(18,9),mat(0x7E2A20),0,4.5,-10.0,s);
+  for(let i=0;i<14;i++)mesh(new R.PlaneGeometry(.5,9),mat(i%2?0x8E3226:0x6E241B),-6.5+i,4.5,-9.95,s,false);
   const truss=mat(0x3A3634,{metalness:.5,roughness:.5});
   mesh(new R.BoxGeometry(18,.3,.3),truss,0,8.5,-3,s,false);mesh(new R.BoxGeometry(.3,8.5,.3),truss,-9,4.25,-3,s);mesh(new R.BoxGeometry(.3,8.5,.3),truss,9,4.25,-3,s);
   [0xFFD68A,0x9FD6E0,0xF2A2C0,0xFFD68A].forEach((c,i)=>{const x=-6+i*4,tx=x*.4,ty=.8,tz=-6.5;
@@ -619,7 +619,7 @@ ST.hots=[
   {id:'podcast',name:'Podcast 桌',verb:'開錄',x:8.5,z:-.9,r:1.5},
   {id:'home',name:'後台門',verb:'回家',x:-13,z:-3,r:1.6,go:()=>goto('f1','stage')}
 ];
-ST.spawns={back:[-12,-3,Math.PI/2,-Math.PI/2],mic:[0,-1.4,Math.PI,0],choir:[0,-4.6,Math.PI,0],podcast:[8.5,0,Math.PI,0]};
+ST.spawns={back:[-12,-3,Math.PI/2,-Math.PI/2],mic:[0,-1.6,0,Math.PI],choir:[0,-5.1,0,Math.PI],podcast:[8.5,-.6,0,Math.PI]};
 ST.update=(dt,t)=>{followSpot.target.position.set(P.x,P.y,P.z);const on=P.y>.4;followSpot.intensity=on?1.3:.5;
   const sea=ST.sea,pa=sea.pts.geometry.attributes.position;sea.base.forEach((b,i)=>{const w=on?Math.sin(t*3.2+b[0]*.35+b[2]*.1)*.22:Math.sin(t*1.2+i)*.05;pa.setXYZ(i,b[0]+(on?Math.sin(t*3.2+b[0]*.35)*.12:0),b[1]+w,b[2]);});pa.needsUpdate=true;
   sea.pts.material.opacity+=((on?1:.3)-sea.pts.material.opacity)*Math.min(1,dt*2.5);};

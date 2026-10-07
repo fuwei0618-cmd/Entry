@@ -649,15 +649,15 @@ let followSpot;
   const dr=mesh(new R.PlaneGeometry(1.3,2.4),new R.MeshStandardMaterial({color:0x9C6B45,emissive:0x2A1A10}),-14.04,1.2,-3,s,false);dr.rotation.y=Math.PI/2;
   const exitL=new R.PointLight(0x9FE0B0,.4,4);exitL.position.set(-13.6,2.8,-3);s.add(exitL);
 }
-label(ST.scene,'主唱麥克風',0,3.4,-3.2,'街演 · 接演 · 歌單',.7);label(ST.scene,'合唱台',0,4.6,-8,null,.7);label(ST.scene,'Podcast',8.5,3.4,-2,'不專業音樂電台',.65);label(ST.scene,'回家',-13.6,3.6,-3,null,.6);
+ST.micLbl=label(ST.scene,'Vocal',0,3.4,-3.2,null,.7);ST.choirLbl=label(ST.scene,'合唱台',0,4.6,-8,null,.7);label(ST.scene,'Podcast',8.5,3.4,-2,'不專業音樂電台',.65);label(ST.scene,'回家',-13.6,3.6,-3,null,.6);
 ST.hots=[
-  {id:'mic',name:'主唱麥克風',verb:'開唱',x:0,z:-2.4,r:1.5},
+  {id:'mic',name:'Vocal',verb:'開唱',x:0,z:-2.4,r:1.5},
   {id:'choir',name:'合唱台',verb:'加入',x:0,z:-8.8,r:1.2},
   {id:'podcast',name:'Podcast 桌',verb:'開錄',x:8.5,z:-3.0,r:1.4},
   {id:'home',name:'後台門',verb:'回家',x:-13,z:-3,r:1.6,go:()=>goto('f1','stage')}
 ];
-ST.spawns={back:[-12,-3,Math.PI/2,-Math.PI/2],mic:[0,-2.4,0,Math.PI],choir:[0,-8.8,0,Math.PI],podcast:[8.5,-3.05,0,Math.PI,.12]};
-ST.update=(dt,t)=>{followSpot.target.position.set(P.x,P.y,P.z);const on=P.y>.4;followSpot.intensity=on?1.3:.5;
+ST.spawns={back:[-12,-3,Math.PI/2,-Math.PI/2],mic:[0,-2.4,0,Math.PI],choir:[0,-8.8,0,Math.PI,-.26],podcast:[8.5,-3.05,0,Math.PI,.12]};
+ST.update=(dt,t)=>{ST.choirLbl.visible=ST.micLbl.visible=!(P.z<-6.5&&P.y>1.5);followSpot.target.position.set(P.x,P.y,P.z);const on=P.y>.4;followSpot.intensity=on?1.3:.5;
   const sea=ST.sea,pa=sea.pts.geometry.attributes.position;sea.base.forEach((b,i)=>{const w=on?Math.sin(t*3.2+b[0]*.35+b[2]*.1)*.22:Math.sin(t*1.2+i)*.05;pa.setXYZ(i,b[0]+(on?Math.sin(t*3.2+b[0]*.35)*.12:0),b[1]+w,b[2]);});pa.needsUpdate=true;
   sea.pts.material.opacity+=((on?1:.3)-sea.pts.material.opacity)*Math.min(1,dt*2.5);};
 

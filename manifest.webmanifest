@@ -1,6 +1,6 @@
 {
-  "name": "ORIGINA",
-  "short_name": "ORIGINA",
+  "name": "Origina",
+  "short_name": "Origina",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

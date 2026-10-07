@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#CFE3D6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="ORIGINA">
+<meta name="apple-mobile-web-app-title" content="Origina">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<title>ORIGINA</title>
+<title>Origina</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700&family=LXGW+WenKai+TC:wght@400&display=swap">
 <style>
@@ -66,7 +66,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 </head>
 <body>
 <canvas id="c" tabindex="0" aria-label="森林之家 3D 場景。點地面行走，拖曳轉動視角。"></canvas>
-<div class="hud-tl chip"><b id="appName">ORIGINA</b><span id="where">森林</span></div>
+<div class="hud-tl chip"><b id="appName">Origina</b><span id="where">森林</span></div>
 <div class="hud-tr">
   <button class="chip" id="viewBtn" aria-label="切換視角">第三人稱</button>
   <button class="chip" id="menuBtn" aria-label="打開地點選單">地點</button>
@@ -82,9 +82,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 (function(){
 "use strict";
 /* ====== 正式名稱：改名只要改這一行（手機主畫面的名字在 manifest.webmanifest）====== */
-const APP_NAME='ORIGINA';
+const APP_NAME='Origina';
 document.title=APP_NAME;document.getElementById('appName').textContent=APP_NAME;
-/* ORIGINA · v3：營火與螢火蟲、舞台燈海、白水木移到臥室、流水盆移到禱告房 */
+/* Origina · v3：營火與螢火蟲、舞台燈海、白水木移到臥室、流水盆移到禱告房 */
 if(!window.THREE){document.body.insertAdjacentHTML('beforeend','<div class="err">3D 元件沒有載入成功，請重新整理頁面。</div>');return;}
 const R=THREE;
 const $=s=>document.querySelector(s);

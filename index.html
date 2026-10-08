@@ -809,10 +809,10 @@ const PLACES=[
   ['森林',[['森林入口','起點',['forest','start']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']]]],
   ['家 · 1F',[['玄關','1F',['f1','front']],['日曆牆','每日 · 每週',['f1','cal']],['廚房餐廳','飲食',['f1','kitchen']],['衣帽間','穿搭 · 外型',['f1','closet']],['健身房','身體',['f1','gym']],['金庫','理財 · 保險',['f1','vault']]]],
   ['樓上',[['2F 臥室','作息 · 白水木',['f2','bed']],['閣樓禱告房','晨間宣告 · 流水盆',['attic','ladder']]]],
-  ['舞台',[['後台入口','從家裡的舞台門進來',['stage','back']],['主唱麥克風','街演 · 接演',['stage','mic']],['合唱台','合唱團',['stage','choir']],['Podcast 桌','不專業音樂電台',['stage','podcast']]]]
+  ['舞台',[['後台入口','從家裡的舞台門進來',['stage','back']],['Vocal','',['stage','mic']],['合唱台','合唱團',['stage','choir']],['Podcast 桌','不專業音樂電台',['stage','podcast']]]]
 ];
 $('#menuBtn').addEventListener('click',()=>{
-  openSheet(`<div class="tag">快速移動</div><h2>想去哪裡？</h2><div class="places">${PLACES.map(([g,items],gi)=>`<h3>${g}</h3>${items.map(([n,s],i)=>`<button data-p="${gi}-${i}"><b>${n}</b><span>${s}</span></button>`).join('')}`).join('')}</div><div class="row"><button class="btn light" data-close>關閉</button></div>`);
+  openSheet(`<div class="tag">快速移動</div><h2>想去哪裡？</h2><div class="places">${PLACES.map(([g,items],gi)=>`<h3>${g}</h3>${items.map(([n,s],i)=>`<button data-p="${gi}-${i}"><b>${n}</b>${s?`<span>${s}</span>`:""}</button>`).join('')}`).join('')}</div><div class="row"><button class="btn light" data-close>關閉</button></div>`);
   root.querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',()=>{const[g,i]=b.dataset.p.split('-').map(Number);const[id,sp]=PLACES[g][1][i][2];goto(id,sp);}));
 });
 function toggleView(){view=view==='third'?'first':'third';$('#viewBtn').textContent=view==='third'?'第三人稱':'第一人稱';if(view==='first')P.pitch=-.05;camInit=true;}

@@ -234,12 +234,13 @@ function heightAt(x,z){
   return h;
 }
 const hx=0,hz=-8,mz=10,mx=riverX(10)+8;
+const VX=hx+8.5,VZ=hz+12.8;
 const FX=16,FZ=5;
 const PATHS=[[0,26,0,1.5],[0,14,mx+3,mz],[0,12,FX-2.5,FZ+1.5],[0,4,riverX(2)+5,2]];
 function segD(px,pz,a){const[x1,z1,x2,z2]=a,dx=x2-x1,dz=z2-z1,L=dx*dx+dz*dz;let t=L?((px-x1)*dx+(pz-z1)*dz)/L:0;t=clamp(t,0,1);return Math.hypot(px-(x1+t*dx),pz-(z1+t*dz));}
 const pathD=(x,z)=>Math.min(...PATHS.map(p=>segD(x,z,p)));
 const F=addScene('forest',{scene:out,indoor:false,camDist:7.2,camMin:.12,orbit0:.42,where:'森林',
-  floor:(x,z)=>Math.max(heightAt(x,z),-.95),bounds:null});
+  floor:(x,z)=>{const d=Math.hypot(x-VX,z-VZ);if(d<4.4){const b=heightAt(VX,VZ);return b+(d<2.8?.48:d<3.6?.32:.16);}return Math.max(heightAt(x,z),-.95);},bounds:null});
 
 { // ground
   const g=new R.PlaneGeometry(170,170,150,150);g.rotateX(-Math.PI/2);
@@ -342,12 +343,20 @@ let vaultF;
   const pit=mesh(new R.PlaneGeometry(12,5.4),new R.MeshBasicMaterial({color:0x4E5A48}),-5,.05,-10.5,H,false,false);pit.rotation.x=-Math.PI/2;
   makeHeliotrope(H,-5,-10.5,1.3);
   // 金庫：門口右前方的噴水池，金幣被你吸過來
-  vaultF=makeMoneyFountain(out,hx+8.5,hz+12.8,heightAt(hx+8.5,hz+12.8));
+  // 金庫：三層圓形石階的祭壇，一條石板參道從小路分出來，四盞石燈，金色內嵌圓環
+  {const VY=heightAt(VX,VZ),stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),stone2=new R.MeshStandardMaterial({color:0xD8D1C3,roughness:.7}),gold=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.8,roughness:.25,emissive:0x3A2600});
+    [[4.4,.16,stone2],[3.6,.32,stone],[2.8,.48,stone2]].forEach(([r,h,m])=>{const c=new R.Mesh(new R.CylinderGeometry(r,r,h,64),m);c.position.set(VX,VY+h/2,VZ);c.receiveShadow=c.castShadow=true;out.add(c);});
+    [3.6,2.8].forEach(r=>{const g=new R.Mesh(new R.TorusGeometry(r-.12,.035,6,80),gold);g.rotation.x=Math.PI/2;g.position.set(VX,VY+(r>3?.33:.49),VZ);out.add(g);});
+    const az=VZ;for(let i=0;i<3;i++){const x=1.3+i*1.0;const sl=new R.Mesh(new R.BoxGeometry(.9,.1,1.3),stone);sl.position.set(x,heightAt(x,az)+.05,az);sl.receiveShadow=true;out.add(sl);}
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{const x=VX+a*3.9,z=VZ+b*3.9,y=heightAt(x,z);const post=new R.Mesh(new R.BoxGeometry(.32,1.3,.32),stone);post.position.set(x,y+.65,z);post.castShadow=true;out.add(post);
+      const lt=new R.Mesh(new R.BoxGeometry(.42,.32,.42),new R.MeshBasicMaterial({color:0xFFE2A8}));lt.position.set(x,y+1.45,z);out.add(lt);const cap=new R.Mesh(new R.BoxGeometry(.6,.08,.6),stone2);cap.position.set(x,y+1.65,z);out.add(cap);
+      const pl=new R.PointLight(0xFFCF8A,.35,6);pl.position.set(x,y+1.5,z);out.add(pl);});
+    vaultF=makeMoneyFountain(out,VX,VZ,VY+.48);}
   F.col.push({x0:hx-15,x1:hx+15,z0:hz-7.2,z1:hz+6.8});
   F.col.push({x0:hx-11.4,x1:hx+1.4,z0:hz-13.5,z1:hz-7.2});
-  F.col.push({x:hx+8.5,z:hz+12.8,r:2.1});
+  F.col.push({x:VX,z:VZ,r:2.0});[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>F.col.push({x:VX+a*3.9,z:VZ+b*3.9,r:.3}));
   label(out,'家',hx,y0+7.8,hz+7,'點門進去');
-  label(out,'金庫',hx+8.5,heightAt(hx+8.5,hz+12.8)+4.6,hz+12.8,'源源不絕');
+  label(out,'金庫',VX,heightAt(VX,VZ)+5.2,VZ,'源源不絕');
 }
 { // 蘑菇攝影棚
   const G=new R.Group(),y0=heightAt(mx,mz);G.position.set(mx,y0,mz);G.rotation.y=Math.PI/2*.9;out.add(G);
@@ -407,13 +416,13 @@ const pollen=(()=>{const n=260,p=new Float32Array(n*3);for(let i=0;i<n;i++){p[i*
   const o=new R.Points(g,new R.PointsMaterial({color:0xFFF4C8,size:.11,transparent:true,opacity:.8,depthWrite:false}));out.add(o);return o;})();
 F.hots=[
   {id:'house',name:'家',verb:'進門',x:hx,z:hz+7.8,r:2.4,go:()=>goto('f1','front')},
-  {id:'vault',name:'金庫 · 噴水池',verb:'看看',x:hx+8.5,z:hz+15,r:2.4},
+  {id:'vault',name:'金庫 · 噴水池',verb:'看看',x:VX,z:VZ+2.6,r:1.6},
   {id:'river',name:'記錄之河',verb:'查看',x:riverX(2)+5,z:2,r:3.2},
   {id:'studio',name:'蘑菇攝影棚',verb:'進入',x:mx+2.6,z:mz+.3,r:2.8},
   {id:'campfire',name:'營火',verb:'坐下',x:FX,z:FZ+1.6,r:3},
   {id:'fireflies',name:'螢火蟲',verb:'看看',x:6,z:11,r:3}
 ];
-F.spawns={start:[0,15,Math.PI,0],door:[hx,hz+10,0,0],vault:[hx+8.5,hz+17,Math.PI,0],river:[riverX(2)+5.6,2,-Math.PI/2,Math.PI/2],studio:[mx+4,mz+.5,-Math.PI/2,Math.PI/2],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[6,14.5,Math.PI,0]};
+F.spawns={start:[0,15,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(2)+5.6,2,-Math.PI/2,Math.PI/2],studio:[mx+4,mz+.5,-Math.PI/2,Math.PI/2],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[6,14.5,Math.PI,0]};
 F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
   pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);vaultF.update(dt,t);};
 
@@ -596,6 +605,9 @@ B2.ceil=ceiling(f2r.scene,W2,D2,H2);B2.ceilH=H2;B2.ceil.material=new R.MeshStand
   mesh(new R.CylinderGeometry(.14,.18,.25,10),mat(0xF4EFE6),5.5,.68,4.3,s);
   mesh(new R.ConeGeometry(.22,.24,12,1,true),new R.MeshStandardMaterial({color:0xFFE6B0,emissive:0xFFC77A,emissiveIntensity:.7,side:R.DoubleSide}),5.5,.95,4.3,s,false);
   const lamp=new R.PointLight(0xFFC77A,.55,7);lamp.position.set(5.5,1.2,4);s.add(lamp);
+  B2.bedPos={x:3.6,y:.92,z:2.45};
+  B2.blanket=mesh(new R.BoxGeometry(2.3,.16,2.2),new R.MeshStandardMaterial({color:0xE9DFD0,roughness:1}),3.6,1.02,2.15,s);B2.blanket.visible=false;
+  mesh(new R.BoxGeometry(2.32,.17,.3),new R.MeshStandardMaterial({color:0xF7F2EA,roughness:1}),0,.01,1.05,B2.blanket);
   const rug=mesh(new R.PlaneGeometry(3.6,2.4),mat(0xE9DDEB),1.6,.01,0,s,false);rug.rotation.x=-Math.PI/2;
   boxIn(B2,1.8,.1,.8,0xA97C55,-3.6,.85,-4.4,true);[[-4.4,-4.7],[-2.8,-4.7],[-4.4,-4.1],[-2.8,-4.1]].forEach(([x,z])=>boxIn(B2,.08,.8,.08,0x8C6646,x,.4,z,false));
   boxIn(B2,.5,.05,.36,0xF2C04E,-3.7,.93,-4.3,false);
@@ -624,13 +636,23 @@ const AT=addScene('attic',{scene:atr.scene,where:'家 · B2 禱告房',floor:()=
 let flame;
 {
   const s=atr.scene,wm=new R.MeshStandardMaterial({map:canvasTex(512,256,(g,w,h)=>{g.fillStyle='#C9C4BB';g.fillRect(0,0,w,h);for(let k=0;k<2500;k++){g.fillStyle=`rgba(${Math.random()<.5?70:255},${Math.random()<.5?66:255},60,.05)`;g.fillRect(Math.random()*w,Math.random()*h,2,2);}g.strokeStyle='rgba(80,76,70,.3)';g.lineWidth=2;for(let x=0;x<=w;x+=256){g.beginPath();g.moveTo(x,0);g.lineTo(x,h);g.stroke();}g.beginPath();g.moveTo(0,128);g.lineTo(w,128);g.stroke();g.fillStyle='rgba(60,56,50,.55)';for(let x=64;x<w;x+=128)for(let y=32;y<h;y+=64){g.beginPath();g.arc(x,y,4,0,7);g.fill();}},[2,1.2]),roughness:.95});
-  [[0,-DA/2,0],[0,DA/2,Math.PI],[-WA/2,0,Math.PI/2],[WA/2,0,-Math.PI/2]].forEach(([x,z,ry])=>{const m=new R.Mesh(new R.PlaneGeometry(WA,HA),wm);m.position.set(x,HA/2,z);m.rotation.y=ry;m.receiveShadow=true;s.add(m);});
+  [[0,DA/2,Math.PI],[-WA/2,0,Math.PI/2],[WA/2,0,-Math.PI/2]].forEach(([x,z,ry])=>{const m=new R.Mesh(new R.PlaneGeometry(WA,HA),wm);m.position.set(x,HA/2,z);m.rotation.y=ry;m.receiveShadow=true;s.add(m);});
   // 天花板：中間一道細縫，光從地面上方落下來
   const roof=new R.Group(),rm=new R.MeshStandardMaterial({color:0xBDB8AF,roughness:1,side:R.DoubleSide});
   [[-2.1,3.7],[2.1,3.7]].forEach(([x,w])=>{const m=new R.Mesh(new R.PlaneGeometry(w,DA),rm);m.rotation.x=Math.PI/2;m.position.set(x+(x<0?-.12:.12),HA,0);roof.add(m);});
   const sl=new R.Mesh(new R.PlaneGeometry(.24,DA*.7),new R.MeshBasicMaterial({color:0xFFF6DE,side:R.DoubleSide}));sl.rotation.x=Math.PI/2;sl.position.set(0,HA+.01,-.4);roof.add(sl);
   roof.visible=false;s.add(roof);AT.ceil=roof;AT.ceilH=HA;
-  const slitW=mesh(new R.PlaneGeometry(.16,3.2),new R.MeshBasicMaterial({color:0xFFF3D6}),0,1.9,-DA/2+.02,s,false,false);
+  // 禱告面對的牆：厚牆上一道長縫＋散落的不規則小窗（光從外面透進來）
+  {const bw=new R.Shape();bw.moveTo(-WA/2,0);bw.lineTo(WA/2,0);bw.lineTo(WA/2,HA);bw.lineTo(-WA/2,HA);bw.lineTo(-WA/2,0);
+    const holes=[[[-.08,.9],[.08,.9],[.08,4.0],[-.08,4.0]],
+      [[-3.3,2.7],[-2.75,2.8],[-2.85,3.6],[-3.25,3.45]],[[-2.2,1.5],[-1.85,1.45],[-1.8,2.1],[-2.25,2.05]],[[-1.4,3.3],[-.85,3.25],[-.95,3.75],[-1.35,3.8]],
+      [[-3.0,.9],[-2.7,.95],[-2.72,1.3],[-3.05,1.25]],[[1.0,2.4],[1.35,2.3],[1.4,3.2],[.95,3.1]],[[1.9,3.6],[2.6,3.55],[2.5,3.95],[1.95,4.0]],
+      [[2.3,1.2],[2.75,1.25],[2.7,1.9],[2.25,1.8]],[[3.1,2.5],[3.5,2.45],[3.45,3.05],[3.15,3.0]],[[-.75,1.8],[-.5,1.75],[-.48,2.15],[-.73,2.2]]];
+    holes.forEach(h=>{const p=new R.Path();p.moveTo(...h[0]);h.slice(1).forEach(v=>p.lineTo(...v));p.lineTo(...h[0]);bw.holes.push(p);});
+    const g=new R.ExtrudeGeometry(bw,{depth:.7,bevelEnabled:false});const tm=wm.map.clone();tm.needsUpdate=true;tm.repeat.set(.25,.26);
+    const wall=new R.Mesh(g,new R.MeshStandardMaterial({map:tm,roughness:.95}));wall.position.z=-DA/2-.7;wall.receiveShadow=true;s.add(wall);
+    const glow=new R.Mesh(new R.PlaneGeometry(WA,HA),new R.MeshBasicMaterial({color:0xFFF0D2}));glow.position.set(0,HA/2,-DA/2-.9);s.add(glow);
+    [[-3.0,3.1,0xF2C76A],[1.17,2.75,0x9CC4E4],[2.5,1.55,0xE8A3B0],[-2.02,1.78,0xB5D69A],[3.3,2.75,0xF2C76A]].forEach(([x,y,c])=>{const q=new R.Mesh(new R.PlaneGeometry(.7,.9),new R.MeshBasicMaterial({color:c}));q.position.set(x,y,-DA/2-.85);s.add(q);});}
   const beam=new R.Mesh(new R.CylinderGeometry(.5,1.1,RIDGE-.2,20,1,true),beamMat);beam.position.set(0,(RIDGE-.2)/2,-.4);s.add(beam);
   const spot=new R.SpotLight(0xFFF1D0,.9,8,.35,.6);spot.position.set(0,RIDGE,-.4);spot.target.position.set(0,0,-.4);spot.castShadow=true;s.add(spot);s.add(spot.target);
   mesh(new R.CylinderGeometry(.55,.6,.14,20),mat(0xD9583F,{flatShading:false}),0,.07,-.4,s);
@@ -643,6 +665,7 @@ let flame;
   for(let i=0;i<6;i++)boxIn(AT,1.3,.3*(i+1),.4,0xB5AEA3,2.9,.15*(i+1),1.6+i*.4,false);
   AT.col.push({x0:2.2,x1:3.6,z0:1.4,z1:3.9});
 }
+AT.kneel={x:0,y:.14,z:-.45};
 const fountainUpdate=makeFountain(atr.scene,-2.9,1.0);AT.col.push({x0:-3.45,x1:-2.35,z0:.55,z1:1.45});
 label(atr.scene,'轉運流水盆',-2.9,1.7,1.0,null,.5);
 label(atr.scene,'禱告',0,2.2,-.4,'晨間宣告 · 信念',.6);label(atr.scene,'樓梯 · 上樓',2.9,2.9,3,null,.55);
@@ -712,7 +735,7 @@ ST.hots=[
   {id:'podcast',name:'Podcast 桌',verb:'開錄',x:8.5,z:-3.0,r:1.4},
   {id:'home',name:'後台門',verb:'回家',x:-13,z:-3,r:1.6,go:()=>goto('f1','stage')}
 ];
-ST.spawns={back:[-12,-3,Math.PI/2,-Math.PI/2],mic:[0,-2.4,0,Math.PI],choir:[0,-8.8,0,Math.PI,-.26],podcast:[8.5,-3.05,0,Math.PI,.12]};
+ST.spawns={back:[-12.4,-.6,Math.PI/2,-Math.PI/2],mic:[0,-2.4,0,Math.PI],choir:[0,-8.8,0,Math.PI,-.26],podcast:[8.5,-3.05,0,Math.PI,.12]};
 ST.update=(dt,t)=>{ST.choirLbl.visible=ST.micLbl.visible=!(P.z<-6.5&&P.y>1.5);followSpot.target.position.set(P.x,P.y,P.z);const on=P.y>.4;followSpot.intensity=on?1.3:.5;
   const sea=ST.sea,pa=sea.pts.geometry.attributes.position;sea.base.forEach((b,i)=>{const w=on?Math.sin(t*3.2+b[0]*.35+b[2]*.1)*.22:Math.sin(t*1.2+i)*.05;pa.setXYZ(i,b[0]+(on?Math.sin(t*3.2+b[0]*.35)*.12:0),b[1]+w,b[2]);});pa.needsUpdate=true;
   sea.pts.material.opacity+=((on?1:.3)-sea.pts.material.opacity)*Math.min(1,dt*2.5);};
@@ -755,6 +778,8 @@ const player=new R.Group();const body={};
   mesh(new R.SphereGeometry(.22,12,10),skin,0,1.56,0,player);
   const h=mesh(new R.SphereGeometry(.245,12,10,0,Math.PI*2,0,Math.PI*.62),hair,0,1.58,-.02,player);h.rotation.x=-.25;
   mesh(new R.SphereGeometry(.11,8,6),hair,0,1.76,-.17,player);
+  const eyeM=mat(0x2A211B,{flatShading:false});body.eyes=[-.075,.075].map(x=>mesh(new R.SphereGeometry(.026,8,6),eyeM,x,1.58,.205,player,false));
+  body.shut=[-.075,.075].map(x=>{const m=mesh(new R.BoxGeometry(.07,.014,.01),eyeM,x,1.575,.213,player,false);m.visible=false;return m;});
   mesh(new R.BoxGeometry(.36,.42,.08),hair,0,1.42,-.2,player);
 }
 const P={x:0,z:15,y:0,face:Math.PI,yaw:0,pitch:-.08,orbit:.42,speed:6.2,walkT:0,moving:false};
@@ -817,6 +842,24 @@ function step(dt){
   player.position.set(P.x,P.y,P.z);player.rotation.y=P.face;
   const sw=P.moving?Math.sin(P.walkT):0;body.legL.rotation.x=sw*.6;body.legR.rotation.x=-sw*.6;body.armL.rotation.x=-sw*.5;body.armR.rotation.x=sw*.5;
   player.position.y+=P.moving?Math.abs(Math.cos(P.walkT))*.05:0;
+  applyPose(dt);
+}
+/* 姿勢：靠近床就躺下蓋被子，靠近禱告墊就跪下合十閉眼 */
+let pose=null,stillT=0;
+function applyPose(dt){
+  stillT=P.moving?0:stillT+dt;
+  let want=null;
+  if(stillT>.25&&curHot){if(curHot.id==='bed')want='sleep';else if(curHot.id==='pray')want='pray';}
+  pose=want;
+  player.rotation.order='YXZ';player.rotation.x=0;
+  body.legL.position.set(-.1,.28,0);body.legR.position.set(.1,.28,0);body.armL.rotation.z=0;body.armR.rotation.z=0;
+  const closed=!!pose;body.eyes.forEach(e=>e.visible=!closed);body.shut.forEach(e=>e.visible=closed);
+  if(SC.f2.blanket)SC.f2.blanket.visible=pose==='sleep';
+  if(pose==='sleep'){const B=SC.f2.bedPos;player.position.set(B.x,B.y,B.z);player.rotation.y=Math.PI;player.rotation.x=-Math.PI/2;
+    body.legL.rotation.x=body.legR.rotation.x=0;body.armL.rotation.x=body.armR.rotation.x=0;}
+  else if(pose==='pray'){const K=SC.attic.kneel;player.position.set(K.x,K.y-.42,K.z);player.rotation.y=Math.PI;
+    body.legL.rotation.x=body.legR.rotation.x=Math.PI/2;body.legL.position.set(-.1,.42,-.22);body.legR.position.set(.1,.42,-.22);
+    body.armL.rotation.x=body.armR.rotation.x=-1.05;body.armL.rotation.z=.5;body.armR.rotation.z=-.5;}
 }
 const camPos=new R.Vector3(),look=new R.Vector3();let camInit=true;
 function updateCamera(dt){
@@ -863,8 +906,8 @@ function openInfo(id){const x=INFO[id];if(!x)return;
     ${x.soon?`<p style="font-size:13px;color:var(--muted)">這個地方的工具會在之後接上。</p>`:''}
     <div class="row">${links}<button class="btn light" data-close>回到場景</button></div>`);}
 const PLACES=[
-  ['森林',[['森林入口','起點',['forest','start']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']]]],
-  ['家 · 1F',[['玄關','1F',['f1','front']],['日曆牆','每日 · 每週',['f1','cal']],['廚房餐廳','飲食',['f1','kitchen']],['衣帽間','穿搭 · 外型',['f1','closet']],['健身房','身體',['f1','gym']],['金庫 · 門口','理財 · 保險',['forest','vault']]]],
+  ['森林',[['森林入口','起點',['forest','start']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
+  ['家 · 1F',[['玄關','1F',['f1','front']],['日曆牆','每日 · 每週',['f1','cal']],['廚房餐廳','飲食',['f1','kitchen']],['衣帽間','穿搭 · 外型',['f1','closet']],['健身房','身體',['f1','gym']]]],
   ['地下',[['B1 臥室','作息 · 白水木',['f2','bed']],['B2 禱告房','晨間宣告 · 流水盆',['attic','ladder']]]],
   ['舞台',[['後台入口','從家裡的舞台門進來',['stage','back']],['Vocal','',['stage','mic']],['合唱台','合唱團',['stage','choir']],['Podcast 桌','不專業音樂電台',['stage','podcast']]]]
 ];

@@ -190,7 +190,7 @@ function makeFountain(parent,x,z){
    SCENE REGISTRY
    ========================================================= */
 const SC={};
-function addScene(id,o){SC[id]=Object.assign({id,col:[],hots:[],indoor:true,camDist:5.6,camMin:.78,ceil:null,update:null},o);return SC[id];}
+function addScene(id,o){SC[id]=Object.assign({id,col:[],hots:[],indoor:true,camDist:4.6,camMin:.12,orbit0:.2,ceil:null,update:null},o);return SC[id];}
 function makeRoom({W,D,WH,bg=0x3A302A,wall=0xF6EBDA,floorMap,floorColor,hemi=.45,sunI=.5,shadow=14}){
   const s=new R.Scene();s.background=new R.Color(bg);
   s.add(new R.HemisphereLight(0xFFF3E0,0x6B5440,hemi));
@@ -238,7 +238,7 @@ const FX=16,FZ=5;
 const PATHS=[[0,26,0,-3.5],[0,14,mx+3,mz],[0,12,FX-2.5,FZ+1.5],[0,4,riverX(2)+5,2]];
 function segD(px,pz,a){const[x1,z1,x2,z2]=a,dx=x2-x1,dz=z2-z1,L=dx*dx+dz*dz;let t=L?((px-x1)*dx+(pz-z1)*dz)/L:0;t=clamp(t,0,1);return Math.hypot(px-(x1+t*dx),pz-(z1+t*dz));}
 const pathD=(x,z)=>Math.min(...PATHS.map(p=>segD(x,z,p)));
-const F=addScene('forest',{scene:out,indoor:false,camDist:7.2,camMin:.12,where:'森林',
+const F=addScene('forest',{scene:out,indoor:false,camDist:7.2,camMin:.12,orbit0:.42,where:'森林',
   floor:(x,z)=>Math.max(heightAt(x,z),-.95),bounds:null});
 
 { // ground
@@ -326,6 +326,11 @@ const waterMat=new R.ShaderMaterial({transparent:true,depthWrite:false,
   mesh(new R.PlaneGeometry(19,3.2),warm,-.6,2.15,-5.38,H,false,false);   // 室內暖光（透過玻璃看到）
   for(let i=0;i<9;i++){const x=-9.4+i*2.1;if(Math.abs(x)<1)continue;mesh(new R.PlaneGeometry(2.05,3.3),glass,x,2.15,3.8,H,false,false);mesh(new R.BoxGeometry(.07,3.3,.09),frameM,x+1.05,2.15,3.8,H,false);}
   mesh(new R.BoxGeometry(19.6,.08,.1),frameM,-.6,3.82,3.8,H,false);
+  // 微遮擋：玻璃外一排細木格柵＋玻璃內兩段亞麻紗簾，從森林只看得到隱約的暖光
+  const finM=new R.MeshStandardMaterial({map:planksTex([.3,2]),roughness:.8});
+  for(let x=-10.1;x<8.8;x+=.55){if(Math.abs(x)<1.1)continue;mesh(new R.BoxGeometry(.07,3.6,.32),finM,x,2.2,4.15,H);}
+  const lin=new R.MeshStandardMaterial({color:0xF2ECE2,transparent:true,opacity:.6,roughness:1,side:R.DoubleSide,depthWrite:false});
+  [[-7.6,3.6],[5.6,4.2]].forEach(([x,w])=>mesh(new R.PlaneGeometry(w,3.1),lin,x,2.15,3.55,H,false,false));
   mesh(new R.BoxGeometry(1.7,2.7,.12),mat(0x8A6142),0,1.85,3.82,H);      // 木門
   mesh(new R.SphereGeometry(.07,8,6),mat(0xD9B35A,{metalness:.5}),.55,1.8,3.95,H,false);
   const lamp=new R.PointLight(0xFFC77A,.55,9);lamp.position.set(0,3.3,5);H.add(lamp);
@@ -421,14 +426,14 @@ const beamMat=new R.MeshBasicMaterial({color:0xFFF3D2,transparent:true,opacity:.
 /* =========================================================
    2 · HOME 1F
    ========================================================= */
-const W1=18,D1=14,H1=3.6;
-const f1r=makeRoom({W:W1,D:D1,WH:H1,floorMap:planksTex([3,3])});
+const W1=19.6,D1=9.2,H1=3.6;
+const f1r=makeRoom({W:W1,D:D1,WH:H1,floorMap:planksTex([3.2,1.6]),wall:0xDCD7CE,bg:0xCFE3D6,hemi:.55,sunI:.6,shadow:16});
+f1r.scene.children.filter(o=>o.isMesh&&Math.abs(o.position.z-D1/2)<.05).forEach(o=>o.visible=false);
 const H1S=addScene('f1',{scene:f1r.scene,where:'家 · 1F',floor:()=>0,bounds:[-W1/2+.45,W1/2-.45,-D1/2+.45,D1/2-.45]});
 H1S.ceil=ceiling(f1r.scene,W1,D1,H1);
 {
   const s=f1r.scene,glow=new R.MeshBasicMaterial({color:0xFFF0CC});
-  [[-6,-D1/2+.02],[-2.8,-D1/2+.02]].forEach(([x,z])=>mesh(new R.PlaneGeometry(1.8,1.5),glow,x,2.2,z,s,false,false));
-  const rug=mesh(new R.CircleGeometry(3.2,32),mat(0xCDAE8A,{flatShading:false}),0,.01,.5,s,false);rug.rotation.x=-Math.PI/2;
+  const rug=mesh(new R.CircleGeometry(2.4,32),mat(0xD8C8B0,{flatShading:false}),0,.01,.4,s,false);rug.rotation.x=-Math.PI/2;
   const now=new Date();
   const cal=new R.Mesh(new R.PlaneGeometry(3.4,2.65),new R.MeshStandardMaterial({roughness:.9,map:canvasTex(512,400,(g)=>{
     g.fillStyle='#FFFDF7';g.fillRect(0,0,512,400);g.fillStyle='#D9583F';g.fillRect(0,0,512,70);
@@ -439,35 +444,59 @@ H1S.ceil=ceiling(f1r.scene,W1,D1,H1);
     for(let d=1;d<=days;d++){const k=first+d-1,cx=(k%7)*73,cy=70+Math.floor(k/7)*66;if(cy>390)break;
       if(d===now.getDate()){g.fillStyle='#F2C04E';g.fillRect(cx+2,cy+2,69,62);}g.fillStyle='#3E2E24';g.fillText(String(d),cx+8,cy+6);
       if(d%7===3||d%9===1){g.fillStyle=['#7DB7C4','#8DB86C','#D9583F'][d%3];g.beginPath();g.arc(cx+52,cy+44,7,0,7);g.fill();}}})}));
-  cal.position.set(-W1/2+.12,2.05,.4);cal.rotation.y=Math.PI/2;s.add(cal);
-  boxIn(H1S,.12,2.85,3.6,0xA97C55,-W1/2+.04,2.05,.4,false);
-  boxIn(H1S,4.6,1,1,0xE9D8BF,-6.4,.5,-6.4,true);boxIn(H1S,4.6,.12,1.1,0xA97C55,-6.4,1.04,-6.4,false);boxIn(H1S,.9,.3,.6,0x7DB7C4,-7.4,1.25,-6.4,false);
-  boxIn(H1S,2.4,.12,1.4,0xA97C55,-5,.85,-3.4,false);[[-6,-3.9],[-4,-3.9],[-6,-2.9],[-4,-2.9]].forEach(([x,z])=>boxIn(H1S,.1,.8,.1,0x8C6646,x,.4,z,false));
-  H1S.col.push({x0:-6.3,x1:-3.7,z0:-4.2,z1:-2.6});
-  mesh(new R.CylinderGeometry(.22,.18,.3,10),mat(0xF2C04E),-5.3,1.06,-3.4,s);
-  boxIn(H1S,1,2.8,4,0xEFE3D0,W1/2-.6,1.4,3.6,true);
-  const cc=[0xD9583F,0x7DB7C4,0xF2C04E,0x8DB86C,0xC98BB0,0xFFF6E8];for(let i=0;i<6;i++)boxIn(H1S,.5,1.2+((i*37)%5)*.12,.42,cc[i],W1/2-1.3,1.7,2.0+i*.62,false);
-  boxIn(H1S,.06,.06,3.8,0x8C6646,W1/2-1.3,2.4,3.6,false);
-  mesh(new R.BoxGeometry(.08,1.8,.9),new R.MeshStandardMaterial({color:0xDDEFF2,roughness:.15,metalness:.3}),W1/2-.05,1.4,6.2,s);
-  mesh(new R.BoxGeometry(3,.06,1.6),mat(0x8DB86C),5.6,.03,-.8,s,false);
-  boxIn(H1S,.5,.5,.5,0x5E6A70,4.4,.25,-2.4,false);boxIn(H1S,.5,.5,.5,0x5E6A70,5.2,.25,-2.4,false);
-  boxIn(H1S,1.6,.9,.6,0x4E5A60,7.6,.45,-.8,true);mesh(new R.CylinderGeometry(.05,.05,1.2,6),mat(0x2A211B),7.6,1.1,-.8,s).rotation.x=Math.PI/2;
-  {const hole=mesh(new R.PlaneGeometry(1.7,4.2),new R.MeshBasicMaterial({color:0x3A3029}),-7.9,.012,4.5,s,false,false);hole.rotation.x=-Math.PI/2;
-    for(let i=0;i<5;i++){const st=mesh(new R.PlaneGeometry(1.6,.5),mat(0x8E7458-(i*0x080604)),-7.9,.014,6.3-i*.62,s,false,false);st.rotation.x=-Math.PI/2;}
-    boxIn(H1S,.06,.9,4.2,0x2E2A25,-7.0,.45,4.5,false);boxIn(H1S,1.7,.9,.06,0x2E2A25,-7.9,.45,2.4,false);}
-  H1S.col.push({x0:-8.8,x1:-7.0,z0:2.3,z1:6.7});
-  boxIn(H1S,2.6,.8,1,0xE39A6D,3.5,.4,5.6,true);boxIn(H1S,2.6,.7,.3,0xD9724F,3.5,.95,6.0,false);
+  cal.position.set(-W1/2+.12,2.05,-2.2);cal.rotation.y=Math.PI/2;s.add(cal);
+  boxIn(H1S,.12,2.85,3.6,0xA97C55,-W1/2+.04,2.05,-2.2,false);
+  boxIn(H1S,4.6,1,1,0xE9E4DA,-5.6,.5,-D1/2+.6,true);boxIn(H1S,4.6,.12,1.1,0x8A6A4C,-5.6,1.04,-D1/2+.6,false);boxIn(H1S,.9,.3,.6,0x9FB4BA,-6.6,1.25,-D1/2+.6,false);
+  boxIn(H1S,2.4,.12,1.4,0x8A6A4C,-5,.85,-1.5,false);[[-6,-2],[-4,-2],[-6,-1],[-4,-1]].forEach(([x,z])=>boxIn(H1S,.1,.8,.1,0x2E2A25,x,.4,z,false));
+  H1S.col.push({x0:-6.3,x1:-3.7,z0:-2.3,z1:-.7});
+  mesh(new R.CylinderGeometry(.22,.18,.3,10),mat(0xE8E2D6),-5.3,1.06,-1.5,s);
+  boxIn(H1S,1,2.8,4,0xEFE3D0,W1/2-.6,1.4,-1.6,true);
+  const cc=[0xD9583F,0x7DB7C4,0xF2C04E,0x8DB86C,0xC98BB0,0xFFF6E8];for(let i=0;i<6;i++)boxIn(H1S,.5,1.2+((i*37)%5)*.12,.42,cc[i],W1/2-1.3,1.7,-3.2+i*.62,false);
+  boxIn(H1S,.06,.06,3.8,0x8C6646,W1/2-1.3,2.4,-1.6,false);
+  mesh(new R.BoxGeometry(.08,1.8,.9),new R.MeshStandardMaterial({color:0xDDEFF2,roughness:.15,metalness:.3}),W1/2-.05,1.4,1.2,s);
+  mesh(new R.BoxGeometry(3,.06,1.6),mat(0x9AAE84),5.4,.03,1.6,s,false);
+  boxIn(H1S,.5,.5,.5,0x5E6A70,3.7,.25,.9,false);boxIn(H1S,.5,.5,.5,0x5E6A70,3.7,.25,1.6,false);
+  boxIn(H1S,1.6,.9,.6,0x4E5A60,7.9,.45,2.2,true);mesh(new R.CylinderGeometry(.05,.05,1.2,6),mat(0x2A211B),7.9,1.1,2.2,s).rotation.x=Math.PI/2;
+  {const hole=mesh(new R.PlaneGeometry(1.7,3.2),new R.MeshBasicMaterial({color:0x3A3029}),-7.9,.012,2.4,s,false,false);hole.rotation.x=-Math.PI/2;
+    for(let i=0;i<5;i++){const st=mesh(new R.PlaneGeometry(1.6,.5),mat(0x8E7458-(i*0x080604)),-7.9,.014,3.7-i*.62,s,false,false);st.rotation.x=-Math.PI/2;}
+    boxIn(H1S,.06,.9,3.2,0x2E2A25,-7.0,.45,2.4,false);boxIn(H1S,1.7,.9,.06,0x2E2A25,-7.9,.45,.8,false);}
+  H1S.col.push({x0:-8.8,x1:-7.0,z0:.7,z1:4.1});
+  boxIn(H1S,2.8,.7,1,0xD9CBB4,-2.8,.35,2.6,true);boxIn(H1S,2.8,.7,.3,0xCBBCA3,-2.8,.9,3.0,false);
   boxIn(H1S,1.5,2.6,.15,0xB8402F,-.6,1.3,-D1/2+.08,false);
   const sh=new R.Shape();sh.moveTo(-.75,0);sh.lineTo(.75,0);sh.lineTo(.75,1.9);sh.absarc(0,1.9,.75,0,Math.PI,false);sh.lineTo(-.75,0);
   mesh(new R.ShapeGeometry(sh,20),portalMat,2.6,0,-D1/2+.06,s,false,false);
   boxIn(H1S,.22,2.8,.25,0xE9D8BF,1.75,1.4,-D1/2+.12,false);boxIn(H1S,.22,2.8,.25,0xE9D8BF,3.45,1.4,-D1/2+.12,false);
-  const fd=mesh(new R.PlaneGeometry(1.6,2.6),new R.MeshStandardMaterial({color:0x9C6B45,roughness:.9}),0,1.3,D1/2-.03,s,false);fd.rotation.y=Math.PI;
+  // 正面：整排落地玻璃＋木格柵微遮擋，看出去是真實的外面
+  const fz=D1/2,gl=new R.MeshStandardMaterial({color:0xD6E6E6,transparent:true,opacity:.14,roughness:.05,depthWrite:false,side:R.DoubleSide});
+  mesh(new R.PlaneGeometry(W1,H1),gl,0,H1/2,fz,s,false,false);
+  const fr=mat(0x2E2A25,{metalness:.4,flatShading:false});
+  for(let i=0;i<=9;i++){const x=-W1/2+i*W1/9;mesh(new R.BoxGeometry(.07,H1,.09),fr,x,H1/2,fz,s,false);}
+  mesh(new R.BoxGeometry(W1,.1,.1),fr,0,H1-.05,fz,s,false);
+  const fd=mesh(new R.BoxGeometry(1.7,2.7,.1),new R.MeshStandardMaterial({color:0x8A6142,roughness:.85}),0,1.35,fz,s);
+  H1S.col.push({x0:-W1/2,x1:W1/2,z0:fz-.1,z1:fz+.4});
+  const finM=new R.MeshStandardMaterial({map:planksTex([.3,2]),roughness:.8});
+  for(let x=-W1/2+.3;x<W1/2;x+=.55){if(Math.abs(x)<1.1)continue;mesh(new R.BoxGeometry(.07,H1+.3,.32),finM,x,(H1+.3)/2,fz+.35,s);}
+  const lin=new R.MeshStandardMaterial({color:0xF2ECE2,transparent:true,opacity:.55,roughness:1,side:R.DoubleSide,depthWrite:false});
+  [[-7.4,3.6],[6.6,4.2]].forEach(([x,w])=>mesh(new R.PlaneGeometry(w,H1-.2),lin,x,H1/2,fz-.25,s,false,false));
+  // 外面：平台、屋簷、水池、草地、森林
+  const conc=mat(0xD6D1C8,{flatShading:false});
+  mesh(new R.BoxGeometry(W1+4,.5,3),conc,0,-.24,fz+1.5,s,false);
+  mesh(new R.BoxGeometry(W1+1,.5,1.8),conc,0,H1+.25,fz+.7,s,false);
+  const grass=new R.Mesh(new R.PlaneGeometry(140,80),new R.MeshStandardMaterial({color:0x7FA35F,roughness:1}));grass.rotation.x=-Math.PI/2;grass.position.set(0,-.5,fz+40);s.add(grass);
+  mesh(new R.BoxGeometry(9.4,.7,3.6),conc,6.1,-.15,fz+5.3,s,false);
+  const pw=mesh(new R.PlaneGeometry(8.8,3),new R.MeshStandardMaterial({color:0x7FB2B8,roughness:.08,metalness:.2}),6.1,.21,fz+5.3,s,false);pw.rotation.x=-Math.PI/2;
+  const path=mesh(new R.PlaneGeometry(2.4,30),mat(0xD2B98E),0,-.48,fz+18,s,false);path.rotation.x=-Math.PI/2;
+  const tc=mat(0x4F7E4E),tc2=mat(0x6E9A5B),tr=mat(0x8C6646);
+  for(let i=0;i<46;i++){const a=i*2.39,r=14+(i*7)%22,x=Math.sin(a)*r*1.6,z=fz+10+Math.abs(Math.cos(a))*r;if(Math.abs(x)<3&&z<fz+30)continue;
+    const k=.9+((i*13)%7)/8;mesh(new R.CylinderGeometry(.18*k,.28*k,2.6*k,6),tr,x,-.5+1.3*k,z,s,false);
+    if(i%2)mesh(new R.ConeGeometry(1.7*k,4*k,7),tc,x,-.5+4.2*k,z,s,false);else mesh(new R.IcosahedronGeometry(1.8*k,0),tc2,x,-.5+3.8*k,z,s,false);}
+  const outSun=new R.DirectionalLight(0xFFF0D8,.5);outSun.position.set(6,12,30);s.add(outSun);
   const lampIn=new R.PointLight(0xFFD49A,.32,16);lampIn.position.set(0,3.2,1);s.add(lampIn);
 }
 
 /* 金庫 · 噴水池：水不停往上噴，金幣被你吸過來、砸在身上，躲都躲不掉 */
 const moneyFountain=(()=>{
-  const s=f1r.scene,FX0=6.6,FZ0=-4.9,G=new R.Group();G.position.set(FX0,0,FZ0);s.add(G);
+  const s=f1r.scene,FX0=6.6,FZ0=-2.6,G=new R.Group();G.position.set(FX0,0,FZ0);s.add(G);
   const stoneM=new R.MeshStandardMaterial({color:0xE8E2D6,roughness:.5});
   const basin=new R.Mesh(new R.LatheGeometry([new R.Vector2(.001,0),new R.Vector2(1.15,0),new R.Vector2(1.25,.1),new R.Vector2(1.25,.42),new R.Vector2(1.12,.46),new R.Vector2(1.08,.3),new R.Vector2(.001,.3)],48),stoneM);basin.castShadow=basin.receiveShadow=true;G.add(basin);
   const wm=new R.MeshStandardMaterial({color:0x8CC3C8,roughness:.1,metalness:.1,transparent:true,opacity:.75});
@@ -496,7 +525,7 @@ const moneyFountain=(()=>{
       c.v.y-=dt*9.8;c.p.addScaledVector(c.v,dt);
       if(c.p.y<.02){c.p.y=.02;if(Math.abs(c.v.y)>1.2){c.v.y*=-.35;c.v.x*=.6;c.v.z*=.6;}else{c.v.set(0,0,0);}}
       const inB=Math.hypot(c.p.x-FX0,c.p.z-FZ0)<1.1;if(inB&&c.p.y<.36&&c.v.y<0){c.p.y=.36;c.v.set(0,0,0);}
-      c.p.x=Math.max(-8.6,Math.min(8.6,c.p.x));c.p.z=Math.max(-6.6,Math.min(6.6,c.p.z));
+      c.p.z=Math.max(-D1/2+.4,Math.min(D1/2-.4,c.p.z));c.p.x=Math.max(-W1/2+.4,Math.min(W1/2-.4,c.p.x));
       if(c.life>(near?4.5:3)){c.life=-(near?Math.random()*.3:.5+Math.random()*2);}
       c.spin+=dt*c.sp;e.set(c.spin,c.spin*.7,0);q.setFromEuler(e);m4.compose(c.p,q,one);coins.setMatrixAt(i,m4);});
     coins.instanceMatrix.needsUpdate=true;q.identity();}};
@@ -509,25 +538,25 @@ const dog=new R.Group();{const fur=mat(0xC79B6D),dark=mat(0x6B4A30);
   [[-.12,.2],[.12,.2],[-.12,-.2],[.12,-.2]].forEach(([x,z])=>mesh(new R.BoxGeometry(.08,.2,.08),dark,x,.1,z,dog));
   const tail=mesh(new R.BoxGeometry(.06,.06,.26),fur,0,.45,-.38,dog);tail.rotation.x=-.6;dog.userData.tail=tail;}
 dog.position.set(1.5,0,1);f1r.scene.add(dog);const dogAI={tx:1.5,tz:1,wait:1};
-[['日曆牆',-W1/2+1.2,3.4,.4],['廚房餐廳',-5.6,2.8,-4.6],['衣帽間',W1/2-1.4,3.5,3.6],['健身房',5.8,2.4,-1.4],['金庫 · 噴水池',6.6,3.4,-4.9],['樓梯 · 往下',-7.4,3.0,4.4],['舞台門',-.6,3.3,-D1/2+.6],['世界之門',2.6,3.6,-D1/2+.6]].forEach(([t,x,y,z])=>label(f1r.scene,t,x,y,z,null,.62));
+[['日曆牆',-W1/2+1.2,3.2,-2.2],['廚房餐廳',-5.6,2.6,-3.6],['衣帽間',W1/2-1.4,3.3,-1.6],['健身房',5.4,2.3,1.6],['金庫 · 噴水池',6.6,3.2,-2.6],['樓梯 · 往下',-7.4,2.6,2.4],['舞台門',-.6,3.3,-D1/2+.6],['世界之門',2.6,3.6,-D1/2+.6]].forEach(([t,x,y,z])=>label(f1r.scene,t,x,y,z,null,.62));
 H1S.hots=[
-  {id:'cal',name:'日曆牆',verb:'查看',x:-W1/2+1.6,z:.4,r:2},
-  {id:'kitchen',name:'廚房餐廳',verb:'查看',x:-5,z:-1.9,r:2},
+  {id:'cal',name:'日曆牆',verb:'查看',x:-W1/2+1.6,z:-2.2,r:2},
+  {id:'kitchen',name:'廚房餐廳',verb:'查看',x:-5,z:-.2,r:1.8},
   {id:'lucky',name:'Lucky',verb:'摸摸',dyn:true,r:1.7},
-  {id:'closet',name:'衣帽間',verb:'打開',x:W1/2-2.2,z:3.6,r:2},
-  {id:'gym',name:'健身房',verb:'開始',x:5.6,z:-.8,r:2},
-  {id:'vault',name:'金庫 · 噴水池',verb:'看看',x:5.2,z:-3.6,r:1.8},
-  {id:'stairs',name:'樓梯',verb:'下樓到臥室',x:-6.4,z:3.9,r:1.3,go:()=>goto('f2','stairs')},
+  {id:'closet',name:'衣帽間',verb:'打開',x:W1/2-2.2,z:-1.6,r:2},
+  {id:'gym',name:'健身房',verb:'開始',x:5.4,z:1.6,r:1.6},
+  {id:'vault',name:'金庫 · 噴水池',verb:'看看',x:5.0,z:-2.0,r:1.6},
+  {id:'stairs',name:'樓梯',verb:'下樓到臥室',x:-6.4,z:2.4,r:1.3,go:()=>goto('f2','stairs')},
   {id:'stagedoor',name:'舞台門',verb:'開門',x:-.6,z:-D1/2+1.3,r:1.4,go:()=>goto('stage','back')},
   {id:'worlddoor',name:'世界之門',verb:'穿過',x:2.6,z:-D1/2+1.3,r:1.4},
-  {id:'front',name:'回到森林',verb:'出門',x:0,z:D1/2-1.2,r:1.5,go:()=>goto('forest','door')}
+  {id:'front',name:'回到森林',verb:'出門',x:0,z:D1/2-.9,r:1.4,go:()=>goto('forest','door')}
 ];
-H1S.spawns={front:[0,D1/2-2.4,Math.PI,0],stairs:[-6.0,3.6,Math.PI/2,-Math.PI/2],stage:[-.6,-D1/2+1.8,0,Math.PI],cal:[-W1/2+2,.4,-Math.PI/2,Math.PI/2],kitchen:[-5,-1.6,Math.PI,0],closet:[W1/2-2.6,3.6,Math.PI/2,-Math.PI/2],gym:[5.6,1,Math.PI,0],vault:[4.6,-2.8,Math.PI*.75,-Math.PI/4]};
+H1S.spawns={front:[0,D1/2-1.8,Math.PI,0],stairs:[-6.0,2.4,Math.PI/2,-Math.PI/2],stage:[-.6,-D1/2+1.6,0,Math.PI],cal:[-W1/2+2.2,-2.2,-Math.PI/2,Math.PI/2],kitchen:[-5,.4,Math.PI,0],closet:[W1/2-2.6,-1.6,Math.PI/2,-Math.PI/2],gym:[5.4,3.3,Math.PI,0],vault:[4.4,-.4,Math.PI*.75,-Math.PI/4]};
 H1S.update=(dt,t)=>{moneyFountain.update(dt,t);
   const dx=dogAI.tx-dog.position.x,dz=dogAI.tz-dog.position.z,d=Math.hypot(dx,dz);
   if(d>.1){dog.position.x+=dx/d*dt*1.6;dog.position.z+=dz/d*dt*1.6;dog.rotation.y=Math.atan2(dx,dz);}
   else{dogAI.wait-=dt;if(dogAI.wait<0){const near=Math.hypot(P.x-dog.position.x,P.z-dog.position.z)<5&&rand()<.6;
-    dogAI.tx=near?clamp(P.x+(rand()-.5)*1.6,-3,3):(rand()-.5)*6;dogAI.tz=near?clamp(P.z+(rand()-.5)*1.6,-2.5,3.5):(rand()-.5)*5+.5;dogAI.wait=1+rand()*2.5;}}
+    dogAI.tx=near?clamp(P.x+(rand()-.5)*1.6,-3,3):(rand()-.5)*6;dogAI.tz=near?clamp(P.z+(rand()-.5)*1.6,-2.5,3.2):(rand()-.5)*4+.6;dogAI.wait=1+rand()*2.5;}}
   dog.userData.tail.rotation.y=Math.sin(t*14)*.6;
 };
 
@@ -537,7 +566,7 @@ H1S.update=(dt,t)=>{moneyFountain.update(dt,t);
 const W2=14,D2=10,H2=3.3;
 const f2r=makeRoom({W:W2,D:D2,WH:H2,floorMap:planksTex([2.4,1.8]),wall:0xEDE7DE,bg:0xDCE6E4,hemi:.5,sunI:.55,shadow:14});
 f2r.scene.children.filter(o=>o.isMesh&&Math.abs(o.position.z+D2/2)<.05).forEach(o=>o.visible=false);
-const B2=addScene('f2',{scene:f2r.scene,where:'家 · B1 臥室',floor:()=>0,bounds:[-W2/2+.45,W2/2-.45,-D2/2+.45,D2/2-.45],camDist:5.2});
+const B2=addScene('f2',{scene:f2r.scene,where:'家 · B1 臥室',floor:()=>0,bounds:[-W2/2+.45,W2/2-.45,-D2/2+.45,D2/2-.45],camDist:4.4});
 B2.ceil=ceiling(f2r.scene,W2,D2,H2);
 {
   const s=f2r.scene;
@@ -586,7 +615,7 @@ B2.spawns={stairs:[-3.8,3.4,Math.PI/2,-Math.PI/2],ladder:[-4.4,-1.0,Math.PI/2,-M
    ========================================================= */
 const WA=8,DA=8,HA=3.8,RIDGE=3.8;
 const atr=makeRoom({W:WA,D:DA,WH:0,floorMap:planksTex([1.5,1.5]),bg:0x2E2620,hemi:.32,sunI:.25,shadow:6});
-const AT=addScene('attic',{scene:atr.scene,where:'家 · B2 禱告房',floor:()=>0,bounds:[-WA/2+.5,WA/2-.5,-DA/2+.5,DA/2-.5],camDist:4.4,camMin:.9});
+const AT=addScene('attic',{scene:atr.scene,where:'家 · B2 禱告房',floor:()=>0,bounds:[-WA/2+.5,WA/2-.5,-DA/2+.5,DA/2-.5],camDist:4,camMin:.12});
 let flame;
 {
   const s=atr.scene,wm=new R.MeshStandardMaterial({map:canvasTex(512,256,(g,w,h)=>{g.fillStyle='#C9C4BB';g.fillRect(0,0,w,h);for(let k=0;k<2500;k++){g.fillStyle=`rgba(${Math.random()<.5?70:255},${Math.random()<.5?66:255},60,.05)`;g.fillRect(Math.random()*w,Math.random()*h,2,2);}g.strokeStyle='rgba(80,76,70,.3)';g.lineWidth=2;for(let x=0;x<=w;x+=256){g.beginPath();g.moveTo(x,0);g.lineTo(x,h);g.stroke();}g.beginPath();g.moveTo(0,128);g.lineTo(w,128);g.stroke();g.fillStyle='rgba(60,56,50,.55)';for(let x=64;x<w;x+=128)for(let y=32;y<h;y+=64){g.beginPath();g.arc(x,y,4,0,7);g.fill();}},[2,1.2]),roughness:.95});
@@ -623,7 +652,7 @@ AT.update=(dt,t)=>{fountainUpdate(dt,t);const k=.85+Math.sin(t*9)*.08+Math.sin(t
 /* =========================================================
    5 · 舞台（獨立空間：從家裡的舞台門進來）
    ========================================================= */
-const ST=addScene('stage',{scene:null,where:'舞台',camDist:7,camMin:.5,bounds:[-14,14,-9.2,5.5],
+const ST=addScene('stage',{scene:null,where:'舞台',camDist:7,camMin:.12,orbit0:.3,bounds:[-14,14,-9.2,5.5],
   floor:(x,z)=>{if(z>-6.05&&Math.hypot(x,z+6)<7)return .8;const ax=Math.abs(x);if(z<=-6.05&&z>-7.45&&ax<6)return .9;if(z<=-7.45&&z>-8.35&&ax<5.5)return 1.5;if(z<=-8.35&&ax<5)return 2.1;return 0;}});
 let followSpot;
 {
@@ -792,6 +821,7 @@ function updateCamera(dt){
   const dist=cur.camDist,ph=Math.max(P.orbit,cur.camMin);
   const want=new R.Vector3(P.x+Math.sin(P.yaw)*Math.cos(ph)*dist,P.y+1.4+Math.sin(ph)*dist,P.z+Math.cos(P.yaw)*Math.cos(ph)*dist);
   if(!cur.indoor)want.y=Math.max(want.y,heightAt(want.x,want.z)+.8);
+  if(cur.indoor&&cur.bounds){const b=cur.bounds;want.x=clamp(want.x,b[0]-.2,b[1]+.2);want.z=clamp(want.z,b[2]-.2,b[3]+.2);}
   if(camInit){camPos.copy(want);camInit=false;}else camPos.lerp(want,Math.min(1,dt*7));
   camera.position.copy(camPos);look.set(P.x,P.y+1.25,P.z);camera.lookAt(look);
 }
@@ -811,7 +841,7 @@ const fade=$('#fade');
 function goto(id,spawn){closeSheet();fade.classList.add('on');setTimeout(()=>{
   cur.scene.remove(player);if(marker.parent)marker.parent.remove(marker);
   cur=SC[id];cur.scene.add(player);curHot=null;prompt.hidden=true;target=null;
-  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;
+  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;
   $('#where').textContent=cur.where;camInit=true;setTimeout(()=>fade.classList.remove('on'),60);},280);}
 
 /* ---------- sheets ---------- */

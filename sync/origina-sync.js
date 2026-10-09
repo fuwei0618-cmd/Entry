@@ -131,6 +131,25 @@
     clearTimeout(hideT); if (quietAfter) hideT = setTimeout(() => badge.classList.add("quiet"), quietAfter);
   }
 
+  // 點雲朵：顯示登入的帳號、存放位置，並提供「在 OneDrive 打開」
+  let pop;
+  async function info() {
+    try {
+      const [me, f] = await Promise.all([gfetch("/me").then(r => r.json()), gfetch("/me/drive/special/approot:/" + enc(folder())).then(r => r.ok ? r.json() : null)]);
+      const root = await gfetch("/me/drive/special/approot").then(r => r.json());
+      if (pop) pop.remove();
+      pop = document.createElement("div");
+      pop.style.cssText = "position:fixed;z-index:2147483001;max-width:300px;background:#2B2724;color:#F4EFE7;font:13px/1.6 -apple-system,'PingFang TC','Noto Sans TC',sans-serif;padding:12px 14px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25)";
+      const r = badge.getBoundingClientRect();
+      pop.style.bottom = (innerHeight - r.top + 8) + "px"; if (r.left > innerWidth / 2) pop.style.right = "12px"; else pop.style.left = "12px";
+      const acct = me.userPrincipalName || me.mail || me.displayName || "";
+      const url = (f && f.webUrl) || root.webUrl;
+      pop.innerHTML = `<div>帳號：<b>${acct}</b></div><div>位置：OneDrive › 應用程式 › ${root.name} › ${folder()}</div>${url ? `<a href="${url}" target="_blank" rel="noopener" style="color:#F2C14E;font-weight:700">在 OneDrive 打開 ↗</a>` : ""}<div style="opacity:.6;margin-top:4px">點旁邊關閉</div>`;
+      document.body.appendChild(pop);
+      setTimeout(() => addEventListener("click", function off(e) { if (!pop.contains(e.target)) { pop.remove(); pop = null; removeEventListener("click", off, true); } }, true), 0);
+    } catch (e) {}
+  }
+
   /* ---------- 同步 ---------- */
   function keyMatcher(spec) {
     const parts = (spec || "").split(",").map(s => s.trim()).filter(Boolean).map(s => {
@@ -210,7 +229,7 @@
     if (d.role === "host") return host();
     if (!cfg) return;
     if (!badge) ui(cfg.pos || "bl", +(cfg.offset || 84));
-    badge.onclick = async () => { if (!(await getToken())) login(false); else syncNow(); };
+    badge.onclick = async () => { if (!(await getToken())) login(false); else { await syncNow(); info(); } };
     cfg.adapter.watch && cfg.adapter.watch(markDirty);
     const tok = await ensureToken(true);
     if (!tok) { show("out", "登入 OneDrive 同步", 5000); return; }

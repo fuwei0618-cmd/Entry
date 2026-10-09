@@ -1002,7 +1002,7 @@ function hereMarker(){let p=null;if(cur.id==='forest')p=[P.x,P.z];else if(cur.id
 function openMap(){closeSheet();if(!mapBG)mapBG=buildMapBG();
   const main=MAP_MAIN.map(([n,g,p,a])=>spotHTML(n,g,pct(p[0],p[1]),a)).join('');
   const ins=(title,id,bg,list)=>`<section class="inset"><h3>${title}${list.some(x=>x[1][0]===cur.id)?'<em>● 你在這裡</em>':''}</h3><div class="mapbox">${bg}${list.map(([n,g,p,a])=>spotHTML(n,g,p,a)).join('')}</div></section>`;
-  mapV.innerHTML=`<div class="ovbar"><h2>Origina 地圖</h2><button class="btn light" id="mapClose">✕ 關閉</button></div>
+  mapV.innerHTML=`<div class="ovbar"><h2>Origina 地圖</h2><span style="display:flex;gap:8px"><a class="btn light" href="https://claude.ai/artifact/6tKf8aWatDsrMuhC2wVAhm" target="_blank" rel="noopener" style="text-decoration:none">總表 ↗</a><button class="btn light" id="mapClose">✕ 關閉</button></span></div>
   <div class="ovbody"><div class="mwrap"><div class="mnote">點地名走過去 · 點圖示直接打開 App</div>
   <div class="mapbox">${mapBG}${main}${hereMarker()}</div>
   <div class="insets">${ins('地下 · B1 / B2','b',BSEC,MAP_B)}${ins('家的後門 · 舞台','s',SSEC,MAP_S)}</div></div></div>`;

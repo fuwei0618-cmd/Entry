@@ -94,6 +94,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.fade,.hint{transition:none}}
 </style>
 
+<script src="sync/origina-sync.js" data-role="host"></script>
 </head>
 <body>
 <canvas id="c" tabindex="0" aria-label="森林之家 3D 場景。點地面行走，拖曳轉動視角。"></canvas>
@@ -956,8 +957,8 @@ const mapV=$('#mapView'),appV=$('#appView');
 const overlayOpen=()=>!mapV.hidden||!appV.hidden;
 function openApp(name,url){closeSheet();mapV.hidden=true;
   appV.innerHTML=`<div class="ovbar"><button class="btn light" id="appBack">✕ 回到 Origina</button><h2>${esc(name)}</h2><a class="btn light" href="${url}" target="_blank" rel="noopener" aria-label="在新分頁開啟">↗</a></div><iframe src="${url}" title="${esc(name)}" allow="clipboard-write; fullscreen"></iframe>`;
-  appV.hidden=false;$('#appBack').addEventListener('click',closeApp);}
-function closeApp(){appV.hidden=true;appV.innerHTML='';canvas.focus({preventScroll:true});}
+  appV.hidden=false;$('#appBack').addEventListener('click',closeApp);try{history.replaceState(null,'','?app='+encodeURIComponent(name))}catch(e){}}
+function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(null,'',location.pathname)}catch(e){}canvas.focus({preventScroll:true});}
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
   ['森林入口',['forest','start'],[0,15]],['記錄之河',['forest','river'],[riverX(2)+2.5,2]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],

@@ -17,6 +17,7 @@ page=f'''<!doctype html>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Origina 地圖</title>
+<script src="../sync/origina-sync.js" data-role="host"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700&display=swap">
 <style>
 :root{{--paper:#FFF8EC;--ink:#3E2E24;--muted:#7A6555;--accent:#D9583F;--f:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;color-scheme:light}}
@@ -46,8 +47,9 @@ const appV=document.getElementById('appView'),home=document.getElementById('home
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}})[c]);
 function openApp(n){{const u=APPS[n];if(!u)return;
   appV.innerHTML=`<div class="ovbar"><button class="btn light" id="appBack">✕ 回到地圖</button><h2>${{esc(n)}}</h2><a class="btn light" href="${{u}}" target="_blank" rel="noopener" aria-label="在新分頁開啟">↗</a></div><iframe src="${{u}}" title="${{esc(n)}}" allow="clipboard-write; fullscreen"></iframe>`;
-  appV.hidden=false;home.style.display='none';document.getElementById('appBack').onclick=closeApp;history.pushState({{app:n}},'');}}
-function closeApp(){{appV.hidden=true;appV.innerHTML='';home.style.display='';}}
+  appV.hidden=false;home.style.display='none';document.getElementById('appBack').onclick=closeApp;history.pushState({{app:n}},'','?app='+encodeURIComponent(n));}}
+function closeApp(){{appV.hidden=true;appV.innerHTML='';home.style.display='';history.replaceState(null,'',location.pathname);}}
+{{const a=new URLSearchParams(location.search).get('app');if(a&&APPS[a])setTimeout(()=>openApp(a),0);}}
 addEventListener('popstate',()=>{{if(!appV.hidden)closeApp();}});
 document.querySelectorAll('[data-app]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.app)));
 document.querySelectorAll('[data-g]').forEach(b=>b.addEventListener('click',()=>{{location.href='../?go='+encodeURIComponent(b.dataset.g);}}));

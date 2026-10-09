@@ -189,9 +189,13 @@
   }
   async function pull() {
     const meta = ls(metaKey()) || {};
-    let remote = await api.getJSON(fileName());
-    if (!remote) remote = await api.getJSON("origina-" + cfg.app + ".json"); // 舊位置（第一版）
-    if (!remote) { if (!meta.pushedOnce) { await push(true); } return; }
+    let remote = await api.getJSON(fileName()), missing = !remote;
+    if (missing) remote = await api.getJSON("origina-" + cfg.app + ".json"); // 舊位置（第一版放在最上層）
+    if (!remote) { await push(true); return; }
+    if (missing) { // 舊位置有資料：比較後寫進新的資料夾
+      if ((remote.updatedAt || 0) > (meta.at || 0) && !(meta.dirty && meta.at && (meta.localAt || 0) > remote.updatedAt)) { const r = await cfg.adapter.import(remote.data || {}, api); ls(metaKey(), { ...meta, at: remote.updatedAt, dirty: false, pushedOnce: true }); if (r === "reload" && !sessionStorage.getItem("osync-reloaded")) { sessionStorage.setItem("osync-reloaded", "1"); await push(true); location.reload(); return; } }
+      await push(true); return;
+    }
     if ((remote.updatedAt || 0) <= (meta.at || 0)) return;
     if (meta.dirty && meta.at && (meta.localAt || 0) > remote.updatedAt) { await push(true); return; }
     const r = await cfg.adapter.import(remote.data || {}, api);

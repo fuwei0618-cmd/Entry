@@ -230,7 +230,7 @@
   }
   window.OriginaSync = {
     init(o) { cfg = { pos: "bl", offset: 84, ...o }; if (document.readyState !== "loading") start(); },
-    api, getToken, login, syncNow, markDirty, onStorage: f => watchers.push(f), folder: () => folder()
+    api, getToken, ensureToken, login, syncNow, markDirty, onStorage: f => watchers.push(f), folder: () => folder()
   };
   window.__originaSyncScript = document.currentScript;
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else setTimeout(start, 0);

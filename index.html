@@ -80,8 +80,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .mspot i.dot{width:10px;height:10px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px var(--paper);flex:none}
 .mlab{border:0;background:rgba(255,248,236,.94);color:var(--ink);font:700 12px/1 var(--f);padding:6px 8px;border-radius:999px;box-shadow:0 1px 4px rgba(62,46,36,.18);white-space:nowrap;cursor:pointer}
 .mlab:hover{background:#fff}
-.mapp{width:28px;height:28px;border:0;border-radius:8px;background:#ECE8E1;display:grid;place-items:center;padding:0;box-shadow:0 1px 4px rgba(62,46,36,.2);cursor:pointer;flex:none}
-.mapp svg{width:18px;height:18px;fill:#2B2724}
+.mapp{width:min(56px,6vw);height:min(56px,6vw);border:0;border-radius:25%;background:#ECE8E1;display:grid;place-items:center;padding:0;box-shadow:0 1px 4px rgba(62,46,36,.2);cursor:pointer;flex:none}
+.mapp svg{width:64%;height:64%;fill:#2B2724}
 .here{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(255,248,236,.9);pointer-events:none}
 .here::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--accent);animation:pulse 1.6s ease-out infinite}
 @keyframes pulse{from{transform:scale(.5);opacity:1}to{transform:scale(1.4);opacity:0}}
@@ -962,11 +962,11 @@ const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
   ['森林入口',['forest','start'],[0,15]],['記錄之河',['forest','river'],[riverX(2)+2.5,2]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
   ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[6,11]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資']],
-  ['玄關',['f1','front'],W1F(0,4.6)],['日曆牆',['f1','cal'],W1F(-12,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-5)],['衣帽間',['f1','closet'],W1F(11.6,-2.4),['正顎手冊']],
-  ['健身房',['f1','gym'],W1F(7.5,2.6),['健身房']],['Lucky',['f1','front'],W1F(2.5,1.2),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,3.4)],
-  ['舞台門',['f1','stage'],W1F(-2.5,-5.4)],['世界之門',['f1','stage'],W1F(4,-5.4),['旅遊手冊']]];
+  ['玄關',['f1','front'],W1F(0,4.6)],['日曆牆',['f1','cal'],W1F(-12,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-5)],['衣帽間',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
+  ['健身房',['f1','gym'],W1F(7.5,2.6),['健身房']],['Lucky',['f1','front'],W1F(-4.5,1.6),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,3.4)],
+  ['舞台門',['f1','stage'],W1F(-3.5,-4)],['世界之門',['f1','stage'],W1F(1.5,-5.4),['旅遊手冊']]];
 const MAP_B=[['B1 臥室',['f2','bed'],[30,30]],['B2 禱告房',['attic','ladder'],[68,74]]];
-const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[50,72],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[82,60],['Podcast']]];
+const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[36,82],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[90,48],['Podcast']]];
 const X0=-30,Z0=-20,MW=56,MH=40,pct=(x,z)=>[(x-X0)/MW*100,(z-Z0)/MH*100];
 function spotHTML(n,g,lp,apps){const [l,t]=lp;
   return `<div class="mspot${l>68?' flip':''}" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${(apps||[]).map(a=>APPMAP[a]?`<button class="mapp" data-app="${esc(a)}" aria-label="打開 ${esc(a)}" title="${esc(a)}">${APPMAP[a].svg}</button>`:'').join('')}</div>`;}
@@ -1036,6 +1036,7 @@ function frame(){
   requestAnimationFrame(frame);
 }
 P.y=cur.floor(P.x,P.z);
+{const qs=new URLSearchParams(location.search),g=qs.get('go'),ap=qs.get('app');if(g){const[id,sp]=g.split(',');if(SC[id])goto(id,sp);}if(ap&&APPMAP[ap])openApp(ap,APPMAP[ap].u);else if(qs.has('map'))openMap();}
 requestAnimationFrame(frame);
 })();
 </script>

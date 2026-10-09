@@ -1,0 +1,85 @@
+{
+ "cols": 8,
+ "rows": 4,
+ "cells": [
+  {
+   "c": 2,
+   "r": 1,
+   "name": "Lucky",
+   "url": "https://fuwei0618-cmd.github.io/Lucky/"
+  },
+  {
+   "c": 2,
+   "r": 2,
+   "name": "WonderMedia",
+   "url": "https://fuwei0618-cmd.github.io/WonderMedia/"
+  },
+  {
+   "c": 3,
+   "r": 0,
+   "name": "旅遊手冊",
+   "url": "https://fuwei0618-cmd.github.io/World/"
+  },
+  {
+   "c": 3,
+   "r": 2,
+   "name": "保險手冊",
+   "url": "https://fuwei0618-cmd.github.io/Insurance/"
+  },
+  {
+   "c": 4,
+   "r": 0,
+   "name": "正顎手冊",
+   "url": "https://fuwei0618-cmd.github.io/OGS/"
+  },
+  {
+   "c": 4,
+   "r": 1,
+   "name": "健身房",
+   "url": "https://fuwei0618-cmd.github.io/Gym/"
+  },
+  {
+   "c": 4,
+   "r": 2,
+   "name": "財富管理",
+   "url": "https://fuwei0618-cmd.github.io/Wealth-mgm/"
+  },
+  {
+   "c": 5,
+   "r": 2,
+   "name": "投資",
+   "url": "https://investment-beige-iota.vercel.app/"
+  },
+  {
+   "c": 6,
+   "r": 0,
+   "name": "合唱團",
+   "url": "https://fuwei0618-cmd.github.io/Chrous/"
+  },
+  {
+   "c": 6,
+   "r": 1,
+   "name": "Podcast",
+   "url": "https://fuwei0618-cmd.github.io/Podcast/"
+  },
+  {
+   "c": 6,
+   "r": 3,
+   "name": "Origina",
+   "url": "https://fuwei0618-cmd.github.io/Entry/"
+  },
+  {
+   "c": 7,
+   "r": 0,
+   "name": "Vocal",
+   "url": "https://fuwei0618-cmd.github.io/Vocal/"
+  },
+  {
+   "c": 7,
+   "r": 3,
+   "name": "總表",
+   "url": "https://claude.ai/artifact/6tKf8aWatDsrMuhC2wVAhm"
+  }
+ ],
+ "home": "https://fuwei0618-cmd.github.io/Entry/map/"
+}

@@ -1,6 +1,6 @@
 /* Origina 雲端同步（OneDrive）
  * 用法：<script src="https://fuwei0618-cmd.github.io/Entry/sync/origina-sync.js" data-app="gym" data-keys="origina.gym.v1"></script>
- *   data-app     檔名用（OneDrive「應用程式/Lucky 手冊」資料夾裡的 origina-<app>.json）
+ *   data-app     OneDrive「應用程式/Origina/<資料夾>/data.json」；資料夾名稱見 FOLDERS，或用 data-folder 指定
  *   data-keys    要同步的 localStorage 鍵，逗號分隔；結尾加 * 代表前綴（例：clips:*）；/regex/ 也可以
  *   data-role="host"  Origina／地圖頁用：不同步資料，只負責登入與把登入借給裡面打開的 App
  *   data-pos     雲朵按鈕位置：bl（左下，預設）br tl tr；data-offset 離底部距離（px，預設 84）
@@ -155,11 +155,23 @@
   Storage.prototype.removeItem = function (k) { _rm.call(this, k); if (this === localStorage) watchers.forEach(f => f(k)); };
 
   let cfg = null, timer = null, pushing = false;
+  // OneDrive：我的檔案 › 應用程式 › Origina › <各 App 資料夾>
+  const FOLDERS = { world: "World", ogs: "OGS", gym: "Gym", vocal: "Vocal", podcast: "Podcast", wealth: "Wealth-mgm", investment: "Investment", insurance: "Insurance", chorus: "Chorus" };
   const metaKey = () => "origina-sync-meta:" + cfg.app;
-  const fileName = () => "origina-" + cfg.app + ".json";
+  const folder = () => cfg.folder || FOLDERS[cfg.app] || cfg.app;
+  const fileName = () => folder() + "/data.json";
+  async function nameRoot() {
+    if (ls("origina-root-named")) return;
+    try {
+      const r = await gfetch("/me/drive/special/approot"); if (!r.ok) return; const j = await r.json();
+      if (j.name !== "Origina") { const p = await gfetch("/me/drive/special/approot", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "Origina" }) }); if (!p.ok) return; }
+      ls("origina-root-named", 1);
+    } catch (e) {}
+  }
   async function pull() {
     const meta = ls(metaKey()) || {};
-    const remote = await api.getJSON(fileName());
+    let remote = await api.getJSON(fileName());
+    if (!remote) remote = await api.getJSON("origina-" + cfg.app + ".json"); // 舊位置（第一版）
     if (!remote) { if (!meta.pushedOnce) { await push(true); } return; }
     if ((remote.updatedAt || 0) <= (meta.at || 0)) return;
     if (meta.dirty && meta.at && (meta.localAt || 0) > remote.updatedAt) { await push(true); return; }
@@ -194,7 +206,7 @@
     await handleRedirect();
     const s = document.currentScript || document.querySelector('script[src*="origina-sync.js"]');
     const d = (window.__originaSyncScript || s || {}).dataset || {};
-    if (!cfg && d.app) cfg = { app: d.app, adapter: localAdapter(d.keys), pos: d.pos, offset: d.offset };
+    if (!cfg && d.app) cfg = { app: d.app, folder: d.folder, adapter: localAdapter(d.keys), pos: d.pos, offset: d.offset };
     if (d.role === "host") return host();
     if (!cfg) return;
     if (!badge) ui(cfg.pos || "bl", +(cfg.offset || 84));
@@ -202,6 +214,7 @@
     cfg.adapter.watch && cfg.adapter.watch(markDirty);
     const tok = await ensureToken(true);
     if (!tok) { show("out", "登入 OneDrive 同步", 5000); return; }
+    nameRoot();
     await syncNow();
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") syncNow(); else push(); });
     setTimeout(() => sessionStorage.removeItem("osync-reloaded"), 5000);
@@ -213,11 +226,11 @@
       if (e.data.originaSync === "token") e.source.postMessage({ originaSync: "reply", id: e.data.id, token: await getToken() }, e.origin);
       if (e.data.originaSync === "login") login(false);
     });
-    await ensureToken(true);
+    if (await ensureToken(true)) nameRoot();
   }
   window.OriginaSync = {
     init(o) { cfg = { pos: "bl", offset: 84, ...o }; if (document.readyState !== "loading") start(); },
-    api, getToken, login, syncNow, markDirty, onStorage: f => watchers.push(f)
+    api, getToken, login, syncNow, markDirty, onStorage: f => watchers.push(f), folder: () => folder()
   };
   window.__originaSyncScript = document.currentScript;
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else setTimeout(start, 0);

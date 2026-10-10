@@ -79,6 +79,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .ovbar .btn{min-height:38px;padding:8px 14px;font-size:14px}
 .ovbody{flex:1;overflow:auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom,0px))}
 #appView iframe{flex:1;width:100%;border:0;background:#fff}
+#appView.panel{background:rgba(40,32,26,.32);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:calc(14px + env(safe-area-inset-top,0px)) 14px calc(14px + env(safe-area-inset-bottom,0px));align-items:center}
+#appView.panel>.ovbar,#appView.panel>iframe{width:100%;max-width:900px}
+#appView.panel>.ovbar{border-radius:18px 18px 0 0;padding-top:10px;box-sizing:border-box}
+#appView.panel>iframe{border-radius:0 0 18px 18px;box-shadow:0 18px 50px rgba(40,32,26,.3);background:#F4EFE6}
+@media (max-width:640px){#appView.panel{padding:calc(8px + env(safe-area-inset-top,0px)) 8px calc(8px + env(safe-area-inset-bottom,0px))}}
 .mwrap{max-width:980px;margin:0 auto;display:grid;gap:14px}
 .mnote{font-size:12px;color:var(--muted);letter-spacing:.06em}
 .mapbox{position:relative;width:100%;aspect-ratio:76/80;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(62,46,36,.12)}
@@ -904,7 +909,7 @@ const INFO={
   studio:{tag:'森林 · 蘑菇攝影棚',title:'工作台',body:'WonderMedia 的工作台和出海口：從記錄之河撈起素材，用你的萬用公式（積木）組成作品，再發到各個平台。',links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/']],list:['工作台：企劃、腳本、剪映草稿','出海口：發布排程與成效']},
   campfire:{tag:'森林 · 營火',title:'鐵粉',body:'火是你的熱情。很多人是先看到你的表演、影片或 Podcast 才找過來的，你不一定認識他們，但他們會被火吸引，慢慢圍到火邊。這是最輕鬆的鐵粉。',list:['他們從哪裡認識你','回訪與互動','你可以為他們做的事'],soon:true},
   fireflies:{tag:'森林 · 螢火蟲',title:'通訊錄',body:'每一點光，是一個跟你有連結的人。點開就是他的卡片：客觀事實、標籤、相處邊界。',soon:true},
-  cal:{tag:'家 · 日曆牆',title:'每日與每週',body:'今天要做的事、每週固定排程、Focus 專注。',list:['今天只做三件事','番茄鐘','每週固定排程'],soon:true},
+  cal:{tag:'家 · 日曆牆',title:'日曆牆',body:'牆上掛著夢想版：兩顆北極星、到 2031 的季節時間軸、這一季的魚缸和許願池。清單不是承諾，每一季只撈一條魚出來實現。',links:[['打開夢想版','https://fuwei0618-cmd.github.io/Entry/dream/']],list:['夢想版：北極星・時間軸・魚缸・今日三題・許願池','之後：今天只做三件事、番茄鐘、每週固定排程']},
   kitchen:{tag:'家 · 廚房餐廳',title:'飲食公式',body:'固定的飲食組合，少做一個決定。',soon:true},
   lucky:{tag:'家 · Lucky',title:'Lucky',body:'尾巴搖個不停。',links:[['打開 Lucky 手冊','https://fuwei0618-cmd.github.io/Lucky/']]},
   closet:{tag:'家 · Beauty',title:'Beauty',body:'關於「美」的房間，像藝人上工前的梳化間，也是定期進廠保養的地方。裡面有兩扇門：',list:['梳化間：衣櫥、妝髮、美甲，整體造型與穿搭模板（製作中）','保養廠：醫美、半永久、日常保養；正顎手術也在這裡'],links:[['梳化間（製作中）',''],['保養廠 · 正顎手冊','https://fuwei0618-cmd.github.io/OGS/']]},
@@ -1078,10 +1083,12 @@ const APPS=[["WonderMedia", "https://fuwei0618-cmd.github.io/WonderMedia/", "<sv
 const APPMAP={};APPS.forEach(([n,u,svg])=>APPMAP[n]={u,svg});
 const mapV=$('#mapView'),appV=$('#appView');
 const overlayOpen=()=>!mapV.hidden||!appV.hidden||!document.getElementById('worldView').hidden;
-function openApp(name,url){closeSheet();mapV.hidden=true;
+const PANEL_APPS=['/Entry/dream/']; // 在原本的空間裡展開成面板，後面看得到房間
+function openApp(name,url){closeSheet();mapV.hidden=true;appV.classList.toggle('panel',PANEL_APPS.some(p=>url.includes(p)));
   appV.innerHTML=`<div class="ovbar"><button class="btn light" id="appBack">✕ 回到 Origina</button><h2>${esc(name)}</h2><a class="btn light" href="${url}" target="_blank" rel="noopener" aria-label="在新分頁開啟">↗</a></div><iframe src="${url}" title="${esc(name)}" allow="clipboard-write; fullscreen"></iframe>`;
   appV.hidden=false;$('#appBack').addEventListener('click',closeApp);try{history.replaceState(null,'','?app='+encodeURIComponent(name))}catch(e){}}
-addEventListener('message',e=>{if(e.origin==='https://fuwei0618-cmd.github.io'&&e.data&&e.data.origina==='close-app'&&!appV.hidden)closeApp();});
+addEventListener('message',e=>{if(e.origin!=='https://fuwei0618-cmd.github.io'||!e.data)return;if(e.data.origina==='close-app'&&!appV.hidden)closeApp();
+  if(e.data.origina==='open-app'&&typeof e.data.url==='string'&&e.data.url.startsWith('https://fuwei0618-cmd.github.io/'))openApp(String(e.data.name||'').slice(0,30),e.data.url);});
 function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(null,'',location.pathname)}catch(e){}canvas.focus({preventScroll:true});}
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[

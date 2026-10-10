@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F4EFE6">
+<title>夢想版</title>
+<style>
+:root{
+  --bg:#F4EFE6;--card:#FFFCF6;--ink:#3A2F27;--muted:#7D6E61;--line:#E6DCCD;--stone:#D9D3C9;--stone2:#C9C2B6;
+  --koi:#D9604A;--koi2:#F3C8BC;--gold:#D9A23A;--gold2:#F6E3B4;--water:#CFE3E0;--water2:#9CC4C0;--forest:#5E7A55;
+  --shadow:0 1px 2px rgba(58,47,39,.06),0 6px 18px rgba(58,47,39,.07);--f:"PingFang TC","Noto Sans TC",system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);line-height:1.6}
+body{background:linear-gradient(180deg,#EDE6DA 0,var(--bg) 220px);min-height:100vh}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:860px;margin:0 auto;padding:18px 16px calc(40px + env(safe-area-inset-bottom));display:grid;gap:22px}
+h1{margin:0;font-size:22px;letter-spacing:.12em}
+.lede{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+h2{margin:0 0 10px;font-size:15px;letter-spacing:.14em;display:flex;align-items:baseline;gap:10px}
+h2 small{font-size:12px;letter-spacing:.04em;color:var(--muted);font-weight:400}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font-size:14px;min-height:38px}
+.btn.pri{background:var(--ink);border-color:var(--ink);color:#FFF8EC}
+.btn.ghost{background:transparent}
+.btn.sm{padding:5px 11px;min-height:32px;font-size:13px}
+.muted{color:var(--muted)}
+.nudge{padding:12px 14px;border-left:3px solid var(--gold);display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:14px}
+
+/* 北極星 */
+.stars{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.star{padding:16px;position:relative;overflow:hidden;background:linear-gradient(160deg,#FFFCF6,#F1ECE3);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);text-align:left;cursor:pointer}
+.star .yr{font-size:12px;letter-spacing:.2em;color:var(--muted)}
+.star .tt{font-size:17px;font-weight:700;margin:2px 0 2px;letter-spacing:.04em}
+.star .sub{font-size:13px;color:var(--muted)}
+.star .days{margin-top:10px;font-size:30px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.star .days span{font-size:13px;font-weight:400;color:var(--muted);margin-left:4px}
+.star::after{content:"";position:absolute;right:-18px;top:-18px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle,rgba(226,184,92,.35),transparent 70%)}
+
+/* 時間軸 */
+.tl{padding:14px;overflow-x:auto}
+.tl table{border-collapse:separate;border-spacing:6px;width:100%;min-width:340px}
+.tl th{font-size:12px;font-weight:400;color:var(--muted);text-align:left;padding:0 4px;white-space:nowrap}
+.tl td button{width:100%;min-height:44px;border:1px solid var(--line);background:#FAF6EF;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;color:var(--muted);padding:4px}
+.tl td button.now{background:var(--ink);color:#FFF8EC;border-color:var(--ink);box-shadow:0 0 0 3px rgba(226,184,92,.45)}
+.tl td button.past{opacity:.75}
+.tl td button:disabled{visibility:hidden}
+.tl .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.tl .dot.koi{background:var(--koi)}.tl .dot.goldfish{background:var(--gold)}
+.tl .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:6px 6px 0}
+.tl .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+
+/* 魚缸 */
+.tank{perspective:1200px}
+.flip{position:relative;transition:transform .6s;transform-style:preserve-3d}
+.flip.on{transform:rotateY(180deg)}
+.face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.back{position:absolute;inset:0;transform:rotateY(180deg);padding:18px;display:flex;flex-direction:column;gap:10px}
+.glass{position:relative;margin:14px;height:170px;border-radius:14px;background:linear-gradient(180deg,#E6F0EE 0%,var(--water) 45%,#B5D4D0 100%);overflow:hidden;border:1px solid #BFD6D2}
+.glass::before{content:"";position:absolute;left:0;right:0;top:14px;height:2px;background:rgba(255,255,255,.7)}
+.glass .sand{position:absolute;left:0;right:0;bottom:0;height:22px;background:linear-gradient(180deg,#E9DCC1,#DCCBA8)}
+.glass .weed{position:absolute;bottom:14px;width:6px;border-radius:6px 6px 0 0;background:var(--forest);transform-origin:bottom;animation:sway 5s ease-in-out infinite}
+.glass .swim{position:absolute;left:50%;top:50%;width:120px;transform:translate(-50%,-50%);animation:swim 9s ease-in-out infinite}
+.glass .empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#4F6B67;font-size:14px;padding:20px}
+.bub{position:absolute;bottom:20px;width:6px;height:6px;border-radius:50%;border:1px solid rgba(255,255,255,.9);animation:bub 6s linear infinite}
+@keyframes swim{0%,100%{transform:translate(-90%,-50%) scaleX(1)}45%{transform:translate(-10%,-58%) scaleX(1)}50%{transform:translate(-10%,-58%) scaleX(-1)}95%{transform:translate(-90%,-48%) scaleX(-1)}}
+@keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+@keyframes bub{0%{transform:translateY(0);opacity:0}10%{opacity:1}100%{transform:translateY(-150px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.glass .swim,.glass .weed,.bub,.pool .fish svg{animation:none!important}.flip{transition:none}}
+.tankinfo{padding:0 18px 18px;display:grid;gap:10px}
+.tankinfo .nm{font-size:19px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:11.5px;padding:2px 9px;border-radius:999px;font-weight:400;letter-spacing:.06em}
+.tag.koi{background:var(--koi2);color:#8A3323}.tag.goldfish{background:var(--gold2);color:#7A5512}.tag.rel{background:#DCE9E6;color:#3E625D}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.date{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.date input{border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff}
+textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;resize:vertical}
+
+/* 今日三題＋電影 */
+.study{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px;align-items:start}
+.qa{padding:16px;display:grid;gap:14px}
+.stamps{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.prog{display:flex;gap:4px}.prog i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--stone2)}.prog i.on{background:var(--gold);border-color:var(--gold)}
+.stamp{width:30px;height:30px;border-radius:50%;border:2px solid var(--koi);color:var(--koi);display:grid;place-items:center;font-size:11px;font-weight:700;transform:rotate(-12deg);background:rgba(217,96,74,.06)}
+.q{border-top:1px solid var(--line);padding-top:12px}
+.q:first-of-type{border-top:0;padding-top:0}
+.q .meta{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.q p{margin:2px 0 8px;font-weight:600}
+.opts{display:grid;gap:6px}
+.opts button{text-align:left;border:1px solid var(--line);background:#FBF8F2;border-radius:10px;padding:8px 12px;font-size:14px}
+.opts button.ok{background:#E3EFE0;border-color:#9DBE92}
+.opts button.no{background:#F7E1DB;border-color:#E3A797}
+.opts button:disabled{cursor:default}
+.ex{margin:8px 0 0;font-size:13.5px;color:#4D4037;background:#F6F1E8;border-radius:10px;padding:8px 12px}
+.movies h3{margin:0 0 8px;font-size:14px;letter-spacing:.1em;display:flex;justify-content:space-between;align-items:baseline}
+.movies h3 small{font-weight:400;color:var(--muted);font-size:12px;letter-spacing:0}
+.mrail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+.movie{flex:0 0 86%;scroll-snap-align:start;padding:14px;display:grid;gap:6px;font-size:13.5px}
+.movie .t{font-size:16px;font-weight:700}
+.movie .en{font-size:12px;color:var(--muted)}
+.movie dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px}
+.movie dt{color:var(--muted);white-space:nowrap}.movie dd{margin:0}
+.movie .seen{justify-self:start}
+.movie .seen[aria-pressed="true"]{background:var(--forest);border-color:var(--forest);color:#fff}
+
+/* 許願池 */
+.pool{padding:14px;background:radial-gradient(120% 90% at 50% 0,#E3EEEB,#D2E3DF 70%);border:1px solid #BFD6D2}
+.pgrp{margin-bottom:12px}
+.pgrp h3{margin:0 0 8px;font-size:13px;letter-spacing:.1em;font-weight:600;color:#3E5552}
+.fishes{display:flex;flex-wrap:wrap;gap:8px}
+.fish{display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.8);background:rgba(255,255,255,.7);border-radius:999px;padding:5px 12px 5px 6px;font-size:14px}
+.fish svg{width:38px;height:22px;animation:wig 3s ease-in-out infinite}
+.fish:nth-child(2n) svg{animation-delay:-1.2s}
+@keyframes wig{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.fish.add{border-style:dashed;background:transparent;color:#3E5552;padding:5px 12px}
+.river{font-size:13px;color:var(--muted)}
+
+/* 對話框 */
+.dlg{position:fixed;inset:0;background:rgba(40,32,26,.35);display:grid;place-items:end center;z-index:9;padding:12px}
+@media (min-width:640px){.dlg{place-items:center}}
+.dlg[hidden]{display:none}
+.dlg .box{width:100%;max-width:440px;padding:18px;display:grid;gap:12px;max-height:88vh;overflow:auto}
+.dlg h3{margin:0;font-size:17px}
+.dlg p{margin:0;font-size:14px}
+.field{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.field input{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;font-size:15px;color:var(--ink)}
+.seg{display:flex;gap:6px}.seg button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px}.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
+
+@media (max-width:640px){
+  .stars{grid-template-columns:1fr}
+  .study{grid-template-columns:1fr}
+  .star .days{font-size:26px}
+}
+</style>
+<script src="../sync/origina-sync.js" data-app="dream" data-folder="Dream" data-keys="origina.dream.v1" data-pos="br" data-offset="18"></script>
+</head><body>
+<main class="wrap" id="app"></main>
+<div class="dlg" id="dlg" hidden><div class="box card" role="dialog" aria-modal="true" id="dlgBox"></div></div>
+<script>
+"use strict";
+const GH="https://fuwei0618-cmd.github.io/";
+const KEY="origina.dream.v1";
+const START="2026Q4",END_YEAR=2031;
+const SEASON_NAME={1:"冬",2:"春",3:"夏",4:"秋"},SEASON_MON={1:"1–3 月",2:"4–6 月",3:"7–9 月",4:"10–12 月"};
+const KIND={koi:"錦鯉・區域",goldfish:"小金魚・營／短程"};
+
+const DEFAULT={v:1,
+  northStars:[
+    {id:"teresa",title:"Teresa",year:2028,date:"2028-12-31",sub:"唱歌・皮拉提斯・高跟鞋"},
+    {id:"home",title:"老家・Lucky・咪咪",year:2031,date:"2031-12-31",sub:"賺錢・出國"}],
+  fish:[
+    {id:"na",name:"北美",kind:"koi",status:"pool"},{id:"sa",name:"南美",kind:"koi",status:"pool"},
+    {id:"nordic",name:"北歐",kind:"koi",status:"pool"},{id:"ruscn",name:"俄中連結",kind:"koi",status:"pool"},
+    {id:"au",name:"澳洲",kind:"koi",status:"pool"},
+    {id:"horse",name:"騎馬營",kind:"goldfish",status:"pool"},
+    {id:"bkk",name:"曼谷",kind:"goldfish",status:"tank",season:"2026Q4",qaFile:"qa_bangkok.json"},
+    {id:"ski",name:"滑雪營",kind:"goldfish",status:"pool"},{id:"model",name:"模特兒營",kind:"goldfish",status:"pool"},
+    {id:"mkhair",name:"MKHAIR 營",kind:"goldfish",status:"pool"}],
+  seasons:{"2026Q4":{fishId:"bkk",review:""}},
+  qaProgress:{}};
+
+/* ---------- 資料 ---------- */
+let D;
+try{D=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){D=null;}
+if(!D||!D.fish)D=JSON.parse(JSON.stringify(DEFAULT));
+function save(){try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>ymd(new Date());
+const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);return ymd(d);};
+const daysTo=s=>{if(!s)return null;const [y,m,d]=s.split("-").map(Number);const t=new Date(y,m-1,d),n=new Date();n.setHours(0,0,0,0);return Math.round((t-n)/864e5);};
+const seasonOf=d=>`${d.getFullYear()}Q${Math.floor(d.getMonth()/3)+1}`;
+const curSeason=()=>seasonOf(new Date());
+const sParse=id=>({y:+id.slice(0,4),q:+id.slice(5)});
+const sLabel=id=>{const{y,q}=sParse(id);return `${y} ${SEASON_NAME[q]}`;};
+const sCmp=(a,b)=>a<b?-1:a>b?1:0; // "2026Q4" 字串可直接比較
+const prevSeason=id=>{let{y,q}=sParse(id);q--;if(!q){q=4;y--;}return `${y}Q${q}`;};
+const fishById=id=>D.fish.find(f=>f.id===id);
+const seasonFish=id=>{const s=D.seasons[id];return s&&s.fishId?fishById(s.fishId):null;};
+const prog=fid=>(D.qaProgress[fid]=D.qaProgress[fid]||{answeredIds:[],streak:0,lastDate:null,stamps:0,watched:[]});
+
+/* ---------- 魚的樣子 ---------- */
+function fishSVG(kind,big){
+  const body=kind==="koi"?"#E36E57":"#E5AE3E",fin=kind==="koi"?"#F2A796":"#F4CF7A";
+  const spots=kind==="koi"?`<ellipse cx="44" cy="15" rx="7" ry="5" fill="#FFF6EE"/><ellipse cx="31" cy="21" rx="5" ry="3.5" fill="#FFF6EE"/>`:"";
+  const tail=kind==="koi"?`<path d="M14 18 L1 8 Q5 18 1 28 Z" fill="${fin}"/>`:`<path d="M15 18 Q2 2 0 10 Q6 18 0 26 Q2 34 15 18 Z" fill="${fin}"/>`;
+  return `<svg viewBox="0 0 70 36" ${big?'width="120" height="62"':''} aria-hidden="true">${tail}<path d="M30 9 Q36 1 44 7" fill="${fin}"/><ellipse cx="38" cy="18" rx="25" ry="11" fill="${body}"/>${spots}<path d="M34 26 Q38 33 44 28" fill="${fin}"/><circle cx="56" cy="15.5" r="2" fill="#2E241D"/></svg>`;}
+
+/* ---------- 題庫 ---------- */
+const BANK={};
+async function bank(f){
+  if(!f||!f.qaFile)return null;
+  if(BANK[f.qaFile])return BANK[f.qaFile];
+  try{const r=await fetch("qa/"+encodeURIComponent(f.qaFile),{cache:"no-cache"});if(!r.ok)throw 0;BANK[f.qaFile]=await r.json();}catch(e){BANK[f.qaFile]={error:true};}
+  return BANK[f.qaFile];}
+function rng(seed){let h=2166136261;for(const c of seed){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return()=>{h^=h<<13;h^=h>>>17;h^=h<<5;return((h>>>0)%1e6)/1e6;};}
+function stageWeights(f){const d=daysTo(f.depart);
+  if(d==null||d>60)return{1:.7,2:.2,3:.1};
+  if(d>30)return{1:.4,2:.35,3:.25};
+  return{1:.2,2:.4,3:.4};}
+function todaysQuestions(f,b){
+  const p=prog(f.id),t=today();
+  if(p.today&&p.today.date===t)return p.today;
+  const eligible=b.questions.filter(q=>!q.movieId||(p.watched||[]).includes(q.movieId));
+  let pool=eligible.filter(q=>!p.answeredIds.includes(q.id));
+  if(pool.length<3){p.answeredIds=[];pool=eligible.slice();} // 題庫輪完一圈，重新開始
+  const r=rng(t+f.id),w=stageWeights(f),ids=[];
+  for(let k=0;k<3&&pool.length;k++){
+    const st=[1,2,3].filter(s=>pool.some(q=>(q.stage||1)===s));
+    const tot=st.reduce((a,s)=>a+w[s],0);let x=r()*tot,pick=st[st.length-1];
+    for(const s of st){if((x-=w[s])<=0){pick=s;break;}}
+    const c=pool.filter(q=>(q.stage||1)===pick),q=c[Math.floor(r()*c.length)];
+    ids.push(q.id);pool=pool.filter(z=>z!==q);}
+  p.today={date:t,ids,picked:{}};save();return p.today;}
+function finishDay(f){
+  const p=prog(f.id),t=today();if(p.lastDate===t)return;
+  p.streak=p.lastDate===yesterday()?p.streak+1:1;p.lastDate=t;
+  if(p.streak%7===0)p.stamps++;
+  p.answeredIds=[...new Set([...p.answeredIds,...p.today.ids])];save();}
+
+/* ---------- 畫面 ---------- */
+let flipped=false;
+async function render(){
+  const cs=curSeason(),tf=seasonFish(cs);
+  // 上一季有魚卻還沒回顧：提醒翻面
+  const ps=prevSeason(cs),pf=seasonFish(ps),needReview=sCmp(ps,START)>=0&&pf&&!(D.seasons[ps].review||"").trim();
+  $("#app").innerHTML=`
+  <header><h1>夢想版</h1><p class="lede">清單不是承諾。願望先養在許願池，每一季只撈一條出來實現。</p></header>
+  ${needReview?`<div class="card nudge"><span>${sLabel(ps)}結束了：「${esc(pf.name)}」那一季，翻面寫一句回顧吧。</span><button class="btn sm" data-season="${ps}">寫回顧</button></div>`:""}
+  <section><h2>北極星<small>點卡片可以改日期</small></h2><div class="stars">${D.northStars.map(starCard).join("")}</div></section>
+  <section><h2>時間軸<small>2026 秋 → ${END_YEAR}，點任何一季看那季的魚缸</small></h2>${timeline(cs)}</section>
+  <section><h2>這一季的魚缸<small>${sLabel(cs)}・${SEASON_MON[sParse(cs).q]}・最多一條魚</small></h2>${tankCard(cs,tf)}</section>
+  <section id="studySec"><h2>今日三題<small>${tf?`「${esc(tf.name)}」的旅行 QA・連續 7 天蓋一個章`:"魚缸有魚時才會出題"}</small></h2><div id="study"></div></section>
+  <section><h2>許願池<small>點一條魚，放進這一季的魚缸</small></h2>${poolCard()}</section>`;
+  bind();
+  await renderStudy(tf);}
+
+function starCard(s){const d=daysTo(s.date);
+  return `<button class="star" data-star="${s.id}"><div class="yr">${s.year}</div><div class="tt">${esc(s.title)}</div><div class="sub">${esc(s.sub)}</div>
+  <div class="days">${d==null?"—":d>=0?d:"已到"}<span>${d!=null&&d>=0?"天後・"+esc(s.date):""}</span></div></button>`;}
+
+function timeline(cs){
+  const rows=[];
+  for(let y=2026;y<=END_YEAR;y++){
+    const cells=[1,2,3,4].map(q=>{const id=`${y}Q${q}`;if(sCmp(id,START)<0)return `<td><button disabled></button></td>`;
+      const f=seasonFish(id),now=id===cs,past=sCmp(id,cs)<0;
+      return `<td><button class="${now?"now":past?"past":""}" data-season="${id}" aria-label="${sLabel(id)}${f?"："+esc(f.name):""}">${f?`<i class="dot ${f.kind}"></i>${esc(f.name)}`:SEASON_NAME[q]}</button></td>`;}).join("");
+    rows.push(`<tr><th>${y}</th>${cells}</tr>`);}
+  return `<div class="card tl"><table><thead><tr><th></th>${[1,2,3,4].map(q=>`<th>${SEASON_NAME[q]}<br><span style="font-size:11px">${SEASON_MON[q]}</span></th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table>
+  <div class="legend"><span><i style="background:var(--ink)"></i>這一季</span><span><i style="background:var(--koi)"></i>錦鯉・區域</span><span><i style="background:var(--gold)"></i>小金魚・營／短程</span></div></div>`;}
+
+function glass(f){
+  const weeds=[12,18,84,90].map((x,i)=>`<i class="weed" style="left:${x}%;height:${34+i*9}px;animation-delay:${-i*1.3}s"></i>`).join("");
+  const bubs=[30,62,74].map((x,i)=>`<i class="bub" style="left:${x}%;animation-delay:${-i*2}s"></i>`).join("");
+  return `<div class="glass">${weeds}<div class="sand"></div>${f&&f.status!=="released"?`<div class="swim">${fishSVG(f.kind,1)}</div>${bubs}`:`<div class="empty">${f?"這條魚已經游進記錄之河了":"魚缸是空的。<br>從下面的許願池撈一條魚進來。"}</div>`}</div>`;}
+
+function tankCard(id,f){
+  const s=D.seasons[id]||{},rel=f&&f.status==="released";
+  const front=`<div class="face front">${glass(f)}<div class="tankinfo">${f?`
+    <div class="nm">${esc(f.name)}<span class="tag ${f.kind}">${KIND[f.kind]}</span>${rel?`<span class="tag rel">已放生・${esc(f.releasedAt||"")}</span>`:""}</div>
+    ${rel?`<p class="muted" style="margin:0;font-size:14px">這趟的紀錄在記錄之河裡：</p><div class="row"><button class="btn sm" data-open="旅遊手冊|${GH}World/">打開旅遊手冊</button><button class="btn sm" data-open="WonderMedia|${GH}WonderMedia/">打開 WonderMedia</button></div>`
+      :`<label class="date">出發日<input type="date" id="depart" value="${esc(f.depart||"")}"></label>
+    <p class="muted" style="margin:0;font-size:13px">${f.depart?(daysTo(f.depart)>=0?`還有 ${daysTo(f.depart)} 天出發；越接近出發，交通、預算、行程類的題目越多。`:"已經出發了！回來後按「放生」，讓這條魚游進記錄之河。"):"填上出發日，題目會隨著出發日接近，從文化慢慢換成交通、錢和行程。"}</p>
+    <div class="row"><button class="btn pri" data-release="${f.id}" data-sid="${id}">完成了・放生</button><button class="btn" data-back="${id}">放回許願池</button></div>`}`
+    :`<p class="muted" style="margin:0;font-size:14px">一季一條魚就好：一趟旅行，或一個營。</p>`}
+    <div class="row"><button class="btn ghost sm" data-flip>${s.review?"翻面・看回顧":"翻面・寫回顧"}</button></div></div></div>`;
+  const back=`<div class="face back"><div class="nm" style="font-weight:700">${sLabel(id)}的回顧</div>
+    <p class="muted" style="margin:0;font-size:13px">一句話就好：這一季的魚，帶給你什麼？</p>
+    <textarea id="review" placeholder="例如：第一次一個人去曼谷，發現我其實很會問路。">${esc(s.review||"")}</textarea>
+    <div class="row"><button class="btn pri" data-savereview="${id}">存好</button><button class="btn" data-flip>翻回正面</button></div></div>`;
+  return `<div class="tank"><div class="card flip${flipped?" on":""}" id="flip">${front}${back}</div></div>`;}
+
+function poolCard(){
+  const grp=k=>D.fish.filter(f=>f.kind===k&&f.status==="pool");
+  const fishBtn=f=>`<button class="fish" data-fish="${f.id}">${fishSVG(f.kind)}${esc(f.name)}</button>`;
+  const rel=D.fish.filter(f=>f.status==="released");
+  return `<div class="card pool">
+    <div class="pgrp"><h3>錦鯉・區域</h3><div class="fishes">${grp("koi").map(fishBtn).join("")||'<span class="river">（池裡沒有錦鯉）</span>'}</div></div>
+    <div class="pgrp"><h3>小金魚・營／短程</h3><div class="fishes">${grp("goldfish").map(fishBtn).join("")||'<span class="river">（池裡沒有小金魚）</span>'}</div></div>
+    <div class="row" style="justify-content:space-between"><button class="fish add" data-addfish>＋ 許一個新願望</button>
+    ${rel.length?`<span class="river">已游進記錄之河：${rel.map(f=>esc(f.name)).join("、")}</span>`:""}</div></div>`;}
+
+async function renderStudy(f){
+  const box=$("#study");if(!box)return;
+  if(!f||f.status==="released"){box.innerHTML=`<div class="card qa"><p class="muted" style="margin:0">${f?"這條魚已經放生了。下一季撈新的魚，就會有新的題目。":"魚缸裡還沒有魚。撈一條進來，就會開始每天三題。"}</p></div>`;return;}
+  const b=await bank(f);
+  if(!b||b.error||!b.questions){box.innerHTML=`<div class="card qa"><p style="margin:0">「${esc(f.name)}」還沒有題庫。</p><p class="muted" style="margin:0;font-size:13.5px">回到討論的對話，請 Claude 產生${esc(f.name)}的題庫（大約 90 題，夠一個月），放進來之後這裡就會每天出三題。</p></div>`;return;}
+  const p=prog(f.id),t=todaysQuestions(f,b),qs=t.ids.map(id=>b.questions.find(q=>q.id===id)).filter(Boolean);
+  const done=qs.length&&qs.every(q=>q.id in t.picked),right=qs.filter(q=>t.picked[q.id]===q.answer).length;
+  const inRow=p.streak%7===0&&p.streak>0&&p.lastDate?7:p.streak%7;
+  const live=p.lastDate===today()||p.lastDate===yesterday();
+  const qHTML=qs.map((q,i)=>{const a=t.picked[q.id],ans=a!=null;
+    return `<div class="q"><div class="meta">第 ${i+1} 題・${esc(q.category)}</div><p>${esc(q.q)}</p><div class="opts">${q.options.map((o,j)=>`<button data-q="${q.id}" data-a="${j}" ${ans?"disabled":""} class="${ans?(j===q.answer?"ok":j===a?"no":""):""}">${esc(o)}</button>`).join("")}</div>
+    ${ans?`<p class="ex">${a===q.answer?"答對了。":"差一點。"}${esc(q.explain)}</p>`:""}</div>`;}).join("");
+  const movies=(b.movies||[]).map(m=>{const seen=(p.watched||[]).includes(m.id);return `<article class="card movie"><div><div class="t">${esc(m.title)}</div><div class="en">${esc(m.titleEn)}・${esc(m.year)}</div></div>
+    <div>${esc(m.summary)}</div><dl><dt>導演</dt><dd>${esc(m.director)}</dd><dt>拍攝地</dt><dd>${(m.locations||[]).map(esc).join("；")}</dd><dt>故事年代</dt><dd>${esc(m.era)}</dd><dt>為什麼看</dt><dd>${esc(m.why)}</dd></dl>
+    <button class="btn sm seen" data-seen="${m.id}" aria-pressed="${seen}">${seen?"✓ 看過了":"標記看過了"}</button></article>`;}).join("");
+  box.innerHTML=`<div class="study"><div class="card qa">
+    <div class="stamps"><span>連續 ${live?p.streak:0} 天</span><span class="prog" aria-label="這一輪 ${live?inRow:0}／7 天">${Array.from({length:7},(_,i)=>`<i class="${live&&i<inRow?"on":""}"></i>`).join("")}</span>
+      <span>印章</span>${p.stamps?Array.from({length:Math.min(p.stamps,12)},()=>`<span class="stamp">${esc(f.name.slice(0,2))}</span>`).join(""):`<span>還沒有，連續 7 天就蓋一個</span>`}</div>
+    ${qHTML}
+    ${done?`<p class="ex" style="background:#EAF2E8">今天的三題做完了，答對 ${right} 題。明天再來三題。</p>`:""}
+  </div>
+  ${movies?`<div class="movies"><h3>出發前電影院<small>左右滑動・看過後才會出現電影題</small></h3><div class="mrail">${movies}</div></div>`:""}</div>`;
+  box.querySelectorAll("[data-q]").forEach(btn=>btn.onclick=()=>{const id=btn.dataset.q;if(id in t.picked)return;t.picked[id]=+btn.dataset.a;save();
+    if(qs.every(q=>q.id in t.picked))finishDay(f);renderStudy(f);});
+  box.querySelectorAll("[data-seen]").forEach(btn=>btn.onclick=()=>{p.watched=p.watched||[];const id=btn.dataset.seen;
+    p.watched=p.watched.includes(id)?p.watched.filter(x=>x!==id):[...p.watched,id];save();renderStudy(f);});}
+
+/* ---------- 對話框 ---------- */
+function dialog(html,onBind){$("#dlgBox").innerHTML=html;$("#dlg").hidden=false;
+  $("#dlg").onclick=e=>{if(e.target.id==="dlg"||e.target.closest("[data-x]"))closeDlg();};onBind&&onBind($("#dlgBox"));
+  const f=$("#dlgBox").querySelector("input,textarea,button");f&&f.focus();}
+function closeDlg(){$("#dlg").hidden=true;$("#dlgBox").innerHTML="";}
+addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#dlg").hidden)closeDlg();});
+
+function putInTank(f,sid){
+  const cur=seasonFish(sid);
+  if(cur&&cur.status!=="released"){cur.status="pool";delete cur.season;}
+  f.status="tank";f.season=sid;D.seasons[sid]={...(D.seasons[sid]||{}),fishId:f.id};save();}
+
+function fishDialog(f){
+  const cs=curSeason(),cur=seasonFish(cs),busy=cur&&cur.status!=="released"?cur:null,relDone=cur&&cur.status==="released";
+  dialog(`<div class="row">${fishSVG(f.kind,1)}</div><h3>${esc(f.name)}</h3><p class="muted">${KIND[f.kind]}</p>
+    ${relDone?`<p>這一季已經放生了「${esc(cur.name)}」。一季一條魚，可以在時間軸點下一季，把這條魚排進去。</p>`
+      :busy?`<p>這一季的魚缸已經有「${esc(busy.name)}」。要換成「${esc(f.name)}」嗎？${esc(busy.name)}會回到許願池。</p>`:`<p>放進 ${sLabel(cs)} 的魚缸？</p>`}
+    <div class="row">${relDone?"":`<button class="btn pri" data-go>${busy?"替換":"放進這一季"}</button>`}<button class="btn" data-del>刪除這條魚</button><button class="btn ghost" data-x>取消</button></div>`,
+  box=>{const go=box.querySelector("[data-go]");if(go)go.onclick=()=>{putInTank(f,cs);closeDlg();render();};
+    box.querySelector("[data-del]").onclick=()=>confirmDelete(f);});}
+
+function confirmDelete(f){dialog(`<h3>刪除「${esc(f.name)}」？</h3><p>這個願望會從許願池拿掉。</p><div class="row"><button class="btn pri" data-yes>刪除</button><button class="btn ghost" data-x>取消</button></div>`,
+  box=>box.querySelector("[data-yes]").onclick=()=>{D.fish=D.fish.filter(x=>x!==f);Object.values(D.seasons).forEach(s=>{if(s.fishId===f.id)s.fishId=null;});save();closeDlg();render();});}
+
+function addFishDialog(){let kind="goldfish";
+  dialog(`<h3>許一個新願望</h3><label class="field">願望（地方或活動）<input id="fn" maxlength="20" placeholder="例如：京都、潛水營"></label>
+    <div class="field">是哪一種魚？<div class="seg"><button data-k="koi" aria-pressed="false">錦鯉・區域</button><button data-k="goldfish" aria-pressed="true">小金魚・營／短程</button></div></div>
+    <div class="row"><button class="btn pri" data-ok>放進許願池</button><button class="btn ghost" data-x>取消</button></div>`,
+  box=>{box.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{kind=b.dataset.k;box.querySelectorAll("[data-k]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    const ok=()=>{const n=box.querySelector("#fn").value.trim();if(!n)return box.querySelector("#fn").focus();
+      D.fish.push({id:"f"+Date.now().toString(36),name:n,kind,status:"pool"});save();closeDlg();render();};
+    box.querySelector("[data-ok]").onclick=ok;box.querySelector("#fn").onkeydown=e=>{if(e.key==="Enter")ok();};});}
+
+function starDialog(s){dialog(`<h3>${esc(s.year)}・${esc(s.title)}</h3><p class="muted">${esc(s.sub)}</p>
+  <label class="field">目標日期<input type="date" id="sd" value="${esc(s.date)}"></label>
+  <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn ghost" data-x>取消</button></div>`,
+  box=>box.querySelector("[data-ok]").onclick=()=>{const v=box.querySelector("#sd").value;if(v){s.date=v;s.year=+v.slice(0,4);save();}closeDlg();render();});}
+
+function seasonDialog(id){
+  const cs=curSeason();if(id===cs&&!(D.seasons[id]||{}).review){document.querySelector(".tank").scrollIntoView({behavior:"smooth",block:"center"});return;}
+  const s=D.seasons[id]||{},f=seasonFish(id),future=sCmp(id,cs)>0,pool=D.fish.filter(x=>x.status==="pool");
+  dialog(`<h3>${sLabel(id)}<span class="muted" style="font-weight:400;font-size:13px">・${SEASON_MON[sParse(id).q]}</span></h3>
+    <div class="glass" style="margin:0;height:120px">${f&&f.status!=="released"?`<div class="swim">${fishSVG(f.kind,1)}</div>`:`<div class="empty">${f?`「${esc(f.name)}」已游進記錄之河`:future?"還沒排魚":"這一季沒有養魚"}</div>`}</div>
+    ${f?`<p><b>${esc(f.name)}</b>・${KIND[f.kind]}${f.status==="released"?"・已放生":""}</p>`:""}
+    ${future?`<div class="field">${f?"換一條魚，或拿回許願池":"從許願池排一條魚到這一季"}<div class="fishes">${pool.map(x=>`<button class="fish" data-plan="${x.id}">${fishSVG(x.kind)}${esc(x.name)}</button>`).join("")||'<span class="muted">許願池是空的</span>'}</div></div>
+      ${f?`<button class="btn sm" data-unplan>把「${esc(f.name)}」放回許願池</button>`:""}`
+    :`<label class="field">回顧<textarea id="rv" placeholder="一句話就好">${esc(s.review||"")}</textarea></label>`}
+    <div class="row">${future?"":`<button class="btn pri" data-ok>存好</button>`}<button class="btn ghost" data-x>關閉</button></div>`,
+  box=>{const ok=box.querySelector("[data-ok]");if(ok)ok.onclick=()=>{D.seasons[id]={...(D.seasons[id]||{}),review:box.querySelector("#rv").value.trim()};save();closeDlg();render();};
+    box.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{putInTank(fishById(b.dataset.plan),id);closeDlg();render();});
+    const un=box.querySelector("[data-unplan]");if(un)un.onclick=()=>{f.status="pool";delete f.season;D.seasons[id].fishId=null;save();closeDlg();render();};});}
+
+function releaseDialog(f){dialog(`<div class="row">${fishSVG(f.kind,1)}</div><h3>放生「${esc(f.name)}」？</h3>
+  <p>放生代表這一季的願望完成了。這條魚會游進記錄之河，這趟的照片和日記到旅遊手冊、WonderMedia 去看。</p>
+  <div class="row"><button class="btn pri" data-yes>放生</button><button class="btn ghost" data-x>還沒</button></div>`,
+  box=>box.querySelector("[data-yes]").onclick=()=>{f.status="released";f.releasedAt=today();save();closeDlg();flipped=false;render();});}
+
+function openApp(name,url){ // 在 Origina 裡打開；單獨打開時直接換頁
+  try{if(window.parent!==window){window.parent.postMessage({origina:"open-app",name,url},"*");return;}}catch(e){}
+  location.href=url;}
+
+function bind(){
+  document.querySelectorAll("[data-star]").forEach(b=>b.onclick=()=>starDialog(D.northStars.find(s=>s.id===b.dataset.star)));
+  document.querySelectorAll("[data-season]").forEach(b=>b.onclick=()=>seasonDialog(b.dataset.season));
+  document.querySelectorAll("[data-fish]").forEach(b=>b.onclick=()=>fishDialog(fishById(b.dataset.fish)));
+  const add=$("[data-addfish]");if(add)add.onclick=addFishDialog;
+  document.querySelectorAll("[data-flip]").forEach(b=>b.onclick=()=>{flipped=!flipped;$("#flip").classList.toggle("on",flipped);});
+  const sr=$("[data-savereview]");if(sr)sr.onclick=()=>{const id=sr.dataset.savereview;D.seasons[id]={...(D.seasons[id]||{}),review:$("#review").value.trim()};save();flipped=false;render();};
+  const rl=$("[data-release]");if(rl)rl.onclick=()=>releaseDialog(fishById(rl.dataset.release));
+  const bk=$("[data-back]");if(bk)bk.onclick=()=>{const f=seasonFish(bk.dataset.back);f.status="pool";delete f.season;D.seasons[bk.dataset.back].fishId=null;save();render();};
+  const dp=$("#depart");if(dp)dp.onchange=()=>{const f=seasonFish(curSeason());f.depart=dp.value||undefined;save();render();};
+  document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{const[n,u]=b.dataset.open.split("|");openApp(n,u);});}
+
+// 卡片翻面時，讓卡片高度跟著背面
+new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector(".back"),fr=f.querySelector(".front");if(bk&&fr)f.style.minHeight=Math.max(fr.offsetHeight,bk.scrollHeight)+"px";}).observe(document.body);
+render();
+</script>
+</body></html>

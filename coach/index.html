@@ -4,13 +4,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#111">
 <title>拍照教練</title>
 <style>
-:root{--ink:#fff;--glass:rgba(20,18,16,.55);--gold:#E8C46A;--line:rgba(255,255,255,.28)}
+:root{--ink:#fff;--glass:rgba(20,18,16,.55);--gold:#E8C46A;--ok:#7FE0A0;--line:rgba(255,255,255,.28)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:#111;color:var(--ink);font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
 #v{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
 #v.mirror{transform:scaleX(-1)}
 #tpl{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;opacity:.35;display:none}
-#pose{position:fixed;left:50%;bottom:16%;height:62%;transform:translateX(-50%);pointer-events:none;opacity:.9;filter:drop-shadow(0 0 3px rgba(0,0,0,.6))}
+#ov{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 #grid{position:fixed;inset:0;pointer-events:none;display:none;background:
  linear-gradient(to right,transparent 33.2%,var(--line) 33.3%,var(--line) 33.5%,transparent 33.6%,transparent 66.5%,var(--line) 66.6%,var(--line) 66.8%,transparent 66.9%),
  linear-gradient(to bottom,transparent 33.2%,var(--line) 33.3%,var(--line) 33.5%,transparent 33.6%,transparent 66.5%,var(--line) 66.6%,var(--line) 66.8%,transparent 66.9%)}
@@ -18,6 +18,11 @@ html,body{margin:0;height:100%;background:#111;color:var(--ink);font-family:"Pin
 .top::-webkit-scrollbar{display:none}
 .chip{flex:none;border:1px solid var(--line);background:var(--glass);color:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .chip.on{background:#fff;color:#111;border-color:#fff}
+#status{position:fixed;left:12px;top:calc(env(safe-area-inset-top) + 60px);display:flex;flex-direction:column;gap:6px;align-items:flex-start;max-width:calc(100% - 80px)}
+#status span{background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:999px;padding:6px 12px;font-size:13px}
+#score{font-weight:700;font-size:15px!important}
+#score.good{background:rgba(40,120,70,.75)!important}
+#hint{font-size:15px!important;display:none}
 #tip{position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 178px);text-align:center;pointer-events:none}
 #tip span{display:inline-block;background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:16px;padding:10px 16px;font-size:17px;line-height:1.5;transition:opacity .35s;max-width:520px}
 #tip small{display:block;font-size:12px;opacity:.7}
@@ -31,7 +36,7 @@ html,body{margin:0;height:100%;background:#111;color:var(--ink);font-family:"Pin
 .round img{width:100%;height:100%;object-fit:cover}
 #shot{width:74px;height:74px;border-radius:50%;border:4px solid #fff;background:rgba(255,255,255,.25)}
 #shot:active{background:#fff}
-.side{position:fixed;right:10px;top:calc(env(safe-area-inset-top) + 64px);display:flex;flex-direction:column;gap:8px}
+.side{position:fixed;right:10px;top:calc(env(safe-area-inset-top) + 60px);display:flex;flex-direction:column;gap:8px}
 .side .round{width:46px;height:46px;font-size:11px;line-height:1.2;text-align:center}
 .side .round.on{border-color:var(--gold);color:var(--gold)}
 #count{position:fixed;inset:0;display:none;place-items:center;font-size:120px;font-weight:700;text-shadow:0 2px 20px rgba(0,0,0,.5);pointer-events:none}
@@ -41,7 +46,7 @@ html,body{margin:0;height:100%;background:#111;color:var(--ink);font-family:"Pin
 #start h1{font-size:26px;margin:0 0 8px;letter-spacing:.08em}
 #start p{color:#C9C0B5;line-height:1.7;font-size:15px;margin:0 0 22px}
 #start button{background:#fff;color:#111;border:0;border-radius:999px;padding:14px 28px;font:inherit;font-size:16px;font-weight:600}
-#opa{position:fixed;left:24px;right:84px;top:calc(env(safe-area-inset-top) + 70px);display:none;accent-color:var(--gold)}
+#opa{position:fixed;left:24px;right:84px;bottom:calc(env(safe-area-inset-bottom) + 240px);display:none;accent-color:var(--gold)}
 #review{position:fixed;inset:0;background:#000;display:none;flex-direction:column}
 #review img{flex:1;min-height:0;object-fit:contain;width:100%}
 #review .rb{display:flex;gap:10px;justify-content:center;padding:14px 14px calc(env(safe-area-inset-bottom) + 18px)}
@@ -51,12 +56,14 @@ html,body{margin:0;height:100%;background:#111;color:var(--ink);font-family:"Pin
 <video id="v" playsinline muted autoplay></video>
 <img id="tpl" alt="">
 <div id="grid"></div>
-<svg id="pose" viewBox="0 0 100 200" aria-hidden="true"></svg>
+<canvas id="ov" aria-hidden="true"></canvas>
 <div class="top" id="scenes"></div>
+<div id="status"><span id="ai">姿勢偵測載入中…</span><span id="score" hidden></span><span id="hint"></span></div>
 <input type="range" id="opa" min="10" max="70" value="35" aria-label="模板透明度">
 <div class="side">
-  <button class="round" id="bGrid">九宮格</button>
+  <button class="round on" id="bAuto">對到<br>就拍</button>
   <button class="round on" id="bWarm">暖身<br>倒數</button>
+  <button class="round" id="bGrid">九宮格</button>
   <button class="round" id="bTpl">我的<br>模板</button>
   <button class="round" id="bFlip">前後<br>鏡頭</button>
 </div>
@@ -70,11 +77,10 @@ html,body{margin:0;height:100%;background:#111;color:var(--ink);font-family:"Pin
 <div id="warm"></div><div id="count"></div><div id="flash"></div>
 <input type="file" id="file" accept="image/*" hidden>
 <div id="review"><img id="rImg" alt="剛拍的照片"><div class="rb"><button id="rBack">繼續拍</button><button class="pri" id="rSave">存下來</button></div></div>
-<div id="start"><div><h1>拍照教練</h1><p>選場景和姿勢，畫面會疊上姿勢線框，<br>邊邊會輪流提醒鏡頭感和表情。<br>也可以放一張喜歡的照片當模板對位。</p><button id="go">打開相機</button></div></div>
+<div id="start"><div><h1>拍照教練</h1><p>鏡頭會認出你的身體，<br>把姿勢框對齊到你的位置和大小，<br>告訴你哪隻手、哪隻腳再調一點。<br>對到了會自動拍。</p><button id="go">打開相機</button></div></div>
 
-<script>
+<script type="module">
 const $=s=>document.querySelector(s);
-/* 場景提醒：之後會換成你從小喵課整理的重點 */
 const SCENES={
  "隨手":["下巴微微往前、往下一點，脖子會變長","眼睛看鏡頭上方一點點，眼神比較柔","肩膀放鬆往下，不要聳肩","重心放在一隻腳，另一隻腳輕點地","手找事情做：摸頭髮、拉衣角、拿包包"],
  "咖啡廳":["手扶杯子，不要緊握，手指放鬆","坐椅子前三分之一，背打直","看窗外、低頭看飲料都比直視鏡頭自然","身體側 45 度，臉轉回來看鏡頭","拿起杯子到下巴高度，假裝要喝"],
@@ -85,56 +91,132 @@ const SCENES={
  "夜拍":["站到招牌或路燈的光下","停 1 秒不動，夜拍容易糊","手機打光從側面，不要正面","背景的燈越多越好看","眼睛找光源，眼神會亮"]
 };
 const WARM=["想一件剛剛很好笑的事","輕輕吐一口氣，肩膀放下","嘴巴發「一」的音再放鬆","想像對面是你最喜歡的人"];
-/* 姿勢線框（簡單的人形輪廓） */
-const P={
- "重心一腳":"M50 13a9 9 0 1 0 .1 0 M50 31 L49 60 L48 92 M34 38 L66 38 M34 38 L28 62 L38 80 M66 38 L70 62 L62 82 M48 92 L42 92 L58 92 M44 92 L46 140 L48 190 M56 92 L50 140 L40 186",
- "手扶腰":"M50 13a9 9 0 1 0 .1 0 M50 31 L50 92 M34 38 L66 38 M34 38 L24 60 L38 74 M66 38 L72 62 L74 88 M43 92 L57 92 M45 92 L44 140 L42 190 M55 92 L58 140 L62 190",
- "側身回頭":"M58 14a9 9 0 1 0 .1 0 M54 32 L50 62 L52 94 M42 40 L60 37 M42 40 L40 66 L46 86 M60 37 L62 64 L58 84 M46 94 L58 94 M48 94 L46 142 L44 190 M56 94 L60 140 L64 188",
- "撥頭髮":"M50 13a9 9 0 1 0 .1 0 M50 31 L50 92 M34 38 L66 38 M34 38 L30 22 L40 12 M66 38 L70 62 L66 84 M43 92 L57 92 M46 92 L48 140 L50 190 M54 92 L50 140 L42 188",
- "坐姿":"M50 33a9 9 0 1 0 .1 0 M50 51 L50 108 M34 58 L66 58 M34 58 L30 82 L46 102 M66 58 L70 82 L56 104 M44 108 L56 108 M46 108 L76 112 L74 176 M54 108 L82 116 L84 178 M20 112 L96 112",
- "走路":"M50 13a9 9 0 1 0 .1 0 M50 31 L52 92 M36 38 L64 38 M36 38 L26 62 L28 84 M64 38 L72 60 L80 78 M45 92 L59 92 M47 92 L38 140 L28 184 M57 92 L62 140 L66 190",
- "靠牆":"M44 13a9 9 0 1 0 .1 0 M45 31 L48 92 M30 38 L60 36 M30 38 L26 64 L34 84 M60 36 L66 60 L58 80 M42 92 L56 92 M44 92 L46 140 L46 190 M54 92 L66 136 L52 176 M80 0 L80 200",
- "不用線框":""
+/* 姿勢：以「拍出來的照片」看到的樣子定義（畫面左邊是你的右手）。座標 100×200 */
+const POSES={
+ "重心一腳":{n:[50,22],rs:[34,38],ls:[66,38],re:[28,62],le:[70,62],rw:[38,80],lw:[62,82],rh:[43,92],lh:[57,92],rk:[46,140],lk:[50,140],ra:[48,190],la:[40,186]},
+ "手扶腰":{n:[50,22],rs:[34,38],ls:[66,38],re:[22,60],le:[72,62],rw:[38,76],lw:[74,88],rh:[43,92],lh:[57,92],rk:[44,140],lk:[58,140],ra:[42,190],la:[62,190]},
+ "撥頭髮":{n:[50,22],rs:[34,38],ls:[66,38],re:[24,24],le:[70,62],rw:[40,14],lw:[66,84],rh:[43,92],lh:[57,92],rk:[48,140],lk:[52,140],ra:[50,190],la:[42,188]},
+ "雙手舉高":{n:[50,24],rs:[36,40],ls:[64,40],re:[26,22],le:[74,22],rw:[20,4],lw:[80,4],rh:[44,94],lh:[56,94],rk:[45,142],lk:[55,142],ra:[44,192],la:[56,192]},
+ "走路":{n:[50,22],rs:[36,38],ls:[64,38],re:[26,62],le:[72,60],rw:[28,84],lw:[80,78],rh:[45,92],lh:[59,92],rk:[38,140],lk:[62,140],ra:[28,184],la:[66,190]},
+ "側身回頭":{n:[58,22],rs:[44,38],ls:[60,37],re:[40,64],le:[62,64],rw:[46,86],lw:[58,84],rh:[46,94],lh:[56,94],rk:[46,142],lk:[60,140],ra:[44,190],la:[64,188]},
+ "坐姿":{n:[50,40],rs:[34,58],ls:[66,58],re:[30,82],le:[70,82],rw:[46,102],lw:[56,104],rh:[44,110],lh:[56,110],rk:[40,142],lk:[60,142],ra:[40,182],la:[60,182]},
+ "不用框":null
 };
-let scene="隨手",pose="重心一腳",tipI=0,tipTimer,facing="environment",stream,warmOn=true,lastBlob=null;
-function drawPose(){$("#pose").innerHTML=P[pose]?`<path d="${P[pose]}" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="0" opacity=".85"/>`:"";}
+const IDX={n:0,ls:11,rs:12,le:13,re:14,lw:15,rw:16,lh:23,rh:24,lk:25,rk:26,la:27,ra:28};
+const LIMBS=[["rs","re","右手臂"],["re","rw","右手"],["ls","le","左手臂"],["le","lw","左手"],["rh","rk","右大腿"],["rk","ra","右小腿"],["lh","lk","左大腿"],["lk","la","左小腿"]];
+const BONES=[["rs","ls"],["rh","lh"],["rs","rh"],["ls","lh"],...LIMBS.map(l=>[l[0],l[1]])];
+let scene="隨手",pose="重心一腳",tipI=0,tipTimer,facing="user",stream,warmOn=true,autoOn=true,lastBlob=null,landmarker=null,busy=false,goodSince=0,lastShot=0;
+const cv=$("#ov"),g=cv.getContext("2d"),V=$("#v");
+
 function chips(){
  $("#scenes").innerHTML=Object.keys(SCENES).map(k=>`<button class="chip${k===scene?" on":""}" data-s="${k}">${k}</button>`).join("");
- $("#poses").innerHTML=Object.keys(P).map(k=>`<button class="${k===pose?"on":""}" data-p="${k}">${P[k]?`<svg viewBox="0 0 100 200"><path d="${P[k]}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/></svg>`:"<b style='font-size:20px'>×</b>"}${k}</button>`).join("");
+ $("#poses").innerHTML=Object.keys(POSES).map(k=>{const p=POSES[k];
+  return `<button class="${k===pose?"on":""}" data-p="${k}">${p?`<svg viewBox="0 0 100 200"><circle cx="${p.n[0]}" cy="${p.n[1]}" r="11" fill="none" stroke="#fff" stroke-width="7"/><path d="${BONES.map(([a,b])=>`M${p[a]} L${p[b]}`).join(" ")} M${(p.rs[0]+p.ls[0])/2} ${(p.rs[1]+p.ls[1])/2} L${p.n}" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>`:"<b style='font-size:20px'>×</b>"}${k}</button>`;}).join("");
 }
 function showTip(next){const L=SCENES[scene];if(next)tipI=(tipI+1)%L.length;const t=$("#tipT");t.style.opacity=0;
  setTimeout(()=>{t.innerHTML=`<small>${scene}・${tipI+1}/${L.length}</small>${L[tipI]}`;t.style.opacity=1;},200);
  clearInterval(tipTimer);tipTimer=setInterval(()=>showTip(true),5000);}
 $("#scenes").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;scene=b.dataset.s;tipI=0;chips();showTip();};
-$("#poses").onclick=e=>{const b=e.target.closest("[data-p]");if(!b)return;pose=b.dataset.p;chips();drawPose();};
+$("#poses").onclick=e=>{const b=e.target.closest("[data-p]");if(!b)return;pose=b.dataset.p;goodSince=0;chips();};
 $("#bNext").onclick=()=>showTip(true);
-$("#bGrid").onclick=e=>{const g=$("#grid"),on=g.style.display!=="block";g.style.display=on?"block":"none";e.currentTarget.classList.toggle("on",on);};
+$("#bGrid").onclick=e=>{const gr=$("#grid"),on=gr.style.display!=="block";gr.style.display=on?"block":"none";e.currentTarget.classList.toggle("on",on);};
 $("#bWarm").onclick=e=>{warmOn=!warmOn;e.currentTarget.classList.toggle("on",warmOn);};
+$("#bAuto").onclick=e=>{autoOn=!autoOn;e.currentTarget.classList.toggle("on",autoOn);};
 $("#bTpl").onclick=()=>{if($("#tpl").style.display==="block"){$("#tpl").style.display="none";$("#opa").style.display="none";$("#bTpl").classList.remove("on");}else $("#file").click();};
 $("#file").onchange=e=>{const f=e.target.files[0];if(!f)return;$("#tpl").src=URL.createObjectURL(f);$("#tpl").style.display="block";$("#opa").style.display="block";$("#bTpl").classList.add("on");e.target.value="";};
 $("#opa").oninput=e=>$("#tpl").style.opacity=e.target.value/100;
+
 async function cam(){
  try{if(stream)stream.getTracks().forEach(t=>t.stop());
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1920},height:{ideal:1080}},audio:false});
-  const v=$("#v");v.srcObject=stream;v.classList.toggle("mirror",facing==="user");await v.play();
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1280},height:{ideal:720}},audio:false});
+  V.srcObject=stream;V.classList.toggle("mirror",facing==="user");await V.play();
  }catch(e){$("#start").style.display="grid";$("#start p").innerHTML="打不開相機。<br>請在 iPhone「設定 → Safari → 相機」選「允許」，<br>或用 Safari 打開這個網址再試一次。";}
 }
 $("#bFlip").onclick=()=>{facing=facing==="user"?"environment":"user";cam();};
-$("#go").onclick=async()=>{$("#start").style.display="none";await cam();chips();drawPose();showTip();};
+
+/* 人體姿勢偵測：Google MediaPipe，在手機上直接跑，不上傳照片 */
+const MP="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+async function loadAI(){
+ try{const {PoseLandmarker,FilesetResolver}=await import(MP+"/vision_bundle.mjs");
+  const fs=await FilesetResolver.forVisionTasks(MP+"/wasm");
+  const opt=d=>({baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",delegate:d},runningMode:"VIDEO",numPoses:1});
+  try{landmarker=await PoseLandmarker.createFromOptions(fs,opt("GPU"));}catch(e){landmarker=await PoseLandmarker.createFromOptions(fs,opt("CPU"));}
+  $("#ai").textContent="站進畫面，讓全身入鏡";
+ }catch(e){$("#ai").textContent="姿勢偵測載入失敗，先用固定線框";}
+}
+
+/* 影像座標 → 螢幕座標（object-fit:cover，前鏡頭左右鏡像） */
+function mapper(){const W=innerWidth,H=innerHeight,vw=V.videoWidth||W,vh=V.videoHeight||H,s=Math.max(W/vw,H/vh),ox=(W-vw*s)/2,oy=(H-vh*s)/2,m=facing==="user";
+ return (x,y)=>{let X=ox+x*vw*s,Y=oy+y*vh*s;if(m)X=W-X;return[X,Y];};}
+const mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+const ang=(a,b)=>Math.atan2(b[1]-a[1],b[0]-a[0]);
+function angDiff(a,b){let d=Math.abs(a-b)%(2*Math.PI);return d>Math.PI?2*Math.PI-d:d;}
+
+function frame(){
+ requestAnimationFrame(frame);
+ const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio,2);
+ if(cv.width!==W*dpr){cv.width=W*dpr;cv.height=H*dpr;}
+ g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+ const T=POSES[pose];let me=null;
+ if(landmarker&&V.readyState>=2&&!busy){
+  try{const r=landmarker.detectForVideo(V,performance.now());const L=r.landmarks&&r.landmarks[0];
+   if(L){const M=mapper();me={};for(const k in IDX){const p=L[IDX[k]];me[k]=M(p.x,p.y);me[k].v=p.visibility??1;}}}catch(e){}
+ }
+ // 自己的骨架（細線）
+ if(me){g.strokeStyle="rgba(255,255,255,.55)";g.lineWidth=2;g.beginPath();BONES.forEach(([a,b])=>{if(me[a].v>.4&&me[b].v>.4){g.moveTo(...me[a]);g.lineTo(...me[b]);}});g.stroke();
+  g.fillStyle="#fff";for(const k in me)if(me[k].v>.4){g.beginPath();g.arc(me[k][0],me[k][1],3,0,7);g.fill();}}
+ if(!T){$("#score").hidden=true;$("#hint").style.display="none";return;}
+ // 目標姿勢：照片空間；螢幕上如果是前鏡頭就左右翻，跟鏡子一樣
+ const flip=facing==="user";
+ const tp={};for(const k in T)tp[k]=[flip?100-T[k][0]:T[k][0],T[k][1]];
+ // 對齊：骨盆中心對到你的骨盆中心，比例用軀幹長度
+ let s,ox,oy;const tH=mid(tp.rh,tp.lh),tS=mid(tp.rs,tp.ls),tLen=Math.hypot(tS[0]-tH[0],tS[1]-tH[1]);
+ const shouldersOk=me&&me.rs.v>.5&&me.ls.v>.5&&me.rh.v>.5&&me.lh.v>.5;
+ if(shouldersOk){const mH=mid(me.rh,me.lh),mS=mid(me.rs,me.ls);s=Math.hypot(mS[0]-mH[0],mS[1]-mH[1])/tLen;ox=mH[0]-tH[0]*s;oy=mH[1]-tH[1]*s;}
+ else{s=H*.62/200;ox=W/2-50*s;oy=H*.16;}
+ const P={};for(const k in tp)P[k]=[ox+tp[k][0]*s,oy+tp[k][1]*s];
+ // 比對每一節手腳的方向
+ let sum=0,n=0,worst=null;const ok={};
+ if(shouldersOk){LIMBS.forEach(([a,b,name])=>{if(me[a].v<.5||me[b].v<.5)return;const d=angDiff(ang(P[a],P[b]),ang(me[a],me[b]));const sim=Math.max(0,1-d/(Math.PI/3));sum+=sim;n++;ok[a+b]=d<.35;
+   if(!worst||d>worst.d)worst={d,name,dx:P[b][0]-me[b][0],dy:P[b][1]-me[b][1]};});}
+ // 畫目標框
+ g.lineCap="round";g.lineJoin="round";
+ const r0=11*s;g.lineWidth=Math.min(7,Math.max(3,2.2*s));g.strokeStyle="rgba(232,196,106,.9)";g.beginPath();g.arc(P.n[0],P.n[1],r0,0,7);g.stroke();
+ BONES.forEach(([a,b])=>{g.strokeStyle=ok[a+b]?"rgba(127,224,160,.95)":"rgba(232,196,106,.85)";g.setLineDash(ok[a+b]?[]:[10,8]);g.beginPath();g.moveTo(...P[a]);g.lineTo(...P[b]);g.stroke();});
+ g.setLineDash([]);g.strokeStyle="rgba(232,196,106,.85)";g.beginPath();g.moveTo(...mid(P.rs,P.ls));g.lineTo(P.n[0],P.n[1]+r0);g.stroke();
+ // 分數與提示
+ const sc=$("#score"),hi=$("#hint"),ai=$("#ai");
+ if(!landmarker){sc.hidden=true;hi.style.display="none";return;}
+ if(!me){ai.textContent="還沒看到你，站進畫面";sc.hidden=true;hi.style.display="none";goodSince=0;return;}
+ const legsNeeded=me.ra.v<.5&&me.la.v<.5;
+ ai.textContent=legsNeeded?"往後退一點，讓腳也入鏡":"偵測到你了";
+ if(!n){sc.hidden=true;return;}
+ const pct=Math.round(sum/n*100);sc.hidden=false;sc.textContent=`吻合 ${pct}%`;sc.classList.toggle("good",pct>=85);
+ if(pct>=85){hi.style.display="block";hi.textContent="很好，就是這樣！保持";if(!goodSince)goodSince=performance.now();
+  if(autoOn&&!busy&&performance.now()-goodSince>900&&performance.now()-lastShot>4000)shoot(true);}
+ else{goodSince=0;if(worst){const big=Math.abs(worst.dy)>Math.abs(worst.dx);const dir=big?(worst.dy<0?"抬高一點":"放低一點"):(worst.dx<0?"往左一點":"往右一點");hi.style.display="block";hi.textContent=`${worst.name}${dir}`;}}
+}
+
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-$("#shot").onclick=async()=>{
- if(warmOn){const w=$("#warm");w.textContent=WARM[Math.floor(Math.random()*WARM.length)];w.style.display="block";await sleep(1600);w.style.display="none";
-  const c=$("#count");c.style.display="grid";for(const n of [3,2,1]){c.textContent=n;await sleep(800);}c.style.display="none";}
- const v=$("#v");if(!v.videoWidth)return;
- const cv=document.createElement("canvas");cv.width=v.videoWidth;cv.height=v.videoHeight;const g=cv.getContext("2d");
- if(facing==="user"){g.translate(cv.width,0);g.scale(-1,1);}g.drawImage(v,0,0);
- const f=$("#flash");f.style.opacity=.8;setTimeout(()=>f.style.opacity=0,120);
- cv.toBlob(b=>{lastBlob=b;const u=URL.createObjectURL(b);$("#thumb").innerHTML=`<img src="${u}" alt="">`;$("#rImg").src=u;},"image/jpeg",.92);
-};
+async function shoot(auto){
+ if(busy)return;busy=true;
+ try{
+  if(warmOn&&!auto){const w=$("#warm");w.textContent=WARM[Math.floor(Math.random()*WARM.length)];w.style.display="block";await sleep(1600);w.style.display="none";}
+  const c=$("#count");c.style.display="grid";for(const n of (auto?[2,1]:warmOn?[3,2,1]:[])){c.textContent=n;await sleep(700);}c.style.display="none";
+  if(!V.videoWidth)return;
+  const k=document.createElement("canvas");k.width=V.videoWidth;k.height=V.videoHeight;const x=k.getContext("2d");
+  if(facing==="user"){x.translate(k.width,0);x.scale(-1,1);}x.drawImage(V,0,0);
+  const f=$("#flash");f.style.opacity=.8;setTimeout(()=>f.style.opacity=0,120);
+  await new Promise(res=>k.toBlob(b=>{lastBlob=b;const u=URL.createObjectURL(b);$("#thumb").innerHTML=`<img src="${u}" alt="">`;$("#rImg").src=u;res();},"image/jpeg",.92));
+  lastShot=performance.now();goodSince=0;
+ }finally{busy=false;}
+}
+$("#shot").onclick=()=>shoot(false);
 $("#thumb").onclick=()=>{if(lastBlob)$("#review").style.display="flex";};
 $("#rBack").onclick=()=>$("#review").style.display="none";
 $("#rSave").onclick=async()=>{if(!lastBlob)return;const file=new File([lastBlob],"photo-"+Date.now()+".jpg",{type:"image/jpeg"});
  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file]});return;}catch(e){if(e.name==="AbortError")return;}}
  const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=file.name;a.click();};
+$("#go").onclick=async()=>{$("#start").style.display="none";chips();showTip();loadAI();await cam();requestAnimationFrame(frame);};
 </script>
 </body></html>

@@ -404,7 +404,7 @@ let vaultF;
   {const VY=heightAt(VX,VZ),stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),stone2=new R.MeshStandardMaterial({color:0xD8D1C3,roughness:.7}),gold=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.8,roughness:.25,emissive:0x3A2600});
     [[4.4,.16,stone2],[3.6,.32,stone],[2.8,.48,stone2]].forEach(([r,h,m])=>{const c=new R.Mesh(new R.CylinderGeometry(r,r,h,64),m);c.position.set(VX,VY+h/2,VZ);c.receiveShadow=c.castShadow=true;out.add(c);});
     [3.6,2.8].forEach(r=>{const g=new R.Mesh(new R.TorusGeometry(r-.12,.035,6,80),gold);g.rotation.x=Math.PI/2;g.position.set(VX,VY+(r>3?.33:.49),VZ);out.add(g);});
-    for(let x=VX+5;x<FX-3;x+=1.35){if(Math.abs(x)<3.6)continue;const sl=new R.Mesh(new R.BoxGeometry(.8,.1,1.1),stone);sl.position.set(x,heightAt(x,VZ)+.05,VZ);sl.receiveShadow=true;out.add(sl);}
+    for(let x=VX+5;x<FX-3;x+=1.35){if(Math.abs(x)<4.7)continue;const sl=new R.Mesh(new R.BoxGeometry(.8,.1,1.1),stone);sl.position.set(x,heightAt(x,VZ)+.05,VZ);sl.receiveShadow=true;out.add(sl);}
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{const x=VX+a*3.9,z=VZ+b*3.9,y=heightAt(x,z);const post=new R.Mesh(new R.BoxGeometry(.32,1.3,.32),stone);post.position.set(x,y+.65,z);post.castShadow=true;out.add(post);
       const lt=new R.Mesh(new R.BoxGeometry(.42,.32,.42),new R.MeshBasicMaterial({color:0xFFE2A8}));lt.position.set(x,y+1.45,z);out.add(lt);const cap=new R.Mesh(new R.BoxGeometry(.6,.08,.6),stone2);cap.position.set(x,y+1.65,z);out.add(cap);
       const pl=new R.PointLight(0xFFCF8A,.35,6);pl.position.set(x,y+1.5,z);out.add(pl);});
@@ -504,22 +504,39 @@ let gateUpdate=()=>{};
 }
 { // 十字中心：東西連著金庫與營火（錢與熱情），南北連著家與森林入口（自己與世界）
   const stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),gold=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.8,roughness:.25});
-  for(let z=EC.cz-EC.rz+1.6;z<EC.cz+EC.rz-1.2;z+=1.35){if(Math.abs(z-EC.cz)<3.6)continue;const sl=new R.Mesh(new R.BoxGeometry(1.1,.1,.8),stone);sl.position.set(0,heightAt(0,z)+.05,z);sl.receiveShadow=true;out.add(sl);}
+  for(let z=EC.cz-EC.rz+1.6;z<EC.cz+EC.rz-1.2;z+=1.35){if(Math.abs(z-EC.cz)<4.7)continue;const sl=new R.Mesh(new R.BoxGeometry(1.1,.1,.8),stone);sl.position.set(0,heightAt(0,z)+.05,z);sl.receiveShadow=true;out.add(sl);}
   // 光孔日晷：圓形小涼亭，八根細柱讓出十字的四個方向，淺圓頂中央開一個光孔；正午的光點落在地上的金色子午線
   const cy=heightAt(0,EC.cz),cz=EC.cz,PR=2.7,CH=4.3,DS=.24;
   const plinth=new R.Mesh(new R.CylinderGeometry(3.3,3.45,.16,48),stone);plinth.position.set(0,cy+.08,cz);plinth.receiveShadow=true;out.add(plinth);
   const inner=new R.Mesh(new R.CylinderGeometry(2.35,2.35,.02,48),new R.MeshStandardMaterial({color:0xEFE9DD,roughness:.5}));inner.position.set(0,cy+.17,cz);inner.receiveShadow=true;out.add(inner);
-  const colM=new R.MeshStandardMaterial({color:0xF1ECE2,roughness:.55});
-  for(let k=0;k<4;k++){const a=Math.PI/4+k*Math.PI/2,x=Math.cos(a)*PR,z=cz+Math.sin(a)*PR;
-    const c=new R.Mesh(new R.CylinderGeometry(.1,.12,CH,16),colM);c.position.set(x,cy+.16+CH/2,z);c.castShadow=true;out.add(c);
-    const cap=new R.Mesh(new R.CylinderGeometry(.16,.1,.1,16),colM);cap.position.set(x,cy+.16+CH+.07,z);out.add(cap);
-    F.col.push({x,z,r:.22});}
-  const ring=new R.Mesh(new R.TorusGeometry(PR,.06,8,72),colM);ring.rotation.x=Math.PI/2;ring.position.set(0,cy+.16+CH+.12,cz);ring.castShadow=true;out.add(ring);
-  // 交叉拱：四根柱子各升起一道拱，對角兩兩相連，在頭頂交成十字；交點就是光孔
-  const baseY=cy+.16+CH+.12,RISE=PR;
-  [Math.PI/4,3*Math.PI/4].forEach(d=>{const pts=[];for(let k=0;k<=32;k++){const th=Math.PI*k/32,r=PR*Math.cos(th);pts.push(new R.Vector3(Math.cos(d)*r,baseY+RISE*Math.sin(th),cz+Math.sin(d)*r));}
-    const arch=new R.Mesh(new R.TubeGeometry(new R.CatmullRomCurve3(pts),96,.11,10,false),colM);arch.castShadow=true;out.add(arch);});
-  const lip=new R.Mesh(new R.TorusGeometry(.34,.06,10,40),gold);lip.rotation.x=Math.PI/2;lip.position.set(0,baseY+RISE,cz);out.add(lip);
+  // 砂岩柱（細直溝紋）＋懸鏈拱（高第式）＋拱內金線＋放射光環
+  const colM=new R.MeshStandardMaterial({color:0xDCC7A2,roughness:.75,flatShading:true});
+  const goldGlow=new R.MeshStandardMaterial({color:0xE2B85C,metalness:.75,roughness:.28,emissive:0x6B4A10,emissiveIntensity:.5});
+  const colTops=[];
+  for(let k=0;k<4;k++){const a=Math.PI/4+k*Math.PI/2,x=Math.cos(a)*PR,z=cz+Math.sin(a)*PR;colTops.push([x,z]);
+    const c=new R.Mesh(new R.CylinderGeometry(.1,.13,CH,12),colM);c.position.set(x,cy+.16+CH/2,z);c.castShadow=true;out.add(c);
+    const base=new R.Mesh(new R.CylinderGeometry(.2,.22,.18,24),colM);base.position.set(x,cy+.25,z);out.add(base);
+    F.col.push({x,z,r:.24});}
+  const baseY=cy+.16+CH,RISE=PR*1.25,CC=1.7,cd=Math.cosh(CC)-1;
+  const archY=t=>RISE*(Math.cosh(CC)-Math.cosh(CC*t))/cd; // t: -1..1 懸鏈線
+  const archPts=(d,off,inset)=>{const pts=[];for(let k=0;k<=40;k++){const t=-1+2*k/40,r=PR*t*(1-inset);pts.push(new R.Vector3(Math.cos(d)*r,baseY+archY(t)*(1-inset*.4)+off,cz+Math.sin(d)*r));}return new R.CatmullRomCurve3(pts);};
+  [Math.PI/4,3*Math.PI/4].forEach(d=>{
+    const arch=new R.Mesh(new R.TubeGeometry(archPts(d,0,0),120,.12,10,false),colM);arch.castShadow=true;out.add(arch);
+    const gl=new R.Mesh(new R.TubeGeometry(archPts(d,-.13,.012),120,.035,6,false),goldGlow);out.add(gl);});
+  const topY=baseY+RISE;
+  const crown=new R.Mesh(new R.TorusGeometry(.36,.055,10,48),goldGlow);crown.rotation.x=Math.PI/2;crown.position.set(0,topY,cz);out.add(crown);
+  for(let k=0;k<12;k++){const a=k*Math.PI/6,r=new R.Mesh(new R.BoxGeometry(.32,.025,.03),goldGlow);r.position.set(Math.cos(a)*.6,topY,cz+Math.sin(a)*.6);r.rotation.y=-a;out.add(r);}
+  // 淺水環：映著拱與天空；四個方向留踏石
+  const water=new R.Mesh(new R.RingGeometry(3.5,4.5,72),new R.MeshStandardMaterial({color:0x8FBFC2,metalness:.35,roughness:.08,transparent:true,opacity:.82}));
+  water.rotation.x=-Math.PI/2;water.position.set(0,cy+.05,cz);water.renderOrder=1;out.add(water);
+  const rim=new R.Mesh(new R.TorusGeometry(4.55,.07,6,72),stone);rim.rotation.x=Math.PI/2;rim.position.set(0,cy+.06,cz);out.add(rim);
+  [[0,1],[0,-1],[1,0],[-1,0]].forEach(([a,b])=>{const st=new R.Mesh(new R.BoxGeometry(a?.7:1.0,.12,a?1.0:.7),stone);st.position.set(a*4.0,cy+.08,cz+b*4.0);st.receiveShadow=true;out.add(st);});
+  // 爬藤：茉莉沿柱子爬上，只爬到拱的一半
+  {const leafG=new R.IcosahedronGeometry(.11,0),pos=[];colTops.forEach(([x,z])=>{for(let i=0;i<22;i++){const h=Math.pow(rand(),1.6)*CH*.85,a=rand()*6.28,r=.16+rand()*.08;pos.push([x+Math.cos(a)*r,cy+.3+h,z+Math.sin(a)*r]);}
+      const d=Math.atan2(z-cz,x),sgn=1;for(let i=0;i<12;i++){const t=1-rand()*.3,rr=PR*t;pos.push([Math.cos(d)*rr+(rand()-.5)*.2,baseY+archY(t)+(rand()-.5)*.2,cz+Math.sin(d)*rr+(rand()-.5)*.2]);}});
+    const im=new R.InstancedMesh(leafG,new R.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:.8}),pos.length),m=new R.Matrix4(),q=new R.Quaternion(),e=new R.Euler(),v=new R.Vector3(),sv=new R.Vector3(),c=new R.Color();
+    pos.forEach((p,i)=>{e.set(rand()*3,rand()*3,rand()*3);q.setFromEuler(e);const k=.7+rand()*.8;m.compose(v.set(...p),q,sv.set(k,k*.7,k));im.setMatrixAt(i,m);c.set(rand()<.14?0xFBF7EE:(rand()<.5?0x5E8A4C:0x76A15C));im.setColorAt(i,c);});
+    im.castShadow=true;out.add(im);}
   // 子午線（南北向）與正午光點
   const lineM=new R.MeshBasicMaterial({color:0xE9C46A});
   const mer=new R.Mesh(new R.BoxGeometry(.06,.01,4.4),lineM);mer.position.set(0,cy+.185,cz);out.add(mer);
@@ -527,10 +544,10 @@ let gateUpdate=()=>{};
   const spotZ=cz-1.8;
   const spot=new R.Mesh(new R.CircleGeometry(.16,24),new R.MeshBasicMaterial({color:0xFFF3C4}));spot.rotation.x=-Math.PI/2;spot.position.set(0,cy+.19,spotZ);out.add(spot);
   const halo=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xFFE6A0,transparent:true,opacity:.7,depthWrite:false,blending:R.AdditiveBlending}));halo.position.set(0,cy+.25,spotZ);halo.scale.set(1,1,1);out.add(halo);
-  const topY=baseY+RISE,beamLen=Math.hypot(topY-cy-.19,cz-spotZ);
+  const beamLen=Math.hypot(topY-cy-.19,cz-spotZ);
   const beam=new R.Mesh(new R.CylinderGeometry(.07,.17,beamLen,16,1,true),new R.MeshBasicMaterial({color:0xFFF0C0,transparent:true,opacity:.13,depthWrite:false,blending:R.AdditiveBlending,side:R.DoubleSide}));
   beam.position.set(0,(topY+cy+.19)/2,(cz+spotZ)/2);beam.rotation.x=Math.atan2(cz-spotZ,topY-cy-.19);out.add(beam);
-  label(out,'光孔日晷',0,cy+8.6,cz,'正午有一道光來找你');
+  label(out,'光孔日晷',0,cy+9.4,cz,'正午有一道光來找你');
 }
 { // 儀式長軸：入口格柵到橢圓步道之間，兩排石燈籠
   const stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),stone2=new R.MeshStandardMaterial({color:0xD8D1C3,roughness:.7}),glow=new R.MeshBasicMaterial({color:0xFFE2A8});
@@ -895,7 +912,7 @@ const INFO={
   lucky:{tag:'家 · Lucky',title:'Lucky',body:'尾巴搖個不停。',links:[['打開 Lucky 手冊','https://fuwei0618-cmd.github.io/Lucky/']]},
   closet:{tag:'家 · Beauty',title:'Beauty',body:'關於「美」的房間，像藝人上工前的梳化間，也是定期進廠保養的地方。裡面有兩扇門：',list:['梳化間：衣櫥、妝髮、美甲，整體造型與穿搭模板（製作中）','保養廠：醫美、半永久、日常保養；正顎手術也在這裡'],links:[['梳化間（製作中）',''],['保養廠 · 正顎手冊','https://fuwei0618-cmd.github.io/OGS/']]},
   gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',links:[['打開健身房','https://fuwei0618-cmd.github.io/Gym/']]},
-  center:{tag:'森林 · 十字中心',title:'光孔日晷',body:'十字的交會點蓋了一座圓形小涼亭，四根細柱讓出四個方向：東西連著金庫和營火（錢與熱情），南北連著家和森林入口（你自己和外面的世界）。四根柱子各升起一道拱，兩道拱在頭頂交成十字，交點就是光孔，每天正午，一道光會落在地上那條金色的子午線上。站在這裡的人就是中心；不追趕什麼，只是每天都有一道光來找你。'},
+  center:{tag:'森林 · 十字中心',title:'光孔日晷',body:'十字的交會點蓋了一座圓形小涼亭，四根砂岩細柱讓出四個方向：東西連著金庫和營火（錢與熱情），南北連著家和森林入口（你自己和外面的世界）。四根柱子各升起一道拱，兩道拱在頭頂交成十字，交點就是光孔，每天正午，一道光會落在地上那條金色的子午線上。站在這裡的人就是中心；不追趕什麼，只是每天都有一道光來找你。'},
   vault:{tag:'家門口 · 金庫',title:'源源不絕',body:'噴水池的水不停往上噴，金幣被你吸引過來、砸在你身上，閃都閃不掉。理財、保險健檢、投資都在這裡。',links:[['保險手冊','https://fuwei0618-cmd.github.io/Insurance/'],['財富管理','https://fuwei0618-cmd.github.io/Wealth-mgm/'],['投資','https://investment-beige-iota.vercel.app/']]},
   fountain:{tag:'B2 · 禱告房',title:'轉運流水盆',body:'上層的小盆流水不停，橘色的轉運球慢慢轉，三隻金魚在下面游。禱告的時候，耳邊一直有流水聲。'},
   plant:{tag:'B1 · 下沉庭院',title:'白水木',body:'種在臥室外的下沉庭院，躺在床上就看得到。銀綠色、毛茸茸的葉子一叢一叢長在枝頭。這盆植物代表什麼，可以由你來定義。'},
@@ -1092,7 +1109,7 @@ function buildMapBG(){
   const ff=Array.from({length:34},()=>`<circle cx="${(X0+1+rnd()*(MW-2)).toFixed(2)}" cy="${(GZ+2+rnd()*(Z0+MH-GZ-3)).toFixed(2)}" r=".3" fill="#F6F2A0" opacity="${(.5+rnd()*.4).toFixed(2)}"/>`).join('');
   const wl=sd=>{let d='';for(let x=2.7;x<=GW;x+=.5){const X=sd*x;d+=(d?' L':'M')+X.toFixed(2)+' '+wallZ(X).toFixed(2);}return d;};
   const gate=`<g fill="none" stroke-linecap="round"><path d="${wl(1)}" stroke="#CDB48D" stroke-width="1"/><path d="${wl(-1)}" stroke="#CDB48D" stroke-width="1"/><path d="${wl(1)}" stroke="#3FA7B5" stroke-width=".35" stroke-dasharray=".4 .5"/><path d="${wl(-1)}" stroke="#E2B04A" stroke-width=".35" stroke-dasharray=".4 .5"/></g><circle cx="2.45" cy="${wallZ(2.45)}" r=".6" fill="#2D5DA8"/><circle cx="-2.45" cy="${wallZ(-2.45)}" r=".6" fill="#C8673E"/><line x1="-1.9" y1="${wallZ(0)}" x2="1.9" y2="${wallZ(0)}" stroke="#2E2A26" stroke-width=".35"/>`;
-  const cross=`<line x1="0" y1="${EC.cz-EC.rz+1.5}" x2="0" y2="${EC.cz+EC.rz-1.5}" stroke="#C9A55A" stroke-width=".25" stroke-dasharray=".8 .8" opacity=".8"/><circle cx="0" cy="${EC.cz}" r="3.3" fill="#EFE9DD" stroke="#C9A55A" stroke-width=".25"/><circle cx="0" cy="${EC.cz}" r="2.7" fill="none" stroke="#D8CFBE" stroke-width=".35"/>${Array.from({length:4},(_,k)=>{const a=Math.PI/4+k*Math.PI/2;return `<circle cx="${(Math.cos(a)*2.7).toFixed(2)}" cy="${(EC.cz+Math.sin(a)*2.7).toFixed(2)}" r=".3" fill="#B9AE98"/>`;}).join('')}<line x1="0" y1="${EC.cz-2.2}" x2="0" y2="${EC.cz+2.2}" stroke="#E2B64F" stroke-width=".18"/><line x1="-1.9" y1="${EC.cz-1.9}" x2="1.9" y2="${EC.cz+1.9}" stroke="#D8CFBE" stroke-width=".3"/><line x1="1.9" y1="${EC.cz-1.9}" x2="-1.9" y2="${EC.cz+1.9}" stroke="#D8CFBE" stroke-width=".3"/><circle cx="0" cy="${EC.cz-1.8}" r=".35" fill="#FFE9A8"/>`;
+  const cross=`<line x1="0" y1="${EC.cz-EC.rz+1.5}" x2="0" y2="${EC.cz+EC.rz-1.5}" stroke="#C9A55A" stroke-width=".25" stroke-dasharray=".8 .8" opacity=".8"/><circle cx="0" cy="${EC.cz}" r="4.5" fill="#9CC7CF"/><circle cx="0" cy="${EC.cz}" r="3.3" fill="#EFE9DD" stroke="#C9A55A" stroke-width=".25"/><circle cx="0" cy="${EC.cz}" r="2.7" fill="none" stroke="#D8CFBE" stroke-width=".35"/>${Array.from({length:4},(_,k)=>{const a=Math.PI/4+k*Math.PI/2;return `<circle cx="${(Math.cos(a)*2.7).toFixed(2)}" cy="${(EC.cz+Math.sin(a)*2.7).toFixed(2)}" r=".3" fill="#B9AE98"/>`;}).join('')}<line x1="0" y1="${EC.cz-2.2}" x2="0" y2="${EC.cz+2.2}" stroke="#E2B64F" stroke-width=".18"/><line x1="-1.9" y1="${EC.cz-1.9}" x2="1.9" y2="${EC.cz+1.9}" stroke="#D8CFBE" stroke-width=".3"/><line x1="1.9" y1="${EC.cz-1.9}" x2="-1.9" y2="${EC.cz+1.9}" stroke="#D8CFBE" stroke-width=".3"/><circle cx="0" cy="${EC.cz-1.8}" r=".35" fill="#FFE9A8"/>`;
   const focus=`<line x1="${VX}" y1="${VZ}" x2="${FX}" y2="${FZ}" stroke="#C9A55A" stroke-width=".25" stroke-dasharray=".8 .8" opacity=".8"/>`;
   return `<svg viewBox="${X0} ${Z0} ${MW} ${MH}" preserveAspectRatio="none" aria-hidden="true">
   <rect x="${X0}" y="${Z0}" width="${MW}" height="${MH}" fill="#A8C18D"/>${trees}

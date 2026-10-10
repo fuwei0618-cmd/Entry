@@ -1103,7 +1103,7 @@ addEventListener('message',e=>{if(e.origin!=='https://fuwei0618-cmd.github.io'||
 function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(null,'',location.pathname)}catch(e){}canvas.focus({preventScroll:true});}
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
-  ['森林入口',['forest','start'],[0,GZ+6]],['光孔日晷・使命鈴',['forest','center'],[0,EC.cz+1],['使命板']],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia']],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
+  ['森林入口',['forest','start'],[0,GZ+6]],['光孔日晷・使命鈴',['forest','center'],[0,EC.cz+4.6],['使命板']],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia']],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
   ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資']],
   ['玄關',['f1','front'],W1F(0,4.6)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版']],['廚房',['f1','kitchen'],W1F(-7.5,-5)],['Beauty',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
   ['健身房',['f1','gym'],W1F(7.5,2.6),['健身房']],['Lucky',['f1','front'],W1F(-4.5,1.6),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,3.4)],

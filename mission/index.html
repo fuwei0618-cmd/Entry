@@ -39,8 +39,12 @@ textarea{min-height:76px;resize:vertical}
 /* 主頁：安靜、留白 */
 .why{font-family:var(--serif);font-size:clamp(22px,5.4vw,30px);line-height:1.55;letter-spacing:.04em;text-align:center;margin:18px auto 0;max-width:22em;text-wrap:balance;cursor:text;border-radius:12px;padding:4px 8px}
 .why:hover{background:rgba(176,141,87,.06)}
-.belltop{position:relative;height:min(54vh,420px);margin:0 -16px}
-#bellc{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.belltop{position:relative;height:min(56vh,440px);margin:0 -16px;overflow:hidden}
+#bellc{position:absolute;inset:0;display:flex;justify-content:center;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.bwrap{position:relative;height:92%;max-width:100%;transform-origin:50% 0;will-change:transform;filter:drop-shadow(0 18px 22px rgba(120,80,20,.18))}
+.bwrap img{position:absolute;left:0;width:100%;pointer-events:none}
+.bwrap img:first-child{top:0;height:auto}
+.bfr{will-change:transform}
 #bellc:active{cursor:grabbing}
 .bellhint{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:13px;color:var(--muted);pointer-events:none;transition:opacity .6s}
 .step{display:grid;gap:12px;animation:rise .6s ease both}
@@ -94,7 +98,7 @@ textarea{min-height:76px;resize:vertical}
 .tmap .th{font-size:12px;color:var(--muted);text-align:center;align-self:end;padding:2px}
 .tmap .th.side{writing-mode:vertical-rl;text-align:center;align-self:center;letter-spacing:.1em;padding:4px 0}
 .tcell{min-height:84px;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start;text-align:left;position:relative}
-.tcell span{font-size:12px;background:var(--stone2);border-radius:999px;padding:1px 8px}
+.tcell span{font-size:12px;background:var(--stone2);border-radius:999px;padding:1px 8px}.tcell span.real{background:#EADBC0;color:#5A4220}.tcell span.guess{background:transparent;border:1px dashed var(--line);color:var(--muted)}
 .tcell i{font-style:normal;color:#CFC6B8;font-size:12px}
 .tcell b{position:absolute;right:6px;bottom:4px;font-size:11px;color:var(--brass2);font-weight:600}
 .tcell.on{border-color:var(--brass);box-shadow:0 0 0 2px rgba(176,141,87,.3)}
@@ -104,6 +108,7 @@ textarea{min-height:76px;resize:vertical}
 .q2{font-family:var(--serif);font-size:16px}
 .fp{border-left:2px solid var(--brass);padding-left:10px;display:grid;gap:4px}
 .anti{font-family:var(--serif);font-size:16px;padding:6px 0;border-top:1px solid var(--line)}
+.pseg{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.pseg button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13.5px;color:var(--ink)}.pseg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FBF9F5}
 .check{display:flex;gap:8px;align-items:center;font-size:14px}
 .logsel{font-size:14px;color:var(--muted)}
 .logsel select{border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff;max-width:100%}
@@ -142,12 +147,11 @@ textarea{min-height:76px;resize:vertical}
 @media (prefers-reduced-motion:reduce){.step{animation:none}.orb.in,.orb.out{transition-duration:.01s}}
 @media (max-width:480px){.num b{font-size:20px}.persona>button{grid-template-columns:52px 1fr auto}.persona .ill{width:52px;height:52px}}
 </style>
-<script src="../sync/origina-sync.js" data-app="mission" data-folder="Mission" data-keys="origina.mission.v1" data-pos="br" data-offset="16"></script>
+<script src="../sync/origina-sync.js" data-app="mission" data-folder="Mission" data-keys="origina.mission.v1,origina.pavilion" data-pos="br" data-offset="16"></script>
 </head><body>
 <header class="top"><nav class="tabs" id="tabs" role="tablist"></nav><button class="mute" id="mute" aria-pressed="false">聲音 開</button></header>
 <main class="wrap" id="app"></main>
 <div class="dlg" id="dlg" hidden><div class="box card" role="dialog" aria-modal="true" id="dlgBox"></div></div>
-<script src="../three.min.js"></script>
 <script>
 "use strict";
 const KEY="origina.mission.v1";
@@ -230,12 +234,27 @@ function onRing(){ // 每次鈴舌敲到鈴身
   session.at=Date.now();const h=$(".bellhint");if(h)h.style.opacity="0";}
 function renderBell(){
   $("#app").innerHTML=`<div class="why" id="why" role="button" tabindex="0" aria-label="我為什麼努力（點一下可以改）">${esc(D.why)}</div>
-  <div class="belltop"><canvas id="bellc" aria-label="黃銅掛鈴，點一下或拖著它搖"></canvas><div class="bellhint">點鈴，或用手指拖著它搖</div></div>
-  <div id="steps" style="display:grid;gap:26px"></div>`;
+  <div class="belltop"><div id="bellc" role="button" aria-label="掛鈴，點一下或拖著它搖"></div><div class="bellhint">點鈴，或用手指拖著它搖</div></div>
+  <div id="steps" style="display:grid;gap:26px"></div>
+  <div style="text-align:center"><button class="skip" id="pavBtn">涼亭樣式：今天想讓日晷涼亭長什麼樣子？</button></div>`;
+  $("#pavBtn").onclick=pavDialog;
   $("#why").onclick=()=>dialog(`<h3>我為什麼努力</h3><textarea id="wt">${esc(D.why)}</textarea><div class="row"><button class="btn pri" data-ok>存好</button><button class="btn ghost" data-x>取消</button></div>`,
     box=>box.querySelector("[data-ok]").onclick=()=>{const v=box.querySelector("#wt").value.trim();if(v){D.why=v;save();}closeDlg();renderBell();});
   bell.attach($("#bellc"));
   renderSteps();}
+/* 涼亭樣式：和 Origina 共用，換完回到森林就看得到 */
+function pavDialog(){let c={shape:"B",A:1,C:1,D:1,F:0,amt:2,eve:"auto"};try{Object.assign(c,JSON.parse(localStorage.getItem("origina.pavilion")||"{}"));}catch(e){}
+  const seg=(k,opts)=>`<div class="pseg">${opts.map(([v,t])=>`<button data-k="${k}" data-v="${v}" aria-pressed="${String(c[k])===String(v)}">${t}</button>`).join("")}</div>`;
+  const draw=box=>{box.querySelector("#pavBody").innerHTML=`
+    <div class="field">形狀${seg("shape",[["B","輕盈（矮寬、漸細）"],["now","高挑（原本）"]])}</div>
+    <div class="field">白紗${seg("A",[[1,"開"],[0,"關"]])}</div>
+    <div class="field">紗上的花${seg("F",[[1,"開"],[0,"關"]])}</div>
+    <div class="field">燈（天黑才亮）${seg("C",[[1,"開"],[0,"關"]])}</div>
+    <div class="field">花冠與水滴${seg("D",[[1,"開"],[0,"關"]])}</div>
+    <div class="field">花量${seg("amt",[[1,"少"],[2,"中"],[3,"多"]])}</div>
+    <div class="field">時間${seg("eve",[["auto","照我的時間"],[0,"白天"],[1,"晚上"]])}</div>`;
+    box.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{const v=b.dataset.v;c[b.dataset.k]=isNaN(+v)?v:+v;try{localStorage.setItem("origina.pavilion",JSON.stringify(c));}catch(e){}draw(box);});};
+  dialog(`<h3>涼亭樣式</h3><p class="muted" style="margin:0;font-size:13px">換了會馬上存好；回到森林，涼亭就是這個樣子。花冠圍在光孔外圈，不會擋住正午的光。</p><div id="pavBody" style="display:grid;gap:10px"></div><div class="row"><button class="btn pri" data-x>好了</button></div>`,draw);}
 let breathing=null;
 function renderSteps(){
   const el=$("#steps");if(!el)return;
@@ -278,89 +297,39 @@ function actsDialog(){const draw=box=>{box.querySelector(".list").innerHTML=D.sm
   box=>{draw(box);const add=()=>{const v=box.querySelector("#na").value.trim();if(v){D.smallActs.push(v);save();box.querySelector("#na").value="";draw(box);}};box.querySelector("[data-add]").onclick=add;box.querySelector("#na").onkeydown=e=>{if(e.key==="Enter")add();};});
   const o=$("#dlg").onclick;$("#dlg").onclick=e=>{o(e);if($("#dlg").hidden)renderSteps();};}
 
-/* ---------- 3D 黃銅掛鈴 ---------- */
+/* ---------- 掛鈴（你選的那顆鈴，擺錘物理＋流蘇延遲） ---------- */
 const bell=(()=>{
-  let R,scene,cam,bellG,clapG,canvas,raf=0,ctx=null,buf=null,loading=null,last=0;
-  let th=0,thv=0,ph=0,phv=0,drag=null,lastHit=0;
-  const L1=.4,L2=.5,LIM=.34,G=9.8;
-  function init(){
-    R=new THREE.WebGLRenderer({antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
-    R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=.9;R.physicallyCorrectLights=true;
-    scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(30,1,.1,50);cam.position.set(-.25,-.1,4.2);cam.lookAt(-.25,-.22,0);
-    // 傍晚暖光的環境：一個漸層大球＋兩塊亮面，給黃銅反射
-    const env=new THREE.Scene(),eg=new THREE.SphereGeometry(10,32,16),cols=[];const top=new THREE.Color(0xFFE6C2),mid=new THREE.Color(0xC9A27A),bot=new THREE.Color(0x3A2C22);
-    for(let i=0;i<eg.attributes.position.count;i++){const y=eg.attributes.position.getY(i)/10,c=y>0?mid.clone().lerp(top,y):mid.clone().lerp(bot,-y);cols.push(c.r,c.g,c.b);}
-    eg.setAttribute("color",new THREE.Float32BufferAttribute(cols,3));env.add(new THREE.Mesh(eg,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));
-    const win=new THREE.Mesh(new THREE.PlaneGeometry(6,4),new THREE.MeshBasicMaterial({color:0xFFF4DD}));win.position.set(-6,3,4);win.lookAt(0,0,0);env.add(win);
-    const win2=new THREE.Mesh(new THREE.PlaneGeometry(3,6),new THREE.MeshBasicMaterial({color:0xFFD9A8}));win2.position.set(7,1,-2);win2.lookAt(0,0,0);env.add(win2);
-    const pm=new THREE.PMREMGenerator(R);scene.environment=pm.fromScene(env,.04).texture;
-    const key=new THREE.DirectionalLight(0xFFE2B8,2.2);key.position.set(-3,4,3);scene.add(key);
-    scene.add(new THREE.HemisphereLight(0xFFF1DC,0x5A4636,.6));
-    // 黃銅：用過的溫潤光澤（粗糙度帶一點斑駁）
-    const cv=document.createElement("canvas");cv.width=cv.height=256;const g=cv.getContext("2d");g.fillStyle="#7a7a7a";g.fillRect(0,0,256,256);
-    for(let i=0;i<2600;i++){const v=100+Math.random()*80|0;g.fillStyle=`rgba(${v},${v},${v},.35)`;g.fillRect(Math.random()*256,Math.random()*256,1+Math.random()*3,1+Math.random()*2);}
-    const rough=new THREE.CanvasTexture(cv);rough.wrapS=rough.wrapT=THREE.RepeatWrapping;rough.repeat.set(3,2);
-    const brass=new THREE.MeshStandardMaterial({color:0x9C6B31,metalness:1,roughness:.33,roughnessMap:rough,side:THREE.DoubleSide});
-    const brassIn=new THREE.MeshStandardMaterial({color:0x8E6B3A,metalness:1,roughness:.55,side:THREE.BackSide});
-    const iron=new THREE.MeshStandardMaterial({color:0x2C2724,metalness:.7,roughness:.6});
-    // 鍛鐵支架：細長立柱、底座、頂飾、帶捲草的橫臂、U 形吊架
-    const tube=(pts,r)=>new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(...p))),120,r,8,false),iron);
-    const PX=-.72;
-    scene.add(tube([[PX,-1.62,0],[PX,.84,0]],.032));
-    const base=new THREE.Mesh(new THREE.CylinderGeometry(.11,.17,.08,32),iron);base.position.set(PX,-1.66,0);scene.add(base);
-    const base2=new THREE.Mesh(new THREE.CylinderGeometry(.06,.1,.12,24),iron);base2.position.set(PX,-1.56,0);scene.add(base2);
-    [-.9,-.1,.55].forEach(y=>{const c=new THREE.Mesh(new THREE.TorusGeometry(.045,.012,8,20),iron);c.rotation.x=Math.PI/2;c.position.set(PX,y,0);scene.add(c);});
-    const fin=new THREE.Mesh(new THREE.ConeGeometry(.045,.14,16),iron);fin.position.set(PX,.94,0);scene.add(fin);
-    const finB=new THREE.Mesh(new THREE.SphereGeometry(.04,16,12),iron);finB.position.set(PX,.86,0);scene.add(finB);
-    scene.add(tube([[PX,.66,0],[-.3,.665,0],[.06,.66,0]],.02));
-    const tipB=new THREE.Mesh(new THREE.SphereGeometry(.03,12,10),iron);tipB.position.set(.08,.66,0);scene.add(tipB);
-    // 橫臂下的兩個 S 形捲草
-    const scr=[];for(let i=0;i<=50;i++){const t=i/50;scr.push([PX+.02+t*.5,.62-Math.sin(t*Math.PI)*.12-t*.04,0]);}
-    scene.add(tube(scr,.011));
-    const curl=(cx,cy,r0,dir)=>{const q=[];for(let i=0;i<=36;i++){const t=i/36,a=t*Math.PI*1.6,r=r0*(1-t*.7);q.push([cx+Math.cos(a)*r*dir,cy+Math.sin(a)*r,0]);}return tube(q,.009);};
-    scene.add(curl(PX+.52,.54,.06,1));scene.add(curl(PX+.1,.5,.05,-1));
-    // U 形吊架
-    scene.add(tube([[-.05,.66,0],[-.05,.5,0]],.01));scene.add(tube([[.05,.66,0],[.05,.5,0]],.01));
-    // 鈴：古典鐘形（圓肩、內收的腰、外翻厚唇），比例縮小配合支架
-    bellG=new THREE.Group();bellG.position.set(0,.5,0);scene.add(bellG);
-    const axle=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.13,8),iron);axle.rotation.z=Math.PI/2;bellG.add(axle);
-    const canon=new THREE.Mesh(new THREE.TorusGeometry(.035,.011,8,20),brass);canon.position.y=-.025;bellG.add(canon);
-    const T=-.06;
-    const P=[[0,T],[.05,T],[.09,T-.012],[.135,T-.04],[.165,T-.085],[.18,T-.14],[.185,T-.2],[.19,T-.27],[.205,T-.34],[.235,T-.41],[.28,T-.47],[.32,T-.51],[.338,T-.535],[.34,T-.56],[.33,T-.575]].map(([x,y])=>new THREE.Vector2(x,y));
-    bellG.add(new THREE.Mesh(new THREE.LatheGeometry(P,96),brass));
-    const Pin=[[.315,T-.57],[.3,T-.53],[.265,T-.48],[.225,T-.42],[.195,T-.35],[.178,T-.27],[.172,T-.2],[.165,T-.14],[.14,T-.09],[.09,T-.06],[0,T-.055]].map(([x,y])=>new THREE.Vector2(x,y));
-    bellG.add(new THREE.Mesh(new THREE.LatheGeometry(Pin,96),brassIn));
-    [[.175,T-.1,.006],[.19,T-.24,.005],[.322,T-.52,.008]].forEach(([r,y,w])=>{const b=new THREE.Mesh(new THREE.TorusGeometry(r,w,8,96),brass);b.rotation.x=Math.PI/2;b.position.y=y;bellG.add(b);});
-    // 鈴舌
-    clapG=new THREE.Group();clapG.position.set(0,.5,0);scene.add(clapG);
-    const rod=new THREE.Mesh(new THREE.CylinderGeometry(.007,.007,L2-.08,8),iron);rod.position.y=-(L2+.08)/2;clapG.add(rod);
-    const ball=new THREE.Mesh(new THREE.SphereGeometry(.042,20,14),new THREE.MeshStandardMaterial({color:0x6B5232,metalness:.9,roughness:.45}));ball.position.y=-L2;clapG.add(ball);}
-  function size(){if(!canvas)return;const w=canvas.clientWidth,h=canvas.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.position.z=w/h<.8?4.6:3.9;cam.updateProjectionMatrix();}
+  // 圖片座標：寬 341、高 734；吊點在鏈子頂端，流蘇層從 y=478 開始
+  const W=341,H=734,FY=478;
+  let box,wrap,fringe,raf=0,last=0,ctx=null,buf=null,loading=null;
+  let th=0,thv=0,ph=0,phv=0,fr=0,frv=0,drag=null,lastHit=0;
+  const L1=1.1,L2=.9,LIM=.16,G=9.8;
   async function loadSound(){if(buf||loading)return loading;try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
     loading=fetch("sound/bell.mp3").then(r=>r.arrayBuffer()).then(a=>new Promise((res,rej)=>ctx.decodeAudioData(a,res,rej))).then(b=>{buf=b;}).catch(()=>{});return loading;}
   function ding(power){navigator.vibrate&&navigator.vibrate(Math.min(30,8+power*14|0));onRing();
     if(muted||!ctx||!buf)return;const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf;s.playbackRate.value=.97+Math.random()*.06;
     g.gain.value=Math.min(1,.18+power*.55);s.connect(g).connect(ctx.destination);s.start();}
   function step(dt){
-    let tq=0;if(drag){tq=(drag.target-th)*38-thv*4;}
-    thv+=(-(G/L1)*Math.sin(th)+tq)*dt;thv*=Math.exp(-.22*dt);th+=thv*dt;
-    phv+=(-(G/L2)*Math.sin(ph))*dt;phv*=Math.exp(-.35*dt);ph+=phv*dt;
-    const rel=ph-th;
-    if(Math.abs(rel)>LIM){const sg=Math.sign(rel),v=phv-thv;ph=th+sg*LIM;
-      if(v*sg>0){const p=Math.abs(v);phv=thv-v*.38;thv+=v*.08;const now=performance.now();if(p>.35&&now-lastHit>90){lastHit=now;ding(Math.min(1.6,p/3.2));}}}}
-  function loop(t){raf=requestAnimationFrame(loop);const dt=Math.min(.033,(t-last)/1000||.016);last=t;
-    for(let i=0;i<4;i++)step(dt/4);bellG.rotation.z=th;clapG.rotation.z=ph;R.render(scene,cam);}
+    let tq=0;if(drag)tq=(drag.target-th)*30-thv*4;
+    thv+=(-(G/L1)*Math.sin(th)+tq)*dt;thv*=Math.exp(-.25*dt);th+=thv*dt;
+    // 看不見的鈴舌：敲到鈴身才響
+    phv+=(-(G/L2)*Math.sin(ph))*dt;phv*=Math.exp(-.4*dt);ph+=phv*dt;
+    const rel=ph-th;if(Math.abs(rel)>LIM){const sg=Math.sign(rel),v=phv-thv;ph=th+sg*LIM;
+      if(v*sg>0){const p=Math.abs(v);phv=thv-v*.38;thv+=v*.06;const now=performance.now();if(p>.25&&now-lastHit>90){lastHit=now;ding(Math.min(1.6,p/2.2));}}}
+    // 流蘇和小鈴：掛在鈴口下，比鈴身晚一點擺
+    frv+=(-(G/.5)*Math.sin(fr)+14*(th-fr))*dt;frv*=Math.exp(-1.8*dt);fr+=frv*dt;}
+  function loop(t){raf=requestAnimationFrame(loop);const dt=Math.min(.033,(t-last)/1000||.016);last=t;for(let i=0;i<4;i++)step(dt/4);
+    wrap.style.transform=`rotate(${th}rad)`;fringe.style.transform=`rotate(${fr-th}rad)`;}
   function pointer(){
-    const toAng=e=>{const r=canvas.getBoundingClientRect();return Math.max(-1.1,Math.min(1.1,(e.clientX-drag.x0)/r.width*3.2))+drag.th0;};
-    canvas.onpointerdown=e=>{loadSound();if(ctx&&ctx.state==="suspended")ctx.resume();drag={x0:e.clientX,th0:th,target:th,moved:false,t:performance.now()};try{canvas.setPointerCapture(e.pointerId);}catch(_){}};
-    canvas.onpointermove=e=>{if(!drag)return;if(Math.abs(e.clientX-drag.x0)>6)drag.moved=true;drag.target=toAng(e);};
-    const up=e=>{if(!drag)return;const d=drag;drag=null;if(!d.moved){const r=canvas.getBoundingClientRect(),side=(e.clientX-r.left)/r.width<.5?1:-1;thv+=side*2.6;}};
-    canvas.onpointerup=up;canvas.onpointercancel=up;}
+    const toAng=e=>{const r=box.getBoundingClientRect();return Math.max(-.7,Math.min(.7,(e.clientX-drag.x0)/r.width*1.6))+drag.th0;};
+    box.onpointerdown=e=>{loadSound();if(ctx&&ctx.state==="suspended")ctx.resume();drag={x0:e.clientX,th0:th,target:th,moved:false};try{box.setPointerCapture(e.pointerId);}catch(_){}};
+    box.onpointermove=e=>{if(!drag)return;if(Math.abs(e.clientX-drag.x0)>6)drag.moved=true;drag.target=toAng(e);};
+    const up=e=>{if(!drag)return;const d=drag;drag=null;if(!d.moved){const r=wrap.getBoundingClientRect(),side=(e.clientX-r.left)/r.width<.5?1:-1;thv+=side*1.0;}};
+    box.onpointerup=up;box.onpointercancel=up;}
   return{
-    attach(c){if(!R)init();canvas=c;c.replaceWith(R.domElement);R.domElement.id="bellc";R.domElement.setAttribute("aria-label",c.getAttribute("aria-label"));canvas=R.domElement;
-      size();pointer();addEventListener("resize",size);last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);},
-    detach(){cancelAnimationFrame(raf);raf=0;removeEventListener("resize",size);},
-    preload:loadSound};})();
+    attach(el){box=el;box.innerHTML=`<div class="bwrap" style="aspect-ratio:${W}/${H}"><img src="img/bell-body.webp" alt="" draggable="false"><img class="bfr" src="img/bell-fringe.webp" alt="" draggable="false" style="top:${FY/H*100}%;transform-origin:50% 0"></div>`;
+      wrap=box.querySelector(".bwrap");fringe=box.querySelector(".bfr");pointer();last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);},
+    detach(){cancelAnimationFrame(raf);raf=0;},preload:loadSound};})();
 $("#mute").onclick=()=>{muted=!muted;try{localStorage.setItem("mission-muted",muted?"1":"0");}catch(e){}muteLabel();};
 function muteLabel(){$("#mute").textContent=muted?"聲音 關":"聲音 開";$("#mute").setAttribute("aria-pressed",muted);}
 
@@ -405,8 +374,8 @@ function parseCode(txt){const m=txt.match(/\{[\s\S]*\}/);if(!m)throw new Error("
 function renderRoom(){
   D.library=D.library||{cells:{}};
   const themes={};D.breakdowns.forEach(b=>{if(b.theme)(themes[b.theme]=themes[b.theme]||[]).push(b);});
-  const grid=`<div class="tmap"><div></div>${LEVELS.map(l=>`<div class="th">${l}</div>`).join("")}${DOMAINS.map(d=>`<div class="th side">${d}</div>${LEVELS.map(l=>{const k=d+"|"+l,c=D.library.cells[k]||{},n=D.breakdowns.filter(b=>b.domain===d&&b.level===l).length;
-    return `<button class="tcell${openCell===k?" on":""}" data-cell="${esc(k)}">${(c.thoughts||[]).slice(0,4).map(t=>`<span>${esc(t)}</span>`).join("")||'<i>空</i>'}${n?`<b>${n} 筆</b>`:""}</button>`;}).join("")}`).join("")}</div>`;
+  const grid=`<div class="tmap"><div></div>${LEVELS.map(l=>`<div class="th">${l}</div>`).join("")}${DOMAINS.map(d=>`<div class="th side">${d}</div>${LEVELS.map(l=>{const k=d+"|"+l,c=D.library.cells[k]||{},L=D.breakdowns.filter(b=>b.domain===d&&b.level===l),th=[...new Set(L.map(b=>b.theme).filter(Boolean))];
+    return `<button class="tcell${openCell===k?" on":""}" data-cell="${esc(k)}">${th.slice(0,3).map(t=>`<span class="real">${esc(t)}</span>`).join("")}${!th.length?(c.thoughts||[]).slice(0,3).map(t=>`<span class="guess">${esc(t)}</span>`).join("")||'<i>還沒有</i>':""}${L.length?`<b>${L.length} 筆</b>`:""}</button>`;}).join("")}`).join("")}</div>`;
   const cell=openCell&&(D.library.cells[openCell]||{});
   $("#app").innerHTML=`<section class="card qs">
     <h2 style="margin:0">發生了什麼？</h2>
@@ -415,8 +384,9 @@ function renderRoom(){
     <p class="muted" style="margin:0;font-size:13px">會打開 Claude 的新對話，並把你的事件和拆解格式一起帶過去（沒自動填好就直接貼上）。聊完，把 Claude 最後給的拆解碼複製回來，貼在下面。</p></section>
   <section class="card qs"><h2 style="margin:0">貼上拆解碼</h2><textarea id="code" placeholder="把 Claude 給的那一段 { … } 貼在這裡"></textarea>
     <div class="row"><button class="btn pri" id="saveCode">存起來</button></div><div id="codeMsg" class="muted" style="font-size:13px"></div></section>
-  <section><h2>念頭地圖<small>你常有的念頭，放在它屬於的格子裡；點一格看它的橋接句</small></h2>${grid}
+  <section><h2>念頭地圖<small>每拆一件事，它會自己落進一格；看久了，就知道你最常卡在哪裡</small></h2>${grid}
     ${cell?`<div class="card cellv"><div class="muted" style="font-size:12.5px">${esc(openCell.replace("|","・"))}</div>
+      ${(()=>{const L=D.breakdowns.filter(b=>b.domain+"|"+b.level===openCell);return L.length?`<p><b>落在這格的事件</b>${L.map(b=>esc(b.event||"")).join("<br>")}</p>`:`<p class="muted">還沒有事件落在這一格。</p>`;})()}
       ${(cell.thoughts||[]).length?`<div class="chips">${cell.thoughts.map(t=>`<span>${esc(t)}</span>`).join("")}</div>`:""}
       ${cell.need?`<p><b>底層的需要</b>${esc(cell.need)}</p>`:""}${cell.bridge?`<p class="q2"><b>橋接句</b>${esc(cell.bridge)}</p>`:""}${cell.destination?`<p><b>想走到的地方</b>${esc(cell.destination)}</p>`:""}
       <div class="row"><button class="btn sm" id="editCell">編輯這一格</button></div></div>`:""}</section>
@@ -504,5 +474,7 @@ function renderProof(){
       try{if(window.OriginaSync&&await OriginaSync.getToken())await OriginaSync.api.putBlob("Mission/recordings/"+file,f);}catch(err){}});};}
 
 renderTabs();muteLabel();render();
+// 單獨打開（不在 Origina 裡）時，左上角給一個回去的按鈕
+if(window.top===window.self){const b=document.createElement("a");b.href="https://fuwei0618-cmd.github.io/Entry/?go=forest,center";b.className="mute";b.textContent="← Origina";b.style.textDecoration="none";document.querySelector(".top").prepend(b);}
 </script>
 </body></html>

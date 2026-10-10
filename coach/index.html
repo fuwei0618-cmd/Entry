@@ -76,7 +76,7 @@ html,body{margin:0;height:100%;background:#111;color:var(--ink);font-family:"Pin
 </div>
 <div id="warm"></div><div id="count"></div><div id="flash"></div>
 <input type="file" id="file" accept="image/*" hidden>
-<div id="review"><img id="rImg" alt="剛拍的照片"><div class="rb"><button id="rBack">繼續拍</button><button class="pri" id="rSave">存下來</button></div></div>
+<div id="review"><img id="rImg" alt="剛拍的照片"><div class="rb"><button id="rBack">繼續拍</button><button id="rSave">存到相簿</button><button class="pri" id="rRec">存到記錄之流</button></div></div>
 <div id="start"><div><h1>拍照教練</h1><p>鏡頭會認出你的身體，<br>把姿勢框對齊到你的位置和大小，<br>告訴你哪隻手、哪隻腳再調一點。<br>對到了會自動拍。</p><button id="go">打開相機</button></div></div>
 
 <script type="module">
@@ -214,6 +214,12 @@ async function shoot(auto){
 $("#shot").onclick=()=>shoot(false);
 $("#thumb").onclick=()=>{if(lastBlob)$("#review").style.display="flex";};
 $("#rBack").onclick=()=>$("#review").style.display="none";
+/* 存到記錄之流：放進同網站共用的 IndexedDB「origina-inbox」，記錄之流打開時會自動收成一則照片紀錄 */
+function inbox(){return new Promise((ok,no)=>{const r=indexedDB.open("origina-inbox",1);r.onupgradeneeded=()=>{const db=r.result;if(!db.objectStoreNames.contains("photos"))db.createObjectStore("photos",{keyPath:"id"});};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);});}
+$("#rRec").onclick=async()=>{if(!lastBlob)return;try{const db=await inbox();await new Promise((ok,no)=>{const t=db.transaction("photos","readwrite");t.objectStore("photos").put({id:"p"+Date.now(),blob:lastBlob,takenAt:new Date().toISOString(),scene,pose,source:"coach"});t.oncomplete=ok;t.onerror=()=>no(t.error);});
+  const b=$("#rRec");b.textContent="已存 ✓";setTimeout(()=>b.textContent="存到記錄之流",1500);
+  const ret=new URLSearchParams(location.search).get("return");if(ret&&/^https:\/\/fuwei0618-cmd\.github\.io\//.test(ret))setTimeout(()=>location.href=ret,600);
+ }catch(e){alert("存不進去："+e.message);}};
 $("#rSave").onclick=async()=>{if(!lastBlob)return;const file=new File([lastBlob],"photo-"+Date.now()+".jpg",{type:"image/jpeg"});
  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file]});return;}catch(e){if(e.name==="AbortError")return;}}
  const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=file.name;a.click();};

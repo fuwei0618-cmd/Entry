@@ -31,6 +31,7 @@ button{cursor:pointer}
 .muted{color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
 h2{margin:0 0 10px;font-size:14px;letter-spacing:.16em;color:var(--muted);font-weight:600}
+h2 small{font-weight:400;letter-spacing:.02em;margin-left:8px;font-size:12px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-size:15px}
 textarea{min-height:76px;resize:vertical}
@@ -89,6 +90,20 @@ textarea{min-height:76px;resize:vertical}
 .qs{padding:16px;display:grid;gap:14px}
 .qs label{display:grid;gap:6px;font-size:15px}
 .qs label span{font-family:var(--serif)}
+.tmap{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:6px}
+.tmap .th{font-size:12px;color:var(--muted);text-align:center;align-self:end;padding:2px}
+.tmap .th.side{writing-mode:vertical-rl;text-align:center;align-self:center;letter-spacing:.1em;padding:4px 0}
+.tcell{min-height:84px;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start;text-align:left;position:relative}
+.tcell span{font-size:12px;background:var(--stone2);border-radius:999px;padding:1px 8px}
+.tcell i{font-style:normal;color:#CFC6B8;font-size:12px}
+.tcell b{position:absolute;right:6px;bottom:4px;font-size:11px;color:var(--brass2);font-weight:600}
+.tcell.on{border-color:var(--brass);box-shadow:0 0 0 2px rgba(176,141,87,.3)}
+.cellv{padding:14px 16px;margin-top:10px;display:grid;gap:6px}
+.cellv p{margin:0;font-size:14.5px}.cellv b,.qa b{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips span{font-size:13px;background:var(--stone2);border-radius:999px;padding:2px 10px}
+.q2{font-family:var(--serif);font-size:16px}
+.fp{border-left:2px solid var(--brass);padding-left:10px;display:grid;gap:4px}
+.anti{font-family:var(--serif);font-size:16px;padding:6px 0;border-top:1px solid var(--line)}
 .check{display:flex;gap:8px;align-items:center;font-size:14px}
 .logsel{font-size:14px;color:var(--muted)}
 .logsel select{border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff;max-width:100%}
@@ -231,7 +246,7 @@ function renderSteps(){
   if(session.step===1)h+=`<section class="step"><div class="stepn">第一步・深呼吸三次</div><div class="card breath"><div class="orb" id="orb"></div><div class="btext" id="btext">準備</div><div class="muted" id="bcount" style="font-size:13px"></div>${session.step===1?`<button class="skip" id="skipB">跳過</button>`:""}</div></section>`;
   if(session.step>=2){const a=log&&log.alarm&&alarmById(log.alarm);
     h+=`<section class="step"><div class="stepn">第二步・是哪一種警報？</div><div class="alarms">${D.alarms.map(x=>`<button data-alarm="${x.id}" aria-pressed="${log&&log.alarm===x.id}">${esc(x.name)}</button>`).join("")}<button class="add" data-addalarm>＋</button></div>
-    ${a?`<div class="card logic"><div class="muted" style="font-size:12.5px">底層邏輯</div><div class="l">${esc(a.logic)}</div><div class="muted" style="font-size:12.5px;margin-top:6px">問自己</div><div class="q">${esc(a.question)}</div></div>`:""}</section>`;
+    ${a?`<div class="card logic"><div class="muted" style="font-size:12.5px">底層邏輯</div><div class="l">${esc(a.logic)}</div><div class="muted" style="font-size:12.5px;margin-top:6px">問自己</div><div class="q">${esc(a.question)}</div>${(()=>{const L=D.breakdowns.filter(b=>b.v===2&&b.antidote&&(b.alarmId===a.id||b.alarm===a.name)).slice(-2).reverse();return L.length?`<div class="muted" style="font-size:12.5px;margin-top:8px">你以前拆過，留給自己的話</div>${L.map(b=>`<div class="anti">${esc(b.antidote)}</div>`).join("")}`:"";})()}</div>`:""}</section>`;
     if(a)h+=`<section class="step"><div class="stepn">第三步・做一件愛自己的小事</div><div class="card act"><div class="a" id="actT">${esc(pickAct())}</div><button class="btn sm" id="actN">換一個</button></div>
       <div class="row" style="justify-content:space-between"><button class="skip" id="actEdit">編輯小事清單</button></div>
       <input type="text" id="note" maxlength="80" placeholder="想留一句話嗎？（選填）" value="${esc(log.note||"")}">
@@ -366,34 +381,76 @@ function renderMe(){
     try{if(window.parent!==window){window.parent.postMessage({origina:"goto",scene:p.go[0],spawn:p.go[1]},"*");return;}}catch(e){}
     location.href="https://fuwei0618-cmd.github.io/Entry/?go="+p.go.join(",");});}
 
-/* ---------- 拆解室 ---------- */
-let roomFrom=null,fwId="copy",draft=null;
+/* ---------- 拆解室：說一個事件 → 帶去 Claude 拆 → 貼回拆解碼 → 存成紀錄 ---------- */
+let roomFrom=null,openCell=null;
+const DOMAINS=["生存・事業","身體","愛・生活・旅行"],LEVELS=["生理・安全","愛與歸屬・尊重","自我實現"];
+function claudePrompt(story){
+  const themes=[...new Set(D.breakdowns.filter(b=>b.theme).map(b=>b.theme))];
+  const anti=D.breakdowns.filter(b=>b.antidote).slice(-6).map(b=>`- ${b.theme||""}：${b.antidote}`).join("\n");
+  return `請幫我拆解一個事件（我在 Origina 使命板的拆解室）。
+
+【我的公式】共鳴（Teresa・一生唱，給世界）× 慾望（Elva・一生愛，給自己）× 豐盛（Chiara・一生豐盛，地基）＝生命力。是乘法，任何一項變零整個就是零。
+【我為什麼努力】${D.why}
+【常見警報】${D.alarms.map(a=>a.name).join("、")}
+【可用的框架】副本檢查、人事時地物、馬斯洛、邏輯層次（迪爾茨）、熵、閉環（唱歌・性感・財富）
+${themes.length?`【我以前拆過的主題】${themes.join("、")}（如果這次是同一個主題，請用一樣的名字）\n`:""}${anti?`【以前的解藥句】\n${anti}\n`:""}
+【事件】
+${story}
+
+請先用溫暖、有深度的方式陪我想清楚（像朋友開導我，但要真的拆到底層，不要只給正向口號），再把結果整理成下面這個 JSON，放在最後一個程式碼區塊裡，讓我複製貼回拆解室。欄位都用繁體中文：
+\`\`\`json
+{"type":"breakdown","event":"一句話描述事件","alarm":"觸發的警報（從常見警報選，沒有就新取一個）","theme":"這類念頭的主題名稱（短，例如：選擇＝失去）","domain":"生存・事業／身體／愛・生活・旅行 三選一","level":"生理・安全／愛與歸屬・尊重／自我實現 三選一","assumptions":["藏在底下的假設"],"firstPrinciples":{"facts":["確定的事實"],"assumed":["其實只是假設的部分"],"core":"拆到最底層，真正的需求","rebuild":"從事實重新推一次的結論"},"lenses":[{"name":"框架名","insight":"這個框架看見的事（只挑真正用得上的 2～3 個）"}],"formula":"這件事讓公式哪一項變零？怎麼讓三項都留著？","conclusion":"一句結論","action":"今天能做的一個小行動","antidote":"下次這個念頭出現時，對自己說的一句話","bridge":"從現在的我走到想要的我，一句我現在就能相信的橋接句"}
+\`\`\``;}
+function parseCode(txt){const m=txt.match(/\{[\s\S]*\}/);if(!m)throw new Error("找不到拆解碼");return JSON.parse(m[0]);}
 function renderRoom(){
-  const fw=D.frameworks.find(f=>f.id===fwId)||D.frameworks[0];fwId=fw.id;
-  if(!draft||draft.fw!==fw.id)draft={fw:fw.id,answers:fw.questions.map(()=>""),conclusion:"",action:"",ch9:false};
-  const logs=D.bellLog.slice(-20).reverse();
-  $("#app").innerHTML=`<section><h2>拆解室</h2><p class="muted" style="margin:0 0 12px;font-size:14px">心情平靜的時候來。選一個框架，一格一格寫，最後留一句結論和一個小行動。</p>
-    <div class="fws">${D.frameworks.map(f=>`<button data-fw="${f.id}" aria-pressed="${f.id===fw.id}">${esc(f.name)}</button>`).join("")}<button class="add" data-addfw>＋ 新框架</button></div></section>
-  <section class="card qs">${fw.questions.map((q,i)=>`<label><span>${i+1}. ${esc(q)}</span><textarea data-ans="${i}">${esc(draft.answers[i]||"")}</textarea></label>`).join("")}
-    <label><span>一句結論</span><input type="text" id="cc" maxlength="80" value="${esc(draft.conclusion)}"></label>
-    <label><span>一個小行動</span><input type="text" id="ca" maxlength="80" value="${esc(draft.action)}"></label>
-    <div class="logsel">連到哪一次鈴響：<select id="lg"><option value="">不連</option>${logs.map(l=>`<option value="${l.id}" ${l.id===roomFrom?"selected":""}>${l.date.replace("T"," ")}${l.alarm&&alarmById(l.alarm)?"・"+esc(alarmById(l.alarm).name):""}</option>`).join("")}</select></div>
-    <label class="check"><input type="checkbox" id="c9" ${draft.ch9?"checked":""}>放進第九章（之後整理成故事的下一章）</label>
-    <div class="row"><button class="btn pri" id="saveB">存成一筆</button></div></section>
+  D.library=D.library||{cells:{}};
+  const themes={};D.breakdowns.forEach(b=>{if(b.theme)(themes[b.theme]=themes[b.theme]||[]).push(b);});
+  const grid=`<div class="tmap"><div></div>${LEVELS.map(l=>`<div class="th">${l}</div>`).join("")}${DOMAINS.map(d=>`<div class="th side">${d}</div>${LEVELS.map(l=>{const k=d+"|"+l,c=D.library.cells[k]||{},n=D.breakdowns.filter(b=>b.domain===d&&b.level===l).length;
+    return `<button class="tcell${openCell===k?" on":""}" data-cell="${esc(k)}">${(c.thoughts||[]).slice(0,4).map(t=>`<span>${esc(t)}</span>`).join("")||'<i>空</i>'}${n?`<b>${n} 筆</b>`:""}</button>`;}).join("")}`).join("")}</div>`;
+  const cell=openCell&&(D.library.cells[openCell]||{});
+  $("#app").innerHTML=`<section class="card qs">
+    <h2 style="margin:0">發生了什麼？</h2>
+    <textarea id="story" style="min-height:120px" placeholder="把事情講出來就好，不用整理。例如：今天看到朋友要嫁去國外，突然覺得我在台灣認真唱歌，是不是就沒有這個選擇了……">${esc(sessionStorage.getItem("mission-story")||"")}</textarea>
+    <div class="row"><button class="btn pri" id="toClaude">帶去 Claude 拆解 ↗</button><button class="btn" id="copyP">只複製</button></div>
+    <p class="muted" style="margin:0;font-size:13px">會打開 Claude 的新對話，並把你的事件和拆解格式一起帶過去（沒自動填好就直接貼上）。聊完，把 Claude 最後給的拆解碼複製回來，貼在下面。</p></section>
+  <section class="card qs"><h2 style="margin:0">貼上拆解碼</h2><textarea id="code" placeholder="把 Claude 給的那一段 { … } 貼在這裡"></textarea>
+    <div class="row"><button class="btn pri" id="saveCode">存起來</button></div><div id="codeMsg" class="muted" style="font-size:13px"></div></section>
+  <section><h2>念頭地圖<small>你常有的念頭，放在它屬於的格子裡；點一格看它的橋接句</small></h2>${grid}
+    ${cell?`<div class="card cellv"><div class="muted" style="font-size:12.5px">${esc(openCell.replace("|","・"))}</div>
+      ${(cell.thoughts||[]).length?`<div class="chips">${cell.thoughts.map(t=>`<span>${esc(t)}</span>`).join("")}</div>`:""}
+      ${cell.need?`<p><b>底層的需要</b>${esc(cell.need)}</p>`:""}${cell.bridge?`<p class="q2"><b>橋接句</b>${esc(cell.bridge)}</p>`:""}${cell.destination?`<p><b>想走到的地方</b>${esc(cell.destination)}</p>`:""}
+      <div class="row"><button class="btn sm" id="editCell">編輯這一格</button></div></div>`:""}</section>
+  ${Object.keys(themes).length?`<section><h2>反覆出現的主題</h2><div class="blist">${Object.entries(themes).sort((a,b)=>b[1].length-a[1].length).map(([t,L])=>{const last=L[L.length-1];return `<div class="card bitem"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(t)}</b><span class="muted">${L.length} 次</span></div>${last.antidote?`<p class="q2" style="margin:6px 0 0">${esc(last.antidote)}</p>`:""}</div>`;}).join("")}</div></section>`:""}
   <section><h2>拆過的紀錄</h2>${breakdownList()}</section>`;
-  document.querySelectorAll("[data-fw]").forEach(b=>b.onclick=()=>{fwId=b.dataset.fw;renderRoom();});
-  $("[data-addfw]").onclick=()=>dialog(`<h3>新框架</h3><label class="field">名稱<input type="text" id="fn" maxlength="12"></label><label class="field">題目（一行一題）<textarea id="fq" style="min-height:140px"></textarea></label><div class="row"><button class="btn pri" data-ok>新增</button><button class="btn ghost" data-x>取消</button></div>`,
-    box=>box.querySelector("[data-ok]").onclick=()=>{const n=box.querySelector("#fn").value.trim(),qs=box.querySelector("#fq").value.split("\n").map(s=>s.trim()).filter(Boolean);if(!n||!qs.length)return;const f={id:"f"+Date.now().toString(36),name:n,questions:qs};D.frameworks.push(f);save();fwId=f.id;closeDlg();renderRoom();});
-  document.querySelectorAll("[data-ans]").forEach(t=>t.oninput=()=>{draft.answers[+t.dataset.ans]=t.value;});
-  $("#cc").oninput=e=>draft.conclusion=e.target.value;$("#ca").oninput=e=>draft.action=e.target.value;$("#c9").onchange=e=>draft.ch9=e.target.checked;
-  $("#lg").onchange=e=>roomFrom=e.target.value||null;
-  $("#saveB").onclick=()=>{if(!draft.answers.some(a=>a.trim())&&!draft.conclusion.trim())return;
-    const d=new Date(),b={id:"b"+Date.now().toString(36),date:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,framework:fw.id,answers:draft.answers.slice(),conclusion:draft.conclusion.trim(),action:draft.action.trim(),forChapter9:draft.ch9};
-    D.breakdowns.push(b);if(roomFrom){const l=D.bellLog.find(x=>x.id===roomFrom);if(l)l.breakdownId=b.id;}save();draft=null;roomFrom=null;renderRoom();};
+  const st=$("#story");st.oninput=()=>{try{sessionStorage.setItem("mission-story",st.value);}catch(e){}};
+  const copy=async()=>{const t=claudePrompt(st.value.trim()||"（我還沒寫，先跟你說說）");try{await navigator.clipboard.writeText(t);return true;}catch(e){return false;}};
+  $("#copyP").onclick=async()=>{$("#copyP").textContent=(await copy())?"已複製 ✓":"複製失敗，請手動選取";};
+  $("#toClaude").onclick=async()=>{const ok=await copy();const t=claudePrompt(st.value.trim());const u="https://claude.ai/new?q="+encodeURIComponent(t.length>6000?t.slice(0,6000):t);window.open(u,"_blank","noopener");if(!ok)$("#toClaude").textContent="已打開 Claude";};
+  $("#saveCode").onclick=()=>{const msg=$("#codeMsg");try{const j=parseCode($("#code").value);
+    if(j.type==="library"){(j.cells||[]).forEach(c=>{const k=c.domain+"|"+c.level;D.library.cells[k]={thoughts:c.thoughts||[],need:c.need||"",bridge:c.bridge||"",destination:c.destination||""};});save();msg.textContent="念頭地圖更新好了 ✓";renderRoom();return;}
+    const d=new Date(),b={id:"b"+Date.now().toString(36),v:2,date:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,story:st.value.trim(),...j,forChapter9:false};delete b.type;
+    if(b.alarm&&!D.alarms.some(a=>a.name===b.alarm))D.alarms.push({id:"a"+Date.now().toString(36),name:b.alarm,logic:(b.assumptions||[])[0]||"",question:"這是事實，還是我又相信了一個假設？"});
+    const al=D.alarms.find(a=>a.name===b.alarm);if(al)b.alarmId=al.id;
+    D.breakdowns.push(b);if(roomFrom){const l=D.bellLog.find(x=>x.id===roomFrom);if(l)l.breakdownId=b.id;roomFrom=null;}
+    const same=D.breakdowns.filter(x=>x.theme&&x.theme===b.theme).length;save();try{sessionStorage.removeItem("mission-story");}catch(e){}
+    renderRoom();$("#codeMsg").textContent=same>1?`存好了。這是「${b.theme}」第 ${same} 次出現，上面有前幾次的解藥句。`:"存好了 ✓";}catch(e){msg.textContent="看不懂這段拆解碼：請確認有完整複製到最後一個 }";}};
+  document.querySelectorAll("[data-cell]").forEach(b=>b.onclick=()=>{openCell=openCell===b.dataset.cell?null:b.dataset.cell;renderRoom();});
+  const ec=$("#editCell");if(ec)ec.onclick=()=>{const c=D.library.cells[openCell]||{};dialog(`<h3>${esc(openCell.replace("|","・"))}</h3>
+    <label class="field">常有的念頭（一行一個）<textarea id="ct">${esc((c.thoughts||[]).join("\n"))}</textarea></label><label class="field">底層的需要<textarea id="cn">${esc(c.need||"")}</textarea></label>
+    <label class="field">橋接句<textarea id="cb">${esc(c.bridge||"")}</textarea></label><label class="field">想走到的地方<textarea id="cd">${esc(c.destination||"")}</textarea></label>
+    <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn ghost" data-x>取消</button></div>`,
+    box=>box.querySelector("[data-ok]").onclick=()=>{D.library.cells[openCell]={thoughts:box.querySelector("#ct").value.split("\n").map(s=>s.trim()).filter(Boolean),need:box.querySelector("#cn").value.trim(),bridge:box.querySelector("#cb").value.trim(),destination:box.querySelector("#cd").value.trim()};save();closeDlg();renderRoom();});};
   bindBList();}
-function breakdownList(){if(!D.breakdowns.length)return `<div class="card empty">還沒有拆過。不急，心情平靜的時候再來。</div>`;
-  return `<div class="blist">${D.breakdowns.slice().reverse().map(b=>{const f=D.frameworks.find(x=>x.id===b.framework);return `<details class="card bitem"><summary><span>${esc(b.date)}・${esc(f?f.name:"")}${b.forChapter9?"・第九章":""}</span><span class="muted">${esc(b.conclusion||"")}</span></summary>
-    <div class="qa">${(f?f.questions:[]).map((q,i)=>b.answers[i]?`<p><b>${esc(q)}</b>${esc(b.answers[i])}</p>`:"").join("")}${b.conclusion?`<p><b>結論</b>${esc(b.conclusion)}</p>`:""}${b.action?`<p><b>小行動</b>${esc(b.action)}</p>`:""}
+function breakdownList(){if(!D.breakdowns.length)return `<div class="card empty">還沒有拆過。把一件事講出來，帶去 Claude 拆完，再貼回來。</div>`;
+  const li=(t,arr)=>arr&&arr.length?`<p><b>${t}</b>${arr.map(esc).join("<br>")}</p>`:"";
+  return `<div class="blist">${D.breakdowns.slice().reverse().map(b=>{
+    if(b.v!==2){const f=D.frameworks.find(x=>x.id===b.framework);return `<details class="card bitem"><summary><span>${esc(b.date)}・${esc(f?f.name:"")}</span><span class="muted">${esc(b.conclusion||"")}</span></summary><div class="qa">${(f?f.questions:[]).map((q,i)=>b.answers&&b.answers[i]?`<p><b>${esc(q)}</b>${esc(b.answers[i])}</p>`:"").join("")}<div class="row"><button class="btn sm ghost" data-delb="${b.id}">刪除</button></div></div></details>`;}
+    const fp=b.firstPrinciples||{};
+    return `<details class="card bitem"><summary><span>${esc(b.date)}・${esc(b.event||"")}</span><span class="muted">${esc(b.theme||"")}${b.forChapter9?"・第九章":""}</span></summary>
+    <div class="qa">${b.story?`<p><b>當時說的</b>${esc(b.story)}</p>`:""}${b.alarm?`<p><b>警報</b>${esc(b.alarm)}</p>`:""}${li("藏在底下的假設",b.assumptions)}
+    ${fp.facts||fp.core?`<div class="fp"><b>第一性原理</b>${li("事實",fp.facts)}${li("其實是假設",fp.assumed)}${fp.core?`<p><b>最底層的需要</b>${esc(fp.core)}</p>`:""}${fp.rebuild?`<p><b>重新推一次</b>${esc(fp.rebuild)}</p>`:""}</div>`:""}
+    ${(b.lenses||[]).map(l=>`<p><b>${esc(l.name)}</b>${esc(l.insight)}</p>`).join("")}${b.formula?`<p><b>回到公式</b>${esc(b.formula)}</p>`:""}
+    ${b.conclusion?`<p><b>結論</b>${esc(b.conclusion)}</p>`:""}${b.action?`<p><b>小行動</b>${esc(b.action)}</p>`:""}${b.antidote?`<p class="q2"><b>解藥句</b>${esc(b.antidote)}</p>`:""}${b.bridge?`<p class="q2"><b>橋接句</b>${esc(b.bridge)}</p>`:""}
     <div class="row"><button class="btn sm" data-ch9="${b.id}">${b.forChapter9?"從第九章拿掉":"放進第九章"}</button><button class="btn sm ghost" data-delb="${b.id}">刪除</button></div></div></details>`;}).join("")}</div>`;}
 function bindBList(){document.querySelectorAll("[data-ch9]").forEach(x=>x.onclick=()=>{const b=D.breakdowns.find(y=>y.id===x.dataset.ch9);b.forChapter9=!b.forChapter9;save();render();});
   document.querySelectorAll("[data-delb]").forEach(x=>x.onclick=()=>dialog(`<h3>刪除這筆拆解？</h3><div class="row"><button class="btn pri" data-ok>刪除</button><button class="btn ghost" data-x>取消</button></div>`,

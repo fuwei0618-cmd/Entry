@@ -341,7 +341,7 @@ const waterMat=new R.ShaderMaterial({transparent:true,depthWrite:false,
   const spots=[];let tries=0;
   while(spots.length<300&&tries<14000){tries++;
     const x=-70+rand()*140,z=-50+rand()*136,r=Math.hypot(x,z-18);if(r>68)continue;
-    if(RESTS.some(q=>Math.hypot(x-q.x,z-q.z)<4||Math.hypot(x-q.tx,z-q.tz)<3.5))continue;if(Math.abs(x)<6&&z>EC.cz+EC.rz&&z<GZ+2)continue;
+    if(RESTS.some(q=>Math.hypot(x-q.x,z-q.z)<4||Math.hypot(x-q.tx,z-q.tz)<3.5))continue;if(Math.hypot(x+24,z-40)<6||Math.hypot(x+28,z-45)<5||segD(x,z,[-24,40,-12,26])<3.5||segD(x,z,[-24,40,12,21])<4.5)continue;if(Math.abs(x)<6&&z>EC.cz+EC.rz&&z<GZ+2)continue;
     const d=Math.abs(x-riverX(z));if(d<5.2)continue;
     if(Math.abs(x-hx)<19&&z>hz-16&&z<hz+17)continue;
     if(Math.hypot(x-FX,z-FZ)<7||Math.hypot(x-VX,z-VZ)<7||Math.hypot(x-mx,z-mz)<6.5)continue;
@@ -404,7 +404,7 @@ let vaultF;
   {const VY=heightAt(VX,VZ),stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),stone2=new R.MeshStandardMaterial({color:0xD8D1C3,roughness:.7}),gold=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.8,roughness:.25,emissive:0x3A2600});
     [[4.4,.16,stone2],[3.6,.32,stone],[2.8,.48,stone2]].forEach(([r,h,m])=>{const c=new R.Mesh(new R.CylinderGeometry(r,r,h,64),m);c.position.set(VX,VY+h/2,VZ);c.receiveShadow=c.castShadow=true;out.add(c);});
     [3.6,2.8].forEach(r=>{const g=new R.Mesh(new R.TorusGeometry(r-.12,.035,6,80),gold);g.rotation.x=Math.PI/2;g.position.set(VX,VY+(r>3?.33:.49),VZ);out.add(g);});
-    for(let x=VX+5;x<FX-3;x+=1.35){const sl=new R.Mesh(new R.BoxGeometry(.8,.1,1.1),stone);sl.position.set(x,heightAt(x,VZ)+.05,VZ);sl.receiveShadow=true;out.add(sl);}
+    for(let x=VX+5;x<FX-3;x+=1.35){if(Math.abs(x)<2.2)continue;const sl=new R.Mesh(new R.BoxGeometry(.8,.1,1.1),stone);sl.position.set(x,heightAt(x,VZ)+.05,VZ);sl.receiveShadow=true;out.add(sl);}
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{const x=VX+a*3.9,z=VZ+b*3.9,y=heightAt(x,z);const post=new R.Mesh(new R.BoxGeometry(.32,1.3,.32),stone);post.position.set(x,y+.65,z);post.castShadow=true;out.add(post);
       const lt=new R.Mesh(new R.BoxGeometry(.42,.32,.42),new R.MeshBasicMaterial({color:0xFFE2A8}));lt.position.set(x,y+1.45,z);out.add(lt);const cap=new R.Mesh(new R.BoxGeometry(.6,.08,.6),stone2);cap.position.set(x,y+1.65,z);out.add(cap);
       const pl=new R.PointLight(0xFFCF8A,.35,6);pl.position.set(x,y+1.5,z);out.add(pl);});
@@ -468,25 +468,46 @@ let fireUpdate;
   label(out,'螢火蟲',14,heightAt(14,GZ+8)+3.4,GZ+8,'通訊錄');
 }
 {const x=riverX(EC.cz)+5.4,z=EC.cz;label(out,'記錄之河',x-3,heightAt(x,z)+3.6,z,'每天都流進來');}
-{ // 入口格柵：半透的木格柵，看得到外面的螢火蟲，但森林裡留給自己
-  const wood=mat(0x8C6A4C),wood2=mat(0x6F533B),xs=[];for(let x=-GW;x<=GW;x+=.42)if(Math.abs(x)>1.9)xs.push(x);
-  const sl=new R.InstancedMesh(new R.BoxGeometry(.09,1,.09),wood,xs.length),m=new R.Matrix4(),q=new R.Quaternion(),v=new R.Vector3(),sv=new R.Vector3();
-  xs.forEach((x,i)=>{const y=heightAt(x,GZ);m.compose(v.set(x,y+.7,GZ),q,sv.set(1,1.4,1));sl.setMatrixAt(i,m);});sl.castShadow=true;out.add(sl);
-  [-1,1].forEach(sd=>{for(let x=1.9;x<GW;x+=1.1){const x1=sd*x,x2=sd*Math.min(x+1.1,GW),y1=heightAt(x1,GZ),y2=heightAt(x2,GZ),len=Math.abs(x2-x1)+.02;
-      [.25,1.3].forEach(hh=>{const r=mesh(new R.BoxGeometry(len,.08,.12),wood2,(x1+x2)/2,(y1+y2)/2+hh,GZ,out);r.rotation.z=Math.atan2(y2-y1,x2-x1)*(sd>0?1:1);});}
-    const px=sd*1.9,py=heightAt(px,GZ);mesh(new R.BoxGeometry(.32,1.9,.32),wood2,px,py+.95,GZ,out);
-    const lt=mesh(new R.BoxGeometry(.26,.26,.26),new R.MeshBasicMaterial({color:0xFFE2A8}),px,py+2.05,GZ,out,false);const pl=new R.PointLight(0xFFCF8A,.3,5);pl.position.set(px,py+2,GZ);out.add(pl);
-    F.col.push({x0:sd>0?1.75:-GW,x1:sd>0?GW:-1.75,z0:GZ-.2,z1:GZ+.2});});
-}
+const wallZ=x=>GZ+.7*Math.sin(x*.32);
 let gateUpdate=()=>{};
-{ // 格柵的門：只為你打開（你走近才會開，平常關著）
-  const wood=mat(0x8C6A4C),wood2=mat(0x6F533B),leaves=[];
-  [-1,1].forEach(sd=>{const hinge=new R.Group(),hy=heightAt(sd*1.9,GZ);hinge.position.set(sd*1.9,hy,GZ);out.add(hinge);
-    for(let k=0;k<5;k++){const x=-sd*(.2+k*.36);mesh(new R.BoxGeometry(.09,1.5,.09),wood,x,.85,0,hinge);}
-    [.25,1.45].forEach(hh=>mesh(new R.BoxGeometry(1.8,.09,.12),wood2,-sd*.92,hh,0,hinge));
-    mesh(new R.BoxGeometry(1.8,.08,.1),wood2,-sd*.92,.85,0,hinge).rotation.z=sd*.6;
+{ // 入口的矮牆：高第鄉村風，起伏的砂岩矮牆＋碎磁磚馬賽克牆頂；中間一扇鍛鐵門，只為你打開
+  const MOS=[0x2D5DA8,0x3FA7B5,0xE2B04A,0xF3EEE4,0xC8673E,0x6FA35A,0x1F3F7A];
+  const segs=[];for(let x=2.7;x<GW;x+=.5)segs.push(x,-x);
+  const n=segs.length,body=new R.InstancedMesh(new R.BoxGeometry(.56,1,.55),new R.MeshStandardMaterial({color:0xffffff,roughness:.9}),n);
+  const capM=new R.InstancedMesh(new R.BoxGeometry(.58,.1,.62),new R.MeshStandardMaterial({color:0xffffff,roughness:.35,metalness:.05}),n);
+  const tiles=new R.InstancedMesh(new R.BoxGeometry(.16,.05,.16),new R.MeshStandardMaterial({color:0xffffff,roughness:.25,metalness:.1}),n*4);
+  const m=new R.Matrix4(),q=new R.Quaternion(),e=new R.Euler(),v=new R.Vector3(),sv=new R.Vector3(),c=new R.Color();
+  segs.forEach((x,i)=>{const z=wallZ(x),y=heightAt(x,z),h=.8+.2*Math.sin(Math.abs(x)*.55+1),tan=Math.atan2(.7*.32*Math.cos(x*.32),1);
+    e.set(0,-tan,0);q.setFromEuler(e);
+    m.compose(v.set(x,y+h/2-.1,z),q,sv.set(1,h+.2,1));body.setMatrixAt(i,m);c.set(rand()<.5?0xD9C3A0:0xCDB48D).offsetHSL(0,0,(rand()-.5)*.06);body.setColorAt(i,c);
+    m.compose(v.set(x,y+h+.05,z),q,sv.set(1,1,1));capM.setMatrixAt(i,m);c.set(0xF3EEE4);capM.setColorAt(i,c);
+    for(let k=0;k<4;k++){const lx=(rand()-.5)*.4,lz=(rand()-.5)*.44;e.set(0,-tan+rand()*1.2,0);const q2=new R.Quaternion().setFromEuler(e);
+      m.compose(v.set(x+lx*Math.cos(tan)+lz*Math.sin(tan),y+h+.12,z+lz*Math.cos(tan)-lx*Math.sin(tan)),q2,sv.set(.7+rand()*.6,1,.7+rand()*.6));tiles.setMatrixAt(i*4+k,m);c.set(MOS[Math.floor(rand()*MOS.length)]);tiles.setColorAt(i*4+k,c);}});
+  [body,capM,tiles].forEach(o=>{o.castShadow=true;o.receiveShadow=true;out.add(o);});
+  for(let x=2.7;x<GW;x+=2)[1,-1].forEach(sd=>F.col.push({x0:sd>0?x:-x-2,x1:sd>0?x+2:-x,z0:wallZ(sd*(x+1))-.35,z1:wallZ(sd*(x+1))+.35}));
+  const stone=new R.MeshStandardMaterial({color:0xD3BB94,roughness:.85});
+  [-1,1].forEach(sd=>{const px=sd*2.45,pz=wallZ(px),py=heightAt(px,pz);mesh(new R.CylinderGeometry(.42,.5,1.8,14),stone,px,py+.9,pz,out);
+    mesh(new R.CylinderGeometry(.5,.42,.12,14),new R.MeshStandardMaterial({color:0xF3EEE4,roughness:.4}),px,py+1.86,pz,out);
+    const geo=new R.IcosahedronGeometry(.42,1).toNonIndexed(),cols=[];for(let f=0;f<geo.attributes.position.count/3;f++){c.set(MOS[Math.floor(rand()*MOS.length)]);for(let k=0;k<3;k++)cols.push(c.r,c.g,c.b);}geo.setAttribute('color',new R.Float32BufferAttribute(cols,3));
+    const ball=new R.Mesh(geo,new R.MeshStandardMaterial({vertexColors:true,roughness:.3,metalness:.1,flatShading:true}));
+    ball.position.set(px,py+2.3,pz);ball.castShadow=true;out.add(ball);
+    const pl=new R.PointLight(0xFFCF8A,.35,6);pl.position.set(px,py+2.2,pz+.6);out.add(pl);F.col.push({x:px,z:pz,r:.5});});
+  const iron=new R.MeshStandardMaterial({color:0x2E2A26,metalness:.6,roughness:.45}),gold=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.8,roughness:.3}),leaves=[];
+  [-1,1].forEach(sd=>{const hx0=sd*2.02,hz0=wallZ(hx0),hinge=new R.Group();hinge.position.set(hx0,heightAt(hx0,hz0),hz0);out.add(hinge);
+    const Wd=2.0;for(let k=0;k<=6;k++){const x=-sd*k*Wd/6,top=1.25+.35*Math.sin(Math.PI*k/6);mesh(new R.CylinderGeometry(.03,.03,top,6),iron,x,top/2+.08,0,hinge,false);
+      if(k>0&&k<6)mesh(new R.ConeGeometry(.05,.14,6),gold,x,top+.15,0,hinge,false);}
+    [.2,.75].forEach(hh=>mesh(new R.BoxGeometry(Wd,.05,.05),iron,-sd*Wd/2,hh,0,hinge,false));
+    [[.5,.48],[1.0,.48],[1.5,.48]].forEach(([d,hh])=>{const ring=new R.Mesh(new R.TorusGeometry(.17,.022,6,18),iron);ring.position.set(-sd*d,hh,0);hinge.add(ring);
+      const ring2=new R.Mesh(new R.TorusGeometry(.08,.02,6,14),gold);ring2.position.set(-sd*d,hh,0);hinge.add(ring2);});
     leaves.push({g:hinge,sd,a:0});});
   gateUpdate=dt=>{const near=Math.hypot(P.x,P.z-GZ)<5.5&&cur&&cur.id==='forest';leaves.forEach(l=>{const tgt=near?1.35:0;l.a+=(tgt-l.a)*Math.min(1,dt*3);l.g.rotation.y=l.sd*-l.a;});};
+}
+{ // 十字中心：東西連著金庫與營火（錢與熱情），南北連著家與森林入口（自己與世界）
+  const stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),gold=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.8,roughness:.25});
+  for(let z=EC.cz-EC.rz+1.6;z<EC.cz+EC.rz-1.2;z+=1.35){if(Math.abs(z-EC.cz)<2.2)continue;const sl=new R.Mesh(new R.BoxGeometry(1.1,.1,.8),stone);sl.position.set(0,heightAt(0,z)+.05,z);sl.receiveShadow=true;out.add(sl);}
+  const cy=heightAt(0,EC.cz);const disc=new R.Mesh(new R.CylinderGeometry(1.5,1.6,.14,40),stone);disc.position.set(0,cy+.07,EC.cz);disc.receiveShadow=true;out.add(disc);
+  const ring=new R.Mesh(new R.TorusGeometry(1.25,.035,6,60),gold);ring.rotation.x=Math.PI/2;ring.position.set(0,cy+.15,EC.cz);out.add(ring);
+  [[0,1],[1,0],[0,-1],[-1,0]].forEach(([a,b])=>{const t=new R.Mesh(new R.BoxGeometry(a?1.1:.07,.02,b?1.1:.07),gold);t.position.set(a*.55,cy+.15,EC.cz+b*.55);out.add(t);});
 }
 { // 儀式長軸：入口格柵到橢圓步道之間，兩排石燈籠
   const stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),stone2=new R.MeshStandardMaterial({color:0xD8D1C3,roughness:.7}),glow=new R.MeshBasicMaterial({color:0xFFE2A8});
@@ -499,8 +520,8 @@ let gateUpdate=()=>{};
   RESTS.forEach(q=>{const G=new R.Group(),y=heightAt(q.x,q.z);G.position.set(q.x,y,q.z);G.rotation.y=q.ry;out.add(G);
     [[-.32,-.9],[.32,-.9],[-.32,.9],[.32,.9]].forEach(([a,b])=>mesh(new R.BoxGeometry(.07,.32,.07),frame,a,.16,b,G));
     mesh(new R.BoxGeometry(.78,.08,2.0),frame,0,.34,.1,G);mesh(new R.BoxGeometry(.7,.12,1.3),cush,0,.44,.45,G);
-    const back=mesh(new R.BoxGeometry(.7,.12,.95),cush2,0,.75,-.72,G);back.rotation.x=-.85;
-    const pil=mesh(new R.BoxGeometry(.5,.14,.28),cush,0,1.0,-.95,G);pil.rotation.x=-.85;
+    const back=mesh(new R.BoxGeometry(.7,.12,.95),cush2,0,.75,-.72,G);back.rotation.x=.85;
+    const pil=mesh(new R.BoxGeometry(.5,.14,.28),cush,0,1.0,-.95,G);pil.rotation.x=.85;
     F.col.push({x:q.x,z:q.z,r:.9});
     // 一棵大樹替躺椅遮陰
     const ty=heightAt(q.tx,q.tz),T=new R.Group();T.position.set(q.tx,ty,q.tz);out.add(T);
@@ -516,10 +537,11 @@ F.hots=[
   {id:'vault',name:'金庫 · 噴水池',verb:'看看',x:VX,z:VZ+2.6,r:1.6},
   {id:'river',name:'記錄之河',verb:'查看',x:riverX(EC.cz)+5,z:EC.cz,r:3.2},
   {id:'studio',name:'蘑菇攝影棚',verb:'進入',x:mx+2.2,z:mz+2.2,r:2.8},
+  {id:'center',name:'十字中心',verb:'站上去',x:0,z:EC.cz,r:1.8},
   {id:'campfire',name:'營火',verb:'坐下',x:FX,z:FZ+1.6,r:3},
   {id:'fireflies',name:'螢火蟲',verb:'看看',x:4,z:GZ+2.5,r:3}
 ];
-F.spawns={home:[0,9,0,Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0]};
+F.spawns={home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0]};
 F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
   pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);vaultF.update(dt,t);};
 
@@ -850,6 +872,7 @@ const INFO={
   lucky:{tag:'家 · Lucky',title:'Lucky',body:'尾巴搖個不停。',links:[['打開 Lucky 手冊','https://fuwei0618-cmd.github.io/Lucky/']]},
   closet:{tag:'家 · Beauty',title:'Beauty',body:'關於「美」的房間，像藝人上工前的梳化間，也是定期進廠保養的地方。裡面有兩扇門：',list:['梳化間：衣櫥、妝髮、美甲，整體造型與穿搭模板（製作中）','保養廠：醫美、半永久、日常保養；正顎手術也在這裡'],links:[['梳化間（製作中）',''],['保養廠 · 正顎手冊','https://fuwei0618-cmd.github.io/OGS/']]},
   gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',links:[['打開健身房','https://fuwei0618-cmd.github.io/Gym/']]},
+  center:{tag:'森林 · 十字中心',title:'你站的地方',body:'東西這條踏石，連著金庫和營火：錢與熱情，一樣重要。南北這條，連著家和森林入口：你自己，和外面的世界。兩條線交會的地方，就是你。站在這裡，四個方向都看得到。'},
   vault:{tag:'家門口 · 金庫',title:'源源不絕',body:'噴水池的水不停往上噴，金幣被你吸引過來、砸在你身上，閃都閃不掉。理財、保險健檢、投資都在這裡。',links:[['保險手冊','https://fuwei0618-cmd.github.io/Insurance/'],['財富管理','https://fuwei0618-cmd.github.io/Wealth-mgm/'],['投資','https://investment-beige-iota.vercel.app/']]},
   fountain:{tag:'B2 · 禱告房',title:'轉運流水盆',body:'上層的小盆流水不停，橘色的轉運球慢慢轉，三隻金魚在下面游。禱告的時候，耳邊一直有流水聲。'},
   plant:{tag:'B1 · 下沉庭院',title:'白水木',body:'種在臥室外的下沉庭院，躺在床上就看得到。銀綠色、毛茸茸的葉子一叢一叢長在枝頭。這盆植物代表什麼，可以由你來定義。'},
@@ -879,7 +902,7 @@ const player=new R.Group();const body={};
   body.shut=[-.075,.075].map(x=>{const m=mesh(new R.BoxGeometry(.07,.014,.01),eyeM,x,1.575,.213,player,false);m.visible=false;return m;});
   mesh(new R.BoxGeometry(.36,.42,.08),hair,0,1.42,-.2,player);
 }
-const P={x:0,z:9,y:0,face:0,yaw:Math.PI,pitch:-.08,orbit:.42,speed:6.2,walkT:0,moving:false};
+const P={x:-24,z:40,y:0,face:2.3,yaw:2.3+Math.PI,pitch:-.08,orbit:.42,speed:6.2,walkT:0,moving:false};
 let cur=SC.forest,view='third';
 cur.scene.add(player);
 
@@ -1043,7 +1066,9 @@ function buildMapBG(){
   let river='';for(let z=Z0-2;z<=Z0+MH+2;z+=1)river+=(river?' L':'M')+riverX(z).toFixed(2)+' '+z;
   const paths=PATHS.map(([a,b,c,d])=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}"/>`).join('');
   const ff=Array.from({length:34},()=>`<circle cx="${(X0+1+rnd()*(MW-2)).toFixed(2)}" cy="${(GZ+2+rnd()*(Z0+MH-GZ-3)).toFixed(2)}" r=".3" fill="#F6F2A0" opacity="${(.5+rnd()*.4).toFixed(2)}"/>`).join('');
-  const gate=`<g stroke="#7A5C40" stroke-width=".35"><line x1="${-GW}" y1="${GZ}" x2="-1.9" y2="${GZ}"/><line x1="1.9" y1="${GZ}" x2="${GW}" y2="${GZ}"/></g><line x1="-1.9" y1="${GZ}" x2="1.9" y2="${GZ}" stroke="#B08A5E" stroke-width=".6" stroke-dasharray=".5 .25"/><g stroke="#7A5C40" stroke-width=".18">${Array.from({length:Math.floor(GW*2/.9)},(_,k)=>-GW+k*.9).filter(x=>Math.abs(x)>1.9).map(x=>`<line x1="${x.toFixed(2)}" y1="${GZ-.6}" x2="${x.toFixed(2)}" y2="${GZ+.6}"/>`).join('')}</g>`;
+  const wl=sd=>{let d='';for(let x=2.7;x<=GW;x+=.5){const X=sd*x;d+=(d?' L':'M')+X.toFixed(2)+' '+wallZ(X).toFixed(2);}return d;};
+  const gate=`<g fill="none" stroke-linecap="round"><path d="${wl(1)}" stroke="#CDB48D" stroke-width="1"/><path d="${wl(-1)}" stroke="#CDB48D" stroke-width="1"/><path d="${wl(1)}" stroke="#3FA7B5" stroke-width=".35" stroke-dasharray=".4 .5"/><path d="${wl(-1)}" stroke="#E2B04A" stroke-width=".35" stroke-dasharray=".4 .5"/></g><circle cx="2.45" cy="${wallZ(2.45)}" r=".6" fill="#2D5DA8"/><circle cx="-2.45" cy="${wallZ(-2.45)}" r=".6" fill="#C8673E"/><line x1="-1.9" y1="${wallZ(0)}" x2="1.9" y2="${wallZ(0)}" stroke="#2E2A26" stroke-width=".35"/>`;
+  const cross=`<line x1="0" y1="${EC.cz-EC.rz+1.5}" x2="0" y2="${EC.cz+EC.rz-1.5}" stroke="#C9A55A" stroke-width=".25" stroke-dasharray=".8 .8" opacity=".8"/><circle cx="0" cy="${EC.cz}" r="1.5" fill="#EFE9DD" stroke="#C9A55A" stroke-width=".25"/>`;
   const focus=`<line x1="${VX}" y1="${VZ}" x2="${FX}" y2="${FZ}" stroke="#C9A55A" stroke-width=".25" stroke-dasharray=".8 .8" opacity=".8"/>`;
   return `<svg viewBox="${X0} ${Z0} ${MW} ${MH}" preserveAspectRatio="none" aria-hidden="true">
   <rect x="${X0}" y="${Z0}" width="${MW}" height="${MH}" fill="#A8C18D"/>${trees}
@@ -1057,7 +1082,7 @@ function buildMapBG(){
   <rect x="${hx-12.3}" y="${hz+1.3}" width="1.7" height="3.4" fill="#5A4C40" opacity=".55"/>
   <circle cx="${VX}" cy="${VZ}" r="4.4" fill="#E9E3D7" stroke="#C9A55A" stroke-width=".3"/><circle cx="${VX}" cy="${VZ}" r="2.8" fill="#F2EDE3" stroke="#C9A55A" stroke-width=".25"/><circle cx="${VX}" cy="${VZ}" r="1.6" fill="#9CC7CF"/>
   <circle cx="${mx}" cy="${mz}" r="2" fill="#D9583F"/><circle cx="${mx-.6}" cy="${mz-.5}" r=".35" fill="#fff"/><circle cx="${mx+.7}" cy="${mz+.3}" r=".3" fill="#fff"/>
-  ${RESTS.map(q=>`<circle cx="${q.tx}" cy="${q.tz}" r="2.6" fill="#6E8F59"/><rect x="${q.x-1}" y="${q.z-.45}" width="2" height=".9" rx=".3" fill="#F1EBDF" stroke="#9A7653" stroke-width=".2"/>`).join('')}${LANTERNS.map(([x,z])=>`<rect x="${x-.4}" y="${z-.4}" width=".8" height=".8" fill="#FFE2A8" stroke="#B8A98F" stroke-width=".15"/>`).join('')}${focus}<circle cx="${FX}" cy="${FZ}" r="3.2" fill="#E6D3AA"/><circle cx="${FX}" cy="${FZ}" r="2.2" fill="#F6B25A" opacity=".45"/><circle cx="${FX}" cy="${FZ}" r=".9" fill="#E8742C"/>${gate}${ff}
+  ${RESTS.map(q=>`<circle cx="${q.tx}" cy="${q.tz}" r="2.6" fill="#6E8F59"/><rect x="${q.x-1}" y="${q.z-.45}" width="2" height=".9" rx=".3" fill="#F1EBDF" stroke="#9A7653" stroke-width=".2"/>`).join('')}${LANTERNS.map(([x,z])=>`<rect x="${x-.4}" y="${z-.4}" width=".8" height=".8" fill="#FFE2A8" stroke="#B8A98F" stroke-width=".15"/>`).join('')}${focus}${cross}<circle cx="${FX}" cy="${FZ}" r="3.2" fill="#E6D3AA"/><circle cx="${FX}" cy="${FZ}" r="2.2" fill="#F6B25A" opacity=".45"/><circle cx="${FX}" cy="${FZ}" r=".9" fill="#E8742C"/>${gate}${ff}
   <text x="${hx}" y="${hz-2.2}" font-size="1.5" text-anchor="middle" fill="#B5ADA1" font-weight="700" letter-spacing=".3">1F</text>
   </svg>`;}
 const BSEC=`<svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true"><rect width="160" height="90" fill="#E7DCCB"/><rect width="160" height="14" fill="#A8C18D"/><rect x="0" y="14" width="160" height="76" fill="#CDBFA9"/>

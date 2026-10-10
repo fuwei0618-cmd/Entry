@@ -267,11 +267,11 @@ function actsDialog(){const draw=box=>{box.querySelector(".list").innerHTML=D.sm
 const bell=(()=>{
   let R,scene,cam,bellG,clapG,canvas,raf=0,ctx=null,buf=null,loading=null,last=0;
   let th=0,thv=0,ph=0,phv=0,drag=null,lastHit=0;
-  const L1=.55,L2=.84,LIM=.4,G=9.8;
+  const L1=.4,L2=.5,LIM=.34,G=9.8;
   function init(){
     R=new THREE.WebGLRenderer({antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
     R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=.9;R.physicallyCorrectLights=true;
-    scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(30,1,.1,50);cam.position.set(-.3,-.2,4.6);cam.lookAt(-.3,-.35,0);
+    scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(30,1,.1,50);cam.position.set(-.25,-.1,4.2);cam.lookAt(-.25,-.22,0);
     // 傍晚暖光的環境：一個漸層大球＋兩塊亮面，給黃銅反射
     const env=new THREE.Scene(),eg=new THREE.SphereGeometry(10,32,16),cols=[];const top=new THREE.Color(0xFFE6C2),mid=new THREE.Color(0xC9A27A),bot=new THREE.Color(0x3A2C22);
     for(let i=0;i<eg.attributes.position.count;i++){const y=eg.attributes.position.getY(i)/10,c=y>0?mid.clone().lerp(top,y):mid.clone().lerp(bot,-y);cols.push(c.r,c.g,c.b);}
@@ -285,32 +285,42 @@ const bell=(()=>{
     const cv=document.createElement("canvas");cv.width=cv.height=256;const g=cv.getContext("2d");g.fillStyle="#7a7a7a";g.fillRect(0,0,256,256);
     for(let i=0;i<2600;i++){const v=100+Math.random()*80|0;g.fillStyle=`rgba(${v},${v},${v},.35)`;g.fillRect(Math.random()*256,Math.random()*256,1+Math.random()*3,1+Math.random()*2);}
     const rough=new THREE.CanvasTexture(cv);rough.wrapS=rough.wrapT=THREE.RepeatWrapping;rough.repeat.set(3,2);
-    const brass=new THREE.MeshStandardMaterial({color:0xA9783A,metalness:1,roughness:.36,roughnessMap:rough,side:THREE.DoubleSide});
+    const brass=new THREE.MeshStandardMaterial({color:0x9C6B31,metalness:1,roughness:.33,roughnessMap:rough,side:THREE.DoubleSide});
     const brassIn=new THREE.MeshStandardMaterial({color:0x8E6B3A,metalness:1,roughness:.55,side:THREE.BackSide});
     const iron=new THREE.MeshStandardMaterial({color:0x2C2724,metalness:.7,roughness:.6});
-    // 鍛鐵支架：立柱、橫臂、下方捲草
-    const post=new THREE.Mesh(new THREE.CylinderGeometry(.035,.04,2.6,12),iron);post.position.set(-.95,-.55,0);scene.add(post);
-    const cap=new THREE.Mesh(new THREE.SphereGeometry(.06,16,12),iron);cap.position.set(-.95,.76,0);scene.add(cap);
-    const arm=new THREE.Mesh(new THREE.CylinderGeometry(.028,.028,1.08,10),iron);arm.rotation.z=Math.PI/2;arm.position.set(-.43,.58,0);scene.add(arm);
-    const tip=new THREE.Mesh(new THREE.SphereGeometry(.045,14,10),iron);tip.position.set(.1,.58,0);scene.add(tip);
-    const sp=[new THREE.Vector3(-.95,.12,0),new THREE.Vector3(-.9,.36,0),new THREE.Vector3(-.74,.52,0),new THREE.Vector3(-.52,.56,0)];
-    for(let i=0;i<=40;i++){const t=i/40,a=Math.PI/2+t*Math.PI*1.7,r=.13*(1-t*.75);sp.push(new THREE.Vector3(-.44+Math.cos(a)*r*-1,.43+Math.sin(a)*r,0));}
-    scene.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(sp),140,.016,8,false),iron));
-    const base=new THREE.Mesh(new THREE.CylinderGeometry(.16,.2,.06,24),iron);base.position.set(-.95,-1.85,0);scene.add(base);
-    // 鈴（樞紐在橫臂末端下方）
+    // 鍛鐵支架：細長立柱、底座、頂飾、帶捲草的橫臂、U 形吊架
+    const tube=(pts,r)=>new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(...p))),120,r,8,false),iron);
+    const PX=-.72;
+    scene.add(tube([[PX,-1.62,0],[PX,.84,0]],.032));
+    const base=new THREE.Mesh(new THREE.CylinderGeometry(.11,.17,.08,32),iron);base.position.set(PX,-1.66,0);scene.add(base);
+    const base2=new THREE.Mesh(new THREE.CylinderGeometry(.06,.1,.12,24),iron);base2.position.set(PX,-1.56,0);scene.add(base2);
+    [-.9,-.1,.55].forEach(y=>{const c=new THREE.Mesh(new THREE.TorusGeometry(.045,.012,8,20),iron);c.rotation.x=Math.PI/2;c.position.set(PX,y,0);scene.add(c);});
+    const fin=new THREE.Mesh(new THREE.ConeGeometry(.045,.14,16),iron);fin.position.set(PX,.94,0);scene.add(fin);
+    const finB=new THREE.Mesh(new THREE.SphereGeometry(.04,16,12),iron);finB.position.set(PX,.86,0);scene.add(finB);
+    scene.add(tube([[PX,.66,0],[-.3,.665,0],[.06,.66,0]],.02));
+    const tipB=new THREE.Mesh(new THREE.SphereGeometry(.03,12,10),iron);tipB.position.set(.08,.66,0);scene.add(tipB);
+    // 橫臂下的兩個 S 形捲草
+    const scr=[];for(let i=0;i<=50;i++){const t=i/50;scr.push([PX+.02+t*.5,.62-Math.sin(t*Math.PI)*.12-t*.04,0]);}
+    scene.add(tube(scr,.011));
+    const curl=(cx,cy,r0,dir)=>{const q=[];for(let i=0;i<=36;i++){const t=i/36,a=t*Math.PI*1.6,r=r0*(1-t*.7);q.push([cx+Math.cos(a)*r*dir,cy+Math.sin(a)*r,0]);}return tube(q,.009);};
+    scene.add(curl(PX+.52,.54,.06,1));scene.add(curl(PX+.1,.5,.05,-1));
+    // U 形吊架
+    scene.add(tube([[-.05,.66,0],[-.05,.5,0]],.01));scene.add(tube([[.05,.66,0],[.05,.5,0]],.01));
+    // 鈴：古典鐘形（圓肩、內收的腰、外翻厚唇），比例縮小配合支架
     bellG=new THREE.Group();bellG.position.set(0,.5,0);scene.add(bellG);
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(.06,.016,8,20),iron);ring.position.y=.03;bellG.add(ring);
-    const P=[[0,-.05],[.07,-.05],[.13,-.08],[.2,-.16],[.25,-.3],[.28,-.48],[.31,-.64],[.37,-.78],[.44,-.88],[.47,-.92],[.465,-.94]].map(([x,y])=>new THREE.Vector2(x,y));
-    const body=new THREE.Mesh(new THREE.LatheGeometry(P,72),brass);bellG.add(body);
-    const Pin=[[.44,-.925],[.40,-.86],[.33,-.75],[.27,-.6],[.24,-.44],[.21,-.28],[.15,-.17],[.05,-.12],[0,-.12]].map(([x,y])=>new THREE.Vector2(x,y));
-    bellG.add(new THREE.Mesh(new THREE.LatheGeometry(Pin,72),brassIn));
-    const lip=new THREE.Mesh(new THREE.TorusGeometry(.455,.018,10,72),brass);lip.rotation.x=Math.PI/2;lip.position.y=-.93;bellG.add(lip);
-    const band=new THREE.Mesh(new THREE.TorusGeometry(.295,.01,8,64),brass);band.rotation.x=Math.PI/2;band.position.y=-.56;bellG.add(band);
+    const axle=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.13,8),iron);axle.rotation.z=Math.PI/2;bellG.add(axle);
+    const canon=new THREE.Mesh(new THREE.TorusGeometry(.035,.011,8,20),brass);canon.position.y=-.025;bellG.add(canon);
+    const T=-.06;
+    const P=[[0,T],[.05,T],[.09,T-.012],[.135,T-.04],[.165,T-.085],[.18,T-.14],[.185,T-.2],[.19,T-.27],[.205,T-.34],[.235,T-.41],[.28,T-.47],[.32,T-.51],[.338,T-.535],[.34,T-.56],[.33,T-.575]].map(([x,y])=>new THREE.Vector2(x,y));
+    bellG.add(new THREE.Mesh(new THREE.LatheGeometry(P,96),brass));
+    const Pin=[[.315,T-.57],[.3,T-.53],[.265,T-.48],[.225,T-.42],[.195,T-.35],[.178,T-.27],[.172,T-.2],[.165,T-.14],[.14,T-.09],[.09,T-.06],[0,T-.055]].map(([x,y])=>new THREE.Vector2(x,y));
+    bellG.add(new THREE.Mesh(new THREE.LatheGeometry(Pin,96),brassIn));
+    [[.175,T-.1,.006],[.19,T-.24,.005],[.322,T-.52,.008]].forEach(([r,y,w])=>{const b=new THREE.Mesh(new THREE.TorusGeometry(r,w,8,96),brass);b.rotation.x=Math.PI/2;b.position.y=y;bellG.add(b);});
     // 鈴舌
     clapG=new THREE.Group();clapG.position.set(0,.5,0);scene.add(clapG);
-    const rod=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,L2-.12,8),iron);rod.position.y=-(L2+.12)/2;clapG.add(rod);
-    const ball=new THREE.Mesh(new THREE.SphereGeometry(.06,20,14),new THREE.MeshStandardMaterial({color:0x6B5232,metalness:.9,roughness:.45}));ball.position.y=-L2;clapG.add(ball);}
-  function size(){if(!canvas)return;const w=canvas.clientWidth,h=canvas.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.position.z=w/h<.8?4.9:4.2;cam.updateProjectionMatrix();}
+    const rod=new THREE.Mesh(new THREE.CylinderGeometry(.007,.007,L2-.08,8),iron);rod.position.y=-(L2+.08)/2;clapG.add(rod);
+    const ball=new THREE.Mesh(new THREE.SphereGeometry(.042,20,14),new THREE.MeshStandardMaterial({color:0x6B5232,metalness:.9,roughness:.45}));ball.position.y=-L2;clapG.add(ball);}
+  function size(){if(!canvas)return;const w=canvas.clientWidth,h=canvas.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.position.z=w/h<.8?4.6:3.9;cam.updateProjectionMatrix();}
   async function loadSound(){if(buf||loading)return loading;try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
     loading=fetch("sound/bell.mp3").then(r=>r.arrayBuffer()).then(a=>new Promise((res,rej)=>ctx.decodeAudioData(a,res,rej))).then(b=>{buf=b;}).catch(()=>{});return loading;}
   function ding(power){navigator.vibrate&&navigator.vibrate(Math.min(30,8+power*14|0));onRing();

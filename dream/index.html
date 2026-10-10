@@ -206,6 +206,10 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .task .bt{display:flex;gap:6px}
 .task .bt button{border:1px solid var(--line);background:#FAF6EF;border-radius:999px;font-size:12px;padding:2px 10px;color:var(--muted)}
 .task .bt button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FFF8EC}
+[data-dtask],.colh{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.lift{opacity:.35}
+.dover{outline:2px solid var(--gold);outline-offset:2px}
+.dghost{position:fixed;z-index:40;pointer-events:none;transform:translate(-50%,-50%) rotate(-3deg);box-shadow:0 12px 28px rgba(40,32,26,.28);background:#fff;max-height:180px;overflow:hidden}
 .tadd{border:1px dashed var(--line);background:transparent;border-radius:10px;padding:6px;font-size:13px;color:var(--muted)}
 .addcol{border-style:dashed;background:transparent;color:var(--muted);min-height:80px;font-size:14px;box-shadow:none}
 .cdot{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}.cdot[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
@@ -414,9 +418,9 @@ function layer4(){
   return `<section><h2>重要日子<small>點一下可以改・自動倒數</small></h2><div class="tdays">${days.map(d=>{const n=daysTo(d.date);return `<button class="card tday" data-day="${d.id}"><b>${n<=0?(n===0?"今天":"昨天"):n}${n>0?"<span>天</span>":""}</b><span class="t">${esc(d.text)}</span><span class="d">${+d.date.slice(5,7)}/${+d.date.slice(8)}</span></button>`;}).join("")}<button class="card tday add" data-addday>＋ 新增日子</button></div></section>
   <section><h2>本月三件<small>${+mk.slice(5)} 月・最多三件</small></h2><div class="focus">${[0,1,2].map(i=>slot(T.month[mk][i])).join("")}</div></section>
   <section><h2>本週三件<small>${wm}/${wd} 那週・最多三件・做完打勾</small></h2><div class="focus">${[0,1,2].map(i=>slot(T.week[wk][i],1)).join("")}</div></section>
-  <section><h2>專案抽屜<small>按「本月」「本週」把它拿出來；點文字可以改</small></h2>
-    <div class="board">${T.projects.map(p=>`<div class="card col"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button>
-      ${p.tasks.map(t=>`<div class="task${t.done?" done":""}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}">本月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}">本週</button></div></div>`).join("")}
+  <section><h2>專案抽屜<small>按「本月」「本週」把它拿出來；點文字可以改；按住可以拖曳換位置</small></h2>
+    <div class="board">${T.projects.map(p=>`<div class="card col" data-dcol="${p.id}"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button>
+      ${p.tasks.map(t=>`<div class="task${t.done?" done":""}" data-dtask="${t.id}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}">本月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}">本週</button></div></div>`).join("")}
       <button class="tadd" data-addtask="${p.id}">＋ 新增一件</button></div>`).join("")}
       <button class="card col addcol" data-addproj>＋ 新專案</button></div></section>`;}
 function bind4(){const T=D.todo,mk=monthKey(),wk=weekKey();
@@ -429,7 +433,31 @@ function bind4(){const T=D.todo,mk=monthKey(),wk=weekKey();
   document.querySelectorAll("[data-task]").forEach(b=>b.onclick=()=>{const x=taskById(b.dataset.task);taskDialog(x.p,x.t);});
   document.querySelectorAll("[data-addtask]").forEach(b=>b.onclick=()=>taskDialog(T.projects.find(p=>p.id===b.dataset.addtask),null));
   document.querySelectorAll("[data-proj]").forEach(b=>b.onclick=()=>projDialog(T.projects.find(p=>p.id===b.dataset.proj)));
-  $("[data-addproj]").onclick=()=>projDialog(null);}
+  $("[data-addproj]").onclick=()=>projDialog(null);
+  dragBoard();}
+// 專案抽屜：按住拖曳。拖一件事 → 放到別的事上（插在它前面）或別的專案欄（放到最後）；拖專案名稱 → 換專案的順序
+let dragJustEnded=0,boardDragging=false;
+document.addEventListener("touchmove",e=>{if(boardDragging)e.preventDefault();},{passive:false});
+function dragBoard(){const T=D.todo;
+  const start=(el,kind,id,e)=>{let ghost=null,timer,sx=e.clientX,sy=e.clientY,moved=false;
+    const hit=ev=>{ghost.style.display="none";const t=document.elementFromPoint(ev.clientX,ev.clientY);ghost.style.display="";return t;};
+    const mv=ev=>{if(!ghost){if(Math.hypot(ev.clientX-sx,ev.clientY-sy)>8){moved=true;clearTimeout(timer);}return;}ev.preventDefault();
+      ghost.style.left=ev.clientX+"px";ghost.style.top=ev.clientY+"px";document.querySelectorAll(".dover").forEach(x=>x.classList.remove("dover"));
+      const t=hit(ev);const tg=t&&(kind==="task"?(t.closest("[data-dtask]")||t.closest("[data-dcol]")):t.closest("[data-dcol]"));if(tg&&tg!==el)tg.classList.add("dover");
+      const b=document.querySelector(".board"),r=b.getBoundingClientRect();if(ev.clientX>r.right-40)b.scrollLeft+=12;else if(ev.clientX<r.left+40)b.scrollLeft-=12;};
+    const up=ev=>{clearTimeout(timer);removeEventListener("pointermove",mv);removeEventListener("pointerup",up);removeEventListener("pointercancel",up);
+      if(!ghost)return;boardDragging=false;const t=hit(ev);ghost.remove();el.classList.remove("lift");document.querySelectorAll(".dover").forEach(x=>x.classList.remove("dover"));dragJustEnded=Date.now();
+      if(kind==="task"){const src=taskById(id);if(!src)return;const ot=t&&t.closest("[data-dtask]"),oc=t&&t.closest("[data-dcol]");if(!oc)return;
+        const dst=T.projects.find(p=>p.id===oc.dataset.dcol);if(ot&&ot.dataset.dtask===id)return;
+        src.p.tasks=src.p.tasks.filter(x=>x!==src.t);const i=ot?dst.tasks.findIndex(x=>x.id===ot.dataset.dtask):-1;if(i>=0)dst.tasks.splice(i,0,src.t);else dst.tasks.push(src.t);}
+      else{const oc=t&&t.closest("[data-dcol]");if(!oc||oc.dataset.dcol===id)return;const a=T.projects.findIndex(p=>p.id===id),pr=T.projects.splice(a,1)[0];T.projects.splice(T.projects.findIndex(p=>p.id===oc.dataset.dcol),0,pr);}
+      save();render();};
+    addEventListener("pointermove",mv,{passive:false});addEventListener("pointerup",up);addEventListener("pointercancel",up);
+    timer=setTimeout(()=>{if(moved)return;boardDragging=true;ghost=el.cloneNode(true);ghost.classList.add("dghost");ghost.style.width=el.offsetWidth+"px";document.body.appendChild(ghost);el.classList.add("lift");
+      ghost.style.left=sx+"px";ghost.style.top=sy+"px";navigator.vibrate&&navigator.vibrate(8);},e.pointerType==="mouse"?150:300);};
+  document.querySelectorAll("[data-dtask]").forEach(el=>{el.addEventListener("pointerdown",e=>{if(e.target.closest(".bt"))return;start(el,"task",el.dataset.dtask,e);});el.addEventListener("contextmenu",e=>e.preventDefault());});
+  document.querySelectorAll("[data-dcol]").forEach(el=>{const h=el.querySelector(".colh");h.addEventListener("pointerdown",e=>start(el,"col",el.dataset.dcol,e));h.addEventListener("contextmenu",e=>e.preventDefault());});
+  document.querySelectorAll("[data-task],[data-proj]").forEach(b=>b.addEventListener("click",e=>{if(Date.now()-dragJustEnded<400){e.stopImmediatePropagation();e.preventDefault();}},true));}
 const nid=()=>"t"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 function dayDialog(d){dialog(`<h3>${d?"改這個日子":"新增重要日子"}</h3><label class="field">日期<input type="date" id="dd" value="${esc(d?d.date:today())}"></label><label class="field">是什麼日子<input id="dt" maxlength="20" value="${esc(d?d.text:"")}"></label>
   <div class="row"><button class="btn pri" data-ok>存好</button>${d?`<button class="btn" data-del>刪除</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,

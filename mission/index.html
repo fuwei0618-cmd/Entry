@@ -129,6 +129,24 @@ textarea{min-height:76px;resize:vertical}
 .pin span{font-size:11px;background:rgba(251,249,245,.92);border-radius:999px;padding:1px 7px;color:var(--muted);white-space:nowrap}
 .pin.has i{background:#FFE9B3;border-color:#E2B85C}.pin.has span{color:var(--ink);font-weight:600}
 .pin.on span{background:var(--ink);color:#FBF9F5}
+.lamp.fear{flex-direction:column;gap:2px;min-width:64px;padding:6px 8px}.lamp.fear svg{width:22px;height:22px}
+.twin{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.twin{grid-template-columns:1fr}}
+.ladder{display:grid;gap:4px}
+.rung{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#F4F0E9;color:#B4AA9C;border-radius:9px;padding:5px 10px;font-size:13.5px}
+.rung em{font-style:normal;font-size:11.5px;margin-left:auto;color:#8A6A3A}
+.rung.on{background:#FFE9B3;border-color:#E2B85C;color:#5A4220;box-shadow:0 0 12px rgba(255,200,90,.45)}
+.rung.solve{border:1.5px solid #5E7A55;background:#E5EFDF;color:#2F4A28}.rung.solve em{color:#2F4A28;font-weight:600}
+.tsec{display:grid;gap:4px;margin-top:4px}.tsec h4{margin:6px 0 0;font-size:14.5px;color:#1F1A15;font-weight:800}
+.tsec ul{margin:0;padding-left:20px;font-size:13.5px;display:grid;gap:2px}.tsec p{margin:0;font-size:13.5px}
+.roles{display:grid;gap:8px}
+.role{display:grid;grid-template-columns:auto auto 1fr;gap:4px 10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff}
+.role b{display:block!important;font-size:14px!important;color:var(--ink)!important}.role small{display:block;font-size:11px;color:var(--muted)}.role p{margin:0;font-size:13.5px}
+.chip{font-size:12px;border-radius:999px;padding:2px 10px;white-space:nowrap}.chip.ok{background:#E5EFDF;color:#2F4A28}.chip.warn{background:#F7D9D0;color:#7A2E1E}
+.go1{display:flex;gap:8px}.go1 b{display:inline!important;color:var(--ink)!important;font-size:13.5px!important;white-space:nowrap}
+.fmap.mini{max-height:280px}.fmap.mini .pin{pointer-events:none}.fmap.mini .pin span small{display:block;font-size:9px;opacity:.7;text-align:center}
+.fmap.mini .pin.lit i{background:#FFD97A;border-color:#E2B85C;box-shadow:0 0 0 4px rgba(255,210,110,.45),0 0 18px rgba(255,190,80,.8)}
+.fmap.mini .pin.lit span{background:var(--ink);color:#FBF9F5}
 .check{display:flex;gap:8px;align-items:center;font-size:14px}
 .logsel{font-size:14px;color:var(--muted)}
 .logsel select{border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff;max-width:100%}
@@ -396,31 +414,51 @@ ${themes.length?`【以前拆過的主題】${themes.join("、")}（同一個主
 3. 卡在哪一層（迪爾茨）：環境、行為、能力、信念、身份、使命；規則：到上一層去解
 4. 缺什麼（馬斯洛）：生理、安全、愛與歸屬、尊重、自我實現
 5. 什麼是真的（第一性原理）：事實、其實是假設、最底層的需要、重新推一次
-6. 回到 Origina：公式三項（Teresa、Elva、Chiara）各是「留著」還是「快變零」；去哪個地點做什麼；吃喝玩樂（吃、喝、玩、樂）給自己一件小事
+6. 回到 Origina：公式三項（Teresa、Elva、Chiara）各寫成「狀態：一句原因」，狀態只用「留著」「快變零」「慢慢長」；這週可以做的事要具體、小、真的做得到，最好用到我現有的 App（錄音牆、旅遊手冊、健身房、夢想版、WonderMedia、金庫的手冊）；吃喝玩樂（吃、喝、玩、樂）給自己一件小事
 
 【事件】
 ${story}
 
 請先用溫暖、有深度的方式陪我想清楚（像朋友開導我，要真的拆到底層，不要只給正向口號），再把結果整理成下面這個 JSON，放在最後一個程式碼區塊，讓我複製貼回拆解室。燈（lit）只能從上面的選項裡選；每一步的 note 用一句話說明：
 \`\`\`json
-{"type":"breakdown","v":3,"event":"一句話事件","theme":"主題名稱（短）","alarm":"觸發的警報","where":{"lit":["地點"],"note":""},"fear":{"lit":["生/老/病/死"],"note":""},"level":{"lit":["卡住的層"],"solveAt":"要去解的那一層","note":""},"need":{"lit":["需求"],"note":""},"truth":{"facts":[""],"assumed":[""],"core":"","rebuild":""},"origina":{"formula":{"Teresa":"留著或快變零","Elva":"","Chiara":""},"note":"","go":[{"place":"地點","do":"做什麼"}],"pleasure":{"lit":["吃/喝/玩/樂"],"do":"一件小事"}},"conclusion":"一段結論（幾句話）","action":"今天能做的一個小行動","antidote":"下次念頭出現時對自己說的一句話"}
+{"type":"breakdown","v":3,"event":"一句話事件","theme":"主題名稱（短）","alarm":"觸發的警報","where":{"lit":["地點"],"note":""},"fear":{"lit":["生/老/病/死"],"note":""},"level":{"lit":["卡住的層"],"solveAt":"要去解的那一層","note":""},"need":{"lit":["需求"],"note":""},"truth":{"facts":[""],"assumed":[""],"core":"","rebuild":""},"origina":{"formula":{"Teresa":"留著：一句原因","Elva":"快變零：一句原因","Chiara":"慢慢長：一句原因"},"note":"","go":[{"place":"地點","do":"做什麼"}],"pleasure":{"lit":["吃/喝/玩/樂"],"do":"一件小事"}},"conclusion":"一段結論（幾句話）","action":"今天能做的一個小行動","antidote":"下次念頭出現時對自己說的一句話"}
 \`\`\``;}
 function parseCode(txt){const m=txt.match(/\{[\s\S]*\}/);if(!m)throw new Error("找不到拆解碼");return JSON.parse(m[0]);}
 function lamps(all,lit,sub){lit=lit||[];return `<div class="lamps">${all.map((x,i)=>`<span class="lamp${lit.includes(x)?" on":""}">${esc(x)}${sub&&sub[i]?`<small>${esc(sub[i])}</small>`:""}</span>`).join("")}</div>`;}
+const FEAR_ICON={生:'<path d="M12 21V11"/><path d="M12 12C12 7 8 5 4 5c0 5 3 7 8 7Z"/><path d="M12 14c0-4 3-6 7-6 0 4-3 6-7 6Z"/>',
+  老:'<path d="M6 3h12M6 21h12"/><path d="M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/>',
+  病:'<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z"/><path d="M5 12h4l1.5-3 2.5 6 1.5-3H19"/>',
+  死:'<path d="M12 3c-2 3-2 5 0 6 2-1 2-3 0-6Z"/><rect x="9" y="9" width="6" height="12" rx="1"/><path d="M7 21h10"/>'};
+function fearLamps(lit){lit=lit||[];return `<div class="lamps">${STEPS[1].lamps.map((x,i)=>`<span class="lamp fear${lit.includes(x)?" on":""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${FEAR_ICON[x]}</svg>${x}<small>${STEPS[1].sub[i]}</small></span>`).join("")}</div>`;}
+function ladder(all,lit,solveAt){lit=lit||[];return `<div class="ladder">${all.slice().reverse().map(x=>`<div class="rung${lit.includes(x)?" on":""}${solveAt===x?" solve":""}"><span>${esc(x)}</span>${solveAt===x?"<em>← 到這一層去解</em>":lit.includes(x)?"<em>卡在這裡</em>":""}</div>`).join("")}</div>`;}
+function miniMap(lit){lit=lit||[];return `<div class="fmap mini"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="#DCE6D2"/><path d="M0 40 C6 55 4 75 10 100 L0 100Z" fill="#AFCBD0"/><ellipse cx="50" cy="62" rx="40" ry="26" fill="none" stroke="#E6D6B4" stroke-width="2.4"/><rect x="34" y="6" width="44" height="34" rx="2" fill="#F1ECE2" stroke="#D8CFBE" stroke-width=".8"/><circle cx="50" cy="62" r="5" fill="#9CC7CF"/><circle cx="50" cy="62" r="3.6" fill="#EFE9DD"/></svg>
+  ${PLACES.map(([n,s2,x,y])=>`<span class="pin${lit.includes(n)?" lit":""}" style="left:${x}%;top:${y}%"><i></i><span>${esc(n)}<small>${s2}</small></span></span>`).join("")}</div>`;}
+const ROLE={Teresa:"共鳴・一生唱",Elva:"慾望・一生愛",Chiara:"豐盛・一生豐盛"};
 function boardHTML(b){
-  const row=(st,body,note)=>`<div class="lrow"><div class="lh"><b>${st.n}</b><span>${st.q}</span></div>${body}${note?`<p class="ln">${esc(note)}</p>`:""}</div>`;
-  const t=b.truth||{},o=b.origina||{},f=o.formula||{},risk=v=>/零|危|risk/.test(v||"");
+  const row=(i,body,note)=>{const st=STEPS[i];return `<div class="lrow"><div class="lh"><b>${i+1}. ${st.n}</b><span>${st.q}</span></div>${body}${note?`<p class="ln">${esc(note)}</p>`:""}</div>`;};
+  const t=b.truth||{},o=b.origina||{},f=o.formula||{};
+  const role=k=>{const v=String(f[k]||""),m=v.split(/[：:]/),stt=m.length>1?m[0].trim():"",why=m.length>1?m.slice(1).join("：").trim():v;const risk=/零|危/.test(stt);
+    return `<div class="role"><div><b>${k}</b><small>${ROLE[k]}</small></div>${stt?`<span class="chip ${risk?"warn":"ok"}">${esc(stt)}</span>`:""}<p>${esc(why)}</p></div>`;};
+  const sec=(n,title,body)=>body?`<div class="tsec"><h4>${n} ${title}</h4>${body}</div>`:"";
+  const ul=a=>(a||[]).length?`<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"";
   return `<div class="board3">
-    ${row(STEPS[0],lamps(STEPS[0].lamps,(b.where||{}).lit,STEPS[0].sub),(b.where||{}).note)}
-    ${row(STEPS[1],lamps(STEPS[1].lamps,(b.fear||{}).lit,STEPS[1].sub),(b.fear||{}).note)}
-    ${row(STEPS[2],lamps(STEPS[2].lamps,(b.level||{}).lit)+((b.level||{}).solveAt?`<p class="ln">→ 到「${esc(b.level.solveAt)}」這一層去解</p>`:""),(b.level||{}).note)}
-    ${row(STEPS[3],lamps(STEPS[3].lamps,(b.need||{}).lit),(b.need||{}).note)}
-    ${row(STEPS[4],`<div class="truth">${(t.facts||[]).length?`<p><b>事實</b>${t.facts.map(esc).join("<br>")}</p>`:""}${(t.assumed||[]).length?`<p><b>其實是假設</b>${t.assumed.map(esc).join("<br>")}</p>`:""}${t.core?`<p><b>最底層的需要</b>${esc(t.core)}</p>`:""}${t.rebuild?`<p><b>重新推一次</b>${esc(t.rebuild)}</p>`:""}</div>`)}
-    ${row(STEPS[5],`<div class="lamps">${["Teresa","Elva","Chiara"].map(k=>`<span class="lamp ${risk(f[k])?"warn":"on"}">${k}<small>${esc(f[k]||"")}</small></span>`).join("")}</div>
-      ${(o.go||[]).length?`<div class="gos">${o.go.map(g=>`<p>→ <b>${esc(g.place)}</b>${esc(g.do)}</p>`).join("")}</div>`:""}
-      ${lamps(["吃","喝","玩","樂"],(o.pleasure||{}).lit)}${(o.pleasure||{}).do?`<p class="ln">${esc(o.pleasure.do)}</p>`:""}`,o.note)}
+    ${row(0,miniMap((b.where||{}).lit),(b.where||{}).note)}
+    ${row(1,fearLamps((b.fear||{}).lit),(b.fear||{}).note)}
+    <div class="twin">${row(2,ladder(STEPS[2].lamps,(b.level||{}).lit,(b.level||{}).solveAt),(b.level||{}).note)}${row(3,ladder(STEPS[3].lamps,(b.need||{}).lit),(b.need||{}).note)}</div>
+    ${row(4,`<div class="truth">${sec("①","我原本相信的（其實是假設）",ul(t.assumed))}${sec("②","拆到底，確定的事實",ul(t.facts))}${sec("③","最底層的需要",t.core?`<p>${esc(t.core)}</p>`:"")}${sec("④","從事實重新推一次",t.rebuild?`<p>${esc(t.rebuild)}</p>`:"")}</div>`)}
+    ${row(5,`<div class="roles">${["Teresa","Elva","Chiara"].map(role).join("")}</div>
+      ${(o.go||[]).length?`<div class="tsec"><h4>→ 這週可以做的</h4>${o.go.map(g=>`<p class="go1"><b>${esc(g.place)}</b>${esc(g.do)}</p>`).join("")}</div>`:""}
+      <div class="tsec"><h4>♡ 吃喝玩樂</h4>${lamps(["吃","喝","玩","樂"],(o.pleasure||{}).lit)}${(o.pleasure||{}).do?`<p class="ln">${esc(o.pleasure.do)}</p>`:""}</div>`,o.note)}
   </div>
-  ${b.conclusion?`<div class="concl"><b>結論</b><p>${esc(b.conclusion)}</p></div>`:""}${b.action?`<p class="act2"><b>小行動</b>${esc(b.action)}</p>`:""}${b.antidote?`<p class="q2"><b>解藥句</b>${esc(b.antidote)}</p>`:""}`;}
+  ${b.conclusion?`<div class="concl"><b>結論</b><p>${esc(b.conclusion)}</p></div>`:""}${b.action?`<p class="act2"><b>小行動</b>${esc(b.action)}</p>`:""}${b.antidote?`<p class="q2"><b>解藥句</b>${esc(b.antidote)}</p>`:""}
+  <div class="row"><button class="btn sm" data-editb="${b.id}">修改結論・行動・解藥句</button></div>`;}
+function editBreakdown(b){const o=b.origina=b.origina||{};
+  dialog(`<h3>修改這一筆</h3><label class="field">結論<textarea id="ec" style="min-height:120px">${esc(b.conclusion||"")}</textarea></label>
+    <label class="field">小行動<input type="text" id="ea" value="${esc(b.action||"")}"></label><label class="field">解藥句<textarea id="et">${esc(b.antidote||"")}</textarea></label>
+    <label class="field">這週可以做的（一行一件，格式「地點：做什麼」）<textarea id="eg">${esc((o.go||[]).map(g=>g.place+"："+g.do).join("\n"))}</textarea></label>
+    <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn ghost" data-x>取消</button></div>`,
+  box=>box.querySelector("[data-ok]").onclick=()=>{b.conclusion=box.querySelector("#ec").value.trim();b.action=box.querySelector("#ea").value.trim();b.antidote=box.querySelector("#et").value.trim();
+    o.go=box.querySelector("#eg").value.split("\n").map(x=>x.trim()).filter(Boolean).map(x=>{const m=x.split(/[：:]/);return m.length>1?{place:m[0].trim(),do:m.slice(1).join("：").trim()}:{place:"",do:x};});save();closeDlg();render();});}
 function flagMap(){
   const cnt={};D.breakdowns.forEach(b=>((b.where||{}).lit||[]).forEach(p=>cnt[p]=(cnt[p]||0)+1));
   return `<div class="fmap"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="#DCE6D2"/><path d="M0 40 C6 55 4 75 10 100 L0 100Z" fill="#AFCBD0"/><ellipse cx="50" cy="62" rx="40" ry="26" fill="none" stroke="#E6D6B4" stroke-width="2.4"/><rect x="34" y="6" width="44" height="34" rx="2" fill="#F1ECE2" stroke="#D8CFBE" stroke-width=".8"/><circle cx="50" cy="62" r="5" fill="#9CC7CF"/><circle cx="50" cy="62" r="3.6" fill="#EFE9DD"/></svg>
@@ -458,7 +496,7 @@ function breakdownList(){if(!D.breakdowns.length)return `<div class="card empty"
     if((b.v||1)>=3)return `<details class="card bitem"><summary><span>${esc(b.date)}・${esc(b.event||"")}</span><span class="muted">${esc(b.theme||"")}${b.forChapter9?"・第九章":""}</span></summary><div class="qa">${b.story?`<p><b>當時說的</b>${esc(b.story)}</p>`:""}${boardHTML(b)}${tail}</div></details>`;
     if(b.v===2){const fp=b.firstPrinciples||{};return `<details class="card bitem"><summary><span>${esc(b.date)}・${esc(b.event||"")}</span><span class="muted">${esc(b.theme||"")}</span></summary><div class="qa">${fp.core?`<p><b>最底層的需要</b>${esc(fp.core)}</p>`:""}${fp.rebuild?`<p><b>重新推一次</b>${esc(fp.rebuild)}</p>`:""}${b.conclusion?`<p><b>結論</b>${esc(b.conclusion)}</p>`:""}${b.antidote?`<p class="q2"><b>解藥句</b>${esc(b.antidote)}</p>`:""}${tail}</div></details>`;}
     const f=D.frameworks.find(x=>x.id===b.framework);return `<details class="card bitem"><summary><span>${esc(b.date)}・${esc(f?f.name:"")}</span><span class="muted">${esc(b.conclusion||"")}</span></summary><div class="qa">${(f?f.questions:[]).map((q,i)=>b.answers&&b.answers[i]?`<p><b>${esc(q)}</b>${esc(b.answers[i])}</p>`:"").join("")}${tail}</div></details>`;}).join("")}</div>`;}
-function bindBList(){document.querySelectorAll("[data-ch9]").forEach(x=>x.onclick=()=>{const b=D.breakdowns.find(y=>y.id===x.dataset.ch9);b.forChapter9=!b.forChapter9;save();render();});
+function bindBList(){document.querySelectorAll("[data-editb]").forEach(x=>x.onclick=()=>editBreakdown(D.breakdowns.find(y=>y.id===x.dataset.editb)));document.querySelectorAll("[data-ch9]").forEach(x=>x.onclick=()=>{const b=D.breakdowns.find(y=>y.id===x.dataset.ch9);b.forChapter9=!b.forChapter9;save();render();});
   document.querySelectorAll("[data-delb]").forEach(x=>x.onclick=()=>dialog(`<h3>刪除這筆拆解？</h3><div class="row"><button class="btn pri" data-ok>刪除</button><button class="btn ghost" data-x>取消</button></div>`,
     box=>box.querySelector("[data-ok]").onclick=()=>{D.breakdowns=D.breakdowns.filter(y=>y.id!==x.dataset.delb);D.bellLog.forEach(l=>{if(l.breakdownId===x.dataset.delb)l.breakdownId=null;});save();closeDlg();render();}));}
 

@@ -62,7 +62,7 @@ const S={
    {x:66,y:47,label:"半永久",t:"半永久",b:"眉、睫、唇的紀錄和補色時間。",app:null},
    {x:87,y:68,label:"日常保養",t:"日常保養",b:"早晚保養流程、用完要補的瓶瓶罐罐。",app:null},
    {x:20,y:70,label:"回到 Beauty",go:"beauty",door:1}]},
- gym:{title:"健身房",sub:"皮拉提斯・瑜伽・重訓",img:"img/gym.webp",back:null,hots:[
+ gym:{title:"健身房",sub:"皮拉提斯・瑜伽・重訓",img:"img/gym.webp",back:null,startX:12,hots:[
    {x:48,y:70,label:"皮拉提斯",t:"皮拉提斯",b:"你最想堅持到底的一件事。記下每堂課練了什麼、哪裡進步。",app:[["打開紀錄",GH+"Gym/#tab=log"],["今日課表",GH+"Gym/#tab=today"]]},
    {x:18,y:76,label:"伸展・柔軟",t:"伸展與柔軟度",b:"開肩、開髖、一字馬：木頭人偶示範每個動作。",app:[["看動作示範",GH+"Gym/#tab=move"]]},
    {x:60,y:44,label:"體態",t:"鏡子前的體態",b:"身體數據、目標和每天的狀況，看見自己慢慢改變。",app:[["打開身體",GH+"Gym/#tab=body"]]},
@@ -83,7 +83,7 @@ function show(id,push){
   sc.hots.forEach(h=>{const b=document.createElement("button");b.className="hot"+(h.door?" door":"");b.style.left=h.x+"%";b.style.top=h.y+"%";
     b.innerHTML=`<i></i><span>${h.label}</span>`;b.onclick=()=>h.go?show(h.go,true):openSheet(sc,h);st.appendChild(b);});
   const ch=$("#chips");ch.innerHTML="";sc.hots.forEach(h=>{const b=document.createElement("button");if(h.door)b.className="door";b.textContent=h.label;b.onclick=()=>h.go?show(h.go,true):openSheet(sc,h);ch.appendChild(b);});
-  const v=$("#view");requestAnimationFrame(()=>{v.scrollLeft=(v.scrollWidth-v.clientWidth)/2;});
+  const v=$("#view");requestAnimationFrame(()=>{v.scrollLeft=sc.startX!=null?Math.max(0,v.scrollWidth*sc.startX/100-v.clientWidth*.15):(v.scrollWidth-v.clientWidth)/2;});
   $("#pan").style.opacity=v.scrollWidth>v.clientWidth+4?".85":"0";setTimeout(()=>$("#pan").style.opacity="0",3500);
   $("#back").textContent=hist.length?"← 返回":"← Origina";
   try{history.replaceState(null,"","?s="+id);}catch(e){}

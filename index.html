@@ -506,8 +506,6 @@ let gateUpdate=()=>{};
   const stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),gold=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.8,roughness:.25});
   for(let z=EC.cz-EC.rz+1.6;z<EC.cz+EC.rz-1.2;z+=1.35){if(Math.abs(z-EC.cz)<2.2)continue;const sl=new R.Mesh(new R.BoxGeometry(1.1,.1,.8),stone);sl.position.set(0,heightAt(0,z)+.05,z);sl.receiveShadow=true;out.add(sl);}
   const cy=heightAt(0,EC.cz);const disc=new R.Mesh(new R.CylinderGeometry(1.5,1.6,.14,40),stone);disc.position.set(0,cy+.07,EC.cz);disc.receiveShadow=true;out.add(disc);
-  const ring=new R.Mesh(new R.TorusGeometry(1.25,.035,6,60),gold);ring.rotation.x=Math.PI/2;ring.position.set(0,cy+.15,EC.cz);out.add(ring);
-  [[0,1],[1,0],[0,-1],[-1,0]].forEach(([a,b])=>{const t=new R.Mesh(new R.BoxGeometry(a?1.1:.07,.02,b?1.1:.07),gold);t.position.set(a*.55,cy+.15,EC.cz+b*.55);out.add(t);});
 }
 { // 儀式長軸：入口格柵到橢圓步道之間，兩排石燈籠
   const stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),stone2=new R.MeshStandardMaterial({color:0xD8D1C3,roughness:.7}),glow=new R.MeshBasicMaterial({color:0xFFE2A8});

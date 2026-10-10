@@ -877,13 +877,24 @@ let flame;
 AT.kneel={x:0,y:.14,z:-.45};
 const fountainUpdate=makeFountain(atr.scene,-2.9,1.0);AT.col.push({x0:-3.45,x1:-2.35,z0:.55,z1:1.45});
 label(atr.scene,'轉運流水盆',-2.9,1.7,1.0,null,.5);
+// 三殿的門：中間媽祖殿，左邊月老殿，右邊財神殿（一殿一尊，走進去參拜）
+{const s=atr.scene,fm=new R.MeshStandardMaterial({color:0x8E877C,roughness:.9});
+  [[0,-DA/2+.03,0,0xDCE8F4,'媽祖殿','出發平安'],[-WA/2+.03,-1.9,Math.PI/2,0xF6DCC0,'月老殿','愛'],[WA/2-.03,-1.9,-Math.PI/2,0xF4E2AE,'財神殿','豐盛']].forEach(([x,z,ry,c,n,sub])=>{
+    const g=new R.Group();g.position.set(x,0,z);g.rotation.y=ry;s.add(g);
+    const d=new R.Mesh(new R.PlaneGeometry(1,2.3),new R.MeshBasicMaterial({color:c}));d.position.set(0,1.15,.01);g.add(d);
+    [[-.56,1.2,.12,2.4],[.56,1.2,.12,2.4],[0,2.36,1.24,.12]].forEach(([px,py,w,h])=>{const f=new R.Mesh(new R.BoxGeometry(w,h,.1),fm);f.position.set(px,py,.04);g.add(f);});
+    const L=new R.PointLight(c,.35,3);L.position.set(0,1.4,.6);g.add(L);
+    const wp=new R.Vector3(0,2.75,.1).applyMatrix4(g.matrixWorld.compose(g.position,g.quaternion,g.scale));label(s,n,wp.x,wp.y,wp.z,sub,.5);});}
 label(atr.scene,'禱告',0,2.2,-.4,'晨間宣告 · 信念',.6);label(atr.scene,'樓梯 · 上樓',2.9,2.9,3,null,.55);
 AT.hots=[
   {id:'pray',name:'禱告墊',verb:'跪下禱告',x:0,z:-.4,r:1.3},
   {id:'fountain',name:'轉運流水盆',verb:'看金魚',x:-2.0,z:1.0,r:1.1},
+  {id:'mazu',name:'媽祖殿',verb:'走進',x:0,z:-3.2,r:1.0,go:()=>openApp('媽祖殿','https://fuwei0618-cmd.github.io/Entry/temple/?d=mazu')},
+  {id:'yuelao',name:'月老殿',verb:'走進',x:-3.1,z:-1.9,r:1.0,go:()=>openApp('月老殿','https://fuwei0618-cmd.github.io/Entry/temple/?d=yuelao')},
+  {id:'caishen',name:'財神殿',verb:'走進',x:3.1,z:-1.9,r:1.0,go:()=>openApp('財神殿','https://fuwei0618-cmd.github.io/Entry/temple/?d=caishen')},
   {id:'downA',name:'樓梯',verb:'上樓',x:1.8,z:2.6,r:1.2,go:()=>goto('f2','ladder')}
 ];
-AT.spawns={ladder:[1.2,2.4,Math.PI,0]};
+AT.spawns={ladder:[1.2,2.4,Math.PI,0],halls:[0,-2.9,0,Math.PI]};
 AT.update=(dt,t)=>{fountainUpdate(dt,t);const k=.85+Math.sin(t*9)*.08+Math.sin(t*23)*.05;AT.light.intensity=.5*k;flame.scale.set(1,1.7*k,1);};
 
 /* =========================================================

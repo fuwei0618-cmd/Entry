@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>三殿</title>
+<meta name="theme-color" content="#1c1b19">
+<style>
+:root{--ink:#f4f0e8;--mute:rgba(244,240,232,.68);--glass:rgba(24,22,20,.55);--line:rgba(255,255,255,.16);--red:#C8323C}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#1c1b19;color:var(--ink);font-family:"Noto Serif TC","Songti TC","PMingLiU",serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .7s}
+#gl{position:fixed;inset:0;width:100%;height:100%;touch-action:none;transition:opacity .7s}
+#shadow{position:fixed;pointer-events:none;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.42),rgba(0,0,0,0));transition:opacity .7s}
+.fade #bg,.fade #gl,.fade #shadow{opacity:0}
+#veil{position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,0) 22%,rgba(0,0,0,0) 62%,rgba(0,0,0,.55))}
+#glow{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity 2.2s;background:radial-gradient(40% 55% at 50% 58%,rgba(255,248,226,.35),rgba(255,248,226,0))}
+.calm #glow{opacity:1}
+header{position:fixed;top:calc(12px + env(safe-area-inset-top));left:0;right:0;text-align:center;pointer-events:none}
+header h1{margin:0;font-size:22px;letter-spacing:.3em;font-weight:500;text-shadow:0 1px 10px rgba(0,0,0,.7),0 0 2px rgba(0,0,0,.5)}
+header p{margin:4px 0 0;font-size:13px;color:var(--mute);letter-spacing:.15em;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.btn{font:inherit;color:var(--ink);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:14px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);text-decoration:none}
+.btn.pri{background:rgba(244,240,232,.92);color:#2a2622;border-color:transparent}
+#back{position:fixed;left:12px;top:calc(10px + env(safe-area-inset-top));z-index:3}
+#book{position:fixed;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:3}
+footer{position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 16px}
+#halls{display:flex;gap:6px}
+#halls button{font:inherit;font-size:14px;color:var(--mute);background:none;border:0;padding:6px 10px;cursor:pointer;letter-spacing:.1em;border-bottom:1px solid transparent}
+#halls button.on{color:var(--ink);border-bottom-color:var(--ink)}
+#hint{font-size:13px;color:var(--mute);min-height:1.2em;text-align:center;letter-spacing:.08em;transition:opacity .6s}
+.sheet{position:fixed;inset:0;z-index:10;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.35)}
+.sheet[hidden]{display:none}
+.box{width:min(520px,100%);max-height:82vh;overflow:auto;background:#24211e;border:1px solid var(--line);border-radius:20px 20px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom))}
+.box h3{margin:0 0 4px;font-weight:500;letter-spacing:.15em}
+.box .m{color:var(--mute);font-size:13px;margin:0 0 12px;line-height:1.6}
+textarea,input[type=date]{width:100%;font:inherit;font-size:16px;color:var(--ink);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;padding:12px}
+textarea{min-height:110px;resize:vertical}
+label.f{display:block;font-size:13px;color:var(--mute);margin:10px 0 6px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tabs{display:flex;gap:6px;margin:6px 0 12px}
+.tabs button{font:inherit;font-size:13px;color:var(--mute);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.tabs button.on{color:#2a2622;background:var(--ink)}
+.it{border-top:1px solid var(--line);padding:12px 0;display:flex;gap:10px;align-items:flex-start}
+.it .t{flex:1;line-height:1.6;white-space:pre-wrap}
+.it .d{font-size:12px;color:var(--mute)}
+.it.done .t{color:var(--mute)}
+.tag{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;margin-right:6px;color:var(--mute)}
+.mk{font:inherit;font-size:12px;white-space:nowrap;color:var(--ink);background:none;border:1px solid var(--line);border-radius:999px;padding:5px 10px;cursor:pointer}
+.it.done .mk{border-color:transparent;color:#E9D49A}
+.empty{color:var(--mute);font-size:14px;padding:16px 0;text-align:center}
+</style>
+</head><body>
+<img id="bg" alt="">
+<canvas id="gl"></canvas>
+<div id="shadow"></div>
+<div id="veil"></div><div id="glow"></div>
+<header><h1 id="ttl"></h1><p id="sub"></p></header>
+<button class="btn" id="back">← 前殿</button>
+<button class="btn" id="book">祈願存摺</button>
+<footer>
+  <div id="hint"></div>
+  <button class="btn pri" id="pray">合十・許願</button>
+  <nav id="halls"></nav>
+</footer>
+<div class="sheet" id="sheet" hidden><div class="box" id="box" role="dialog" aria-modal="true"></div></div>
+<script src="../sync/origina-sync.js" data-app="bedside" data-folder="Bedside" data-keys="origina.bedside.v1,origina.prayer.v1" data-pos="br" data-offset="160"></script>
+<script src="../three.min.js"></script>
+<script>
+"use strict";
+const PKEY="origina.prayer.v1";
+const HALLS={
+  yuelao:{name:"月老殿",sub:"愛・先愛自己，再遇見對的人",img:"img/yuelao.webp",px:[512,393],h:1.55,
+    ask:"想對自己說的愛，或想遇見什麼樣的人？",hint:"點月老，說說心裡的愛",light:[0xFFD2A0,-1,.35,.7,1.25],amb:0x6b5a4a},
+  mazu:{name:"媽祖殿",sub:"出發平安・旅行、手術、上台",img:"img/mazu.webp",px:[512,394],h:1.65,
+    ask:"要去哪裡？為了什麼出發？",hint:"點媽祖，求出發平安",dated:1,light:[0xE4EEFF,0,1,.35,1.2],amb:0x4c5664},
+  caishen:{name:"財神殿",sub:"豐盛・夠用，而且越來越多",img:"img/caishen.webp",px:[512,393],h:1.5,
+    ask:"想要什麼樣的豐盛？可以寫數字，也可以寫畫面。",hint:"點財神爺，說說想要的豐盛",light:[0xFFD98A,.2,1,.6,1.0],amb:0x5e4f3a}
+};
+const ORDER=["yuelao","mazu","caishen"];
+const ls=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0"),ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+let cur=new URLSearchParams(location.search).get("d");if(!HALLS[cur])cur="mazu";
+
+/* ---------- 3D 神像（白色，像石膏） ---------- */
+const R=THREE,canvas=$("#gl");
+const ren=new R.WebGLRenderer({canvas,alpha:true,antialias:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new R.Scene(),cam=new R.OrthographicCamera(-1,1,1,-1,-5000,5000);
+const hemi=new R.HemisphereLight(0xffffff,0x444444,.55);scene.add(hemi);
+const key=new R.DirectionalLight(0xffffff,1.2);scene.add(key);
+const rim=new R.DirectionalLight(0xffffff,.25);rim.position.set(.3,.4,-1);scene.add(rim);
+const W=new R.MeshStandardMaterial({color:0xECE8E0,roughness:.7,metalness:0});
+const GOLD=new R.MeshStandardMaterial({color:0xE6D29C,roughness:.45,metalness:.25});
+const RED=new R.MeshStandardMaterial({color:0xC8323C,roughness:.5});
+const V=(x,y)=>new R.Vector2(x,y);
+function add(g,geo,m,x,y,z,rx,ry,rz,sx,sy,sz){const o=new R.Mesh(geo,m||W);o.position.set(x||0,y||0,z||0);o.rotation.set(rx||0,ry||0,rz||0);if(sx)o.scale.set(sx,sy,sz);g.add(o);return o;}
+function lathe(pts){return new R.LatheGeometry(pts.map(p=>V(p[0],p[1])),48);}
+function lotus(g,r){add(g,new R.CylinderGeometry(r,r*1.08,.035,40),W,0,.0175,0);
+  for(let i=0;i<16;i++){const a=i/16*Math.PI*2,p=add(g,new R.SphereGeometry(.05,16,10),W,Math.sin(a)*r*.92,.05,Math.cos(a)*r*.92,0,a,0,.55,.45,.9);p.rotation.x=-.35;p.rotation.order="YXZ";}}
+function sleeve(g,x,y,z,s){const o=add(g,lathe([[0,-.13],[.055,-.13],[.06,-.11],[.05,-.02],[.036,.06],[.028,.1],[0,.1]]),W,x,y,z,.18,0,x>0?.12:-.12,s,s,s*.85);return o;}
+function shoulder(g,y,r){add(g,new R.SphereGeometry(r,32,16,0,Math.PI*2,0,Math.PI/2),W,0,y,0,0,0,0,1,.32,.8);}
+function buildMazu(){const g=new R.Group();lotus(g,.19);
+  add(g,lathe([[0,.05],[.165,.05],[.17,.12],[.15,.32],[.125,.5],[.112,.6],[.122,.655],[.13,.672],[.07,.7],[.04,.712],[0,.715]]),W,0,0,0);
+  add(g,new R.TorusGeometry(.075,.016,10,36),W,0,.69,0,Math.PI/2,0,0,1,1,.6);   // 雲肩
+  shoulder(g,.665,.13);sleeve(g,-.105,.53,.035,1);sleeve(g,.105,.53,.035,1);
+  add(g,new R.SphereGeometry(.03,14,10),W,0,.54,.115,0,0,0,1.4,.8,.9);            // 雙手
+  add(g,new R.BoxGeometry(.032,.17,.012),W,0,.6,.13,-.12,0,0);                     // 笏
+  add(g,new R.CylinderGeometry(.03,.034,.03,16),W,0,.725,0);                      // 頸
+  add(g,new R.SphereGeometry(.056,28,20),W,0,.785,0,0,0,0,1,1.08,1);              // 頭
+  add(g,new R.CylinderGeometry(.052,.058,.04,24),W,0,.84,-.004);                  // 冠
+  add(g,new R.BoxGeometry(.14,.008,.1),W,0,.865,0);                               // 冕板
+  for(let i=0;i<5;i++){const x=-.052+i*.026;for(let k=0;k<4;k++){add(g,new R.SphereGeometry(.0065,8,6),W,x,.852-k*.016,.05);add(g,new R.SphereGeometry(.0065,8,6),W,x,.852-k*.016,-.05);}}
+  return g;}
+function buildYuelao(){const g=new R.Group();lotus(g,.18);
+  add(g,lathe([[0,.05],[.16,.05],[.168,.11],[.148,.3],[.13,.46],[.138,.54],[.12,.575],[.06,.6],[.035,.612],[0,.615]]),W,0,0,0);
+  add(g,new R.TorusGeometry(.12,.012,8,40),W,0,.36,0,Math.PI/2,0,0,1,1,.9);       // 腰帶
+  shoulder(g,.57,.125);sleeve(g,-.1,.45,.035,.92);sleeve(g,.11,.46,.02,.85);
+  add(g,new R.SphereGeometry(.062,28,20),W,0,.675,.005,0,0,0,1,1.18,1);           // 頭（長壽額）
+  add(g,new R.ConeGeometry(.04,.17,18),W,0,.55,.05,Math.PI+.18,0,0);              // 長鬍
+  add(g,new R.CylinderGeometry(.007,.007,.82,10),W,.175,.45,.03);                 // 杖
+  add(g,new R.SphereGeometry(.024,14,10),W,.162,.56,.045);                        // 握杖的手
+  add(g,new R.SphereGeometry(.03,16,12),W,.21,.73,.03);add(g,new R.SphereGeometry(.021,16,12),W,.21,.775,.03); // 葫蘆
+  const book=add(g,new R.BoxGeometry(.075,.095,.022),W,-.07,.43,.11,.2,.35,0);     // 姻緣簿
+  add(g,new R.SphereGeometry(.024,14,10),W,-.045,.4,.12);
+  const c=new R.CatmullRomCurve3([[-.04,.4,.13],[.0,.33,.17],[-.06,.24,.18],[.03,.16,.19],[-.02,.09,.2],[.06,.055,.22]].map(p=>new R.Vector3(...p)));
+  add(g,new R.TubeGeometry(c,80,.0035,6,false),RED,0,0,0);                        // 紅線
+  return g;}
+function buildCaishen(){const g=new R.Group();lotus(g,.2);
+  add(g,lathe([[0,.05],[.17,.05],[.18,.1],[.195,.22],[.2,.32],[.185,.44],[.158,.54],[.15,.6],[.14,.625],[.06,.648],[.04,.66],[0,.662]]),W,0,0,0);
+  add(g,new R.TorusGeometry(.175,.014,8,44),W,0,.4,0,Math.PI/2,0,0,1,1,.85);      // 玉帶
+  shoulder(g,.62,.15);sleeve(g,-.12,.49,.05,1.05);sleeve(g,.12,.49,.05,1.05);
+  add(g,new R.SphereGeometry(.03,14,10),W,-.05,.47,.15);add(g,new R.SphereGeometry(.03,14,10),W,.05,.47,.15);
+  const ing=new R.Group();ing.position.set(0,.5,.17);g.add(ing);                  // 元寶
+  add(ing,new R.SphereGeometry(.06,28,16),GOLD,0,0,0,0,0,0,1.25,.48,.7);
+  add(ing,new R.SphereGeometry(.026,20,14),GOLD,0,.022,0,0,0,0,1,.9,1);
+  add(g,new R.SphereGeometry(.066,28,20),W,0,.725,0,0,0,0,1.05,1,1);              // 頭
+  add(g,new R.ConeGeometry(.022,.07,12),W,0,.66,.05,Math.PI+.15,0,0);             // 短鬚
+  add(g,new R.CylinderGeometry(.06,.064,.06,24),W,0,.795,-.005);                  // 官帽
+  add(g,new R.SphereGeometry(.05,24,12,0,Math.PI*2,0,Math.PI/2),W,0,.82,-.02,0,0,0,1,.7,1);
+  [-1,1].forEach(s=>add(g,new R.BoxGeometry(.11,.012,.03),W,s*.11,.815,-.03,0,0,s*.22)); // 帽翅
+  return g;}
+const BUILD={mazu:buildMazu,yuelao:buildYuelao,caishen:buildCaishen};
+let statue=null,box={x:0,y:0,w:0,h:0};
+function setHall(id,instant){
+  const H=HALLS[id];cur=id;document.body.classList.add("fade");
+  const go=()=>{
+    $("#bg").src=H.img;$("#ttl").textContent=H.name;$("#sub").textContent=H.sub;$("#hint").textContent=H.hint;
+    if(statue)scene.remove(statue);statue=BUILD[id]();scene.add(statue);
+    const [c,lx,ly,lz,i]=H.light;key.color.setHex(c);key.position.set(lx,ly,lz);key.intensity=i;hemi.groundColor.setHex(H.amb);
+    document.querySelectorAll("#halls button").forEach(b=>b.classList.toggle("on",b.dataset.h===id));
+    try{history.replaceState(null,"","?d="+id)}catch(e){}
+    layout();const done=()=>document.body.classList.remove("fade");$("#bg").complete?requestAnimationFrame(done):($("#bg").onload=done);};
+  instant?go():setTimeout(go,450);}
+function layout(){const w=innerWidth,h=innerHeight;ren.setSize(w,h,false);cam.left=-w/2;cam.right=w/2;cam.top=h/2;cam.bottom=-h/2;cam.updateProjectionMatrix();
+  if(!statue)return;const H=HALLS[cur],s=Math.max(w/1024,h/572),ox=(w-1024*s)/2,oy=(h-572*s)/2;
+  const bx=ox+H.px[0]*s,by=oy+H.px[1]*s,sz=135*s*H.h/.88*.8;   // 台座寬 135px
+  statue.position.set(bx-w/2,h/2-by,0);statue.scale.setScalar(sz);
+  box={x:bx-sz*.22,y:by-sz*.9,w:sz*.44,h:sz*.9};
+  const sh=$("#shadow");sh.style.width=(sz*.5)+"px";sh.style.height=(sz*.07)+"px";sh.style.left=(bx-sz*.25)+"px";sh.style.top=(by-sz*.035)+"px";}
+addEventListener("resize",layout);
+ORDER.forEach(id=>{const b=document.createElement("button");b.textContent=HALLS[id].name;b.dataset.h=id;b.onclick=()=>id!==cur&&setHall(id);$("#halls").appendChild(b);});
+
+/* 拖曳轉一轉，放手慢慢回正；點一下＝合十 */
+let yaw=0,drag=null,t0=performance.now();
+canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,yaw,moved:0};canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-drag.x;drag.moved=Math.max(drag.moved,Math.abs(dx)+Math.abs(e.clientY-drag.y));yaw=drag.yaw+dx*.01;});
+canvas.addEventListener("pointerup",e=>{const d=drag;drag=null;if(d&&d.moved<8){const b=box;if(e.clientX>b.x&&e.clientX<b.x+b.w&&e.clientY>b.y&&e.clientY<b.y+b.h)pray();}});
+function loop(t){requestAnimationFrame(loop);if(!drag)yaw*=.94;if(statue){statue.rotation.y=yaw+Math.sin((t-t0)/1000*.35)*.18;}ren.render(scene,cam);}
+requestAnimationFrame(loop);
+
+/* ---------- 鈴 ---------- */
+let actx=null,abuf=null;
+async function bell(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")await actx.resume();
+  if(!abuf){const r=await fetch("../mission/sound/bell.mp3");abuf=await new Promise((res,rej)=>r.arrayBuffer().then(ab=>actx.decodeAudioData(ab,res,rej)));}
+  const s=actx.createBufferSource(),g=actx.createGain();s.buffer=abuf;g.gain.value=.4;s.connect(g).connect(actx.destination);s.start();}catch(e){}}
+
+/* ---------- 合十・許願 ---------- */
+const sheet=$("#sheet"),bx=$("#box");
+function open(html,on){bx.innerHTML=html;sheet.hidden=false;on&&on(bx);}
+function close(){sheet.hidden=true;}
+sheet.addEventListener("click",e=>{if(e.target===sheet||e.target.closest("[data-x]"))close();});
+let calming=false;
+function pray(){if(calming)return;calming=true;bell();navigator.vibrate&&navigator.vibrate(15);
+  document.body.classList.add("calm");const hint=$("#hint");hint.textContent="合十，靜一下，想清楚要說的話";
+  setTimeout(()=>{calming=false;document.body.classList.remove("calm");hint.textContent=HALLS[cur].hint;wishForm();},3800);}
+function wishForm(){const H=HALLS[cur];
+  open(`<h3>${H.name}</h3><p class="m">${esc(H.ask)}</p><textarea id="wt" placeholder="慢慢寫"></textarea>
+    ${H.dated?`<label class="f">出發的日子（可以不填）</label><input type="date" id="wd">`:""}
+    <div class="row"><button class="btn pri" data-ok>獻上</button><button class="btn" data-x>先不寫</button></div>`,
+  b=>{b.querySelector("#wt").focus();b.querySelector("[data-ok]").onclick=()=>{const t=b.querySelector("#wt").value.trim();if(!t)return;
+    const P=ls(PKEY)||{items:[]};const it={id:"p"+Date.now().toString(36),date:ymd(new Date()),text:t,status:"open",deity:cur};
+    const d=b.querySelector("#wd");if(d&&d.value)it.go=d.value;P.items.push(it);ls(PKEY,P);
+    open(`<h3>已獻上</h3><p class="m">放在${H.name}了。成真的那天，回來祈願存摺按一下「還願」。</p><div class="row"><button class="btn pri" data-x>好</button></div>`);};});}
+
+/* ---------- 祈願存摺 ---------- */
+const DNAME={mazu:"媽祖",yuelao:"月老",caishen:"財神爺"};
+let bookTab="here";
+function bookView(){const P=ls(PKEY)||{items:[]};
+  const list=P.items.filter(i=>bookTab==="all"||i.deity===cur).slice().reverse();
+  open(`<h3>祈願存摺</h3><div class="tabs"><button data-t="here" class="${bookTab==="here"?"on":""}">${HALLS[cur].name}</button><button data-t="all" class="${bookTab==="all"?"on":""}">全部</button></div>
+    ${list.length?list.map(i=>`<div class="it ${i.status==="done"?"done":""}"><div class="t">${bookTab==="all"?`<span class="tag">${esc(DNAME[i.deity]||"床邊")}</span>`:""}${esc(i.text)}<div class="d">${esc(i.date)}${i.go?" ・出發 "+esc(i.go):""}${i.status==="done"&&i.doneAt?" ・還願 "+esc(i.doneAt):""}</div></div><button class="mk" data-id="${esc(i.id)}">${i.status==="done"?"已還願":"還願"}</button></div>`).join("")
+      :`<div class="empty">還沒有祈願</div>`}
+    <div class="row"><button class="btn" data-x>關起來</button></div>`,
+  b=>{b.querySelectorAll("[data-t]").forEach(x=>x.onclick=()=>{bookTab=x.dataset.t;bookView();});
+    b.querySelectorAll("[data-id]").forEach(x=>x.onclick=()=>{const P2=ls(PKEY)||{items:[]};const it=P2.items.find(i=>i.id===x.dataset.id);if(!it)return;
+      if(it.status==="done"){it.status="open";delete it.doneAt;}else{it.status="done";it.doneAt=ymd(new Date());}ls(PKEY,P2);bookView();});});}
+$("#pray").onclick=pray;$("#book").onclick=bookView;
+$("#back").onclick=()=>{if(window.top!==window.self)parent.postMessage({origina:"close-app"},"*");else location.href="https://fuwei0618-cmd.github.io/Entry/?go=attic,halls";};
+setHall(cur,true);
+</script>
+</body></html>

@@ -37,6 +37,13 @@ textarea{min-height:90px;resize:vertical}
 .timer{font-variant-numeric:tabular-nums;font-size:28px;font-family:var(--serif);text-align:center}
 .orb{width:110px;height:110px;margin:6px auto;border-radius:50%;background:radial-gradient(circle at 40% 35%,#FFF6E4,#E8D3AE 70%);transform:scale(.6);box-shadow:0 10px 40px rgba(201,165,90,.3)}
 .orb.in{transition:transform 4s ease-in-out;transform:scale(1)}.orb.out{transition:transform 6s ease-in-out;transform:scale(.6)}
+.bellbox{display:flex;flex-direction:column;align-items:center;gap:2px;margin:-4px 0 -6px}
+.bellbox button{border:0;background:none;padding:0;cursor:pointer}
+.bellbox img{height:96px;display:block;transform-origin:50% 0;filter:drop-shadow(0 8px 12px rgba(120,80,20,.2))}
+.bellbox img.sw{animation:bsw 2.4s ease-out}
+.bellbox span{font-size:12.5px}
+@keyframes bsw{0%{transform:rotate(0)}10%{transform:rotate(14deg)}25%{transform:rotate(-11deg)}40%{transform:rotate(8deg)}55%{transform:rotate(-5deg)}70%{transform:rotate(3deg)}85%{transform:rotate(-1.5deg)}100%{transform:rotate(0)}}
+@media (prefers-reduced-motion:reduce){.bellbox img.sw{animation:none}}
 .done-msg{text-align:center;font-family:var(--serif);font-size:20px;padding:20px 0}
 .foot{display:flex;justify-content:center}
 .link{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-size:13px}
@@ -79,6 +86,7 @@ function render(){
   const focusHTML=(f.tasks.length||f.days.length)?`<div class="focus">${f.days.map(d=>`<div><i style="background:var(--acc)"></i><b>${esc(d.text)}</b></div>`).join("")}${f.tasks.map(x=>`<div><i style="background:${x.p.color}"></i>${esc(x.t.text)}<span class="muted" style="font-size:12px">・${esc(x.p.name)}</span></div>`).join("")}</div>`:`<p class="muted" style="margin:0;font-size:14px">${M?"今天":"明天"}沒有排重點，就照自己的步調。</p>`;
   const tonight=(B.log||[]).find(l=>l.date===ymd(new Date())&&l.type===(M?"morning":"night"));
   $("#app").innerHTML=`<div class="top"><h1>${M?"早安":"晚安"}</h1><div class="seg"><button data-m="morning" aria-pressed="${M}">起床</button><button data-m="night" aria-pressed="${!M}">睡前</button></div></div>
+  <section class="bellbox"><button id="ring" aria-label="敲一下鈴"><img src="../mission/img/bell-body.webp" alt=""></button><span class="muted">${M?"敲一下鈴，開始今天":"敲一下鈴，把今天收起來"}</span></section>
   ${M?`
   <section class="card"><div class="stepn">一・對自己說</div><div class="decl">${esc(B.morning)}</div></section>
   <section class="card"><div class="stepn">二・今天的重點</div>${focusHTML}</section>
@@ -103,7 +111,14 @@ function render(){
   const br=$("#breathe");if(br)br.onclick=breathe;
   $("#finish").onclick=()=>{B.log=(B.log||[]).filter(l=>!(l.date===ymd(new Date())&&l.type===mode));B.log.push({date:ymd(new Date()),type:mode,did:mode==="night"?(doneToday||""):undefined,at:new Date().toTimeString().slice(0,5)});B.log=B.log.slice(-400);save();
     $("#app").innerHTML=`<div class="done-msg">${mode==="morning"?"去過好今天吧 ☀︎":"晚安，今天辛苦了 ☾"}</div><div class="row" style="justify-content:center"><button class="btn" id="back">回到${mode==="morning"?"起床":"睡前"}頁</button></div>`;$("#back").onclick=render;};
+  $("#ring").onclick=ring;
   $("#pray").onclick=prayDialog;$("#editDecl").onclick=declDialog;}
+let actx=null,abuf=null;
+async function ring(){const b=$("#ring img");b.classList.remove("sw");void b.offsetWidth;b.classList.add("sw");navigator.vibrate&&navigator.vibrate(20);
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")await actx.resume();
+    if(!abuf){const r=await fetch("../mission/sound/bell.mp3");const ab=await r.arrayBuffer();abuf=await new Promise((res,rej)=>actx.decodeAudioData(ab,res,rej));}
+  }catch(e){}
+  if(actx&&abuf){const s2=actx.createBufferSource(),g=actx.createGain();s2.buffer=abuf;g.gain.value=mode==="night"?.35:.6;s2.connect(g).connect(actx.destination);s2.start();}}
 function runPose(){clearInterval(poseTimer);poseLeft=30;render();poseTimer=setInterval(()=>{poseLeft--;const t=$("#tm");if(t)t.textContent=poseLeft;if(poseLeft<=0)nextPose();},1000);}
 function nextPose(){clearInterval(poseTimer);navigator.vibrate&&navigator.vibrate(30);pose++;if(pose>=3){pose=3;render();return;}runPose();}
 function stopPose(){clearInterval(poseTimer);if(pose>=0&&pose<3)pose=-1;}

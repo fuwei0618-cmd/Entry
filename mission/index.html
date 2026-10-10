@@ -155,6 +155,7 @@ textarea{min-height:76px;resize:vertical}
 .cstage.editing{box-shadow:0 0 0 2px var(--brass)}
 .citem{position:absolute;transform:translate(-50%,-50%);border:1px solid rgba(59,53,46,.12);border-radius:999px;padding:.15em .75em;cursor:pointer;white-space:nowrap;color:var(--ink);line-height:1.5;touch-action:none}
 .cstage:not(.editing) .citem{touch-action:manipulation}
+.citem.ico{width:2.7em;height:2.7em;padding:0;border-radius:50%;display:grid;place-items:center}.citem.ico svg{width:1.7em;height:1.7em;display:block}
 .citem.dim{opacity:.22}.citem.on{outline:2px solid var(--ink);outline-offset:1px}.citem.fire{box-shadow:0 0 0 2px #C9A55A,0 0 14px rgba(226,184,92,.6)}
 .editing .citem{cursor:grab}
 .cplace{position:absolute;transform:translate(-50%,-14px);display:flex;flex-direction:column;align-items:center;gap:3px}
@@ -407,11 +408,27 @@ function defaultCollection(){
   const by={};items.forEach(it=>(by[it.tags]=by[it.tags]||[]).push(it));
   Object.entries(by).forEach(([r,G])=>{const [cx,cy]=VREG[r],n=G.length,single=r.length===1;G.forEach((it,i)=>{const two=single&&n>3,col=two?(i%2?9.5:-9.5):0,row=two?Math.floor(i/2):i,rows=two?Math.ceil(n/2):n;it.x=cx+col;it.y=cy+(row-(rows-1)/2)*(single?6.5:5.2);if(r==="TEC")it.y=cy+7;});});
   return items;}
+const CICON={
+ ginkgo:'<path d="M12 21v-7"/><path d="M12 14C7 14 3 10.5 3 6c3-2 6-1.5 7.5 1L12 10l1.5-3C15 4.5 18 4 21 6c0 4.5-4 8-9 8Z"/>',
+ shell:'<path d="M12 20 4 9c2-4 5-5 8-5s6 1 8 5Z"/><path d="M12 20V5M12 20 8 6M12 20l4-14M12 20 5 8M12 20l7-12"/><path d="M10 20h4"/>',
+ wolf:'<path d="M6 3l3 5h6l3-5 1 8-2 4-3 5-2 1-2-1-3-5-2-4Z"/><path d="M9 12l2 1M15 12l-2 1M11 18h2"/>',
+ star:'<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7Z"/>',
+ poppy:'<path d="M12 21c0-4 0-6 0-8"/><path d="M12 13c-4 0-6-3-5-6 1-2 4-2 5 0 1-2 4-2 5 0 1 3-1 6-5 6Z"/><circle cx="12" cy="9" r="1.4"/>',
+ tiger:'<path d="M6 7c-1-3 2-4 3-2 2-1 4-1 6 0 1-2 4-1 3 2 2 3 2 8-1 11-2 2-8 2-10 0C4 15 4 10 6 7Z"/><path d="M9.5 11.5l1.5.5M14.5 11.5 13 12M11 15h2l-1 1.2ZM12 6v2.5M5 12l2 .5M19 12l-2 .5"/>',
+ yoga:'<circle cx="12" cy="4.5" r="2"/><path d="M12 7v6M12 9l-5 2M12 9l5 2M12 13l-4 6M12 13l4 6M5 20h14"/>',
+ guitar:'<path d="M14 4l6 6M17 7l-6 6"/><path d="M11 13c1.5 2 1 4-1 5.5S5 20 4 18.5s-1-4 .5-5.5S9 11 11 13Z"/><circle cx="7.5" cy="15.5" r="1"/>',
+ plane:'<path d="M3 13l18-7-4 14-5-5-3 4v-6Z"/><path d="M12 15 21 6"/>',
+ flame:'<path d="M12 3c3 4 5 6 5 10a5 5 0 0 1-10 0c0-3 2-4 3-6 0 2 1 3 2 3 0-3-1-5 0-7Z"/>',
+ house:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10M10 20v-5h4v5"/>',
+ coins:'<ellipse cx="12" cy="6" rx="6" ry="2.5"/><path d="M6 6v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V6M6 10v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4M6 14v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4"/>',
+ dog:'<path d="M5 9 4 5l4 2h5l4-2-1 4c2 1 3 3 3 6v4h-3v-3H8v3H5v-4c0-2 0-4 0-6Z"/><circle cx="10" cy="11" r=".6"/><circle cx="14" cy="11" r=".6"/>'};
+const CICON_BY_NAME={"銀杏":"ginkgo","Camino":"shell","狼與捕夢網":"wolf","藍色小星星":"star","罌粟花":"poppy","女人與老虎":"tiger","皮拉提斯":"yoga","街頭表演":"guitar","旅行":"plane","Getty 那一天":"flame","老宅Home":"house","金庫":"coins","Lucky":"dog"};
+const cIcon=it=>CICON[it.ic||CICON_BY_NAME[it.n]];
 let meView="venn",meSel=null,meSelP=null,meEdit=false,meDraft=null,meKinds={idol:1,tat:1,film:1,plan:1,space:1};
 const meItems=()=>meEdit?meDraft:(D.collection=D.collection||defaultCollection());
 function renderMe(){
   const items=meItems();
-  const chip=(it,abs)=>`<button class="citem k-${it.k}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${esc(it.n)}</button>`;
+  const chip=(it,abs)=>{const ic=cIcon(it);return `<button class="citem k-${it.k}${ic?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};
   const venn=`<svg viewBox="0 0 100 100" aria-hidden="true"><g fill-opacity=".12" stroke-width=".5"><circle cx="50" cy="36" r="27" fill="#C9705A" stroke="#C9705A"/><circle cx="35" cy="62" r="27" fill="#8C9A6B" stroke="#8C9A6B"/><circle cx="65" cy="62" r="27" fill="#B5546F" stroke="#B5546F"/></g><g font-family="serif" font-size="4" text-anchor="middle"><text x="50" y="4.5" fill="#C9705A">Teresa・一生唱</text><text x="3" y="97" text-anchor="start" fill="#8C9A6B">Chiara・一生豐盛</text><text x="97" y="97" text-anchor="end" fill="#B5546F">Elva・一生愛</text></g><path d="M50 46 C54 50 55 53 53 56 C52 58 48 58 47 56 C45 53 47 51 49 49 C49 51 50 52 50 46Z" fill="#E2B85C"/></svg>`;
   const map=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="#DCE6D2"/><path d="M0 40 C6 55 4 75 10 100 L0 100Z" fill="#AFCBD0"/><ellipse cx="50" cy="66" rx="40" ry="24" fill="none" stroke="#E6D6B4" stroke-width="2.4"/><rect x="30" y="6" width="56" height="44" rx="2" fill="#F1ECE2" stroke="#D8CFBE" stroke-width=".8"/><circle cx="50" cy="66" r="5" fill="#9CC7CF"/><circle cx="50" cy="66" r="3.6" fill="#EFE9DD"/></svg>`;
   const at={};items.forEach(it=>{const p=(it.pl||[])[0];if(p)(at[p]=at[p]||[]).push(it);});

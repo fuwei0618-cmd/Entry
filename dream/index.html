@@ -334,7 +334,7 @@ function finishDay(f){
   p.answeredIds=[...new Set([...p.answeredIds,...p.today.ids])];save();}
 
 /* ---------- 畫面 ---------- */
-let flipped=false,tab="five";try{tab=localStorage.getItem("dream-tab")||"five";}catch(e){}
+let flipped=false,tab="todo";try{tab=localStorage.getItem("dream-tab2")||"todo";}catch(e){}
 async function render(){
   const cs=curSeason(),tf=seasonFish(cs);
   // 上一季有魚卻還沒回顧：提醒翻面
@@ -343,7 +343,7 @@ async function render(){
   <header><h1>夢想版</h1><p class="lede">清單不是承諾。願望先養在許願池，每一季只撈一條出來實現。</p></header>
   ${needReview?`<div class="card nudge"><span>${sLabel(ps)}結束了：「${esc(pf.name)}」那一季，翻面寫一句回顧吧。</span><button class="btn sm" data-season="${ps}">寫回顧</button></div>`:""}
   <section><h2>北極星<small>點卡片可以改日期</small></h2><div class="stars">${D.northStars.map(starCard).join("")}</div></section>
-  <nav class="tabs" role="tablist">${[["five","五年・旅行"],["two","兩年・每季"],["week","一週"],["todo","待辦重點"]].map(([k,t])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
+  <nav class="tabs" role="tablist">${[["todo","待辦重點"],["week","一週"],["two","兩年・每季"],["five","五年・旅行"]].map(([k,t])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
   ${tab==="todo"?layer4():tab==="week"?layer3():tab==="two"?layer2(cs):`
   <section><h2>時間軸<small>2026 秋 → ${END_YEAR}，點任何一季看那季的魚缸</small></h2>${timeline(cs)}</section>
   <section><h2>這一季的魚缸<small>${sLabel(cs)}・${SEASON_MON[sParse(cs).q]}・最多一條魚</small></h2>${tankCard(cs,tf)}</section>
@@ -622,7 +622,7 @@ function openApp(name,url){ // 在 Origina 裡打開；單獨打開時直接換�
   location.href=url;}
 
 function bind(){
-  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;try{localStorage.setItem("dream-tab",tab);}catch(e){}render();});
+  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;try{localStorage.setItem("dream-tab2",tab);}catch(e){}render();});
   document.querySelectorAll("[data-star]").forEach(b=>b.onclick=()=>starDialog(D.northStars.find(s=>s.id===b.dataset.star)));
   document.querySelectorAll("[data-season]").forEach(b=>b.onclick=()=>seasonDialog(b.dataset.season));
   document.querySelectorAll("[data-fish]").forEach(b=>b.onclick=()=>fishDialog(fishById(b.dataset.fish)));

@@ -125,6 +125,38 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .field input{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;font-size:15px;color:var(--ink)}
 .seg{display:flex;gap:6px}.seg button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px}.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
 
+.wrap>*{min-width:0}
+.tabs{display:flex;gap:6px;background:#E9E2D6;border-radius:999px;padding:4px}
+.tabs button{flex:1;border:0;background:transparent;border-radius:999px;padding:9px 10px;font-size:14px;color:var(--muted);font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.l2{padding:14px}
+.legend2{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;margin-bottom:8px}
+.legend2 span{display:flex;align-items:center;gap:6px}
+.sw{width:26px;height:16px;border-radius:5px;border:1px solid var(--line);flex:none;display:inline-block}
+.sw.main,.c.main{background:var(--ink);border-color:var(--ink);color:#FFF8EC;font-weight:700}
+.sw.keep,.c.keep{background:#D9CBB4;color:var(--ink)}
+.sw.rest,.c.rest{background:#fff}
+.sw.heal,.c.heal{background:repeating-linear-gradient(135deg,#E9E4DC 0 6px,#C9C2B6 6px 8px);color:var(--ink)}
+.tl2{overflow-x:auto}
+.tl2 table{border-collapse:separate;border-spacing:5px}
+.tl2 th{font-size:12px;font-weight:400;color:var(--muted);white-space:nowrap;text-align:center;padding:0 2px}
+.tl2 th span{font-size:10.5px}
+.tl2 th.now{color:var(--ink);font-weight:700}
+.tl2 .c{width:68px;height:42px;border-radius:9px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);padding:2px}
+.tl2 .c.now{box-shadow:0 0 0 2px rgba(226,184,92,.7)}
+.tl2 .c.base{background:#ECE6DB;border-style:dashed;font-size:11px}
+.tl2 .lname{position:sticky;left:0;background:var(--card);z-index:1;padding-right:4px}
+.tl2 .lname button,.tl2 .lname div{border:0;background:none;text-align:left;padding:2px 4px;display:block;white-space:nowrap}
+.tl2 .lname b{display:block;font-size:14px}.tl2 .lname small{font-size:11px;color:var(--muted)}
+.tl2 tr.sep td{padding-top:8px}
+.tl2 tr.cnt td{font-size:11.5px;color:var(--muted);text-align:center}
+.hint{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.tray2{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:14px}
+.chip2{border:1.5px dashed var(--gold);border-radius:999px;padding:6px 14px;font-size:14px;background:#FFF8E8}
+.chip2.add{border-color:var(--line);background:transparent;color:var(--muted)}
+.rules2{padding:12px 16px;display:grid;gap:4px}.rules2 p{margin:0;font-size:14px}.rules2 b{display:inline-block;width:24px;font-size:16px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:#FFF8EC;padding:9px 16px;border-radius:999px;font-size:13.5px;transition:.25s;pointer-events:none;z-index:20}
+#toast.on{opacity:1;transform:translate(-50%,0)}
 @media (max-width:640px){
   .stars{grid-template-columns:1fr}
   .study{grid-template-columns:1fr}
@@ -143,10 +175,10 @@ const START="2026Q4",END_YEAR=2031;
 const SEASON_NAME={1:"冬",2:"春",3:"夏",4:"秋"},SEASON_MON={1:"1–3 月",2:"4–6 月",3:"7–9 月",4:"10–12 月"};
 const KIND={koi:"錦鯉・區域",goldfish:"小金魚・營／短程"};
 
-const DEFAULT={v:2,
+const DEFAULT={v:3,
   northStars:[
     {id:"teresa",title:"Teresa",year:2028,date:"2028-12-31",sub:"Vocal・皮拉提斯"},
-    {id:"home",title:"中山路Home・Lucky・咪咪",year:2031,date:"2031-12-31",sub:"賺錢・出國"}],
+    {id:"home",title:"老宅Home・Lucky・咪咪",year:2031,date:"2031-12-31",sub:"賺錢・出國"}],
   fish:[
     {id:"na",name:"北美",kind:"koi",status:"pool"},{id:"sa",name:"南美",kind:"koi",status:"pool"},
     {id:"nordic",name:"北歐",kind:"koi",status:"pool"},{id:"ruscn",name:"俄中連結",kind:"koi",status:"pool"},
@@ -156,14 +188,23 @@ const DEFAULT={v:2,
     {id:"ski",name:"滑雪營",kind:"goldfish",status:"pool"},{id:"model",name:"模特兒營",kind:"goldfish",status:"pool"},
     {id:"mkhair",name:"MKHAIR 營",kind:"goldfish",status:"pool"}],
   seasons:{"2026Q4":{fishId:"bkk",review:""}},
-  qaProgress:{}};
+  qaProgress:{},
+  ...LAYER2()};
+// 第二層：兩年（到 Teresa）的每季力氣分配。狀態：main 主力、keep 維持、rest 休息、heal 身體修復期
+function LAYER2(){return{
+  lanes:[{id:"pilates",name:"皮拉提斯",for:"Teresa"},{id:"choir",name:"合唱團",for:"Vocal → Teresa"},{id:"busk",name:"街演",for:"Vocal → Teresa"}],
+  base:{name:"國泰",for:"錢 → 老宅Home"},
+  watch:["Podcast","高跟鞋課程"],
+  plan:{"2026Q4":{pilates:"rest",choir:"keep",busk:"main"},"2027Q1":{pilates:"heal",choir:"keep",busk:"rest"},"2027Q2":{pilates:"main",choir:"keep",busk:"keep"},
+    "2027Q3":{pilates:"heal",choir:"keep",busk:"rest"},"2027Q4":{pilates:"main",choir:"keep",busk:"keep"}}};}
 
 /* ---------- 資料 ---------- */
 let D;
 try{D=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){D=null;}
 if(!D||!D.fish)D=JSON.parse(JSON.stringify(DEFAULT));
 // 已存過的資料也跟著更新名稱（v2：Vocal、中山路Home）
-if((D.v||1)<2){D.northStars.forEach(s=>{if(s.id==="teresa"&&s.sub==="唱歌・皮拉提斯・高跟鞋")s.sub="Vocal・皮拉提斯";if(s.id==="home"&&s.title==="老家・Lucky・咪咪")s.title="中山路Home・Lucky・咪咪";});D.v=2;try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
+if((D.v||1)<2){D.northStars.forEach(s=>{if(s.id==="teresa"&&s.sub==="唱歌・皮拉提斯・高跟鞋")s.sub="Vocal・皮拉提斯";if(s.id==="home"&&s.title==="老家・Lucky・咪咪")s.title="中山路Home・Lucky・咪咪";});D.v=2;}
+if(D.v<3){D.northStars.forEach(s=>{if(s.id==="home")s.title=s.title.replace(/^(中山路Home|老家)/,"老宅Home");});if(!D.lanes)Object.assign(D,LAYER2());D.v=3;try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -222,7 +263,7 @@ function finishDay(f){
   p.answeredIds=[...new Set([...p.answeredIds,...p.today.ids])];save();}
 
 /* ---------- 畫面 ---------- */
-let flipped=false;
+let flipped=false,tab="five";try{tab=localStorage.getItem("dream-tab")||"five";}catch(e){}
 async function render(){
   const cs=curSeason(),tf=seasonFish(cs);
   // 上一季有魚卻還沒回顧：提醒翻面
@@ -231,12 +272,53 @@ async function render(){
   <header><h1>夢想版</h1><p class="lede">清單不是承諾。願望先養在許願池，每一季只撈一條出來實現。</p></header>
   ${needReview?`<div class="card nudge"><span>${sLabel(ps)}結束了：「${esc(pf.name)}」那一季，翻面寫一句回顧吧。</span><button class="btn sm" data-season="${ps}">寫回顧</button></div>`:""}
   <section><h2>北極星<small>點卡片可以改日期</small></h2><div class="stars">${D.northStars.map(starCard).join("")}</div></section>
+  <nav class="tabs" role="tablist">${[["five","五年・旅行與願望"],["two","兩年・每季力氣"]].map(([k,t])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
+  ${tab==="two"?layer2(cs):`
   <section><h2>時間軸<small>2026 秋 → ${END_YEAR}，點任何一季看那季的魚缸</small></h2>${timeline(cs)}</section>
   <section><h2>這一季的魚缸<small>${sLabel(cs)}・${SEASON_MON[sParse(cs).q]}・最多一條魚</small></h2>${tankCard(cs,tf)}</section>
   <section id="studySec"><h2>今日三題<small>${tf?`「${esc(tf.name)}」的旅行 QA・連續 7 天蓋一個章`:"魚缸有魚時才會出題"}</small></h2><div id="study"></div></section>
-  <section><h2>許願池<small>點一條魚，放進這一季的魚缸</small></h2>${poolCard()}</section>`;
+  <section><h2>許願池<small>點一條魚，放進這一季的魚缸</small></h2>${poolCard()}</section>`}`;
   bind();
-  await renderStudy(tf);}
+  if(tab==="two")bind2();else await renderStudy(tf);}
+
+/* ---------- 第二層：每季力氣 ---------- */
+const ST={rest:"休息",keep:"維持",main:"主力",heal:"修復期"},NEXT={rest:"keep",keep:"main",main:"heal",heal:"rest"};
+const TWO_END="2028Q4";
+function seasonsTo(end){const out=[];let{y,q}=sParse(START);while(`${y}Q${q}`<=end){out.push(`${y}Q${q}`);q++;if(q>4){q=1;y++;}}return out;}
+const cell=(sid,lid)=>((D.plan[sid]||{})[lid])||"rest";
+function layer2(cs){
+  const ss=seasonsTo(TWO_END);
+  const head=ss.map(id=>`<th class="${id===cs?"now":""}">${sLabel(id)}<br><span>${SEASON_MON[sParse(id).q]}</span></th>`).join("");
+  const rows=D.lanes.map(l=>`<tr><td class="lname"><button data-lane="${l.id}"><b>${esc(l.name)}</b><small>${esc(l.for||"")}</small></button></td>${ss.map(id=>{const v=cell(id,l.id);return `<td><button class="c ${v}${id===cs?" now":""}" data-cell="${id}|${l.id}" aria-label="${esc(l.name)} ${sLabel(id)}：${ST[v]}，點一下換">${ST[v]}</button></td>`;}).join("")}</tr>`).join("");
+  const base=`<tr class="sep"><td class="lname"><div><b>${esc(D.base.name)}</b><small>${esc(D.base.for)}</small></div></td>${ss.map(()=>`<td><div class="c base">每季都在</div></td>`).join("")}</tr>`;
+  const cnt=`<tr class="cnt"><td class="lname"><small>這季的主力</small></td>${ss.map(id=>{const n=D.lanes.filter(l=>cell(id,l.id)==="main").length,h=D.lanes.some(l=>cell(id,l.id)==="heal");return `<td>${n?"1 個":h?"好好休養":"還沒選"}</td>`;}).join("")}</tr>`;
+  return `<section><h2>每季力氣<small>${sLabel(START)} → ${sLabel(TWO_END)}・點格子換狀態</small></h2>
+    <div class="card l2"><div class="legend2"><span><i class="sw main"></i>主力：這季最用力（每季最多一個）</span><span><i class="sw keep"></i>維持：照常去</span><span><i class="sw rest"></i>休息：先不做</span><span><i class="sw heal"></i>身體修復期</span></div>
+    <div class="tl2"><table><thead><tr><th></th>${head}</tr></thead><tbody>${rows}${base}${cnt}</tbody></table></div>
+    <p class="hint">格子一直點會依序換成：休息 → 維持 → 主力 → 修復期。點左邊的名字可以改名、放回觀察中或刪除。</p></div></section>
+  <section><h2>觀察中<small>還沒決定的事，不用排進格子</small></h2>
+    <div class="card tray2">${D.watch.map((w,i)=>`<button class="chip2" data-watch="${i}">${esc(w)}</button>`).join("")}<button class="chip2 add" data-addwatch>＋ 新增</button>
+    <p class="hint" style="flex-basis:100%">哪一季想試，就點它「拉進格子」；試完可以再放回來。</p></div></section>
+  <section><h2>三條規則</h2><div class="card rules2"><p><b>1</b>每季最多一個主力。</p><p><b>2</b>休息是排好的，不是放棄。</p><p><b>↻</b>每季結束跟魚缸一起回顧，再選下一季的主力。</p></div></section>`;}
+function toast(t){let e=$("#toast");if(!e){e=document.createElement("div");e.id="toast";document.body.appendChild(e);}e.textContent=t;e.className="on";clearTimeout(toast.t);toast.t=setTimeout(()=>e.className="",2600);}
+function bind2(){
+  document.querySelectorAll("[data-cell]").forEach(b=>b.onclick=()=>{const[sid,lid]=b.dataset.cell.split("|"),nv=NEXT[cell(sid,lid)];D.plan[sid]=D.plan[sid]||{};
+    if(nv==="main"){const other=D.lanes.find(l=>l.id!==lid&&D.plan[sid][l.id]==="main");if(other){D.plan[sid][other.id]="keep";toast(`每季只有一個主力：「${other.name}」改成維持`);}}
+    D.plan[sid][lid]=nv;save();render();});
+  document.querySelectorAll("[data-lane]").forEach(b=>b.onclick=()=>laneDialog(D.lanes.find(l=>l.id===b.dataset.lane)));
+  document.querySelectorAll("[data-watch]").forEach(b=>b.onclick=()=>watchDialog(+b.dataset.watch));
+  const aw=$("[data-addwatch]");if(aw)aw.onclick=()=>dialog(`<h3>新增一件觀察中的事</h3><label class="field">名稱<input id="wn" maxlength="16"></label><div class="row"><button class="btn pri" data-ok>新增</button><button class="btn ghost" data-x>取消</button></div>`,
+    box=>box.querySelector("[data-ok]").onclick=()=>{const v=box.querySelector("#wn").value.trim();if(v){D.watch.push(v);save();}closeDlg();render();});}
+function laneDialog(l){dialog(`<h3>${esc(l.name)}</h3><label class="field">名稱<input id="ln" maxlength="16" value="${esc(l.name)}"></label><label class="field">為了哪顆北極星（選填）<input id="lf" maxlength="24" value="${esc(l.for||"")}"></label>
+  <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn" data-watchit>放回觀察中</button><button class="btn" data-del>刪除</button><button class="btn ghost" data-x>取消</button></div>`,
+  box=>{box.querySelector("[data-ok]").onclick=()=>{l.name=box.querySelector("#ln").value.trim()||l.name;l.for=box.querySelector("#lf").value.trim();save();closeDlg();render();};
+    const drop=()=>{D.lanes=D.lanes.filter(x=>x!==l);Object.values(D.plan).forEach(p=>delete p[l.id]);};
+    box.querySelector("[data-watchit]").onclick=()=>{drop();D.watch.push(l.name);save();closeDlg();render();};
+    box.querySelector("[data-del]").onclick=()=>{drop();save();closeDlg();render();};});}
+function watchDialog(i){const w=D.watch[i];dialog(`<h3>${esc(w)}</h3><p>還在觀察中。想試試看的話，拉進格子，從休息開始排。</p>
+  <div class="row"><button class="btn pri" data-in>拉進格子</button><button class="btn" data-del>刪除</button><button class="btn ghost" data-x>取消</button></div>`,
+  box=>{box.querySelector("[data-in]").onclick=()=>{D.watch.splice(i,1);D.lanes.push({id:"l"+Date.now().toString(36),name:w,for:""});save();closeDlg();render();};
+    box.querySelector("[data-del]").onclick=()=>{D.watch.splice(i,1);save();closeDlg();render();};});}
 
 function starCard(s){const d=daysTo(s.date);
   return `<button class="star" data-star="${s.id}"><div class="yr">${s.year}</div><div class="tt">${esc(s.title)}</div><div class="sub">${esc(s.sub)}</div>
@@ -372,6 +454,7 @@ function openApp(name,url){ // 在 Origina 裡打開；單獨打開時直接換�
   location.href=url;}
 
 function bind(){
+  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;try{localStorage.setItem("dream-tab",tab);}catch(e){}render();});
   document.querySelectorAll("[data-star]").forEach(b=>b.onclick=()=>starDialog(D.northStars.find(s=>s.id===b.dataset.star)));
   document.querySelectorAll("[data-season]").forEach(b=>b.onclick=()=>seasonDialog(b.dataset.season));
   document.querySelectorAll("[data-fish]").forEach(b=>b.onclick=()=>fishDialog(fishById(b.dataset.fish)));

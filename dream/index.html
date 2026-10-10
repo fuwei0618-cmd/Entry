@@ -181,6 +181,9 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .sandbar span{position:relative;background:var(--c);min-width:6px}
 .sandleg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:13px}
 .sandleg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.wknav{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}.wknav button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted)}.wknav button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FFF8EC}
+.linkbtn{border:0;background:none;color:var(--gold);text-decoration:underline;font-size:12.5px;padding:0 4px}
+.slot.once{outline:1.5px dashed rgba(255,255,255,.7);outline-offset:-4px}
 .chip3{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:14px}
 .chip3 i{width:12px;height:12px;border-radius:4px;background:var(--c)}
 .chip3[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 1.5px var(--ink)}
@@ -396,34 +399,43 @@ function perfDialog(id){D.perfM=D.perfM||{};const p=D.perf[id]||{},ms=pMonths(id
 /* ---------- 第三層：一週 ---------- */
 const DAYS=["一","二","三","四","五","六","日"],PARTS=["早","中","晚"],OUTFITS=["正裝","運動服","休閒",""];
 const itemById=id=>D.week.items.find(i=>i.id===id);
+let wkView=0; // "tpl"＝範本；0＝本週；1＝下週…
+const wkKeyOff=n=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7)+7*n);return ymd(d);};
+function wkS(){const W=D.week;W.weeks=W.weeks||{};if(wkView==="tpl")return{slots:W.slots,outfit:W.outfit,own:true,tpl:true};const k=wkKeyOff(wkView),o=W.weeks[k];return o?{slots:o.slots,outfit:o.outfit,own:true,key:k}:{slots:W.slots,outfit:W.outfit,own:false,key:k};}
+function wkOwn(){const W=D.week,S=wkS();if(S.own)return S;W.weeks[S.key]={slots:JSON.parse(JSON.stringify(W.slots)),outfit:W.outfit.slice()};return wkS();}
+const slotInfo=v=>{if(!v)return null;if(v.item){const it=itemById(v.item);return it?{name:it.name,cat:it.cat}:null;}return v.text?{name:v.text,cat:v.cat||"life",once:1}:null;};
 function layer3(){
-  const W=D.week,cnt={},total=21;let filled=0;
-  Object.values(W.slots).forEach(v=>{const it=itemById(v.item);if(!it)return;cnt[it.cat]=(cnt[it.cat]||0)+1;filled++;});
+  const W=D.week,S=wkS(),cnt={},total=21;let filled=0;
+  Object.values(S.slots).forEach(v=>{const it=slotInfo(v);if(!it)return;cnt[it.cat]=(cnt[it.cat]||0)+1;filled++;});
   const blank=total-filled;
-  const cellHTML=(d,p)=>{const v=W.slots[d+"-"+p],it=v&&itemById(v.item);
-    return `<td><div class="slot${it?" full":""}" data-slot="${d}-${p}" style="${it?`--c:${CATS[it.cat].c}`:""}">${it?`<span class="grain"></span><b>${esc(it.name)}</b>${v.time?`<small>${esc(v.time)}</small>`:""}`:"<i>＋</i>"}</div></td>`;};
+  const cellHTML=(d,p)=>{const v=S.slots[d+"-"+p],it=slotInfo(v);
+    return `<td><div class="slot${it?" full":""}${it&&it.once?" once":""}" data-slot="${d}-${p}" style="${it?`--c:${CATS[it.cat].c}`:""}">${it?`<span class="grain"></span><b>${esc(it.name)}</b>${v.time?`<small>${esc(v.time)}</small>`:""}`:"<i>＋</i>"}</div></td>`;};
   const rows=PARTS.map((pt,p)=>`<tr><th>${pt}</th>${DAYS.map((_,d)=>cellHTML(d,p)).join("")}</tr>`).join("");
-  const outfit=`<tr class="outfit"><th>服裝</th>${DAYS.map((_,d)=>`<td><button data-outfit="${d}" class="of of-${["正裝","運動服","休閒"].indexOf(W.outfit[d])}">${esc(W.outfit[d]||"—")}</button></td>`).join("")}</tr>`;
+  const outfit=`<tr class="outfit"><th>服裝</th>${DAYS.map((_,d)=>`<td><button data-outfit="${d}" class="of of-${["正裝","運動服","休閒"].indexOf(S.outfit[d])}">${esc(S.outfit[d]||"—")}</button></td>`).join("")}</tr>`;
   const segs=Object.keys(CATS).filter(k=>cnt[k]).map(k=>({k,n:cnt[k]}));if(blank)segs.push({k:"blank",n:blank});
   const sand=`<div class="sandbar">${segs.map(s=>`<span style="flex:${s.n};--c:${s.k==="blank"?"#EFE6D4":CATS[s.k].c}"><i class="grain"></i></span>`).join("")}</div>
     <div class="sandleg">${segs.map(s=>`<span><i style="background:${s.k==="blank"?"#EFE6D4":CATS[s.k].c}"></i>${s.k==="blank"?"留白":CATS[s.k].n} ${Math.round(s.n/total*100)}%</span>`).join("")}</div>`;
   const tw=(D.todo&&D.todo.week[weekKey()]||[]).map(taskById).filter(Boolean);
-  const top3=`<section><h2>本週三件<small>從「待辦重點」來的，在那邊挑</small></h2><div class="focus">${[0,1,2].map(i=>{const x=tw[i];return x?`<div class="card fslot${x.t.done?" done":""}"><div class="fp"><i style="background:${x.p.color}"></i>${esc(x.p.name)}</div><label><input type="checkbox" data-tdone="${x.t.id}" ${x.t.done?"checked":""}><span class="ftx">${esc(x.t.text)}</span></label></div>`:`<div class="card fslot empty">空著也沒關係</div>`;}).join("")}</div></section>`;
-  return top3+`<section><h2>這一週的樣子<small>點格子放沙子・按住拖曳可以換位置</small></h2>
-    <div class="card wk"><div class="wkscroll"><table><thead><tr><th></th>${DAYS.map(d=>`<th>${d}</th>`).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>
-    <p class="hint">這是一週的範本，不是紀錄：隨時可以拖動、換掉。</p></div></section>
+  const top3=wkView===0?`<section><h2>本週三件<small>從「待辦重點」來的，在那邊挑</small></h2><div class="focus">${[0,1,2].map(i=>{const x=tw[i];return x?`<div class="card fslot${x.t.done?" done":""}"><div class="fp"><i style="background:${x.p.color}"></i>${esc(x.p.name)}</div><label><input type="checkbox" data-tdone="${x.t.id}" ${x.t.done?"checked":""}><span class="ftx">${esc(x.t.text)}</span></label></div>`:`<div class="card fslot empty">空著也沒關係</div>`;}).join("")}</div></section>`:"";
+  const lab=n=>{if(n==="tpl")return "範本";const[y,m,d]=wkKeyOff(n).split("-").map(Number);return n===0?`本週 ${m}/${d}`:n===1?`下週 ${m}/${d}`:`${m}/${d} 那週`;};
+  const nav=`<div class="wknav">${["tpl",0,1,2,3,4,5,6,7].map(n=>`<button data-wk="${n}" aria-pressed="${String(wkView)===String(n)}">${lab(n)}</button>`).join("")}</div>`;
+  const state=S.tpl?`<p class="hint">這是範本：每一週一開始都長這樣。改範本，還沒調整過的週都會跟著變。</p>`:S.own?`<p class="hint">這週有自己的安排。<button class="linkbtn" data-reset>還原成範本</button></p>`:`<p class="hint">這週目前跟範本一樣；一改就會變成這週專屬的安排，不影響範本。</p>`;
+  return top3+`<section><h2>一週的樣子<small>點格子放沙子・按住拖曳換位置</small></h2>${nav}
+    <div class="card wk"><div class="wkscroll"><table><thead><tr><th></th>${DAYS.map(d=>`<th>${d}</th>`).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>${state}</div></section>
   <section><h2>這週的沙<small>每一格是一把沙，看看力氣流向哪裡</small></h2><div class="card wk">${sand}</div></section>
-  <section><h2>沙子的種類<small>點一下可以改名或換顏色分類</small></h2><div class="card tray2">${W.items.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}<button class="chip2 add" data-additem>＋ 新的沙子</button></div></section>`;}
+  <section><h2>沙子的種類<small>常態的事；臨時的事直接在格子裡寫就好</small></h2><div class="card tray2">${W.items.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}<button class="chip2 add" data-additem>＋ 新的沙子</button></div></section>`;}
 function bind3(){
   const W=D.week;
   document.querySelectorAll("[data-tdone]").forEach(c=>c.onchange=()=>{taskById(c.dataset.tdone).t.done=c.checked;save();render();});
-  document.querySelectorAll("[data-outfit]").forEach(b=>b.onclick=()=>{const d=+b.dataset.outfit,i=OUTFITS.indexOf(W.outfit[d]||"");W.outfit[d]=OUTFITS[(i+1)%OUTFITS.length];save();render();});
+  document.querySelectorAll("[data-wk]").forEach(b=>b.onclick=()=>{const v=b.dataset.wk;wkView=v==="tpl"?"tpl":+v;render();});
+  const rs=$("[data-reset]");if(rs)rs.onclick=()=>{delete W.weeks[wkKeyOff(wkView)];save();render();};
+  document.querySelectorAll("[data-outfit]").forEach(b=>b.onclick=()=>{const S=wkOwn(),d=+b.dataset.outfit,i=OUTFITS.indexOf(S.outfit[d]||"");S.outfit[d]=OUTFITS[(i+1)%OUTFITS.length];save();render();});
   document.querySelectorAll("[data-item]").forEach(b=>b.onclick=()=>itemDialog(itemById(b.dataset.item)));
   const ai=$("[data-additem]");if(ai)ai.onclick=()=>itemDialog(null);
   document.querySelectorAll("[data-slot]").forEach(el=>{
     let sx,sy,drag=null,moved=false,timer;
     el.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;moved=false;
-      if(!W.slots[el.dataset.slot])return;
+      if(!wkS().slots[el.dataset.slot])return;
       timer=setTimeout(()=>{drag=el.cloneNode(true);drag.className+=" ghost";document.body.appendChild(drag);el.classList.add("lift");
         try{el.setPointerCapture(e.pointerId);}catch(_){}move(e);navigator.vibrate&&navigator.vibrate(8);},e.pointerType==="mouse"?120:260);});
     const move=e=>{if(!drag)return;drag.style.left=e.clientX+"px";drag.style.top=e.clientY+"px";
@@ -432,18 +444,22 @@ function bind3(){
     el.addEventListener("pointermove",e=>{if(Math.hypot(e.clientX-sx,e.clientY-sy)>8){moved=true;if(!drag)clearTimeout(timer);}move(e);if(drag)e.preventDefault();});
     el.addEventListener("pointerup",e=>{clearTimeout(timer);
       if(drag){const t=target(e);drag.remove();drag=null;el.classList.remove("lift");
-        window._slotDragEnd=Date.now();if(t&&t!==el){const a=el.dataset.slot,b=t.dataset.slot,va=W.slots[a],vb=W.slots[b];if(vb)W.slots[a]=vb;else delete W.slots[a];W.slots[b]=va;save();render();}return;}
-      });
+        window._slotDragEnd=Date.now();if(t&&t!==el){const S=wkOwn(),a=el.dataset.slot,b=t.dataset.slot,va=S.slots[a],vb=S.slots[b];if(vb)S.slots[a]=vb;else delete S.slots[a];S.slots[b]=va;save();render();}return;}});
     el.addEventListener("click",()=>{if(!moved&&Date.now()-(window._slotDragEnd||0)>400)slotDialog(el.dataset.slot);});
     el.addEventListener("pointercancel",()=>{clearTimeout(timer);if(drag){drag.remove();drag=null;el.classList.remove("lift");}});
     el.addEventListener("contextmenu",e=>e.preventDefault());});}
-function slotDialog(key){const W=D.week,[d,p]=key.split("-").map(Number),v=W.slots[key]||{};let pick=v.item||null;
+function slotDialog(key){const W=D.week,[d,p]=key.split("-").map(Number),v=wkS().slots[key]||{};let pick=v.item||null,cat=v.cat||"life";
   dialog(`<h3>星期${DAYS[d]}・${PARTS[p]}</h3><div class="field">放哪一種沙子？<div class="fishes">${W.items.map(i=>`<button class="chip3" data-pick="${i.id}" aria-pressed="${pick===i.id}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}</div></div>
+    <label class="field">或是臨時的事（只放這一格，不會變成沙子種類）<input id="once" maxlength="14" value="${esc(v.text||"")}" placeholder="例如：看牙醫、朋友婚禮"></label>
+    <div class="field">臨時的事算哪一類<div class="fishes">${Object.entries(CATS).map(([k,c])=>`<button class="chip3" data-ocat="${k}" aria-pressed="${cat===k}" style="--c:${c.c}"><i></i>${c.n}</button>`).join("")}</div></div>
     <label class="field">時間（選填）<input id="tm" maxlength="12" value="${esc(v.time||"")}" placeholder="例如 1030"></label>
-    <div class="row"><button class="btn pri" data-ok>放好</button>${v.item?`<button class="btn" data-clear>清空這格</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
-  box=>{box.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{pick=b.dataset.pick;box.querySelectorAll("[data-pick]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
-    box.querySelector("[data-ok]").onclick=()=>{if(pick){const t=box.querySelector("#tm").value.trim();W.slots[key]=t?{item:pick,time:t}:{item:pick};save();}closeDlg();render();};
-    const c=box.querySelector("[data-clear]");if(c)c.onclick=()=>{delete W.slots[key];save();closeDlg();render();};});}
+    <div class="row"><button class="btn pri" data-ok>放好</button>${v.item||v.text?`<button class="btn" data-clear>清空這格</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
+  box=>{box.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{pick=b.dataset.pick;box.querySelector("#once").value="";box.querySelectorAll("[data-pick]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    box.querySelector("#once").oninput=()=>{pick=null;box.querySelectorAll("[data-pick]").forEach(x=>x.setAttribute("aria-pressed","false"));};
+    box.querySelectorAll("[data-ocat]").forEach(b=>b.onclick=()=>{cat=b.dataset.ocat;box.querySelectorAll("[data-ocat]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    box.querySelector("[data-ok]").onclick=()=>{const t=box.querySelector("#tm").value.trim(),once=box.querySelector("#once").value.trim();
+      if(pick||once){const S=wkOwn(),val=pick?{item:pick}:{text:once,cat};if(t)val.time=t;S.slots[key]=val;save();}closeDlg();render();};
+    const c=box.querySelector("[data-clear]");if(c)c.onclick=()=>{const S=wkOwn();delete S.slots[key];save();closeDlg();render();};});}
 function itemDialog(it){const W=D.week;let cat=it?it.cat:"body";
   dialog(`<h3>${it?"編輯沙子":"新的沙子"}</h3><label class="field">名稱<input id="inm" maxlength="12" value="${esc(it?it.name:"")}"></label>
     <div class="field">屬於哪一類（決定顏色）<div class="fishes">${Object.entries(CATS).map(([k,c])=>`<button class="chip3" data-cat="${k}" aria-pressed="${cat===k}" style="--c:${c.c}"><i></i>${c.n}</button>`).join("")}</div></div>

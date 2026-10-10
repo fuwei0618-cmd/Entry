@@ -155,6 +155,32 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .chip2{border:1.5px dashed var(--gold);border-radius:999px;padding:6px 14px;font-size:14px;background:#FFF8E8}
 .chip2.add{border-color:var(--line);background:transparent;color:var(--muted)}
 .rules2{padding:12px 16px;display:grid;gap:4px}.rules2 p{margin:0;font-size:14px}.rules2 b{display:inline-block;width:24px;font-size:16px}
+.tl2 .c.base{flex-direction:column;line-height:1.2}.tl2 .c.base small{font-size:10px;color:var(--muted)}
+.tl2 .c.pf-pre{border:1.5px solid var(--gold);border-style:solid;background:#FFF6E2;color:#7A5512}
+.tl2 .c.pf-done{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:700}.tl2 .c.pf-done small{color:#FFF3D6}
+.wk{padding:14px}
+.wkscroll{overflow-x:auto}
+.wk table{border-collapse:separate;border-spacing:5px;width:100%;min-width:560px;table-layout:fixed}
+.wk th{font-size:12.5px;font-weight:600;color:var(--muted);text-align:center}
+.wk tbody th{width:36px}
+.slot{position:relative;height:56px;border-radius:10px;border:1px dashed var(--line);background:#FBF8F2;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden;font-size:13px}
+.slot i{font-style:normal;color:#CDBFA9;font-size:18px}
+.slot.full{border:0;background:var(--c);color:#fff}
+.slot.full b{position:relative;font-size:13.5px;letter-spacing:.02em;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.slot.full small{position:relative;font-size:11px;opacity:.9}
+.grain{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.28) 1px,transparent 1.4px),radial-gradient(rgba(0,0,0,.14) 1px,transparent 1.4px);background-size:7px 7px,9px 9px;background-position:0 0,3px 4px;pointer-events:none}
+.slot.over{outline:2px solid var(--gold);outline-offset:1px}
+.slot.lift{opacity:.35}
+.slot.ghost{position:fixed;z-index:30;width:84px;transform:translate(-50%,-60%) rotate(-4deg);box-shadow:0 10px 24px rgba(40,32,26,.3);pointer-events:none}
+.outfit .of{width:100%;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 2px;font-size:12px}
+.outfit .of-0{background:#3A2F27;color:#FFF8EC;border-color:#3A2F27}.outfit .of-1{background:#E3EFE0;border-color:#B9D2B0}.outfit .of-2{background:#FFF1D6;border-color:#EBCF94}
+.sandbar{display:flex;height:46px;border-radius:12px;overflow:hidden;gap:2px}
+.sandbar span{position:relative;background:var(--c);min-width:6px}
+.sandleg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:13px}
+.sandleg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.chip3{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:14px}
+.chip3 i{width:12px;height:12px;border-radius:4px;background:var(--c)}
+.chip3[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 1.5px var(--ink)}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:#FFF8EC;padding:9px 16px;border-radius:999px;font-size:13.5px;transition:.25s;pointer-events:none;z-index:20}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 @media (max-width:640px){
@@ -175,7 +201,7 @@ const START="2026Q4",END_YEAR=2031;
 const SEASON_NAME={1:"冬",2:"春",3:"夏",4:"秋"},SEASON_MON={1:"1–3 月",2:"4–6 月",3:"7–9 月",4:"10–12 月"};
 const KIND={koi:"錦鯉・區域",goldfish:"小金魚・營／短程"};
 
-const DEFAULT={v:3,
+const DEFAULT={v:4,
   northStars:[
     {id:"teresa",title:"Teresa",year:2028,date:"2028-12-31",sub:"Vocal・皮拉提斯"},
     {id:"home",title:"老宅Home・Lucky・咪咪",year:2031,date:"2031-12-31",sub:"賺錢・出國"}],
@@ -189,7 +215,16 @@ const DEFAULT={v:3,
     {id:"mkhair",name:"MKHAIR 營",kind:"goldfish",status:"pool"}],
   seasons:{"2026Q4":{fishId:"bkk",review:""}},
   qaProgress:{},
-  ...LAYER2()};
+  ...LAYER2(),week:WEEK()};
+// 第三層：一週的樣子（範本，可以隨時拖動調整）
+const CATS={body:{n:"身體",c:"#3A2F27"},vocal:{n:"Vocal",c:"#D9604A"},work:{n:"國泰",c:"#A08C72"},life:{n:"生活",c:"#9CC4C0"},trip:{n:"旅行",c:"#D9A23A"},make:{n:"做東西",c:"#5E7A55"}};
+function WEEK(){return{
+  items:[{id:"hh",name:"HH",cat:"body"},{id:"wg",name:"WG",cat:"body"},{id:"dance",name:"練舞",cat:"body"},{id:"pilates",name:"皮拉提斯",cat:"body"},
+    {id:"vocal",name:"Vocal",cat:"vocal"},{id:"chorus",name:"Chorus",cat:"vocal"},{id:"busk",name:"街演",cat:"vocal"},
+    {id:"cathay",name:"國泰",cat:"work"},{id:"laundry",name:"洗衣貓",cat:"life"},{id:"bkk",name:"Bangkok",cat:"trip"},{id:"cq",name:"重慶",cat:"trip"},{id:"origina",name:"Origina",cat:"make"}],
+  slots:{"3-0":{item:"hh",time:"1030"},"1-1":{item:"wg"},"3-1":{item:"vocal",time:"1400"},"4-1":{item:"wg"},"6-1":{item:"wg"},"5-0":{item:"chorus",time:"1000"},
+    "6-0":{item:"laundry"},"5-1":{item:"bkk"},"2-2":{item:"dance"},"6-2":{item:"cq"}},
+  outfit:["正裝","運動服","正裝","運動服","運動服","正裝","運動服"]};}
 // 第二層：兩年（到 Teresa）的每季力氣分配。狀態：main 主力、keep 維持、rest 休息、heal 身體修復期
 function LAYER2(){return{
   lanes:[{id:"pilates",name:"皮拉提斯",for:"Teresa"},{id:"choir",name:"合唱團",for:"Vocal → Teresa"},{id:"busk",name:"街演",for:"Vocal → Teresa"}],
@@ -204,7 +239,8 @@ try{D=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){D=null;}
 if(!D||!D.fish)D=JSON.parse(JSON.stringify(DEFAULT));
 // 已存過的資料也跟著更新名稱（v2：Vocal、中山路Home）
 if((D.v||1)<2){D.northStars.forEach(s=>{if(s.id==="teresa"&&s.sub==="唱歌・皮拉提斯・高跟鞋")s.sub="Vocal・皮拉提斯";if(s.id==="home"&&s.title==="老家・Lucky・咪咪")s.title="中山路Home・Lucky・咪咪";});D.v=2;}
-if(D.v<3){D.northStars.forEach(s=>{if(s.id==="home")s.title=s.title.replace(/^(中山路Home|老家)/,"老宅Home");});if(!D.lanes)Object.assign(D,LAYER2());D.v=3;try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
+if(D.v<4&&D.v>=3){D.week=D.week||WEEK();D.v=4;try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
+if(D.v<3){D.northStars.forEach(s=>{if(s.id==="home")s.title=s.title.replace(/^(中山路Home|老家)/,"老宅Home");});if(!D.lanes)Object.assign(D,LAYER2());D.week=D.week||WEEK();D.v=4;try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -272,14 +308,14 @@ async function render(){
   <header><h1>夢想版</h1><p class="lede">清單不是承諾。願望先養在許願池，每一季只撈一條出來實現。</p></header>
   ${needReview?`<div class="card nudge"><span>${sLabel(ps)}結束了：「${esc(pf.name)}」那一季，翻面寫一句回顧吧。</span><button class="btn sm" data-season="${ps}">寫回顧</button></div>`:""}
   <section><h2>北極星<small>點卡片可以改日期</small></h2><div class="stars">${D.northStars.map(starCard).join("")}</div></section>
-  <nav class="tabs" role="tablist">${[["five","五年・旅行與願望"],["two","兩年・每季力氣"]].map(([k,t])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
-  ${tab==="two"?layer2(cs):`
+  <nav class="tabs" role="tablist">${[["five","五年・旅行"],["two","兩年・每季"],["week","一週"]].map(([k,t])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
+  ${tab==="week"?layer3():tab==="two"?layer2(cs):`
   <section><h2>時間軸<small>2026 秋 → ${END_YEAR}，點任何一季看那季的魚缸</small></h2>${timeline(cs)}</section>
   <section><h2>這一季的魚缸<small>${sLabel(cs)}・${SEASON_MON[sParse(cs).q]}・最多一條魚</small></h2>${tankCard(cs,tf)}</section>
   <section id="studySec"><h2>今日三題<small>${tf?`「${esc(tf.name)}」的旅行 QA・連續 7 天蓋一個章`:"魚缸有魚時才會出題"}</small></h2><div id="study"></div></section>
   <section><h2>許願池<small>點一條魚，放進這一季的魚缸</small></h2>${poolCard()}</section>`}`;
   bind();
-  if(tab==="two")bind2();else await renderStudy(tf);}
+  if(tab==="week")bind3();else if(tab==="two")bind2();else await renderStudy(tf);}
 
 /* ---------- 第二層：每季力氣 ---------- */
 const ST={rest:"休息",keep:"維持",main:"主力",heal:"修復期"},NEXT={rest:"keep",keep:"main",main:"heal",heal:"rest"};
@@ -290,7 +326,9 @@ function layer2(cs){
   const ss=seasonsTo(TWO_END);
   const head=ss.map(id=>`<th class="${id===cs?"now":""}">${sLabel(id)}<br><span>${SEASON_MON[sParse(id).q]}</span></th>`).join("");
   const rows=D.lanes.map(l=>`<tr><td class="lname"><button data-lane="${l.id}"><b>${esc(l.name)}</b><small>${esc(l.for||"")}</small></button></td>${ss.map(id=>{const v=cell(id,l.id);return `<td><button class="c ${v}${id===cs?" now":""}" data-cell="${id}|${l.id}" aria-label="${esc(l.name)} ${sLabel(id)}：${ST[v]}，點一下換">${ST[v]}</button></td>`;}).join("")}</tr>`).join("");
-  const base=`<tr class="sep"><td class="lname"><div><b>${esc(D.base.name)}</b><small>${esc(D.base.for)}</small></div></td>${ss.map(()=>`<td><div class="c base">每季都在</div></td>`).join("")}</tr>`;
+  D.perf=D.perf||{};
+  const PF={none:"",pre:"已預掛",done:"達成"};
+  const base=`<tr class="sep"><td class="lname"><div><b>${esc(D.base.name)}</b><small>${esc(D.base.for)}</small></div></td>${ss.map(id=>{const p=D.perf[id]||{};const st=p.st||"none";return `<td><button class="c base pf-${st}" data-perf="${id}" aria-label="國泰 ${sLabel(id)} 業績">${st==="none"?(p.note?esc(p.note):"業績"):`${PF[st]}${p.note?`<small>${esc(p.note)}</small>`:""}`}</button></td>`;}).join("")}</tr>`;
   const cnt=`<tr class="cnt"><td class="lname"><small>這季的主力</small></td>${ss.map(id=>{const n=D.lanes.filter(l=>cell(id,l.id)==="main").length,h=D.lanes.some(l=>cell(id,l.id)==="heal");return `<td>${n?"1 個":h?"好好休養":"還沒選"}</td>`;}).join("")}</tr>`;
   return `<section><h2>每季力氣<small>${sLabel(START)} → ${sLabel(TWO_END)}・點格子換狀態</small></h2>
     <div class="card l2"><div class="legend2"><span><i class="sw main"></i>主力：這季最用力（每季最多一個）</span><span><i class="sw keep"></i>維持：照常去</span><span><i class="sw rest"></i>休息：先不做</span><span><i class="sw heal"></i>身體修復期</span></div>
@@ -305,10 +343,73 @@ function bind2(){
   document.querySelectorAll("[data-cell]").forEach(b=>b.onclick=()=>{const[sid,lid]=b.dataset.cell.split("|"),nv=NEXT[cell(sid,lid)];D.plan[sid]=D.plan[sid]||{};
     if(nv==="main"){const other=D.lanes.find(l=>l.id!==lid&&D.plan[sid][l.id]==="main");if(other){D.plan[sid][other.id]="keep";toast(`每季只有一個主力：「${other.name}」改成維持`);}}
     D.plan[sid][lid]=nv;save();render();});
+  document.querySelectorAll("[data-perf]").forEach(b=>b.onclick=()=>perfDialog(b.dataset.perf));
   document.querySelectorAll("[data-lane]").forEach(b=>b.onclick=()=>laneDialog(D.lanes.find(l=>l.id===b.dataset.lane)));
   document.querySelectorAll("[data-watch]").forEach(b=>b.onclick=()=>watchDialog(+b.dataset.watch));
   const aw=$("[data-addwatch]");if(aw)aw.onclick=()=>dialog(`<h3>新增一件觀察中的事</h3><label class="field">名稱<input id="wn" maxlength="16"></label><div class="row"><button class="btn pri" data-ok>新增</button><button class="btn ghost" data-x>取消</button></div>`,
     box=>box.querySelector("[data-ok]").onclick=()=>{const v=box.querySelector("#wn").value.trim();if(v){D.watch.push(v);save();}closeDlg();render();});}
+function perfDialog(id){const p=D.perf[id]||{};let st=p.st||"none";
+  dialog(`<h3>國泰・${sLabel(id)}</h3><p class="muted">簡單標就好：這一季的業績掛上了沒？可以預掛三個月。</p>
+  <div class="seg">${[["none","還沒"],["pre","已預掛"],["done","達成"]].map(([k,t])=>`<button data-st="${k}" aria-pressed="${st===k}">${t}</button>`).join("")}</div>
+  <label class="field">備註（選填，例如金額、掛到幾月）<input id="pn" maxlength="20" value="${esc(p.note||"")}"></label>
+  <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn ghost" data-x>取消</button></div>`,
+  box=>{box.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{st=b.dataset.st;box.querySelectorAll("[data-st]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    box.querySelector("[data-ok]").onclick=()=>{D.perf[id]={st,note:box.querySelector("#pn").value.trim()};save();closeDlg();render();};});}
+
+/* ---------- 第三層：一週 ---------- */
+const DAYS=["一","二","三","四","五","六","日"],PARTS=["早","中","晚"],OUTFITS=["正裝","運動服","休閒",""];
+const itemById=id=>D.week.items.find(i=>i.id===id);
+function layer3(){
+  const W=D.week,cnt={},total=21;let filled=0;
+  Object.values(W.slots).forEach(v=>{const it=itemById(v.item);if(!it)return;cnt[it.cat]=(cnt[it.cat]||0)+1;filled++;});
+  const blank=total-filled;
+  const cellHTML=(d,p)=>{const v=W.slots[d+"-"+p],it=v&&itemById(v.item);
+    return `<td><div class="slot${it?" full":""}" data-slot="${d}-${p}" style="${it?`--c:${CATS[it.cat].c}`:""}">${it?`<span class="grain"></span><b>${esc(it.name)}</b>${v.time?`<small>${esc(v.time)}</small>`:""}`:"<i>＋</i>"}</div></td>`;};
+  const rows=PARTS.map((pt,p)=>`<tr><th>${pt}</th>${DAYS.map((_,d)=>cellHTML(d,p)).join("")}</tr>`).join("");
+  const outfit=`<tr class="outfit"><th>服裝</th>${DAYS.map((_,d)=>`<td><button data-outfit="${d}" class="of of-${["正裝","運動服","休閒"].indexOf(W.outfit[d])}">${esc(W.outfit[d]||"—")}</button></td>`).join("")}</tr>`;
+  const segs=Object.keys(CATS).filter(k=>cnt[k]).map(k=>({k,n:cnt[k]}));if(blank)segs.push({k:"blank",n:blank});
+  const sand=`<div class="sandbar">${segs.map(s=>`<span style="flex:${s.n};--c:${s.k==="blank"?"#EFE6D4":CATS[s.k].c}"><i class="grain"></i></span>`).join("")}</div>
+    <div class="sandleg">${segs.map(s=>`<span><i style="background:${s.k==="blank"?"#EFE6D4":CATS[s.k].c}"></i>${s.k==="blank"?"留白":CATS[s.k].n} ${Math.round(s.n/total*100)}%</span>`).join("")}</div>`;
+  return `<section><h2>這一週的樣子<small>點格子放沙子・按住拖曳可以換位置</small></h2>
+    <div class="card wk"><div class="wkscroll"><table><thead><tr><th></th>${DAYS.map(d=>`<th>${d}</th>`).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>
+    <p class="hint">這是一週的範本，不是紀錄：隨時可以拖動、換掉。</p></div></section>
+  <section><h2>這週的沙<small>每一格是一把沙，看看力氣流向哪裡</small></h2><div class="card wk">${sand}</div></section>
+  <section><h2>沙子的種類<small>點一下可以改名或換顏色分類</small></h2><div class="card tray2">${W.items.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}<button class="chip2 add" data-additem>＋ 新的沙子</button></div></section>`;}
+function bind3(){
+  const W=D.week;
+  document.querySelectorAll("[data-outfit]").forEach(b=>b.onclick=()=>{const d=+b.dataset.outfit,i=OUTFITS.indexOf(W.outfit[d]||"");W.outfit[d]=OUTFITS[(i+1)%OUTFITS.length];save();render();});
+  document.querySelectorAll("[data-item]").forEach(b=>b.onclick=()=>itemDialog(itemById(b.dataset.item)));
+  const ai=$("[data-additem]");if(ai)ai.onclick=()=>itemDialog(null);
+  document.querySelectorAll("[data-slot]").forEach(el=>{
+    let sx,sy,drag=null,moved=false,timer;
+    el.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;moved=false;
+      if(!W.slots[el.dataset.slot])return;
+      timer=setTimeout(()=>{drag=el.cloneNode(true);drag.className+=" ghost";document.body.appendChild(drag);el.classList.add("lift");
+        try{el.setPointerCapture(e.pointerId);}catch(_){}move(e);navigator.vibrate&&navigator.vibrate(8);},e.pointerType==="mouse"?120:260);});
+    const move=e=>{if(!drag)return;drag.style.left=e.clientX+"px";drag.style.top=e.clientY+"px";
+      document.querySelectorAll(".slot.over").forEach(x=>x.classList.remove("over"));const t=target(e);if(t&&t!==el)t.classList.add("over");};
+    const target=e=>{drag&&(drag.style.display="none");const t=document.elementFromPoint(e.clientX,e.clientY);drag&&(drag.style.display="");return t&&t.closest("[data-slot]");};
+    el.addEventListener("pointermove",e=>{if(Math.hypot(e.clientX-sx,e.clientY-sy)>8){moved=true;if(!drag)clearTimeout(timer);}move(e);if(drag)e.preventDefault();});
+    el.addEventListener("pointerup",e=>{clearTimeout(timer);
+      if(drag){const t=target(e);drag.remove();drag=null;el.classList.remove("lift");
+        if(t&&t!==el){const a=el.dataset.slot,b=t.dataset.slot,va=W.slots[a],vb=W.slots[b];if(vb)W.slots[a]=vb;else delete W.slots[a];W.slots[b]=va;save();render();}return;}
+      if(!moved)slotDialog(el.dataset.slot);});
+    el.addEventListener("pointercancel",()=>{clearTimeout(timer);if(drag){drag.remove();drag=null;el.classList.remove("lift");}});
+    el.addEventListener("contextmenu",e=>e.preventDefault());});}
+function slotDialog(key){const W=D.week,[d,p]=key.split("-").map(Number),v=W.slots[key]||{};let pick=v.item||null;
+  dialog(`<h3>星期${DAYS[d]}・${PARTS[p]}</h3><div class="field">放哪一種沙子？<div class="fishes">${W.items.map(i=>`<button class="chip3" data-pick="${i.id}" aria-pressed="${pick===i.id}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}</div></div>
+    <label class="field">時間（選填）<input id="tm" maxlength="12" value="${esc(v.time||"")}" placeholder="例如 1030"></label>
+    <div class="row"><button class="btn pri" data-ok>放好</button>${v.item?`<button class="btn" data-clear>清空這格</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
+  box=>{box.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{pick=b.dataset.pick;box.querySelectorAll("[data-pick]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    box.querySelector("[data-ok]").onclick=()=>{if(pick){const t=box.querySelector("#tm").value.trim();W.slots[key]=t?{item:pick,time:t}:{item:pick};save();}closeDlg();render();};
+    const c=box.querySelector("[data-clear]");if(c)c.onclick=()=>{delete W.slots[key];save();closeDlg();render();};});}
+function itemDialog(it){const W=D.week;let cat=it?it.cat:"body";
+  dialog(`<h3>${it?"編輯沙子":"新的沙子"}</h3><label class="field">名稱<input id="inm" maxlength="12" value="${esc(it?it.name:"")}"></label>
+    <div class="field">屬於哪一類（決定顏色）<div class="fishes">${Object.entries(CATS).map(([k,c])=>`<button class="chip3" data-cat="${k}" aria-pressed="${cat===k}" style="--c:${c.c}"><i></i>${c.n}</button>`).join("")}</div></div>
+    <div class="row"><button class="btn pri" data-ok>存好</button>${it?`<button class="btn" data-del>刪除</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
+  box=>{box.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;box.querySelectorAll("[data-cat]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    box.querySelector("[data-ok]").onclick=()=>{const n=box.querySelector("#inm").value.trim();if(!n)return;if(it){it.name=n;it.cat=cat;}else W.items.push({id:"i"+Date.now().toString(36),name:n,cat});save();closeDlg();render();};
+    const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{W.items=W.items.filter(x=>x!==it);Object.keys(W.slots).forEach(k=>{if(W.slots[k].item===it.id)delete W.slots[k];});save();closeDlg();render();};});}
 function laneDialog(l){dialog(`<h3>${esc(l.name)}</h3><label class="field">名稱<input id="ln" maxlength="16" value="${esc(l.name)}"></label><label class="field">為了哪顆北極星（選填）<input id="lf" maxlength="24" value="${esc(l.for||"")}"></label>
   <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn" data-watchit>放回觀察中</button><button class="btn" data-del>刪除</button><button class="btn ghost" data-x>取消</button></div>`,
   box=>{box.querySelector("[data-ok]").onclick=()=>{l.name=box.querySelector("#ln").value.trim()||l.name;l.for=box.querySelector("#lf").value.trim();save();closeDlg();render();};

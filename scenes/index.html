@@ -25,7 +25,10 @@ html,body{margin:0;height:100%;background:#1c1814;color:var(--ink);font-family:"
 .top button{border:1px solid var(--line);background:var(--glass);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .top h1{margin:0;font-size:17px;font-weight:600;letter-spacing:.1em;text-shadow:0 1px 8px rgba(0,0,0,.5)}
 .top small{display:block;font-size:11px;font-weight:400;opacity:.8;letter-spacing:.04em}
-#pan{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 16px);transform:translateX(-50%);background:var(--glass);border-radius:999px;padding:6px 14px;font-size:12px;opacity:.85;pointer-events:none;transition:opacity .6s}
+#chips{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 14px);display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:0 12px}
+#chips button{border:1px solid var(--line);background:var(--glass);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#chips button.door{border-color:var(--gold)}
+#pan{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 64px);transform:translateX(-50%);background:var(--glass);border-radius:999px;padding:6px 14px;font-size:12px;opacity:.85;pointer-events:none;transition:opacity .6s}
 #sheet{position:fixed;left:0;right:0;bottom:0;transform:translateY(105%);transition:transform .3s;background:rgba(32,27,22,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:22px 22px 0 0;padding:20px 20px calc(env(safe-area-inset-bottom) + 22px);max-width:560px;margin:0 auto;border:1px solid var(--line);border-bottom:0}
 #sheet.on{transform:none}
 #sheet .tag{font-size:12px;letter-spacing:.14em;color:var(--gold)}
@@ -39,15 +42,15 @@ html,body{margin:0;height:100%;background:#1c1814;color:var(--ink);font-family:"
 <div id="bg"></div>
 <div id="view"><div id="stage"></div></div>
 <div class="top"><button id="back">← 返回</button><h1 id="title"></h1></div>
-<div id="pan">← 左右滑動看整個房間 →</div>
+<div id="chips"></div><div id="pan">← 左右滑動看整個房間 →</div>
 <div id="sheet" role="dialog" aria-modal="true"><div class="tag" id="sTag"></div><h2 id="sTitle"></h2><p id="sBody"></p><div class="row" id="sRow"></div></div>
 <script>
 const GH="https://fuwei0618-cmd.github.io/";
 /* 每個場景：圖片、熱點（x,y 是圖片寬高的百分比） */
 const S={
  beauty:{title:"Beauty",sub:"梳化與保養",img:"img/beauty.webp",fallback:["img/glam.webp","img/spa.webp"],back:null,hots:[
-   {x:34,y:52,door:1,label:"梳化間",go:"glam"},
-   {x:68,y:52,door:1,label:"保養廠",go:"spa"}]},
+   {x:33,y:50,door:1,label:"梳化間",go:"glam"},
+   {x:67,y:52,door:1,label:"保養廠",go:"spa"}]},
  glam:{title:"梳化間",sub:"衣櫥・妝髮・美甲",img:"img/glam.webp",back:"beauty",hots:[
    {x:16,y:36,label:"妝髮",t:"妝髮",b:"髮型、妝容步驟模板：出門前照著做，不用每次重想。",app:null},
    {x:42,y:40,label:"衣櫥",t:"衣櫥",b:"單品與穿搭模板，盡簡衣櫥的概念：少而精，每件都會穿。",app:null},
@@ -79,6 +82,7 @@ function show(id,push){
   $("#bg").style.backgroundImage=`url(${sc.img.replace(".webp","-s.webp")})`;
   sc.hots.forEach(h=>{const b=document.createElement("button");b.className="hot"+(h.door?" door":"");b.style.left=h.x+"%";b.style.top=h.y+"%";
     b.innerHTML=`<i></i><span>${h.label}</span>`;b.onclick=()=>h.go?show(h.go,true):openSheet(sc,h);st.appendChild(b);});
+  const ch=$("#chips");ch.innerHTML="";sc.hots.forEach(h=>{const b=document.createElement("button");if(h.door)b.className="door";b.textContent=h.label;b.onclick=()=>h.go?show(h.go,true):openSheet(sc,h);ch.appendChild(b);});
   const v=$("#view");requestAnimationFrame(()=>{v.scrollLeft=(v.scrollWidth-v.clientWidth)/2;});
   $("#pan").style.opacity=v.scrollWidth>v.clientWidth+4?".85":"0";setTimeout(()=>$("#pan").style.opacity="0",3500);
   $("#back").textContent=hist.length?"← 返回":"← Origina";

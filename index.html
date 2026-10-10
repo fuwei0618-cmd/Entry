@@ -1083,7 +1083,7 @@ function openInfo(id){const x=INFO[id];if(!x)return;
     <div class="row">${links}<button class="btn light" data-close>回到場景</button></div>`);
   root.querySelectorAll('[data-app-url]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.appName,b.dataset.appUrl)));}
 const PLACES=[
-  ['森林',[['森林入口','起點',['forest','start']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
+  ['森林',[['森林入口','起點',['forest','start']],['光孔日晷','使命板',['forest','center']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
   ['家 · 1F',[['玄關','1F',['f1','front']],['日曆牆','每日 · 每週',['f1','cal']],['廚房餐廳','飲食',['f1','kitchen']],['Beauty','梳化 · 保養',['f1','closet']],['健身房','身體',['f1','gym']]]],
   ['地下',[['B1 臥室','作息 · 白水木',['f2','bed']],['B2 禱告房','晨間宣告 · 流水盆',['attic','ladder']]]],
   ['舞台',[['後台入口','從家裡的舞台門進來',['stage','back']],['Vocal','',['stage','mic']],['合唱台','合唱團',['stage','choir']],['Podcast 桌','不專業音樂電台',['stage','podcast']]]]
@@ -1103,7 +1103,7 @@ addEventListener('message',e=>{if(e.origin!=='https://fuwei0618-cmd.github.io'||
 function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(null,'',location.pathname)}catch(e){}canvas.focus({preventScroll:true});}
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
-  ['森林入口',['forest','start'],[0,GZ+6]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia']],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
+  ['森林入口',['forest','start'],[0,GZ+6]],['光孔日晷・使命鈴',['forest','center'],[0,EC.cz+1]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia']],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
   ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資']],
   ['玄關',['f1','front'],W1F(0,4.6)],['日曆牆',['f1','cal'],W1F(-12,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-5)],['Beauty',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
   ['健身房',['f1','gym'],W1F(7.5,2.6),['健身房']],['Lucky',['f1','front'],W1F(-4.5,1.6),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,3.4)],

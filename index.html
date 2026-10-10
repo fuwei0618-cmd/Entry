@@ -1043,7 +1043,7 @@ async function openWorld(){closeSheet();
     await loadScript('https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js');
     const [topo,trips]=await Promise.all([fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json').then(r=>r.json()),cloudTrips()]);
     const today=new Date().toISOString().slice(0,10),been=new Set(),next=new Set();
-    trips.forEach(t=>{const n=ISO_NUM[t.country];if(!n)return;(t.start&&t.start>today?next:been).add(n);});
+    trips.forEach(t=>{(t.countries&&t.countries.length?t.countries:[t.country]).forEach(c=>{const n=ISO_NUM[c];if(!n)return;(t.start&&t.start>today?next:been).add(n);});});
     const names={};(window.PRESETS?.world||[]).forEach(w=>names[w[0]]=w[2]+' '+w[1]);
     const W=1000,H=500,svg=d3.create('svg').attr('viewBox',`0 0 ${W} ${H}`);
     const proj=d3.geoNaturalEarth1().fitSize([W,H],{type:'Sphere'}),path=d3.geoPath(proj);
@@ -1054,7 +1054,7 @@ async function openWorld(){closeSheet();
       .attr('fill',d=>been.has(String(d.id).padStart(3,'0'))?'#E8C46A':next.has(String(d.id).padStart(3,'0'))?'#8FB89A':'#2C3F6B')
       .attr('stroke','#0F1A30').attr('stroke-width',.5).append('title').text(d=>d.properties.name);
     const el=$('#wMap');el.innerHTML='';el.appendChild(svg.node());
-    const codes=[...new Set(trips.filter(t=>!(t.start>today)).map(t=>t.country))];
+    const codes=[...new Set(trips.filter(t=>!(t.start>today)).flatMap(t=>t.countries&&t.countries.length?t.countries:[t.country]))].filter(c=>c&&c!=='OTHER');
     $('#wStats').innerHTML=`<div><b>${been.size}</b><span>去過的國家</span></div><div><b>${trips.filter(t=>!(t.start>today)).length}</b><span>趟旅行</span></div><div><b>${next.size}</b><span>計畫中</span></div>`;
     $('#wChips').innerHTML=codes.map(c=>{let n=names[c];try{n=n||new Intl.DisplayNames(['zh-TW'],{type:'region'}).of(c)}catch(e){}return `<span>${n||c}</span>`;}).join('')||'<span>還沒有去過的國家紀錄，從旅遊手冊新增第一趟旅行</span>';
   }catch(e){$('#wMap').innerHTML='<p class="wnote">世界地圖載入失敗，請確認網路後再打開一次。</p>';}

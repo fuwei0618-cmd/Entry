@@ -64,6 +64,14 @@ button{font:inherit;color:inherit;cursor:pointer}
 .err{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;background:#CFE3D6}
 
 /* overlays: map + in-app viewer */
+#worldView{background:#0F1A30;color:#EDE6D6}
+#worldView .ovbar{background:#0F1A30;border-color:#24345A}#worldView .ovbar h2{color:#EDE6D6}
+#worldView .btn.light{background:#24345A;color:#EDE6D6}
+.wbody{flex:1;overflow:auto;padding:12px 16px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:12px;align-content:start;max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box}
+.wmap{width:100%;aspect-ratio:2/1;max-width:100%}.wmap svg{width:100%;height:100%;display:block}
+.wstats{display:flex;gap:10px;flex-wrap:wrap}.wstats div{background:#17254A;border-radius:12px;padding:10px 14px;min-width:84px}.wstats b{display:block;font-size:22px;color:#E8C46A}.wstats span{font-size:12px;color:#A9B3CC}
+.wchips{display:flex;flex-wrap:wrap;gap:6px}.wchips span{background:#17254A;border-radius:999px;padding:5px 10px;font-size:13px}
+.wnote{font-size:12px;color:#A9B3CC;margin:0}
 .ov{position:fixed;inset:0;z-index:40;background:var(--paper);display:flex;flex-direction:column}
 .ov[hidden]{display:none}
 .ovbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;border-bottom:1px solid #EADBC4;background:var(--paper)}
@@ -85,6 +93,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 .here{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(255,248,236,.9);pointer-events:none}
 .here::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--accent);animation:pulse 1.6s ease-out infinite}
 @keyframes pulse{from{transform:scale(.5);opacity:1}to{transform:scale(1.4);opacity:0}}
+.phone-only{display:none}@media (max-width:640px){.phone-only{display:inline}}
+.mapscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:16px}
+@media (max-width:640px){.mapscroll .mapbox{width:190%;max-width:none;border-radius:0}.mspot .mlab{font-size:11px;padding:5px 7px}.mapscroll .mapp{width:40px;height:40px}.mapscroll{margin-inline:-16px;border-radius:0}}
 .insets{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
 .inset{border-radius:16px;background:#F6EBDA;padding:12px 12px 14px;display:grid;gap:8px}
 .inset h3{margin:0;font-size:13px;letter-spacing:.14em;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
@@ -110,6 +121,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 <div id="sheetRoot"></div>
 <div id="mapView" class="ov" hidden></div>
 <div id="appView" class="ov" hidden></div>
+<div id="worldView" class="ov" hidden></div>
 
 <script src="three.min.js"></script>
 <script>
@@ -596,7 +608,7 @@ H1S.hots=[
   {id:'gym',name:'健身房',verb:'開始',x:8,z:2.8,r:1.8},
   {id:'stairs',name:'樓梯',verb:'下樓到臥室',x:-9.8,z:3,r:1.3,go:()=>goto('f2','stairs')},
   {id:'stagedoor',name:'舞台門',verb:'開門',x:-.6,z:-D1/2+1.3,r:1.4,go:()=>goto('stage','back')},
-  {id:'worlddoor',name:'世界之門',verb:'穿過',x:2.6,z:-D1/2+1.3,r:1.4},
+  {id:'worlddoor',name:'世界之門',verb:'穿過',x:2.6,z:-D1/2+1.3,r:1.4,go:()=>openWorld()},
   {id:'front',name:'回到森林',verb:'出門',x:0,z:D1/2-.9,r:1.4,go:()=>goto('forest','door')}
 ];
 H1S.spawns={front:[0,D1/2-3.8,Math.PI,0],stairs:[-9.4,3,Math.PI/2,-Math.PI/2],stage:[-.6,-D1/2+1.6,0,Math.PI],cal:[-W1/2+2.4,-1.5,-Math.PI/2,Math.PI/2],kitchen:[-7,-.4,Math.PI,0],closet:[W1/2-2.8,-2.4,Math.PI/2,-Math.PI/2],gym:[8,4.8,Math.PI,0]};
@@ -954,7 +966,7 @@ const APPS=[["WonderMedia", "https://fuwei0618-cmd.github.io/WonderMedia/", "<sv
 
 const APPMAP={};APPS.forEach(([n,u,svg])=>APPMAP[n]={u,svg});
 const mapV=$('#mapView'),appV=$('#appView');
-const overlayOpen=()=>!mapV.hidden||!appV.hidden;
+const overlayOpen=()=>!mapV.hidden||!appV.hidden||!document.getElementById('worldView').hidden;
 function openApp(name,url){closeSheet();mapV.hidden=true;
   appV.innerHTML=`<div class="ovbar"><button class="btn light" id="appBack">✕ 回到 Origina</button><h2>${esc(name)}</h2><a class="btn light" href="${url}" target="_blank" rel="noopener" aria-label="在新分頁開啟">↗</a></div><iframe src="${url}" title="${esc(name)}" allow="clipboard-write; fullscreen"></iframe>`;
   appV.hidden=false;$('#appBack').addEventListener('click',closeApp);try{history.replaceState(null,'','?app='+encodeURIComponent(name))}catch(e){}}
@@ -1004,13 +1016,49 @@ function openMap(){closeSheet();if(!mapBG)mapBG=buildMapBG();
   const main=MAP_MAIN.map(([n,g,p,a])=>spotHTML(n,g,pct(p[0],p[1]),a)).join('');
   const ins=(title,id,bg,list)=>`<section class="inset"><h3>${title}${list.some(x=>x[1][0]===cur.id)?'<em>● 你在這裡</em>':''}</h3><div class="mapbox">${bg}${list.map(([n,g,p,a])=>spotHTML(n,g,p,a)).join('')}</div></section>`;
   mapV.innerHTML=`<div class="ovbar"><h2>Origina 地圖</h2><span style="display:flex;gap:8px"><a class="btn light" href="https://claude.ai/artifact/6tKf8aWatDsrMuhC2wVAhm" target="_blank" rel="noopener" style="text-decoration:none">總表 ↗</a><button class="btn light" id="mapClose">✕ 關閉</button></span></div>
-  <div class="ovbody"><div class="mwrap"><div class="mnote">點地名走過去 · 點圖示直接打開 App</div>
-  <div class="mapbox">${mapBG}${main}${hereMarker()}</div>
+  <div class="ovbody"><div class="mwrap"><div class="mnote">點地名走過去 · 點圖示直接打開 App<span class="phone-only"> · 左右滑動看整張地圖</span></div>
+  <div class="mapscroll"><div class="mapbox">${mapBG}${main}${hereMarker()}</div></div>
   <div class="insets">${ins('地下 · B1 / B2','b',BSEC,MAP_B)}${ins('家的後門 · 舞台','s',SSEC,MAP_S)}</div></div></div>`;
   mapV.hidden=false;
+  {const sc=mapV.querySelector('.mapscroll');if(sc&&sc.scrollWidth>sc.clientWidth)sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)*.5;}
   $('#mapClose').addEventListener('click',closeMap);
   mapV.querySelectorAll('[data-g]').forEach(b=>b.addEventListener('click',()=>{const[id,sp]=b.dataset.g.split(',');closeMap();goto(id,sp);}));
   mapV.querySelectorAll('[data-app]').forEach(b=>b.addEventListener('click',()=>{const a=APPMAP[b.dataset.app];openApp(b.dataset.app,a.u);}));}
+const ISO_NUM={"AW":"533","AF":"004","AO":"024","AI":"660","AX":"248","AL":"008","AD":"020","AE":"784","AR":"032","AM":"051","AS":"016","AQ":"010","TF":"260","AG":"028","AU":"036","AT":"040","AZ":"031","BI":"108","BE":"056","BJ":"204","BQ":"535","BF":"854","BD":"050","BG":"100","BH":"048","BS":"044","BA":"070","BL":"652","BY":"112","BZ":"084","BM":"060","BO":"068","BR":"076","BB":"052","BN":"096","BT":"064","BV":"074","BW":"072","CF":"140","CA":"124","CC":"166","CH":"756","CL":"152","CN":"156","CI":"384","CM":"120","CD":"180","CG":"178","CK":"184","CO":"170","KM":"174","CV":"132","CR":"188","CU":"192","CW":"531","CX":"162","KY":"136","CY":"196","CZ":"203","DE":"276","DJ":"262","DM":"212","DK":"208","DO":"214","DZ":"012","EC":"218","EG":"818","ER":"232","EH":"732","ES":"724","EE":"233","ET":"231","FI":"246","FJ":"242","FK":"238","FR":"250","FO":"234","FM":"583","GA":"266","GB":"826","GE":"268","GG":"831","GH":"288","GI":"292","GN":"324","GP":"312","GM":"270","GW":"624","GQ":"226","GR":"300","GD":"308","GL":"304","GT":"320","GF":"254","GU":"316","GY":"328","HK":"344","HM":"334","HN":"340","HR":"191","HT":"332","HU":"348","ID":"360","IM":"833","IN":"356","IO":"086","IE":"372","IR":"364","IQ":"368","IS":"352","IL":"376","IT":"380","JM":"388","JE":"832","JO":"400","JP":"392","KZ":"398","KE":"404","KG":"417","KH":"116","KI":"296","KN":"659","KR":"410","KW":"414","LA":"418","LB":"422","LR":"430","LY":"434","LC":"662","LI":"438","LK":"144","LS":"426","LT":"440","LU":"442","LV":"428","MO":"446","MF":"663","MA":"504","MC":"492","MD":"498","MG":"450","MV":"462","MX":"484","MH":"584","MK":"807","ML":"466","MT":"470","MM":"104","ME":"499","MN":"496","MP":"580","MZ":"508","MR":"478","MS":"500","MQ":"474","MU":"480","MW":"454","MY":"458","YT":"175","NA":"516","NC":"540","NE":"562","NF":"574","NG":"566","NI":"558","NU":"570","NL":"528","NO":"578","NP":"524","NR":"520","NZ":"554","OM":"512","PK":"586","PA":"591","PN":"612","PE":"604","PH":"608","PW":"585","PG":"598","PL":"616","PR":"630","KP":"408","PT":"620","PY":"600","PS":"275","PF":"258","QA":"634","RE":"638","RO":"642","RU":"643","RW":"646","SA":"682","SD":"729","SN":"686","SG":"702","GS":"239","SH":"654","SJ":"744","SB":"090","SL":"694","SV":"222","SM":"674","SO":"706","PM":"666","RS":"688","SS":"728","ST":"678","SR":"740","SK":"703","SI":"705","SE":"752","SZ":"748","SX":"534","SC":"690","SY":"760","TC":"796","TD":"148","TG":"768","TH":"764","TJ":"762","TK":"772","TM":"795","TL":"626","TO":"776","TT":"780","TN":"788","TR":"792","TV":"798","TW":"158","TZ":"834","UG":"800","UA":"804","UM":"581","UY":"858","US":"840","UZ":"860","VA":"336","VC":"670","VE":"862","VG":"092","VI":"850","VN":"704","VU":"548","WF":"876","WS":"882","YE":"887","ZA":"710","ZM":"894","ZW":"716","XK":"-99"};
+const worldV=$('#worldView');
+function loadScript(u){return new Promise((res,rej)=>{if(document.querySelector('script[src="'+u+'"]'))return res();const e=document.createElement('script');e.src=u;e.onload=res;e.onerror=rej;document.head.appendChild(e);});}
+async function worldTrips(){
+  try{if(indexedDB.databases){const l=await indexedDB.databases();if(!l.some(d=>d.name==='world'))return[];}
+    return await new Promise(res=>{const r=indexedDB.open('world');r.onsuccess=()=>{const db=r.result;if(!db.objectStoreNames.contains('trips')){db.close();return res([]);}const q=db.transaction('trips','readonly').objectStore('trips').getAll();q.onsuccess=()=>{res(q.result||[]);db.close();};q.onerror=()=>res([]);};r.onerror=()=>res([]);});}catch(e){return[];}}
+async function cloudTrips(){ // 先看 OneDrive 上旅遊手冊的資料（每台裝置都一樣），沒有登入再看這台裝置
+  try{if(window.OriginaSync&&await OriginaSync.getToken()){const d=await OriginaSync.api.getJSON('World/data.json');if(d&&d.data&&d.data.trips)return d.data.trips;}}catch(e){}
+  return worldTrips();}
+async function openWorld(){closeSheet();
+  worldV.innerHTML=`<div class="ovbar"><h2>世界之門</h2><span style="display:flex;gap:8px"><button class="btn light" id="wApp">打開旅遊手冊</button><button class="btn light" id="wClose">✕ 回到家</button></span></div><div class="wbody"><div class="wmap" id="wMap"><p class="wnote">世界地圖載入中…</p></div><div class="wstats" id="wStats"></div><div class="wchips" id="wChips"></div><p class="wnote">金色是去過的國家、綠色是排好的下一趟；資料來自旅遊手冊（登入 OneDrive 時讀雲端，否則讀這台裝置）。</p></div>`;
+  worldV.hidden=false;
+  $('#wClose').onclick=()=>{worldV.hidden=true;worldV.innerHTML='';canvas.focus({preventScroll:true});};
+  $('#wApp').onclick=()=>{worldV.hidden=true;worldV.innerHTML='';openApp('旅遊手冊',APPMAP['旅遊手冊'].u);};
+  try{
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js');
+    await loadScript('https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js');
+    const [topo,trips]=await Promise.all([fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json').then(r=>r.json()),cloudTrips()]);
+    const today=new Date().toISOString().slice(0,10),been=new Set(),next=new Set();
+    trips.forEach(t=>{const n=ISO_NUM[t.country];if(!n)return;(t.start&&t.start>today?next:been).add(n);});
+    const names={};(window.PRESETS?.world||[]).forEach(w=>names[w[0]]=w[2]+' '+w[1]);
+    const W=1000,H=500,svg=d3.create('svg').attr('viewBox',`0 0 ${W} ${H}`);
+    const proj=d3.geoNaturalEarth1().fitSize([W,H],{type:'Sphere'}),path=d3.geoPath(proj);
+    svg.append('path').attr('d',path({type:'Sphere'})).attr('fill','#13234A');
+    svg.append('path').attr('d',path(d3.geoGraticule10())).attr('fill','none').attr('stroke','#1E3263').attr('stroke-width',.6);
+    const feats=topojson.feature(topo,topo.objects.countries).features;
+    svg.append('g').selectAll('path').data(feats).join('path').attr('d',path)
+      .attr('fill',d=>been.has(String(d.id).padStart(3,'0'))?'#E8C46A':next.has(String(d.id).padStart(3,'0'))?'#8FB89A':'#2C3F6B')
+      .attr('stroke','#0F1A30').attr('stroke-width',.5).append('title').text(d=>d.properties.name);
+    const el=$('#wMap');el.innerHTML='';el.appendChild(svg.node());
+    const codes=[...new Set(trips.filter(t=>!(t.start>today)).map(t=>t.country))];
+    $('#wStats').innerHTML=`<div><b>${been.size}</b><span>去過的國家</span></div><div><b>${trips.filter(t=>!(t.start>today)).length}</b><span>趟旅行</span></div><div><b>${next.size}</b><span>計畫中</span></div>`;
+    $('#wChips').innerHTML=codes.map(c=>{let n=names[c];try{n=n||new Intl.DisplayNames(['zh-TW'],{type:'region'}).of(c)}catch(e){}return `<span>${n||c}</span>`;}).join('')||'<span>還沒有去過的國家紀錄，從旅遊手冊新增第一趟旅行</span>';
+  }catch(e){$('#wMap').innerHTML='<p class="wnote">世界地圖載入失敗，請確認網路後再打開一次。</p>';}
+}
 function closeMap(){mapV.hidden=true;mapV.innerHTML='';canvas.focus({preventScroll:true});}
 addEventListener('keydown',e=>{if(e.key==='Escape'){if(!appV.hidden)closeApp();else if(!mapV.hidden)closeMap();}});
 $('#menuBtn').addEventListener('click',openMap);

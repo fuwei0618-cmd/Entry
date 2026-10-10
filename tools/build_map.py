@@ -51,6 +51,7 @@ function openApp(n){{const u=APPS[n];if(!u)return;
 function closeApp(){{appV.hidden=true;appV.innerHTML='';home.style.display='';history.replaceState(null,'',location.pathname);}}
 {{const a=new URLSearchParams(location.search).get('app');if(a&&APPS[a])setTimeout(()=>openApp(a),0);}}
 addEventListener('popstate',()=>{{if(!appV.hidden)closeApp();}});
+{{const sc=document.querySelector('.mapscroll');if(sc&&sc.scrollWidth>sc.clientWidth)sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)*.5;}}
 document.querySelectorAll('[data-app]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.app)));
 document.querySelectorAll('[data-g]').forEach(b=>b.addEventListener('click',()=>{{location.href='../?go='+encodeURIComponent(b.dataset.g);}}));
 </script></body></html>'''

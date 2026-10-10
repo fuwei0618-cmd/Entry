@@ -86,9 +86,8 @@ function render(){
   const focusHTML=(f.tasks.length||f.days.length)?`<div class="focus">${f.days.map(d=>`<div><i style="background:var(--acc)"></i><b>${esc(d.text)}</b></div>`).join("")}${f.tasks.map(x=>`<div><i style="background:${x.p.color}"></i>${esc(x.t.text)}<span class="muted" style="font-size:12px">・${esc(x.p.name)}</span></div>`).join("")}</div>`:`<p class="muted" style="margin:0;font-size:14px">${M?"今天":"明天"}沒有排重點，就照自己的步調。</p>`;
   const tonight=(B.log||[]).find(l=>l.date===ymd(new Date())&&l.type===(M?"morning":"night"));
   $("#app").innerHTML=`<div class="top"><h1>${M?"早安":"晚安"}</h1><div class="seg"><button data-m="morning" aria-pressed="${M}">起床</button><button data-m="night" aria-pressed="${!M}">睡前</button></div></div>
-  <section class="bellbox"><button id="ring" aria-label="敲一下鈴"><img src="../mission/img/bell-body.webp" alt=""></button><span class="muted">${M?"敲一下鈴，開始今天":"敲一下鈴，把今天收起來"}</span></section>
   ${M?`
-  <section class="card"><div class="stepn">一・對自己說</div><div class="decl">${esc(B.morning)}</div></section>
+  <section class="card"><div class="stepn">一・對自己說</div><div class="bellbox"><button id="ring" aria-label="敲一下鈴"><img src="../mission/img/bell-body.webp" alt=""></button><span class="muted">${M?"先敲一下鈴，再對自己說":"敲一下鈴，把今天收起來"}</span></div><div class="decl">${esc(B.morning)}</div></section>
   <section class="card"><div class="stepn">二・今天的重點</div>${focusHTML}</section>
   <section class="card"><div class="stepn">三・一次深呼吸</div><div class="orb" id="orb"></div><div class="row" style="justify-content:center"><button class="btn" id="breathe">${breathing?"吸氣…":"開始"}</button></div></section>
   <div class="row" style="justify-content:center"><button class="btn pri" id="finish">${tonight?"今天已經開始了 ✓":"開始今天"}</button></div>`
@@ -101,7 +100,7 @@ function render(){
     ${pose>=0&&pose<3?`<div class="timer" id="tm">${poseLeft}</div>`:""}
     <div class="row" style="justify-content:center"><button class="btn" id="stretch">${pose<0?"開始伸展":pose===3?"再做一次":"跳過這個"}</button></div></section>
   <section class="card"><div class="stepn">三・明天的重點</div>${focusHTML}</section>
-  <section class="card"><div class="stepn">四・睡前</div><div class="decl">${esc(B.night)}${first?`\n願明天的「${esc(first)}」順利。`:""}</div></section>
+  <section class="card"><div class="stepn">四・睡前</div><div class="bellbox"><button id="ring" aria-label="敲一下鈴"><img src="../mission/img/bell-body.webp" alt=""></button><span class="muted">${M?"先敲一下鈴，再對自己說":"敲一下鈴，把今天收起來"}</span></div><div class="decl">${esc(B.night)}${first?`\n願明天的「${esc(first)}」順利。`:""}</div></section>
   <div class="row" style="justify-content:center"><button class="btn pri" id="finish">${tonight?"已經說過晚安了 ✓":"晚安"}</button></div>`}
   <div class="foot row" style="justify-content:center"><button class="link" id="pray">記一筆禱告</button><button class="link" id="editDecl">改寫${M?"起床":"睡前"}的話</button></div>`;
   document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;stopPose();render();});

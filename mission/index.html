@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F5F2EC">
+<title>使命板</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="使命板">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&display=swap">
+<style>
+:root{
+  --stone:#F5F2EC;--stone2:#ECE6DC;--card:#FBF9F5;--ink:#3B352E;--muted:#857A6D;--line:#E3DCD0;
+  --brass:#B08D57;--brass2:#8A6A3A;--iron:#2E2925;--teresa:#C9705A;--elva:#B5546F;--chiara:#8C9A6B;
+  --serif:"Noto Serif TC","Songti TC",serif;--f:"PingFang TC","Noto Sans TC",system-ui,sans-serif;
+  --shadow:0 1px 2px rgba(59,53,46,.05),0 8px 24px rgba(59,53,46,.06)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--stone);color:var(--ink);font-family:var(--f);line-height:1.65}
+body{background:radial-gradient(120% 60% at 50% 0,#FFFDF8 0,var(--stone) 60%)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:6px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:rgba(245,242,236,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{border:0;background:none;padding:7px 12px;border-radius:999px;font-size:14px;color:var(--muted);white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--ink);color:#FBF9F5}
+.mute{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 11px;font-size:13px;color:var(--muted);white-space:nowrap}
+.wrap{max-width:720px;margin:0 auto;padding:8px 16px calc(48px + env(safe-area-inset-bottom));display:grid;gap:26px}
+.wrap>*{min-width:0}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-size:14px;min-height:38px}
+.btn.pri{background:var(--ink);border-color:var(--ink);color:#FBF9F5}
+.btn.ghost{background:transparent}
+.btn.sm{padding:5px 12px;min-height:32px;font-size:13px}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+h2{margin:0 0 10px;font-size:14px;letter-spacing:.16em;color:var(--muted);font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-size:15px}
+textarea{min-height:76px;resize:vertical}
+
+/* 主頁：安靜、留白 */
+.why{font-family:var(--serif);font-size:clamp(22px,5.4vw,30px);line-height:1.55;letter-spacing:.04em;text-align:center;margin:18px auto 0;max-width:22em;text-wrap:balance;cursor:text;border-radius:12px;padding:4px 8px}
+.why:hover{background:rgba(176,141,87,.06)}
+.belltop{position:relative;height:min(54vh,420px);margin:0 -16px}
+#bellc{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#bellc:active{cursor:grabbing}
+.bellhint{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:13px;color:var(--muted);pointer-events:none;transition:opacity .6s}
+.step{display:grid;gap:12px;animation:rise .6s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stepn{font-size:12px;letter-spacing:.24em;color:var(--brass2)}
+.breath{display:grid;justify-items:center;gap:10px;padding:18px}
+.orb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#FFF6E4,#E8D3AE 70%);box-shadow:0 0 0 1px rgba(176,141,87,.25),0 10px 40px rgba(176,141,87,.25);transform:scale(.6)}
+.orb.in{transition:transform 4s ease-in-out;transform:scale(1)}
+.orb.out{transition:transform 6s ease-in-out;transform:scale(.6)}
+.btext{font-family:var(--serif);font-size:20px;letter-spacing:.2em}
+.alarms{display:flex;flex-wrap:wrap;gap:8px}
+.alarms button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 18px;font-size:15px}
+.alarms button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FBF9F5}
+.alarms .add{border-style:dashed;color:var(--muted);background:transparent}
+.logic{padding:16px 18px;display:grid;gap:6px}
+.logic .l{font-size:15px}
+.logic .q{font-family:var(--serif);font-size:18px;line-height:1.6}
+.act{padding:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.act .a{font-family:var(--serif);font-size:19px}
+.go{font-size:14px;color:var(--brass2);background:none;border:0;padding:6px 0;text-decoration:underline;text-underline-offset:4px}
+.skip{background:none;border:0;color:var(--muted);font-size:13px;text-decoration:underline;text-underline-offset:3px}
+
+/* 我是誰 */
+.cover{padding:18px;display:grid;justify-items:center;gap:8px;text-align:center}
+.cover svg{width:min(320px,80vw);height:auto}
+.cover .fire{font-family:var(--serif);font-size:18px}
+.cover p{margin:0;font-size:14px;color:var(--muted);max-width:30em}
+.persona{overflow:hidden}
+.persona>button{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;width:100%;padding:14px 16px;border:0;background:none;text-align:left}
+.persona .ill{width:64px;height:64px}
+.persona .nm{font-family:var(--serif);font-size:21px;letter-spacing:.06em}
+.persona .fm{font-size:13px;color:var(--muted)}
+.persona .chev{color:var(--muted);transition:transform .3s}
+.persona.open .chev{transform:rotate(90deg)}
+.pbody{display:none;padding:0 16px 18px;gap:12px}
+.persona.open .pbody{display:grid}
+.pbody .big{display:flex;gap:10px;justify-content:center;padding:10px;background:var(--stone);border-radius:14px}
+.pbody .big svg{width:30%;max-width:120px;height:auto}
+.pbody dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.pbody dt{color:var(--muted)}.pbody dd{margin:0}
+
+/* 拆解室 */
+.fws{display:flex;flex-wrap:wrap;gap:8px}
+.fws button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-size:14px}
+.fws button[aria-pressed="true"]{background:var(--ink);color:#FBF9F5;border-color:var(--ink)}
+.fws .add{border-style:dashed;color:var(--muted);background:transparent}
+.qs{padding:16px;display:grid;gap:14px}
+.qs label{display:grid;gap:6px;font-size:15px}
+.qs label span{font-family:var(--serif)}
+.check{display:flex;gap:8px;align-items:center;font-size:14px}
+.logsel{font-size:14px;color:var(--muted)}
+.logsel select{border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff;max-width:100%}
+
+/* 證據 */
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.num{padding:14px;display:grid;gap:2px}
+.num b{font-size:26px;font-variant-numeric:tabular-nums;line-height:1.2;font-family:var(--serif)}
+.num span{font-size:12.5px;color:var(--muted)}
+.chart{padding:14px}
+.chart svg{width:100%;height:auto;display:block}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;margin-top:6px}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.recs{padding:14px;display:grid;gap:8px}
+.rec{display:grid;grid-template-columns:74px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.rec:first-child{border-top:0}
+.rec .m{font-variant-numeric:tabular-nums;color:var(--muted)}
+.blist{display:grid;gap:8px}
+.bitem{padding:12px 14px}
+.bitem summary{cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-size:14.5px;list-style:none}
+.bitem summary::-webkit-details-marker{display:none}
+.bitem .qa{margin:8px 0 0;font-size:14px;display:grid;gap:6px}
+.bitem .qa p{margin:0}.bitem .qa b{font-weight:600;color:var(--muted);font-size:13px;display:block}
+.empty{padding:16px;color:var(--muted);font-size:14px}
+
+.dlg{position:fixed;inset:0;background:rgba(40,34,28,.32);display:grid;place-items:end center;z-index:20;padding:12px}
+@media (min-width:640px){.dlg{place-items:center}}
+.dlg[hidden]{display:none}
+.dlg .box{width:100%;max-width:460px;padding:18px;display:grid;gap:12px;max-height:88vh;overflow:auto}
+.dlg h3{margin:0;font-size:17px}
+.field{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.list{display:grid;gap:6px}
+.list div{display:flex;gap:8px;align-items:center;font-size:14.5px;padding:6px 0;border-bottom:1px solid var(--line)}
+.list div span{flex:1}
+.x{border:0;background:none;color:var(--muted);font-size:18px;line-height:1;padding:4px 8px}
+@media (prefers-reduced-motion:reduce){.step{animation:none}.orb.in,.orb.out{transition-duration:.01s}}
+@media (max-width:480px){.num b{font-size:20px}.persona>button{grid-template-columns:52px 1fr auto}.persona .ill{width:52px;height:52px}}
+</style>
+<script src="../sync/origina-sync.js" data-app="mission" data-folder="Mission" data-keys="origina.mission.v1" data-pos="br" data-offset="16"></script>
+</head><body>
+<header class="top"><nav class="tabs" id="tabs" role="tablist"></nav><button class="mute" id="mute" aria-pressed="false">聲音 開</button></header>
+<main class="wrap" id="app"></main>
+<div class="dlg" id="dlg" hidden><div class="box card" role="dialog" aria-modal="true" id="dlgBox"></div></div>
+<script src="../three.min.js"></script>
+<script>
+"use strict";
+const KEY="origina.mission.v1";
+const ALARM_COLORS=["#C9705A","#8C9A6B","#B08D57","#7C93A8","#B5546F","#6E8F8A","#A68B6B"];
+const DEFAULT={v:1,
+  why:"把心裡的樣子變成真的，直到很老都還對人生有胃口。",
+  alarms:[
+    {id:"cmp",name:"比較",logic:"拿別人的結果，比自己的過程。",question:"這是誰的副本？它在我的公式裡嗎？"},
+    {id:"age",name:"年齡",logic:"怕被看見「我很想要，可是我還不夠好」。",question:"這一場是為了好玩、練技巧、練台風，還是 Teresa？"},
+    {id:"money",name:"錢",logic:"從小的匱乏感，把錢當成允許自己想要的通行證。",question:"我的價值，和今天賺多少，是同一件事嗎？"},
+    {id:"passion",name:"熱情",logic:"把熱情想成要很吵才算數。",question:"最近有沒有什麼東西「長得對了」？"}],
+  smallActs:["帶自己去一間漂亮的咖啡廳","錄一首歌","散步十五分鐘","整理 Origina 一個房間","煮好吃的給自己","送自己一個平常不敢買的小東西","聽一首鄧麗君"],
+  bellLog:[],breakdowns:[],
+  frameworks:[
+    {id:"copy",name:"副本檢查",questions:["讓我不舒服的是誰的什麼？","那是他的副本，還是我的？","它在我的公式（一生唱、一生愛、一生豐盛）裡嗎？","如果在，我自己的版本長什麼樣？如果不在，我可以放下它嗎？"]},
+    {id:"5w",name:"人事時地物",questions:["人：誰觸發了這個念頭？","事：當下發生了什麼？","時：那時我的狀態（累、餓、剛結束一件事、旅行尾聲）？","地：我在哪裡？","物：我看到了什麼（照片、訊息、別人的成果）？"]},
+    {id:"maslow",name:"馬斯洛",questions:["這個念頭威脅到的是哪一層：生理、安全、愛與歸屬、尊重、自我實現？","那一層現在其實有被照顧嗎？證據是什麼？","今天可以幫那一層補一點點的是什麼？"]},
+    {id:"dilts",name:"邏輯層次",questions:["環境：我在哪裡被觸發？","行為：別人做了什麼？我做了什麼？","能力：我是缺能力、缺時間，還是缺錢？","信念：我相信了什麼「應該」？","身份：這個念頭在說我是誰？是真的嗎？","使命：回到我的一把火，這件事跟它有關嗎？"]},
+    {id:"entropy",name:"熵",questions:["我現在在高熵（新環境、混亂、旅行中）還是低熵（太安逸、停滯）？","這個念頭是混亂帶來的，還是停滯帶來的？","我需要的是秩序（一個錨點、一個固定習慣），還是新鮮感？"]},
+    {id:"loop",name:"閉環",questions:["這件事卡在哪一環：表達（唱歌）、身體主權（性感）、落地（財富）？","補哪一環，會讓另外兩環也動起來？","今天能做的最小一步是什麼？"]}],
+  recordings:[],
+  personas:[
+    {id:"teresa",formula:"共鳴・一生唱",give:"給世界",tattoos:["左腕銀杏","胸口 Camino","左手狼與捕夢網","手背藍色小星星"],place:"舞台、營火",go:["stage","back"],text:""},
+    {id:"elva",formula:"慾望・一生愛",give:"給自己",tattoos:["右腕罌粟花","右腰女人與老虎"],place:"Beauty",go:["f1","closet"],text:""},
+    {id:"chiara",formula:"豐盛・一生豐盛",give:"地基",tattoos:["還沒刻在身上"],place:"噴水池、家（房子、Lucky）",go:["forest","vault"],text:""}]};
+
+let D;try{D=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){D=null;}
+if(!D||!D.alarms)D=JSON.parse(JSON.stringify(DEFAULT));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const nowStr=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;};
+const ym=s=>s.slice(0,7);
+const alarmById=id=>D.alarms.find(a=>a.id===id);
+const alarmColor=id=>ALARM_COLORS[Math.max(0,D.alarms.findIndex(a=>a.id===id))%ALARM_COLORS.length];
+let muted=false;try{muted=localStorage.getItem("mission-muted")==="1";}catch(e){}
+
+/* ---------- 插畫（線條，同一套筆觸） ---------- */
+const S=`fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"`;
+const ILL={
+  ginkgo:`<svg viewBox="0 0 100 100" ${S}><path d="M50 92 C50 74 50 66 50 58"/><path d="M50 58 C30 58 14 44 14 26 C26 18 40 20 46 30 L50 42 L54 30 C60 20 74 18 86 26 C86 44 70 58 50 58Z"/><path d="M50 58 L36 32 M50 58 L44 26 M50 58 L56 26 M50 58 L64 32"/></svg>`,
+  wolf:`<svg viewBox="0 0 100 100" ${S}><path d="M28 14 L40 36 L60 36 L72 14 L76 44 L68 62 L57 82 L50 88 L43 82 L32 62 L24 44 Z"/><path d="M31 22 L37 36 M69 22 L63 36"/><path d="M37 50 L45 53 M63 50 L55 53"/><path d="M46 79 L54 79 L50 84 Z"/><path d="M40 62 L50 70 L60 62"/></svg>`,
+  star:`<svg viewBox="0 0 100 100" ${S}><path d="M50 14 L59 40 L86 40 L64 56 L72 82 L50 66 L28 82 L36 56 L14 40 L41 40 Z"/></svg>`,
+  dream:`<svg viewBox="0 0 100 100" ${S}><circle cx="50" cy="36" r="24"/><path d="M50 12 L50 60 M26 36 L74 36 M33 19 L67 53 M67 19 L33 53"/><path d="M36 60 L32 84 M50 60 L50 90 M64 60 L68 84"/><path d="M29 84 l3 6 3-6 M47 90 l3 6 3-6 M65 84 l3 6 3-6"/></svg>`,
+  poppy:`<svg viewBox="0 0 100 100" ${S}><path d="M50 92 C52 76 48 66 50 54"/><path d="M50 54 C34 56 22 44 26 30 C30 18 44 20 50 30 C56 20 70 18 74 30 C78 44 66 56 50 54Z"/><path d="M38 34 C42 44 58 44 62 34"/><circle cx="50" cy="38" r="5"/><path d="M50 78 C60 72 66 74 70 68"/></svg>`,
+  tiger:`<svg viewBox="0 0 100 100" ${S}><path d="M26 30 C22 18 32 14 38 24 C46 20 54 20 62 24 C68 14 78 18 74 30 C82 42 80 62 70 74 C62 84 38 84 30 74 C20 62 18 42 26 30Z"/><path d="M38 48 L45 50 M62 48 L55 50"/><path d="M46 64 L54 64 L50 69 Z"/><path d="M50 69 L50 74 M42 76 C46 79 54 79 58 76"/><path d="M50 26 L50 36 M42 28 L44 36 M58 28 L56 36"/><path d="M24 50 L32 52 M23 60 L32 60 M76 50 L68 52 M77 60 L68 60"/></svg>`,
+  fountain:`<svg viewBox="0 0 100 100" ${S}><path d="M18 78 C18 90 82 90 82 78 L82 72 L18 72 Z"/><path d="M44 72 L44 52 L56 52 L56 72"/><path d="M32 52 C32 58 68 58 68 52 Z"/><path d="M50 52 C50 36 50 30 50 22 M50 24 C42 30 38 40 38 48 M50 24 C58 30 62 40 62 48"/></svg>`,
+  house:`<svg viewBox="0 0 100 100" ${S}><path d="M16 50 L50 20 L84 50"/><path d="M24 44 L24 84 L76 84 L76 44"/><path d="M44 84 L44 62 L56 62 L56 84"/><path d="M30 54 L38 54 L38 62 L30 62 Z M62 54 L70 54 L70 62 L62 62 Z"/><path d="M66 30 L66 18 L72 18 L72 36"/></svg>`};
+const PIMG={teresa:["ginkgo","wolf","star"],elva:["poppy","tiger"],chiara:["fountain","house"]};
+const PCOL={teresa:"var(--teresa)",elva:"var(--elva)",chiara:"var(--chiara)"};
+const PNAME={teresa:"Teresa",elva:"Elva",chiara:"Chiara"};
+function sundialSVG(){ // 日晷封面：三個圓＋中間一把火＋外圈時間（之後換成你的圖）
+  let ticks="";for(let i=0;i<24;i++){const a=i/24*Math.PI*2,r1=i%2?132:126,r2=140;ticks+=`<line x1="${150+Math.cos(a)*r1}" y1="${150+Math.sin(a)*r1}" x2="${150+Math.cos(a)*r2}" y2="${150+Math.sin(a)*r2}"/>`;}
+  return `<svg viewBox="0 0 300 300" aria-label="日晷"><g fill="none" stroke="#B08D57" stroke-width="1.4">${ticks}<circle cx="150" cy="150" r="144"/></g>
+  <g fill-opacity=".14" stroke-width="1.6" fill="none"><circle cx="150" cy="118" r="54" stroke="#C9705A" fill="#C9705A"/><circle cx="122" cy="166" r="54" stroke="#8C9A6B" fill="#8C9A6B"/><circle cx="178" cy="166" r="54" stroke="#B5546F" fill="#B5546F"/></g>
+  <path d="M150 128 C162 142 166 152 160 164 C157 171 143 171 140 164 C134 152 140 144 146 136 C147 144 151 146 150 128Z" fill="#E2B85C" stroke="#B08D57" stroke-width="1.2"/>
+  <g font-size="12" fill="#857A6D" text-anchor="middle" font-family="sans-serif"><text x="150" y="86">Teresa</text><text x="96" y="196">Chiara</text><text x="204" y="196">Elva</text></g></svg>`;}
+
+/* ---------- 對話框 ---------- */
+function dialog(html,onBind){$("#dlgBox").innerHTML=html;$("#dlg").hidden=false;$("#dlg").onclick=e=>{if(e.target.id==="dlg"||e.target.closest("[data-x]"))closeDlg();};onBind&&onBind($("#dlgBox"));const f=$("#dlgBox").querySelector("input,textarea");f&&f.focus();}
+function closeDlg(){$("#dlg").hidden=true;$("#dlgBox").innerHTML="";}
+addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#dlg").hidden)closeDlg();});
+
+/* ---------- 分頁 ---------- */
+const TABS=[["bell","鈴"],["me","我是誰"],["room","拆解室"],["proof","證據"]];
+let tab="bell";const hashTab=location.hash.slice(1);if(TABS.some(t=>t[0]===hashTab))tab=hashTab;
+function renderTabs(){$("#tabs").innerHTML=TABS.map(([k,t])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("");
+  $("#tabs").querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>go(b.dataset.tab));}
+function go(t,opts){tab=t;roomFrom=opts&&opts.logId||roomFrom;try{history.replaceState(null,"","#"+t);}catch(e){}renderTabs();render();scrollTo(0,0);}
+function render(){bell.detach();({bell:renderBell,me:renderMe,room:renderRoom,proof:renderProof})[tab]();}
+
+/* ---------- 主頁・鈴 ---------- */
+let session=null; // 這一次搖鈴：{logId, step}
+function curLog(){return session&&D.bellLog.find(l=>l.id===session.logId);}
+function onRing(){ // 每次鈴舌敲到鈴身
+  if(!session||Date.now()-session.at>3*60e3){
+    const l={id:"r"+Date.now().toString(36),date:nowStr(),alarm:null,note:"",breakdownId:null};D.bellLog.push(l);save();
+    session={logId:l.id,at:Date.now(),step:0};setTimeout(()=>{if(session&&session.step===0){session.step=1;renderSteps();}},1600);}
+  session.at=Date.now();const h=$(".bellhint");if(h)h.style.opacity="0";}
+function renderBell(){
+  $("#app").innerHTML=`<div class="why" id="why" role="button" tabindex="0" aria-label="我為什麼努力（點一下可以改）">${esc(D.why)}</div>
+  <div class="belltop"><canvas id="bellc" aria-label="黃銅掛鈴，點一下或拖著它搖"></canvas><div class="bellhint">點鈴，或用手指拖著它搖</div></div>
+  <div id="steps" style="display:grid;gap:26px"></div>`;
+  $("#why").onclick=()=>dialog(`<h3>我為什麼努力</h3><textarea id="wt">${esc(D.why)}</textarea><div class="row"><button class="btn pri" data-ok>存好</button><button class="btn ghost" data-x>取消</button></div>`,
+    box=>box.querySelector("[data-ok]").onclick=()=>{const v=box.querySelector("#wt").value.trim();if(v){D.why=v;save();}closeDlg();renderBell();});
+  bell.attach($("#bellc"));
+  renderSteps();}
+let breathing=null;
+function renderSteps(){
+  const el=$("#steps");if(!el)return;
+  if(!session){el.innerHTML=`<p class="muted" style="text-align:center;margin:0;font-size:13px">心裡亂的時候，先搖一下鈴。<br><button class="skip" id="noBell">不想搖，直接選是哪一種警報</button></p>`;
+    $("#noBell").onclick=()=>{const l={id:"r"+Date.now().toString(36),date:nowStr(),alarm:null,note:"",breakdownId:null};D.bellLog.push(l);save();session={logId:l.id,at:Date.now(),step:2};renderSteps();};return;}
+  const log=curLog();let h="";
+  if(session.step>1)h+=`<p class="muted" style="margin:0;text-align:center;font-size:13px">✓ 呼吸過了</p>`;
+  if(session.step===1)h+=`<section class="step"><div class="stepn">第一步・深呼吸三次</div><div class="card breath"><div class="orb" id="orb"></div><div class="btext" id="btext">準備</div><div class="muted" id="bcount" style="font-size:13px"></div>${session.step===1?`<button class="skip" id="skipB">跳過</button>`:""}</div></section>`;
+  if(session.step>=2){const a=log&&log.alarm&&alarmById(log.alarm);
+    h+=`<section class="step"><div class="stepn">第二步・是哪一種警報？</div><div class="alarms">${D.alarms.map(x=>`<button data-alarm="${x.id}" aria-pressed="${log&&log.alarm===x.id}">${esc(x.name)}</button>`).join("")}<button class="add" data-addalarm>＋</button></div>
+    ${a?`<div class="card logic"><div class="muted" style="font-size:12.5px">底層邏輯</div><div class="l">${esc(a.logic)}</div><div class="muted" style="font-size:12.5px;margin-top:6px">問自己</div><div class="q">${esc(a.question)}</div></div>`:""}</section>`;
+    if(a)h+=`<section class="step"><div class="stepn">第三步・做一件愛自己的小事</div><div class="card act"><div class="a" id="actT">${esc(pickAct())}</div><button class="btn sm" id="actN">換一個</button></div>
+      <div class="row" style="justify-content:space-between"><button class="skip" id="actEdit">編輯小事清單</button></div>
+      <input type="text" id="note" maxlength="80" placeholder="想留一句話嗎？（選填）" value="${esc(log.note||"")}">
+      <div style="text-align:center"><button class="go" id="toRoom">想拆開它？去拆解室 →</button></div></section>`;}
+  el.innerHTML=h;
+  if(session.step===1&&!breathing)startBreath();
+  const sk=$("#skipB");if(sk)sk.onclick=()=>{stopBreath();session.step=2;renderSteps();};
+  el.querySelectorAll("[data-alarm]").forEach(b=>b.onclick=()=>{const l=curLog();if(!l)return;l.alarm=b.dataset.alarm;save();actIdx=null;renderSteps();});
+  const aa=el.querySelector("[data-addalarm]");if(aa)aa.onclick=addAlarmDialog;
+  const an=$("#actN");if(an)an.onclick=()=>{actIdx=null;$("#actT").textContent=pickAct(true);};
+  const ae=$("#actEdit");if(ae)ae.onclick=actsDialog;
+  const nt=$("#note");if(nt)nt.oninput=()=>{const l=curLog();if(l){l.note=nt.value;save();}};
+  const tr=$("#toRoom");if(tr)tr.onclick=()=>go("room",{logId:session.logId});}
+let actIdx=null;
+function pickAct(force){if(!D.smallActs.length)return "清單是空的，按「編輯小事清單」加一件。";if(actIdx==null||force){let n;do{n=Math.floor(Math.random()*D.smallActs.length);}while(D.smallActs.length>1&&n===actIdx);actIdx=n;}return D.smallActs[actIdx];}
+function startBreath(){let i=0;const orb=$("#orb"),t=$("#btext"),c=$("#bcount");if(!orb)return;
+  const cyc=()=>{if(!$("#orb")||!session||session.step!==1){breathing=null;return;}
+    if(i>=3){t.textContent="好了";c.textContent="";breathing=setTimeout(()=>{session.step=2;breathing=null;renderSteps();},900);return;}
+    c.textContent=`第 ${i+1} 次・共 3 次`;t.textContent="吸氣";orb.className="orb in";
+    breathing=setTimeout(()=>{t.textContent="吐氣";orb.className="orb out";breathing=setTimeout(()=>{i++;cyc();},6000);},4000);};
+  breathing=setTimeout(cyc,500);}
+function stopBreath(){clearTimeout(breathing);breathing=null;}
+function addAlarmDialog(){dialog(`<h3>新增一種警報</h3><label class="field">名稱<input type="text" id="an" maxlength="10"></label><label class="field">底層邏輯<textarea id="al"></textarea></label><label class="field">問自己<textarea id="aq"></textarea></label>
+  <div class="row"><button class="btn pri" data-ok>新增</button><button class="btn ghost" data-x>取消</button></div>`,
+  box=>box.querySelector("[data-ok]").onclick=()=>{const n=box.querySelector("#an").value.trim();if(!n)return;D.alarms.push({id:"a"+Date.now().toString(36),name:n,logic:box.querySelector("#al").value.trim(),question:box.querySelector("#aq").value.trim()});save();closeDlg();render();});}
+function actsDialog(){const draw=box=>{box.querySelector(".list").innerHTML=D.smallActs.map((a,i)=>`<div><span>${esc(a)}</span><button class="x" data-rm="${i}" aria-label="刪除">×</button></div>`).join("");
+    box.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{D.smallActs.splice(+b.dataset.rm,1);save();actIdx=null;draw(box);});};
+  dialog(`<h3>愛自己的小事</h3><div class="list"></div><div class="row"><input type="text" id="na" maxlength="40" placeholder="新增一件小事" style="flex:1"><button class="btn" data-add>加入</button></div><div class="row"><button class="btn pri" data-x>完成</button></div>`,
+  box=>{draw(box);const add=()=>{const v=box.querySelector("#na").value.trim();if(v){D.smallActs.push(v);save();box.querySelector("#na").value="";draw(box);}};box.querySelector("[data-add]").onclick=add;box.querySelector("#na").onkeydown=e=>{if(e.key==="Enter")add();};});
+  const o=$("#dlg").onclick;$("#dlg").onclick=e=>{o(e);if($("#dlg").hidden)renderSteps();};}
+
+/* ---------- 3D 黃銅掛鈴 ---------- */
+const bell=(()=>{
+  let R,scene,cam,bellG,clapG,canvas,raf=0,ctx=null,buf=null,loading=null,last=0;
+  let th=0,thv=0,ph=0,phv=0,drag=null,lastHit=0;
+  const L1=.55,L2=.84,LIM=.4,G=9.8;
+  function init(){
+    R=new THREE.WebGLRenderer({antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+    R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=.9;R.physicallyCorrectLights=true;
+    scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(30,1,.1,50);cam.position.set(-.3,-.2,4.6);cam.lookAt(-.3,-.35,0);
+    // 傍晚暖光的環境：一個漸層大球＋兩塊亮面，給黃銅反射
+    const env=new THREE.Scene(),eg=new THREE.SphereGeometry(10,32,16),cols=[];const top=new THREE.Color(0xFFE6C2),mid=new THREE.Color(0xC9A27A),bot=new THREE.Color(0x3A2C22);
+    for(let i=0;i<eg.attributes.position.count;i++){const y=eg.attributes.position.getY(i)/10,c=y>0?mid.clone().lerp(top,y):mid.clone().lerp(bot,-y);cols.push(c.r,c.g,c.b);}
+    eg.setAttribute("color",new THREE.Float32BufferAttribute(cols,3));env.add(new THREE.Mesh(eg,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));
+    const win=new THREE.Mesh(new THREE.PlaneGeometry(6,4),new THREE.MeshBasicMaterial({color:0xFFF4DD}));win.position.set(-6,3,4);win.lookAt(0,0,0);env.add(win);
+    const win2=new THREE.Mesh(new THREE.PlaneGeometry(3,6),new THREE.MeshBasicMaterial({color:0xFFD9A8}));win2.position.set(7,1,-2);win2.lookAt(0,0,0);env.add(win2);
+    const pm=new THREE.PMREMGenerator(R);scene.environment=pm.fromScene(env,.04).texture;
+    const key=new THREE.DirectionalLight(0xFFE2B8,2.2);key.position.set(-3,4,3);scene.add(key);
+    scene.add(new THREE.HemisphereLight(0xFFF1DC,0x5A4636,.6));
+    // 黃銅：用過的溫潤光澤（粗糙度帶一點斑駁）
+    const cv=document.createElement("canvas");cv.width=cv.height=256;const g=cv.getContext("2d");g.fillStyle="#7a7a7a";g.fillRect(0,0,256,256);
+    for(let i=0;i<2600;i++){const v=100+Math.random()*80|0;g.fillStyle=`rgba(${v},${v},${v},.35)`;g.fillRect(Math.random()*256,Math.random()*256,1+Math.random()*3,1+Math.random()*2);}
+    const rough=new THREE.CanvasTexture(cv);rough.wrapS=rough.wrapT=THREE.RepeatWrapping;rough.repeat.set(3,2);
+    const brass=new THREE.MeshStandardMaterial({color:0xA9783A,metalness:1,roughness:.36,roughnessMap:rough,side:THREE.DoubleSide});
+    const brassIn=new THREE.MeshStandardMaterial({color:0x8E6B3A,metalness:1,roughness:.55,side:THREE.BackSide});
+    const iron=new THREE.MeshStandardMaterial({color:0x2C2724,metalness:.7,roughness:.6});
+    // 鍛鐵支架：立柱、橫臂、下方捲草
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(.035,.04,2.6,12),iron);post.position.set(-.95,-.55,0);scene.add(post);
+    const cap=new THREE.Mesh(new THREE.SphereGeometry(.06,16,12),iron);cap.position.set(-.95,.76,0);scene.add(cap);
+    const arm=new THREE.Mesh(new THREE.CylinderGeometry(.028,.028,1.08,10),iron);arm.rotation.z=Math.PI/2;arm.position.set(-.43,.58,0);scene.add(arm);
+    const tip=new THREE.Mesh(new THREE.SphereGeometry(.045,14,10),iron);tip.position.set(.1,.58,0);scene.add(tip);
+    const sp=[new THREE.Vector3(-.95,.12,0),new THREE.Vector3(-.9,.36,0),new THREE.Vector3(-.74,.52,0),new THREE.Vector3(-.52,.56,0)];
+    for(let i=0;i<=40;i++){const t=i/40,a=Math.PI/2+t*Math.PI*1.7,r=.13*(1-t*.75);sp.push(new THREE.Vector3(-.44+Math.cos(a)*r*-1,.43+Math.sin(a)*r,0));}
+    scene.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(sp),140,.016,8,false),iron));
+    const base=new THREE.Mesh(new THREE.CylinderGeometry(.16,.2,.06,24),iron);base.position.set(-.95,-1.85,0);scene.add(base);
+    // 鈴（樞紐在橫臂末端下方）
+    bellG=new THREE.Group();bellG.position.set(0,.5,0);scene.add(bellG);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.06,.016,8,20),iron);ring.position.y=.03;bellG.add(ring);
+    const P=[[0,-.05],[.07,-.05],[.13,-.08],[.2,-.16],[.25,-.3],[.28,-.48],[.31,-.64],[.37,-.78],[.44,-.88],[.47,-.92],[.465,-.94]].map(([x,y])=>new THREE.Vector2(x,y));
+    const body=new THREE.Mesh(new THREE.LatheGeometry(P,72),brass);bellG.add(body);
+    const Pin=[[.44,-.925],[.40,-.86],[.33,-.75],[.27,-.6],[.24,-.44],[.21,-.28],[.15,-.17],[.05,-.12],[0,-.12]].map(([x,y])=>new THREE.Vector2(x,y));
+    bellG.add(new THREE.Mesh(new THREE.LatheGeometry(Pin,72),brassIn));
+    const lip=new THREE.Mesh(new THREE.TorusGeometry(.455,.018,10,72),brass);lip.rotation.x=Math.PI/2;lip.position.y=-.93;bellG.add(lip);
+    const band=new THREE.Mesh(new THREE.TorusGeometry(.295,.01,8,64),brass);band.rotation.x=Math.PI/2;band.position.y=-.56;bellG.add(band);
+    // 鈴舌
+    clapG=new THREE.Group();clapG.position.set(0,.5,0);scene.add(clapG);
+    const rod=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,L2-.12,8),iron);rod.position.y=-(L2+.12)/2;clapG.add(rod);
+    const ball=new THREE.Mesh(new THREE.SphereGeometry(.06,20,14),new THREE.MeshStandardMaterial({color:0x6B5232,metalness:.9,roughness:.45}));ball.position.y=-L2;clapG.add(ball);}
+  function size(){if(!canvas)return;const w=canvas.clientWidth,h=canvas.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.position.z=w/h<.8?4.9:4.2;cam.updateProjectionMatrix();}
+  async function loadSound(){if(buf||loading)return loading;try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
+    loading=fetch("sound/bell.mp3").then(r=>r.arrayBuffer()).then(a=>new Promise((res,rej)=>ctx.decodeAudioData(a,res,rej))).then(b=>{buf=b;}).catch(()=>{});return loading;}
+  function ding(power){navigator.vibrate&&navigator.vibrate(Math.min(30,8+power*14|0));onRing();
+    if(muted||!ctx||!buf)return;const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf;s.playbackRate.value=.97+Math.random()*.06;
+    g.gain.value=Math.min(1,.18+power*.55);s.connect(g).connect(ctx.destination);s.start();}
+  function step(dt){
+    let tq=0;if(drag){tq=(drag.target-th)*38-thv*4;}
+    thv+=(-(G/L1)*Math.sin(th)+tq)*dt;thv*=Math.exp(-.22*dt);th+=thv*dt;
+    phv+=(-(G/L2)*Math.sin(ph))*dt;phv*=Math.exp(-.35*dt);ph+=phv*dt;
+    const rel=ph-th;
+    if(Math.abs(rel)>LIM){const sg=Math.sign(rel),v=phv-thv;ph=th+sg*LIM;
+      if(v*sg>0){const p=Math.abs(v);phv=thv-v*.38;thv+=v*.08;const now=performance.now();if(p>.35&&now-lastHit>90){lastHit=now;ding(Math.min(1.6,p/3.2));}}}}
+  function loop(t){raf=requestAnimationFrame(loop);const dt=Math.min(.033,(t-last)/1000||.016);last=t;
+    for(let i=0;i<4;i++)step(dt/4);bellG.rotation.z=th;clapG.rotation.z=ph;R.render(scene,cam);}
+  function pointer(){
+    const toAng=e=>{const r=canvas.getBoundingClientRect();return Math.max(-1.1,Math.min(1.1,(e.clientX-drag.x0)/r.width*3.2))+drag.th0;};
+    canvas.onpointerdown=e=>{loadSound();if(ctx&&ctx.state==="suspended")ctx.resume();drag={x0:e.clientX,th0:th,target:th,moved:false,t:performance.now()};try{canvas.setPointerCapture(e.pointerId);}catch(_){}};
+    canvas.onpointermove=e=>{if(!drag)return;if(Math.abs(e.clientX-drag.x0)>6)drag.moved=true;drag.target=toAng(e);};
+    const up=e=>{if(!drag)return;const d=drag;drag=null;if(!d.moved){const r=canvas.getBoundingClientRect(),side=(e.clientX-r.left)/r.width<.5?1:-1;thv+=side*2.6;}};
+    canvas.onpointerup=up;canvas.onpointercancel=up;}
+  return{
+    attach(c){if(!R)init();canvas=c;c.replaceWith(R.domElement);R.domElement.id="bellc";R.domElement.setAttribute("aria-label",c.getAttribute("aria-label"));canvas=R.domElement;
+      size();pointer();addEventListener("resize",size);last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);},
+    detach(){cancelAnimationFrame(raf);raf=0;removeEventListener("resize",size);},
+    preload:loadSound};})();
+$("#mute").onclick=()=>{muted=!muted;try{localStorage.setItem("mission-muted",muted?"1":"0");}catch(e){}muteLabel();};
+function muteLabel(){$("#mute").textContent=muted?"聲音 關":"聲音 開";$("#mute").setAttribute("aria-pressed",muted);}
+
+/* ---------- 我是誰 ---------- */
+let openP=null;
+function renderMe(){
+  $("#app").innerHTML=`<section class="card cover">${sundialSVG()}<div class="fire">中間那一把火：把心裡的樣子變成真的。</div><p>源頭是高中參觀 Getty Center 的那天。</p></section>
+  <section style="display:grid;gap:12px">${D.personas.map(p=>`<article class="card persona${openP===p.id?" open":""}" style="color:inherit">
+    <button data-p="${p.id}" aria-expanded="${openP===p.id}"><span class="ill" style="color:${PCOL[p.id]}">${ILL[PIMG[p.id][0]]}</span><span><span class="nm">${PNAME[p.id]}</span><br><span class="fm">${esc(p.formula)}（${esc(p.give)}）</span></span><span class="chev">›</span></button>
+    <div class="pbody"><div class="big" style="color:${PCOL[p.id]}">${PIMG[p.id].map(k=>ILL[k]).join("")}${p.id==="teresa"?ILL.dream:""}</div>
+      <dl><dt>刺青</dt><dd>${p.tattoos.map(esc).join("、")}</dd><dt>在 Origina</dt><dd>${esc(p.place)}</dd></dl>
+      <label class="field">我寫的一段話<textarea data-ptext="${p.id}" placeholder="寫下 ${PNAME[p.id]} 對你的意義…">${esc(p.text)}</textarea></label>
+      <div class="row"><button class="btn pri" data-walk="${p.id}">走去 Origina 的那裡</button></div></div></article>`).join("")}</section>
+  <p class="muted" style="font-size:12.5px;margin:0;text-align:center">插畫是用狼、老虎、花的意象畫的。之後你有自己的圖，可以再換。</p>`;
+  document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{openP=openP===b.dataset.p?null:b.dataset.p;renderMe();});
+  document.querySelectorAll("[data-ptext]").forEach(t=>t.oninput=()=>{D.personas.find(p=>p.id===t.dataset.ptext).text=t.value;save();});
+  document.querySelectorAll("[data-walk]").forEach(b=>b.onclick=()=>{const p=D.personas.find(x=>x.id===b.dataset.walk);
+    try{if(window.parent!==window){window.parent.postMessage({origina:"goto",scene:p.go[0],spawn:p.go[1]},"*");return;}}catch(e){}
+    location.href="https://fuwei0618-cmd.github.io/Entry/?go="+p.go.join(",");});}
+
+/* ---------- 拆解室 ---------- */
+let roomFrom=null,fwId="copy",draft=null;
+function renderRoom(){
+  const fw=D.frameworks.find(f=>f.id===fwId)||D.frameworks[0];fwId=fw.id;
+  if(!draft||draft.fw!==fw.id)draft={fw:fw.id,answers:fw.questions.map(()=>""),conclusion:"",action:"",ch9:false};
+  const logs=D.bellLog.slice(-20).reverse();
+  $("#app").innerHTML=`<section><h2>拆解室</h2><p class="muted" style="margin:0 0 12px;font-size:14px">心情平靜的時候來。選一個框架，一格一格寫，最後留一句結論和一個小行動。</p>
+    <div class="fws">${D.frameworks.map(f=>`<button data-fw="${f.id}" aria-pressed="${f.id===fw.id}">${esc(f.name)}</button>`).join("")}<button class="add" data-addfw>＋ 新框架</button></div></section>
+  <section class="card qs">${fw.questions.map((q,i)=>`<label><span>${i+1}. ${esc(q)}</span><textarea data-ans="${i}">${esc(draft.answers[i]||"")}</textarea></label>`).join("")}
+    <label><span>一句結論</span><input type="text" id="cc" maxlength="80" value="${esc(draft.conclusion)}"></label>
+    <label><span>一個小行動</span><input type="text" id="ca" maxlength="80" value="${esc(draft.action)}"></label>
+    <div class="logsel">連到哪一次鈴響：<select id="lg"><option value="">不連</option>${logs.map(l=>`<option value="${l.id}" ${l.id===roomFrom?"selected":""}>${l.date.replace("T"," ")}${l.alarm&&alarmById(l.alarm)?"・"+esc(alarmById(l.alarm).name):""}</option>`).join("")}</select></div>
+    <label class="check"><input type="checkbox" id="c9" ${draft.ch9?"checked":""}>放進第九章（之後整理成故事的下一章）</label>
+    <div class="row"><button class="btn pri" id="saveB">存成一筆</button></div></section>
+  <section><h2>拆過的紀錄</h2>${breakdownList()}</section>`;
+  document.querySelectorAll("[data-fw]").forEach(b=>b.onclick=()=>{fwId=b.dataset.fw;renderRoom();});
+  $("[data-addfw]").onclick=()=>dialog(`<h3>新框架</h3><label class="field">名稱<input type="text" id="fn" maxlength="12"></label><label class="field">題目（一行一題）<textarea id="fq" style="min-height:140px"></textarea></label><div class="row"><button class="btn pri" data-ok>新增</button><button class="btn ghost" data-x>取消</button></div>`,
+    box=>box.querySelector("[data-ok]").onclick=()=>{const n=box.querySelector("#fn").value.trim(),qs=box.querySelector("#fq").value.split("\n").map(s=>s.trim()).filter(Boolean);if(!n||!qs.length)return;const f={id:"f"+Date.now().toString(36),name:n,questions:qs};D.frameworks.push(f);save();fwId=f.id;closeDlg();renderRoom();});
+  document.querySelectorAll("[data-ans]").forEach(t=>t.oninput=()=>{draft.answers[+t.dataset.ans]=t.value;});
+  $("#cc").oninput=e=>draft.conclusion=e.target.value;$("#ca").oninput=e=>draft.action=e.target.value;$("#c9").onchange=e=>draft.ch9=e.target.checked;
+  $("#lg").onchange=e=>roomFrom=e.target.value||null;
+  $("#saveB").onclick=()=>{if(!draft.answers.some(a=>a.trim())&&!draft.conclusion.trim())return;
+    const d=new Date(),b={id:"b"+Date.now().toString(36),date:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,framework:fw.id,answers:draft.answers.slice(),conclusion:draft.conclusion.trim(),action:draft.action.trim(),forChapter9:draft.ch9};
+    D.breakdowns.push(b);if(roomFrom){const l=D.bellLog.find(x=>x.id===roomFrom);if(l)l.breakdownId=b.id;}save();draft=null;roomFrom=null;renderRoom();};
+  bindBList();}
+function breakdownList(){if(!D.breakdowns.length)return `<div class="card empty">還沒有拆過。不急，心情平靜的時候再來。</div>`;
+  return `<div class="blist">${D.breakdowns.slice().reverse().map(b=>{const f=D.frameworks.find(x=>x.id===b.framework);return `<details class="card bitem"><summary><span>${esc(b.date)}・${esc(f?f.name:"")}${b.forChapter9?"・第九章":""}</span><span class="muted">${esc(b.conclusion||"")}</span></summary>
+    <div class="qa">${(f?f.questions:[]).map((q,i)=>b.answers[i]?`<p><b>${esc(q)}</b>${esc(b.answers[i])}</p>`:"").join("")}${b.conclusion?`<p><b>結論</b>${esc(b.conclusion)}</p>`:""}${b.action?`<p><b>小行動</b>${esc(b.action)}</p>`:""}
+    <div class="row"><button class="btn sm" data-ch9="${b.id}">${b.forChapter9?"從第九章拿掉":"放進第九章"}</button><button class="btn sm ghost" data-delb="${b.id}">刪除</button></div></div></details>`;}).join("")}</div>`;}
+function bindBList(){document.querySelectorAll("[data-ch9]").forEach(x=>x.onclick=()=>{const b=D.breakdowns.find(y=>y.id===x.dataset.ch9);b.forChapter9=!b.forChapter9;save();render();});
+  document.querySelectorAll("[data-delb]").forEach(x=>x.onclick=()=>dialog(`<h3>刪除這筆拆解？</h3><div class="row"><button class="btn pri" data-ok>刪除</button><button class="btn ghost" data-x>取消</button></div>`,
+    box=>box.querySelector("[data-ok]").onclick=()=>{D.breakdowns=D.breakdowns.filter(y=>y.id!==x.dataset.delb);D.bellLog.forEach(l=>{if(l.breakdownId===x.dataset.delb)l.breakdownId=null;});save();closeDlg();render();}));}
+
+/* ---------- 證據 ---------- */
+const idb=(()=>{let p;const db=()=>p||(p=new Promise((res,rej)=>{const r=indexedDB.open("origina-mission",1);r.onupgradeneeded=()=>r.result.createObjectStore("rec");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}));
+  const tx=(m,f)=>db().then(d=>new Promise((res,rej)=>{const t=d.transaction("rec",m),q=f(t.objectStore("rec"));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error);}));
+  return{put:(k,v)=>tx("readwrite",s=>s.put(v,k)),get:k=>tx("readonly",s=>s.get(k)),del:k=>tx("readwrite",s=>s.delete(k))};})();
+async function recBlob(r){try{const b=await idb.get(r.file);if(b)return b;}catch(e){}
+  try{if(window.OriginaSync&&await OriginaSync.getToken()){const b=await OriginaSync.api.getBlob("Mission/recordings/"+r.file);if(b){idb.put(r.file,b).catch(()=>{});return b;}}}catch(e){}return null;}
+function renderProof(){
+  const m=ym(nowStr()),thisM=D.bellLog.filter(l=>ym(l.date)===m);
+  const freq={};D.bellLog.forEach(l=>{if(l.alarm)freq[l.alarm]=(freq[l.alarm]||0)+1;});
+  const top=Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
+  // 最近 6 個月
+  const months=[];{const d=new Date();d.setDate(1);for(let i=5;i>=0;i--){const x=new Date(d.getFullYear(),d.getMonth()-i,1);months.push(`${x.getFullYear()}-${pad(x.getMonth()+1)}`);}}
+  const keys=[...D.alarms.map(a=>a.id),"none"];
+  const data=months.map(mm=>{const o={};D.bellLog.filter(l=>ym(l.date)===mm).forEach(l=>{const k=l.alarm||"none";o[k]=(o[k]||0)+1;});return o;});
+  const maxV=Math.max(4,...data.map(o=>Object.values(o).reduce((a,b)=>a+b,0)));
+  const W=600,H=220,pl=30,pb=26,bw=(W-pl-10)/6*.56;
+  let bars="";data.forEach((o,i)=>{let y=H-pb;const x=pl+(i+.5)*(W-pl-10)/6-bw/2;keys.forEach(k=>{const v=o[k]||0;if(!v)return;const h=v/maxV*(H-pb-14);y-=h;bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="3" fill="${k==="none"?"#D8D0C2":alarmColor(k)}"><title>${months[i]}・${k==="none"?"沒選警報":esc(alarmById(k).name)}：${v} 次</title></rect>`;});
+    bars+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="#857A6D">${+months[i].slice(5)} 月</text>`;});
+  let grid="";for(let v=0;v<=maxV;v+=Math.ceil(maxV/4)){const y=H-pb-v/maxV*(H-pb-14);grid+=`<line x1="${pl}" x2="${W-10}" y1="${y}" y2="${y}" stroke="#E9E2D6"/><text x="${pl-6}" y="${y+4}" text-anchor="end" font-size="11" fill="#857A6D">${v}</text>`;}
+  const recs=D.recordings.slice().sort((a,b)=>a.month<b.month?1:-1);
+  $("#app").innerHTML=`<section><h2>證據</h2><div class="nums">
+    <div class="card num"><b>${thisM.length}</b><span>這個月鈴響</span></div>
+    <div class="card num"><b>${top?esc(alarmById(top[0])?.name||"—"):"—"}</b><span>最常響的警報</span></div>
+    <div class="card num"><b>${D.recordings.length}</b><span>錄音</span></div></div></section>
+  <section><h2>鈴響趨勢<small></small></h2><div class="card chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="最近六個月每月鈴響次數">${grid}${bars}</svg>
+    <div class="leg">${D.alarms.map(a=>`<span><i style="background:${alarmColor(a.id)}"></i>${esc(a.name)}</span>`).join("")}<span><i style="background:#D8D0C2"></i>沒選警報</span></div></div></section>
+  <section><h2>每月錄音牆</h2><div class="card recs">
+    <div class="row" style="justify-content:space-between"><span class="muted" style="font-size:13.5px">同一首歌每個月錄一次，聽聽自己的變化。</span><span class="row"><button class="btn sm" id="playAll" ${recs.length?"":"disabled"}>從最早連續播放</button><label class="btn sm pri" style="display:inline-flex;align-items:center">加這個月的錄音<input type="file" id="recIn" accept="audio/*" hidden></label></span></div>
+    ${recs.length?recs.map(r=>`<div class="rec"><span class="m">${esc(r.month)}</span><span>${esc(r.song||"（沒寫歌名）")}</span><span class="row"><button class="btn sm" data-play="${esc(r.file)}">播放</button><button class="x" data-delr="${esc(r.file)}" aria-label="刪除">×</button></span></div>`).join(""):`<div class="empty" style="padding:6px 0">還沒有錄音。錄一首歌，按「加這個月的錄音」。</div>`}
+    <audio id="player" controls hidden style="width:100%"></audio></div></section>
+  <section><h2>拆解紀錄</h2>${breakdownList()}</section>`;
+  bindBList();
+  const player=$("#player");let queue=[];
+  const play=async r=>{const b=await recBlob(r);if(!b){player.hidden=true;return dialog(`<h3>找不到這個錄音</h3><p class="muted" style="margin:0">這台裝置上沒有，OneDrive 也還沒登入或沒有這個檔案。</p><div class="row"><button class="btn pri" data-x>好</button></div>`);}
+    if(player.dataset.url)URL.revokeObjectURL(player.dataset.url);player.dataset.url=URL.createObjectURL(b);player.src=player.dataset.url;player.hidden=false;player.play().catch(()=>{});};
+  player.onended=()=>{if(queue.length)play(queue.shift());};
+  document.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{queue=[];play(D.recordings.find(r=>r.file===b.dataset.play));});
+  const pa=$("#playAll");if(pa)pa.onclick=()=>{queue=D.recordings.slice().sort((a,b)=>a.month<b.month?-1:1);play(queue.shift());};
+  document.querySelectorAll("[data-delr]").forEach(b=>b.onclick=()=>dialog(`<h3>刪除這個月的錄音？</h3><p class="muted" style="margin:0">只會從這裡拿掉；OneDrive 裡的檔案會留著。</p><div class="row"><button class="btn pri" data-ok>刪除</button><button class="btn ghost" data-x>取消</button></div>`,
+    box=>box.querySelector("[data-ok]").onclick=()=>{D.recordings=D.recordings.filter(r=>r.file!==b.dataset.delr);idb.del(b.dataset.delr).catch(()=>{});save();closeDlg();renderProof();}));
+  $("#recIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const mm=ym(nowStr());
+    dialog(`<h3>${mm} 的錄音</h3><label class="field">歌名<input type="text" id="song" maxlength="40" value="${esc((D.recordings.find(r=>r.month===mm)||D.recordings[D.recordings.length-1]||{}).song||"")}"></label><p class="muted" style="margin:0;font-size:13px">檔案會存在這台裝置；登入 OneDrive 時也會放進「使命板/recordings」資料夾。</p><div class="row"><button class="btn pri" data-ok>存好</button><button class="btn ghost" data-x>取消</button></div>`,
+    box=>box.querySelector("[data-ok]").onclick=async()=>{const ext=(f.name.match(/\.[a-z0-9]+$/i)||[".m4a"])[0].toLowerCase(),file=mm+ext;
+      try{await idb.put(file,f);}catch(err){}
+      D.recordings=D.recordings.filter(r=>r.month!==mm);D.recordings.push({month:mm,song:box.querySelector("#song").value.trim(),file});save();closeDlg();renderProof();
+      try{if(window.OriginaSync&&await OriginaSync.getToken())await OriginaSync.api.putBlob("Mission/recordings/"+file,f);}catch(err){}});};}
+
+renderTabs();muteLabel();render();
+</script>
+</body></html>

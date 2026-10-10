@@ -549,6 +549,15 @@ let gateUpdate=()=>{};
   const beamLen=Math.hypot(topY-cy-.19,cz-spotZ);
   const beam=new R.Mesh(new R.CylinderGeometry(.07,.17,beamLen,16,1,true),new R.MeshBasicMaterial({color:0xFFF0C0,transparent:true,opacity:.13,depthWrite:false,blending:R.AdditiveBlending,side:R.DoubleSide}));
   beam.position.set(0,(topY+cy+.19)/2,(cz+spotZ)/2);beam.rotation.x=Math.atan2(cz-spotZ,topY-cy-.19);out.add(beam);
+  // 日晷旁的鍛鐵鈴架＋黃銅鈴：點它打開使命板
+  {const bx=3.25,bz=cz-.5,iron=new R.MeshStandardMaterial({color:0x2C2724,metalness:.6,roughness:.6}),brassM=new R.MeshStandardMaterial({color:0xB08D57,metalness:.85,roughness:.35,emissive:0x3A2A10,emissiveIntensity:.25});
+    const post=new R.Mesh(new R.CylinderGeometry(.045,.055,2.3,10),iron);post.position.set(bx,cy+.16+1.15,bz);post.castShadow=true;out.add(post);
+    const arm=new R.Mesh(new R.CylinderGeometry(.03,.03,.7,8),iron);arm.rotation.x=Math.PI/2;arm.position.set(bx,cy+.16+2.15,bz+.33);out.add(arm);
+    const sc=[];for(let i=0;i<=24;i++){const t=i/24,a=t*Math.PI*1.6,r=.16*(1-t*.6);sc.push(new R.Vector3(bx,cy+.16+1.95+Math.sin(a)*r-.0,bz+.1+Math.cos(a)*r*.9));}
+    out.add(new R.Mesh(new R.TubeGeometry(new R.CatmullRomCurve3(sc),40,.016,6,false),iron));
+    const P=[[0,0],[.06,-.01],[.12,-.06],[.16,-.18],[.18,-.32],[.24,-.44],[.27,-.48],[0,-.48]].map(([x,y])=>new R.Vector2(x,y));
+    const bellM=new R.Mesh(new R.LatheGeometry(P,28),brassM);bellM.position.set(bx,cy+.16+2.1,bz+.62);bellM.scale.setScalar(1.4);bellM.castShadow=true;out.add(bellM);F.bell=bellM;
+    F.col.push({x:bx,z:bz,r:.2});}
   label(out,'光孔日晷',0,cy+10,cz,'正午有一道光來找你');
 }
 { // 儀式長軸：入口格柵到橢圓步道之間，兩排石燈籠
@@ -580,6 +589,7 @@ F.hots=[
   {id:'river',name:'記錄之河',verb:'查看',x:riverX(EC.cz)+5,z:EC.cz,r:3.2},
   {id:'studio',name:'蘑菇攝影棚',verb:'進入',x:mx+2.2,z:mz+2.2,r:2.8},
   {id:'center',name:'光孔日晷',verb:'走進',x:0,z:EC.cz+2.2,r:2.4},
+  {id:'bell',name:'使命鈴',verb:'搖鈴',x:3.3,z:EC.cz+.3,r:1.2,go:()=>openApp('使命板','https://fuwei0618-cmd.github.io/Entry/mission/')},
   {id:'campfire',name:'營火',verb:'坐下',x:FX,z:FZ+1.6,r:3},
   {id:'fireflies',name:'螢火蟲',verb:'看看',x:4,z:GZ+2.5,r:3}
 ];
@@ -1083,11 +1093,12 @@ const APPS=[["WonderMedia", "https://fuwei0618-cmd.github.io/WonderMedia/", "<sv
 const APPMAP={};APPS.forEach(([n,u,svg])=>APPMAP[n]={u,svg});
 const mapV=$('#mapView'),appV=$('#appView');
 const overlayOpen=()=>!mapV.hidden||!appV.hidden||!document.getElementById('worldView').hidden;
-const PANEL_APPS=['/Entry/dream/']; // 在原本的空間裡展開成面板，後面看得到房間
+const PANEL_APPS=['/Entry/dream/','/Entry/mission/']; // 在原本的空間裡展開成面板，後面看得到房間
 function openApp(name,url){closeSheet();mapV.hidden=true;appV.classList.toggle('panel',PANEL_APPS.some(p=>url.includes(p)));
   appV.innerHTML=`<div class="ovbar"><button class="btn light" id="appBack">✕ 回到 Origina</button><h2>${esc(name)}</h2><a class="btn light" href="${url}" target="_blank" rel="noopener" aria-label="在新分頁開啟">↗</a></div><iframe src="${url}" title="${esc(name)}" allow="clipboard-write; fullscreen"></iframe>`;
   appV.hidden=false;$('#appBack').addEventListener('click',closeApp);try{history.replaceState(null,'','?app='+encodeURIComponent(name))}catch(e){}}
 addEventListener('message',e=>{if(e.origin!=='https://fuwei0618-cmd.github.io'||!e.data)return;if(e.data.origina==='close-app'&&!appV.hidden)closeApp();
+  if(e.data.origina==='goto'&&typeof e.data.scene==='string'){closeApp();goto(e.data.scene,String(e.data.spawn||''));}
   if(e.data.origina==='open-app'&&typeof e.data.url==='string'&&e.data.url.startsWith('https://fuwei0618-cmd.github.io/'))openApp(String(e.data.name||'').slice(0,30),e.data.url);});
 function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(null,'',location.pathname)}catch(e){}canvas.focus({preventScroll:true});}
 const W1F=(ix,iz)=>[hx+ix,hz+iz];

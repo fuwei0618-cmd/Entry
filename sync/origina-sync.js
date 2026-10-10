@@ -175,7 +175,7 @@
 
   let cfg = null, timer = null, pushing = false;
   // OneDrive：我的檔案 › 應用程式 › Origina › <各 App 資料夾>
-  const FOLDERS = { world: "World", ogs: "OGS", gym: "Gym", vocal: "Vocal", podcast: "Podcast", wealth: "Wealth-mgm", investment: "Investment", insurance: "Insurance", chorus: "Chorus", dream: "Dream", mission: "Mission" };
+  const FOLDERS = { world: "World", ogs: "OGS", gym: "Gym", vocal: "Vocal", podcast: "Podcast", wealth: "Wealth-mgm", investment: "Investment", insurance: "Insurance", chorus: "Chorus", dream: "Dream", mission: "Mission", bedside: "Bedside" };
   const metaKey = () => "origina-sync-meta:" + cfg.app;
   const folder = () => cfg.folder || FOLDERS[cfg.app] || cfg.app;
   const fileName = () => folder() + "/data.json";

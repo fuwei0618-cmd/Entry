@@ -91,6 +91,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .mapbox>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .mspot{position:absolute;display:flex;align-items:center;gap:4px;transform:translate(-7px,-50%)}
 .mapps{position:absolute;display:flex;gap:6px;transform:translate(-50%,-50%)}
+.mspot.col{transform:translate(-5px,-5px);display:block}.mspot.col i.dot{display:block}.mspot.col .mlab{position:absolute;top:13px;left:5px;transform:translateX(-50%)}.mspot.col .mup{position:absolute;bottom:13px;left:5px;transform:translateX(-50%);display:flex;gap:6px}
 .mspot.flip{flex-direction:row-reverse;transform:translate(calc(-100% + 7px),-50%)}
 .mspot i.dot{width:10px;height:10px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px var(--paper);flex:none}
 .mlab{border:0;background:rgba(255,248,236,.94);color:var(--ink);font:700 12px/1 var(--f);padding:6px 8px;border-radius:999px;box-shadow:0 1px 4px rgba(62,46,36,.18);white-space:nowrap;cursor:pointer}
@@ -1143,15 +1144,16 @@ const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
   ['森林入口',['forest','start'],[0,GZ+6]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,EC.cz-8.6]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
   ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
-  ['玄關',['f1','front'],W1F(0,4.6)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-14.6,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-5)],['Beauty',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
-  ['健身房',['f1','gym'],W1F(7.5,2.6),['健身房']],['Lucky',['f1','front'],W1F(-4.5,1.6),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,3.4)],
-  ['舞台門',['f1','stage'],W1F(-3.5,-4)],['世界之門',['f1','stage'],W1F(1.5,-5.4),['旅遊手冊']]];
+  ['玄關',['f1','front'],W1F(0,4.6)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-14.6,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
+  ['健身房',['f1','gym'],W1F(7.5,2.6),['健身房'],W1F(9.6,6.2)],['Lucky',['f1','front'],W1F(-4.5,1.6),['Lucky'],W1F(-5.8,4.6)],['樓梯',['f1','stairs'],W1F(-11.4,3.4)],
+  ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];
 const MAP_B=[['B1 臥室',['f2','bed'],[30,30]],['B2 禱告房',['attic','ladder'],[68,74]]];
 const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[36,82],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[90,48],['Podcast']]];
 const X0=-40,Z0=-19,MW=76,MH=80,pct=(x,z)=>[(x-X0)/MW*100,(z-Z0)/MH*100];
 function spotHTML(n,g,lp,apps,ap){const [l,t]=lp;
   const btns=(apps||[]).map(a=>APPMAP[a]?`<button class="mapp" data-app="${esc(a)}" aria-label="打開 ${esc(a)}" title="${esc(a)}">${APPMAP[a].svg}</button>`:'').join('');
   // ap：App 圖示另外放的位置（地圖座標），不跟在文字後面
+  if(['廚房','舞台門','世界之門'].includes(n))return `<div class="mspot col" style="left:${l}%;top:${t}%">${btns?`<div class="mup">${btns}</div>`:''}<i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
   return `<div class="mspot${l>68||n==='金庫'||n==='蘑菇攝影棚'?' flip':''}" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${ap?'':btns}</div>${ap&&btns?`<div class="mapps" style="left:${ap[0]}%;top:${ap[1]}%">${btns}</div>`:''}`;}
 let mapBG=null;
 function buildMapBG(){

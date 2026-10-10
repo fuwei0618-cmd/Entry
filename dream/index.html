@@ -156,6 +156,9 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .chip2.add{border-color:var(--line);background:transparent;color:var(--muted)}
 .rules2{padding:12px 16px;display:grid;gap:4px}.rules2 p{margin:0;font-size:14px}.rules2 b{display:inline-block;width:24px;font-size:16px}
 .tl2 .c.base{flex-direction:column;line-height:1.2}.tl2 .c.base small{font-size:10px;color:var(--muted)}
+.tl2 .c.perf{gap:3px;justify-content:center}
+.pdots{display:flex;gap:5px}.pdots i{width:11px;height:11px;border-radius:50%;border:1.5px solid #C9BBA4;background:#fff}
+.pdots i.pd-pre{border-color:var(--gold);background:#FFF1D2}.pdots i.pd-done{border-color:var(--gold);background:var(--gold)}
 .tl2 .c.pf-pre{border:1.5px solid var(--gold);border-style:solid;background:#FFF6E2;color:#7A5512}
 .tl2 .c.pf-done{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:700}.tl2 .c.pf-done small{color:#FFF3D6}
 .wk{padding:14px}
@@ -242,6 +245,7 @@ if((D.v||1)<2){D.northStars.forEach(s=>{if(s.id==="teresa"&&s.sub==="唱歌・�
 if(D.v<4&&D.v>=3){D.week=D.week||WEEK();D.v=4;try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
 if(D.v<3){D.northStars.forEach(s=>{if(s.id==="home")s.title=s.title.replace(/^(中山路Home|老家)/,"老宅Home");});if(!D.lanes)Object.assign(D,LAYER2());D.week=D.week||WEEK();D.v=4;try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
+if(D.perf&&!D.perfM){D.perfM={};Object.entries(D.perf).forEach(([id,p])=>{if(p&&p.st&&p.st!=="none"){const y=+id.slice(0,4),q=+id.slice(5);[1,2,3].forEach(k=>D.perfM[`${y}-${String((q-1)*3+k).padStart(2,"0")}`]=p.st);}if(p)delete p.st;});save();}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pad=n=>String(n).padStart(2,"0");
@@ -328,12 +332,12 @@ function layer2(cs){
   const rows=D.lanes.map(l=>`<tr><td class="lname"><button data-lane="${l.id}"><b>${esc(l.name)}</b><small>${esc(l.for||"")}</small></button></td>${ss.map(id=>{const v=cell(id,l.id);return `<td><button class="c ${v}${id===cs?" now":""}" data-cell="${id}|${l.id}" aria-label="${esc(l.name)} ${sLabel(id)}：${ST[v]}，點一下換">${ST[v]}</button></td>`;}).join("")}</tr>`).join("");
   D.perf=D.perf||{};
   const PF={none:"",pre:"已預掛",done:"達成"};
-  const base=`<tr class="sep"><td class="lname"><div><b>${esc(D.base.name)}</b><small>${esc(D.base.for)}</small></div></td>${ss.map(id=>{const p=D.perf[id]||{};const st=p.st||"none";return `<td><button class="c base pf-${st}" data-perf="${id}" aria-label="國泰 ${sLabel(id)} 業績">${st==="none"?(p.note?esc(p.note):"業績"):`${PF[st]}${p.note?`<small>${esc(p.note)}</small>`:""}`}</button></td>`;}).join("")}</tr>`;
+  const base=`<tr class="sep"><td class="lname"><div><b>${esc(D.base.name)}</b><small>${esc(D.base.for)}</small></div></td>${ss.map(id=>{const p=D.perf[id]||{},ms=pMonths(id);return `<td><button class="c base perf" data-perf="${id}" aria-label="國泰 ${sLabel(id)} 每月業績"><span class="pdots">${ms.map(m=>`<i class="pd-${pm(m)}" title="${+m.slice(5)} 月"></i>`).join("")}</span><small>${p.note?esc(p.note):ms.map(m=>+m.slice(5)).join("・")+" 月"}</small></button></td>`;}).join("")}</tr>`;
   const cnt=`<tr class="cnt"><td class="lname"><small>這季的主力</small></td>${ss.map(id=>{const n=D.lanes.filter(l=>cell(id,l.id)==="main").length,h=D.lanes.some(l=>cell(id,l.id)==="heal");return `<td>${n?"1 個":h?"好好休養":"還沒選"}</td>`;}).join("")}</tr>`;
   return `<section><h2>每季力氣<small>${sLabel(START)} → ${sLabel(TWO_END)}・點格子換狀態</small></h2>
     <div class="card l2"><div class="legend2"><span><i class="sw main"></i>主力：這季最用力（每季最多一個）</span><span><i class="sw keep"></i>維持：照常去</span><span><i class="sw rest"></i>休息：先不做</span><span><i class="sw heal"></i>身體修復期</span></div>
     <div class="tl2"><table><thead><tr><th></th>${head}</tr></thead><tbody>${rows}${base}${cnt}</tbody></table></div>
-    <p class="hint">格子一直點會依序換成：休息 → 維持 → 主力 → 修復期。點左邊的名字可以改名、放回觀察中或刪除。</p></div></section>
+    <p class="hint">國泰的三個小圓點是那一季的三個月：空心＝還沒、金框＝已預掛、實心＝達成，點一下就能標。<br>格子一直點會依序換成：休息 → 維持 → 主力 → 修復期。點左邊的名字可以改名、放回觀察中或刪除。</p></div></section>
   <section><h2>觀察中<small>還沒決定的事，不用排進格子</small></h2>
     <div class="card tray2">${D.watch.map((w,i)=>`<button class="chip2" data-watch="${i}">${esc(w)}</button>`).join("")}<button class="chip2 add" data-addwatch>＋ 新增</button>
     <p class="hint" style="flex-basis:100%">哪一季想試，就點它「拉進格子」；試完可以再放回來。</p></div></section>
@@ -348,68 +352,16 @@ function bind2(){
   document.querySelectorAll("[data-watch]").forEach(b=>b.onclick=()=>watchDialog(+b.dataset.watch));
   const aw=$("[data-addwatch]");if(aw)aw.onclick=()=>dialog(`<h3>新增一件觀察中的事</h3><label class="field">名稱<input id="wn" maxlength="16"></label><div class="row"><button class="btn pri" data-ok>新增</button><button class="btn ghost" data-x>取消</button></div>`,
     box=>box.querySelector("[data-ok]").onclick=()=>{const v=box.querySelector("#wn").value.trim();if(v){D.watch.push(v);save();}closeDlg();render();});}
-function perfDialog(id){const p=D.perf[id]||{};let st=p.st||"none";
-  dialog(`<h3>國泰・${sLabel(id)}</h3><p class="muted">簡單標就好：這一季的業績掛上了沒？可以預掛三個月。</p>
-  <div class="seg">${[["none","還沒"],["pre","已預掛"],["done","達成"]].map(([k,t])=>`<button data-st="${k}" aria-pressed="${st===k}">${t}</button>`).join("")}</div>
-  <label class="field">備註（選填，例如金額、掛到幾月）<input id="pn" maxlength="20" value="${esc(p.note||"")}"></label>
+// 國泰業績一個月一個月算：每一季的格子裡放三個小圓點（空心＝還沒、金框＝已預掛、實心＝達成）
+const pMonths=id=>{const{y,q}=sParse(id);return [1,2,3].map(k=>`${y}-${pad((q-1)*3+k)}`);};
+const pm=m=>((D.perfM||{})[m])||"none";
+function perfDialog(id){D.perfM=D.perfM||{};const p=D.perf[id]||{},ms=pMonths(id),st={};ms.forEach(m=>st[m]=pm(m));
+  dialog(`<h3>國泰・${sLabel(id)}</h3><p class="muted">一個月一個月標：掛上了沒？可以預掛三個月。</p>
+  ${ms.map(m=>`<div class="field">${+m.slice(5)} 月<div class="seg">${[["none","還沒"],["pre","已預掛"],["done","達成"]].map(([k,t])=>`<button data-m="${m}" data-st="${k}" aria-pressed="${st[m]===k}">${t}</button>`).join("")}</div></div>`).join("")}
+  <label class="field">備註（選填，例如金額）<input id="pn" maxlength="20" value="${esc(p.note||"")}"></label>
   <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn ghost" data-x>取消</button></div>`,
-  box=>{box.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{st=b.dataset.st;box.querySelectorAll("[data-st]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
-    box.querySelector("[data-ok]").onclick=()=>{D.perf[id]={st,note:box.querySelector("#pn").value.trim()};save();closeDlg();render();};});}
-
-/* ---------- 第三層：一週 ---------- */
-const DAYS=["一","二","三","四","五","六","日"],PARTS=["早","中","晚"],OUTFITS=["正裝","運動服","休閒",""];
-const itemById=id=>D.week.items.find(i=>i.id===id);
-function layer3(){
-  const W=D.week,cnt={},total=21;let filled=0;
-  Object.values(W.slots).forEach(v=>{const it=itemById(v.item);if(!it)return;cnt[it.cat]=(cnt[it.cat]||0)+1;filled++;});
-  const blank=total-filled;
-  const cellHTML=(d,p)=>{const v=W.slots[d+"-"+p],it=v&&itemById(v.item);
-    return `<td><div class="slot${it?" full":""}" data-slot="${d}-${p}" style="${it?`--c:${CATS[it.cat].c}`:""}">${it?`<span class="grain"></span><b>${esc(it.name)}</b>${v.time?`<small>${esc(v.time)}</small>`:""}`:"<i>＋</i>"}</div></td>`;};
-  const rows=PARTS.map((pt,p)=>`<tr><th>${pt}</th>${DAYS.map((_,d)=>cellHTML(d,p)).join("")}</tr>`).join("");
-  const outfit=`<tr class="outfit"><th>服裝</th>${DAYS.map((_,d)=>`<td><button data-outfit="${d}" class="of of-${["正裝","運動服","休閒"].indexOf(W.outfit[d])}">${esc(W.outfit[d]||"—")}</button></td>`).join("")}</tr>`;
-  const segs=Object.keys(CATS).filter(k=>cnt[k]).map(k=>({k,n:cnt[k]}));if(blank)segs.push({k:"blank",n:blank});
-  const sand=`<div class="sandbar">${segs.map(s=>`<span style="flex:${s.n};--c:${s.k==="blank"?"#EFE6D4":CATS[s.k].c}"><i class="grain"></i></span>`).join("")}</div>
-    <div class="sandleg">${segs.map(s=>`<span><i style="background:${s.k==="blank"?"#EFE6D4":CATS[s.k].c}"></i>${s.k==="blank"?"留白":CATS[s.k].n} ${Math.round(s.n/total*100)}%</span>`).join("")}</div>`;
-  return `<section><h2>這一週的樣子<small>點格子放沙子・按住拖曳可以換位置</small></h2>
-    <div class="card wk"><div class="wkscroll"><table><thead><tr><th></th>${DAYS.map(d=>`<th>${d}</th>`).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>
-    <p class="hint">這是一週的範本，不是紀錄：隨時可以拖動、換掉。</p></div></section>
-  <section><h2>這週的沙<small>每一格是一把沙，看看力氣流向哪裡</small></h2><div class="card wk">${sand}</div></section>
-  <section><h2>沙子的種類<small>點一下可以改名或換顏色分類</small></h2><div class="card tray2">${W.items.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}<button class="chip2 add" data-additem>＋ 新的沙子</button></div></section>`;}
-function bind3(){
-  const W=D.week;
-  document.querySelectorAll("[data-outfit]").forEach(b=>b.onclick=()=>{const d=+b.dataset.outfit,i=OUTFITS.indexOf(W.outfit[d]||"");W.outfit[d]=OUTFITS[(i+1)%OUTFITS.length];save();render();});
-  document.querySelectorAll("[data-item]").forEach(b=>b.onclick=()=>itemDialog(itemById(b.dataset.item)));
-  const ai=$("[data-additem]");if(ai)ai.onclick=()=>itemDialog(null);
-  document.querySelectorAll("[data-slot]").forEach(el=>{
-    let sx,sy,drag=null,moved=false,timer;
-    el.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;moved=false;
-      if(!W.slots[el.dataset.slot])return;
-      timer=setTimeout(()=>{drag=el.cloneNode(true);drag.className+=" ghost";document.body.appendChild(drag);el.classList.add("lift");
-        try{el.setPointerCapture(e.pointerId);}catch(_){}move(e);navigator.vibrate&&navigator.vibrate(8);},e.pointerType==="mouse"?120:260);});
-    const move=e=>{if(!drag)return;drag.style.left=e.clientX+"px";drag.style.top=e.clientY+"px";
-      document.querySelectorAll(".slot.over").forEach(x=>x.classList.remove("over"));const t=target(e);if(t&&t!==el)t.classList.add("over");};
-    const target=e=>{drag&&(drag.style.display="none");const t=document.elementFromPoint(e.clientX,e.clientY);drag&&(drag.style.display="");return t&&t.closest("[data-slot]");};
-    el.addEventListener("pointermove",e=>{if(Math.hypot(e.clientX-sx,e.clientY-sy)>8){moved=true;if(!drag)clearTimeout(timer);}move(e);if(drag)e.preventDefault();});
-    el.addEventListener("pointerup",e=>{clearTimeout(timer);
-      if(drag){const t=target(e);drag.remove();drag=null;el.classList.remove("lift");
-        if(t&&t!==el){const a=el.dataset.slot,b=t.dataset.slot,va=W.slots[a],vb=W.slots[b];if(vb)W.slots[a]=vb;else delete W.slots[a];W.slots[b]=va;save();render();}return;}
-      if(!moved)slotDialog(el.dataset.slot);});
-    el.addEventListener("pointercancel",()=>{clearTimeout(timer);if(drag){drag.remove();drag=null;el.classList.remove("lift");}});
-    el.addEventListener("contextmenu",e=>e.preventDefault());});}
-function slotDialog(key){const W=D.week,[d,p]=key.split("-").map(Number),v=W.slots[key]||{};let pick=v.item||null;
-  dialog(`<h3>星期${DAYS[d]}・${PARTS[p]}</h3><div class="field">放哪一種沙子？<div class="fishes">${W.items.map(i=>`<button class="chip3" data-pick="${i.id}" aria-pressed="${pick===i.id}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}</div></div>
-    <label class="field">時間（選填）<input id="tm" maxlength="12" value="${esc(v.time||"")}" placeholder="例如 1030"></label>
-    <div class="row"><button class="btn pri" data-ok>放好</button>${v.item?`<button class="btn" data-clear>清空這格</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
-  box=>{box.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{pick=b.dataset.pick;box.querySelectorAll("[data-pick]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
-    box.querySelector("[data-ok]").onclick=()=>{if(pick){const t=box.querySelector("#tm").value.trim();W.slots[key]=t?{item:pick,time:t}:{item:pick};save();}closeDlg();render();};
-    const c=box.querySelector("[data-clear]");if(c)c.onclick=()=>{delete W.slots[key];save();closeDlg();render();};});}
-function itemDialog(it){const W=D.week;let cat=it?it.cat:"body";
-  dialog(`<h3>${it?"編輯沙子":"新的沙子"}</h3><label class="field">名稱<input id="inm" maxlength="12" value="${esc(it?it.name:"")}"></label>
-    <div class="field">屬於哪一類（決定顏色）<div class="fishes">${Object.entries(CATS).map(([k,c])=>`<button class="chip3" data-cat="${k}" aria-pressed="${cat===k}" style="--c:${c.c}"><i></i>${c.n}</button>`).join("")}</div></div>
-    <div class="row"><button class="btn pri" data-ok>存好</button>${it?`<button class="btn" data-del>刪除</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
-  box=>{box.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;box.querySelectorAll("[data-cat]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
-    box.querySelector("[data-ok]").onclick=()=>{const n=box.querySelector("#inm").value.trim();if(!n)return;if(it){it.name=n;it.cat=cat;}else W.items.push({id:"i"+Date.now().toString(36),name:n,cat});save();closeDlg();render();};
-    const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{W.items=W.items.filter(x=>x!==it);Object.keys(W.slots).forEach(k=>{if(W.slots[k].item===it.id)delete W.slots[k];});save();closeDlg();render();};});}
+  box=>{box.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{st[b.dataset.m]=b.dataset.st;box.querySelectorAll(`[data-m="${b.dataset.m}"]`).forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    box.querySelector("[data-ok]").onclick=()=>{ms.forEach(m=>{if(st[m]==="none")delete D.perfM[m];else D.perfM[m]=st[m];});D.perf[id]={note:box.querySelector("#pn").value.trim()};save();closeDlg();render();};});}
 function laneDialog(l){dialog(`<h3>${esc(l.name)}</h3><label class="field">名稱<input id="ln" maxlength="16" value="${esc(l.name)}"></label><label class="field">為了哪顆北極星（選填）<input id="lf" maxlength="24" value="${esc(l.for||"")}"></label>
   <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn" data-watchit>放回觀察中</button><button class="btn" data-del>刪除</button><button class="btn ghost" data-x>取消</button></div>`,
   box=>{box.querySelector("[data-ok]").onclick=()=>{l.name=box.querySelector("#ln").value.trim()||l.name;l.for=box.querySelector("#lf").value.trim();save();closeDlg();render();};

@@ -147,6 +147,25 @@ textarea{min-height:76px;resize:vertical}
 .fmap.mini{max-height:280px}.fmap.mini .pin{pointer-events:none}.fmap.mini .pin span small{display:block;font-size:9px;opacity:.7;text-align:center}
 .fmap.mini .pin.lit i{background:#FFD97A;border-color:#E2B85C;box-shadow:0 0 0 4px rgba(255,210,110,.45),0 0 18px rgba(255,190,80,.8)}
 .fmap.mini .pin.lit span{background:var(--ink);color:#FBF9F5}
+.cseg{display:flex;justify-content:center;gap:6px}.cseg button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:13.5px}.cseg button[aria-pressed="true"]{background:var(--ink);color:#FBF9F5;border-color:var(--ink)}
+.ckinds{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}.ckinds button{border:1px solid rgba(59,53,46,.12);border-radius:999px;padding:3px 11px;font-size:12.5px}.ckinds button[aria-pressed="false"]{opacity:.35}
+.k-idol{background:#F6D9CF}.k-tat{background:#E4E0F2}.k-film{background:#D8E7EE}.k-plan{background:#DDEBD6}.k-space{background:#F3E6C8}
+.cstage{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:1/1;border-radius:18px;background:var(--card);border:1px solid var(--line);overflow:hidden}
+.cstage svg{position:absolute;inset:0;width:100%;height:100%}
+.cstage.editing{box-shadow:0 0 0 2px var(--brass)}
+.citem{position:absolute;transform:translate(-50%,-50%);border:1px solid rgba(59,53,46,.12);border-radius:999px;padding:.15em .75em;cursor:pointer;white-space:nowrap;color:var(--ink);line-height:1.5;touch-action:none}
+.cstage:not(.editing) .citem{touch-action:manipulation}
+.citem.dim{opacity:.22}.citem.on{outline:2px solid var(--ink);outline-offset:1px}.citem.fire{box-shadow:0 0 0 2px #C9A55A,0 0 14px rgba(226,184,92,.6)}
+.editing .citem{cursor:grab}
+.cplace{position:absolute;transform:translate(-50%,-14px);display:flex;flex-direction:column;align-items:center;gap:3px}
+.cpl{border:0;background:rgba(59,53,46,.85);color:#FBF9F5;border-radius:999px;padding:2px 9px;font-size:11.5px}.cpl.on{background:#C9A55A}
+.cstack{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;max-width:120px}.cstack .citem,.ctags .citem{position:static;transform:none}.cstack .citem{font-size:10.5px!important}
+.cdetail{padding:16px;display:grid;gap:8px}.cdetail p{margin:0;font-size:14.5px}
+.cname{margin:0;font-family:var(--serif);font-size:20px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cname small{font-family:var(--f);font-size:12px;border-radius:999px;padding:1px 9px}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}.ctags span{font-size:12px;border-radius:999px;padding:1px 10px;color:#fff}
+.cmini{position:relative;width:100%;aspect-ratio:2/1;border-radius:12px;overflow:hidden}.cmini svg{position:absolute;inset:0;width:100%;height:100%}
+.cmini span{position:absolute;transform:translate(-50%,-50%);font-size:10.5px;background:rgba(251,249,245,.85);border-radius:999px;padding:0 6px;color:#9A8F80;white-space:nowrap}
+.cmini span.lit{background:#3B352E;color:#FBF9F5;box-shadow:0 0 0 3px rgba(255,210,110,.6),0 0 14px rgba(255,190,80,.8)}
 .check{display:flex;gap:8px;align-items:center;font-size:14px}
 .logsel{font-size:14px;color:var(--muted)}
 .logsel select{border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff;max-width:100%}
@@ -371,23 +390,78 @@ const bell=(()=>{
 $("#mute").onclick=()=>{muted=!muted;try{localStorage.setItem("mission-muted",muted?"1":"0");}catch(e){}muteLabel();};
 function muteLabel(){$("#mute").textContent=muted?"聲音 關":"聲音 開";$("#mute").setAttribute("aria-pressed",muted);}
 
-/* ---------- 我是誰 ---------- */
-let openP=null;
+/* ---------- 我是誰：收藏放在三個我的交集裡；也可以換成 Origina 地圖看 ---------- */
+const PERS={T:{n:"Teresa",s:"一生唱",c:"#C9705A"},E:{n:"Elva",s:"一生愛",c:"#B5546F"},C:{n:"Chiara",s:"一生豐盛",c:"#8C9A6B"}};
+const KINDS={idol:"偶像",tat:"刺青",film:"電影",plan:"計畫",space:"地圖空間"};
+const MPL={"舞台":[22,6,"stage","back"],"世界之門":[62,6,"f1","stage"],"家・老宅":[50,22,"f1","front"],"Beauty":[84,18,"f1","closet"],"健身房":[66,50,"f1","gym"],"Lucky":[40,38,"f1","front"],"攝影棚":[8,44,"forest","studio"],"記錄之河":[9,68,"forest","river"],"金庫":[28,70,"forest","vault"],"日晷":[52,62,"forest","center"],"營火":[78,70,"forest","campfire"]};
+const VREG={T:[50,25],E:[80,70],C:[20,70],TE:[66,47],TC:[34,47],EC:[50,78],TEC:[50,57]};
+function defaultCollection(){
+  const L=[["鄧麗君","idol","T","Teresa 的名字從她來：用聲音帶路，從台灣唱到世界。",["舞台"]],["鄧紫棋","idol","E","最喜歡的歌手；喜歡，但不是我唱歌的範本。",["舞台"]],["蕭亞軒","idol","E","Elva：允許自己想要、允許被愛。",["Beauty"]],["Chiara","idol","C","Chiara：豐盛是地基，讓想要的東西被允許。",["金庫"]],
+    ["銀杏","tat","T","左腕：為眾生，給世界的那一面。",["舞台"]],["Camino","tat","T","胸口的朝聖之路：聲音在前面帶路。",["舞台","世界之門"]],["狼與捕夢網","tat","T","為很多女性站出來的那股熱血。",["營火"]],["罌粟花","tat","E","右腕：私密的渴望。",["Beauty"]],["女人與老虎","tat","E","右腰：女性的力量，也是 Origina 的 -na。",["Beauty","健身房"]],["藍色小星星","tat","TE","手背的熱情：給世界，也給自己。",["舞台","Beauty"]],
+    ["三個傻瓜","film","TC","追著熱愛走，成功和豐盛會自己跟上來。",["舞台","金庫"]],["來自星星的你","film","E","被一個人全心守護、也全心去愛。",["Beauty"]],["真愛每一天","film","EC","平凡的每一天，和家人、愛人一起，就是最好的人生。",["家・老宅","Lucky"]],
+    ["皮拉提斯","plan","TE","想堅持到老的一件事：身體是聲音的家。",["健身房"]],["街頭表演","plan","TC","把歌帶到街上，也是一種經營。",["舞台","記錄之河"]],["旅行","plan","EC","錢換來的自由，和自己想看的世界。",["世界之門"]],
+    ["老宅Home","space","C","五年後的家，有 Lucky 和咪咪。",["家・老宅"]],["金庫","space","C","錢是地基，讓想要的東西被允許。",["金庫"]],["Lucky","space","EC","還沒來的家人；一個被愛、也愛人的家。",["Lucky"]],
+    ["Getty 那一天","plan","TEC","中間的那一把火：高中在 Getty Center 感覺到心流，想把心裡的樣子變成真的。",["日晷"]]];
+  const items=L.map(([n,k,tags,t,pl],i)=>({id:"c"+i,n,k,tags,t,pl,s:1}));
+  const by={};items.forEach(it=>(by[it.tags]=by[it.tags]||[]).push(it));
+  Object.entries(by).forEach(([r,G])=>{const [cx,cy]=VREG[r],n=G.length,single=r.length===1;G.forEach((it,i)=>{const two=single&&n>3,col=two?(i%2?9.5:-9.5):0,row=two?Math.floor(i/2):i,rows=two?Math.ceil(n/2):n;it.x=cx+col;it.y=cy+(row-(rows-1)/2)*(single?6.5:5.2);if(r==="TEC")it.y=cy+7;});});
+  return items;}
+let meView="venn",meSel=null,meSelP=null,meEdit=false,meDraft=null,meKinds={idol:1,tat:1,film:1,plan:1,space:1};
+const meItems=()=>meEdit?meDraft:(D.collection=D.collection||defaultCollection());
 function renderMe(){
-  $("#app").innerHTML=`<section class="card cover">${sundialSVG()}<div class="fire">中間那一把火：把心裡的樣子變成真的。</div><p>源頭是高中參觀 Getty Center 的那天。</p></section>
-  <section style="display:grid;gap:12px">${D.personas.map(p=>`<article class="card persona${openP===p.id?" open":""}" style="color:inherit">
-    <button data-p="${p.id}" aria-expanded="${openP===p.id}"><span class="ill" style="color:${PCOL[p.id]}">${ILL[PIMG[p.id][0]]}</span><span><span class="nm">${PNAME[p.id]}</span><br><span class="fm">${esc(p.formula)}（${esc(p.give)}）</span></span><span class="chev">›</span></button>
-    <div class="pbody"><div class="big" style="color:${PCOL[p.id]}">${PIMG[p.id].map(k=>ILL[k]).join("")}${p.id==="teresa"?ILL.dream:""}</div>
-      <dl><dt>刺青</dt><dd>${p.tattoos.map(esc).join("、")}</dd><dt>在 Origina</dt><dd>${esc(p.place)}</dd></dl>
-      <label class="field">我寫的一段話<textarea data-ptext="${p.id}" placeholder="寫下 ${PNAME[p.id]} 對你的意義…">${esc(p.text)}</textarea></label>
-      <div class="row"><button class="btn pri" data-walk="${p.id}">走去 Origina 的那裡</button></div></div></article>`).join("")}</section>
-  <p class="muted" style="font-size:12.5px;margin:0;text-align:center">插畫是用狼、老虎、花的意象畫的。之後你有自己的圖，可以再換。</p>`;
-  document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{openP=openP===b.dataset.p?null:b.dataset.p;renderMe();});
-  document.querySelectorAll("[data-ptext]").forEach(t=>t.oninput=()=>{D.personas.find(p=>p.id===t.dataset.ptext).text=t.value;save();});
-  document.querySelectorAll("[data-walk]").forEach(b=>b.onclick=()=>{const p=D.personas.find(x=>x.id===b.dataset.walk);
-    try{if(window.parent!==window){window.parent.postMessage({origina:"goto",scene:p.go[0],spawn:p.go[1]},"*");return;}}catch(e){}
-    location.href="https://fuwei0618-cmd.github.io/Entry/?go="+p.go.join(",");});}
-
+  const items=meItems();
+  const chip=(it,abs)=>`<button class="citem k-${it.k}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${esc(it.n)}</button>`;
+  const venn=`<svg viewBox="0 0 100 100" aria-hidden="true"><g fill-opacity=".12" stroke-width=".5"><circle cx="50" cy="36" r="27" fill="#C9705A" stroke="#C9705A"/><circle cx="35" cy="62" r="27" fill="#8C9A6B" stroke="#8C9A6B"/><circle cx="65" cy="62" r="27" fill="#B5546F" stroke="#B5546F"/></g><g font-family="serif" font-size="4" text-anchor="middle"><text x="50" y="4.5" fill="#C9705A">Teresa・一生唱</text><text x="3" y="97" text-anchor="start" fill="#8C9A6B">Chiara・一生豐盛</text><text x="97" y="97" text-anchor="end" fill="#B5546F">Elva・一生愛</text></g><path d="M50 46 C54 50 55 53 53 56 C52 58 48 58 47 56 C45 53 47 51 49 49 C49 51 50 52 50 46Z" fill="#E2B85C"/></svg>`;
+  const map=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="#DCE6D2"/><path d="M0 40 C6 55 4 75 10 100 L0 100Z" fill="#AFCBD0"/><ellipse cx="50" cy="66" rx="40" ry="24" fill="none" stroke="#E6D6B4" stroke-width="2.4"/><rect x="30" y="6" width="56" height="44" rx="2" fill="#F1ECE2" stroke="#D8CFBE" stroke-width=".8"/><circle cx="50" cy="66" r="5" fill="#9CC7CF"/><circle cx="50" cy="66" r="3.6" fill="#EFE9DD"/></svg>`;
+  const at={};items.forEach(it=>{const p=(it.pl||[])[0];if(p)(at[p]=at[p]||[]).push(it);});
+  const stage=meView==="venn"?venn+items.map(it=>chip(it,1)).join(""):map+Object.entries(MPL).map(([p,[x,y]])=>`<div class="cplace" style="left:${x}%;top:${y}%"><button class="cpl${meSelP===p?" on":""}" data-p="${esc(p)}">${esc(p)}</button><div class="cstack">${(at[p]||[]).filter(it=>meKinds[it.k]).map(it=>chip(it,0)).join("")}</div></div>`).join("");
+  const sel=items.find(it=>it.id===meSel);
+  const miniMap=pl=>`<div class="cmini">${map}${Object.entries(MPL).map(([p,[x,y]])=>`<span class="${(pl||[]).includes(p)?"lit":""}" style="left:${x}%;top:${y}%">${esc(p)}</span>`).join("")}</div>`;
+  let detail=`<p class="muted" style="margin:0">點任何一件收藏。中間那把火，是三個我都有的事。</p>`;
+  if(sel)detail=`<h3 class="cname">${esc(sel.n)}<small class="k-${sel.k}">${KINDS[sel.k]}</small></h3><div class="ctags">${sel.tags.split("").map(k=>`<span style="background:${PERS[k].c}">${PERS[k].n}</span>`).join("")}</div><p>${esc(sel.t||"")}</p>${miniMap(sel.pl)}
+    ${meEdit?`<label class="field">份量（在我心中有多重）<input type="range" id="csize" min="0.7" max="2" step="0.1" value="${sel.s||1}"></label>`:""}
+    <div class="row">${(sel.pl||[])[0]&&MPL[sel.pl[0]]?`<button class="btn pri" data-walk2="${esc(sel.pl[0])}">走去 Origina 的${esc(sel.pl[0])}</button>`:""}<button class="btn" data-editc="${sel.id}">修改這張卡</button></div>`;
+  else if(meView==="map"&&meSelP){const L=items.filter(it=>(it.pl||[]).includes(meSelP));detail=`<h3 class="cname">${esc(meSelP)}</h3><p class="muted" style="margin:0;font-size:13px">住在這裡的收藏</p><div class="ctags" style="gap:6px">${L.map(it=>chip(it,0)).join("")||'<span class="muted">還沒有</span>'}</div>${MPL[meSelP]?`<button class="btn pri" data-walk2="${esc(meSelP)}">走去 Origina 的${esc(meSelP)}</button>`:""}`;}
+  $("#app").innerHTML=`<section style="display:grid;gap:12px">
+    <h2 style="margin:0;text-align:center;font-family:var(--serif);font-size:22px;color:var(--ink);letter-spacing:.1em">我是誰</h2>
+    <div class="cseg">${[["venn","三個我（交集）"],["map","Origina 地圖"]].map(([k,t])=>`<button data-mv="${k}" aria-pressed="${meView===k}">${t}</button>`).join("")}</div>
+    <div class="ckinds">${Object.entries(KINDS).map(([k,t])=>`<button class="k-${k}" data-k="${k}" aria-pressed="${!!meKinds[k]}">${t}</button>`).join("")}</div>
+    <div class="cstage${meEdit?" editing":""}" id="cstage">${stage}</div>
+    <div class="row" style="justify-content:center">${meEdit?`<button class="btn pri" id="cSave">儲存</button><button class="btn" id="cCancel">取消</button><span class="muted" style="font-size:12.5px">拖曳移動位置；點一件，用下面的滑桿調份量</span>`:`<button class="btn" id="cEdit">調整位置和大小</button><button class="btn" id="cAdd">＋ 新增收藏</button>`}</div>
+    <div class="card cdetail">${detail}</div></section>`;
+  document.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{meView=b.dataset.mv;meSelP=null;renderMe();});
+  document.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{meKinds[b.dataset.k]=meKinds[b.dataset.k]?0:1;renderMe();});
+  document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{meSelP=b.dataset.p;meSel=null;renderMe();});
+  document.querySelectorAll("[data-walk2]").forEach(b=>b.onclick=()=>{const m=MPL[b.dataset.walk2];try{if(window.parent!==window){window.parent.postMessage({origina:"goto",scene:m[2],spawn:m[3]},"*");return;}}catch(e){}location.href="https://fuwei0618-cmd.github.io/Entry/?go="+m[2]+","+m[3];});
+  document.querySelectorAll("[data-editc]").forEach(b=>b.onclick=()=>collectionDialog(items.find(it=>it.id===b.dataset.editc)));
+  const ce=$("#cEdit");if(ce)ce.onclick=()=>{meDraft=JSON.parse(JSON.stringify(D.collection||defaultCollection()));meEdit=true;meView="venn";renderMe();};
+  const ca=$("#cAdd");if(ca)ca.onclick=()=>collectionDialog(null);
+  const cs=$("#cSave");if(cs)cs.onclick=()=>{D.collection=meDraft;meEdit=false;meDraft=null;save();renderMe();};
+  const cc=$("#cCancel");if(cc)cc.onclick=()=>{meEdit=false;meDraft=null;renderMe();};
+  const sz=$("#csize");if(sz)sz.oninput=()=>{sel.s=+sz.value;const el=document.querySelector(`#cstage [data-id="${sel.id}"]`);if(el)el.style.fontSize=(11.5*sel.s).toFixed(1)+"px";};
+  // 點選／拖曳
+  const st=$("#cstage");
+  st.querySelectorAll("[data-id]").forEach(el=>{let sx,sy,moved=false,drag=false;
+    el.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;moved=false;drag=meEdit&&meView==="venn";if(drag){try{el.setPointerCapture(e.pointerId);}catch(_){}}});
+    el.addEventListener("pointermove",e=>{if(!drag)return;if(Math.hypot(e.clientX-sx,e.clientY-sy)>4)moved=true;if(!moved)return;e.preventDefault();const r=st.getBoundingClientRect(),it=items.find(x=>x.id===el.dataset.id);
+      it.x=Math.max(3,Math.min(97,(e.clientX-r.left)/r.width*100));it.y=Math.max(3,Math.min(97,(e.clientY-r.top)/r.height*100));el.style.left=it.x+"%";el.style.top=it.y+"%";});
+    el.addEventListener("pointerup",()=>{drag=false;});
+    el.addEventListener("click",e=>{e.stopPropagation();if(moved)return;meSel=el.dataset.id;renderMe();});});}
+function collectionDialog(it){const isNew=!it;it=it||{id:"c"+Date.now().toString(36),n:"",k:"film",tags:"",t:"",pl:[],x:50,y:50,s:1};let k=it.k,tags=new Set(it.tags.split("").filter(Boolean)),pl=new Set(it.pl||[]);
+  const seg=(attr,obj,cur,multi)=>`<div class="pseg">${Object.entries(obj).map(([v,t])=>`<button data-${attr}="${v}" aria-pressed="${multi?cur.has(v):cur===v}">${typeof t==="string"?t:t.n}</button>`).join("")}</div>`;
+  const draw=box=>{box.querySelector("#cbody").innerHTML=`<label class="field">名稱<input type="text" id="cn" maxlength="16" value="${esc(it.n)}"></label>
+    <div class="field">類型${seg("ck",KINDS,k)}</div><div class="field">屬於哪幾個我（可以多選）${seg("ct",PERS,tags,1)}</div>
+    <label class="field">一句話<textarea id="cdesc">${esc(it.t)}</textarea></label>
+    <div class="field">住在 Origina 的哪裡（可以多選，第一個是主要的）${seg("cp",Object.fromEntries(Object.keys(MPL).map(p=>[p,p])),pl,1)}</div>`;
+    box.querySelectorAll("[data-ck]").forEach(b=>b.onclick=()=>{it.n=box.querySelector("#cn").value;it.t=box.querySelector("#cdesc").value;k=b.dataset.ck;draw(box);});
+    box.querySelectorAll("[data-ct]").forEach(b=>b.onclick=()=>{it.n=box.querySelector("#cn").value;it.t=box.querySelector("#cdesc").value;const v=b.dataset.ct;tags.has(v)?tags.delete(v):tags.add(v);draw(box);});
+    box.querySelectorAll("[data-cp]").forEach(b=>b.onclick=()=>{it.n=box.querySelector("#cn").value;it.t=box.querySelector("#cdesc").value;const v=b.dataset.cp;pl.has(v)?pl.delete(v):pl.add(v);draw(box);});};
+  dialog(`<h3>${isNew?"新增收藏":"修改這張卡"}</h3><div id="cbody" style="display:grid;gap:10px"></div><div class="row"><button class="btn pri" data-ok>存好</button>${isNew?"":`<button class="btn" data-del>刪除這件</button>`}<button class="btn ghost" data-x>取消</button></div>`,
+  box=>{draw(box);box.querySelector("[data-ok]").onclick=()=>{const n=box.querySelector("#cn").value.trim();if(!n||!tags.size)return;
+      const order=["T","E","C"];const T=order.filter(x=>tags.has(x)).join("");const L=meEdit?meDraft:(D.collection=D.collection||defaultCollection());
+      Object.assign(it,{n,k,t:box.querySelector("#cdesc").value.trim(),pl:[...pl]});if(it.tags!==T||isNew){it.tags=T;const [cx,cy]=VREG[T];it.x=cx+(Math.random()-.5)*8;it.y=cy+(Math.random()-.5)*8;}
+      if(isNew)L.push(it);if(!meEdit)save();meSel=it.id;closeDlg();renderMe();};
+    const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{const L=meEdit?meDraft:D.collection;const i=L.indexOf(it);if(i>=0)L.splice(i,1);if(!meEdit)save();meSel=null;closeDlg();renderMe();};});}
 /* ---------- 拆解室：說一個事件 → 帶去 Claude 拆 → 貼回拆解碼 → 存成紀錄 ---------- */
 let roomFrom=null,openPlace=null;
 /* 六步拆解：每一步一個理論、一排燈 */

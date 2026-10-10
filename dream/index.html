@@ -184,6 +184,33 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .chip3{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:14px}
 .chip3 i{width:12px;height:12px;border-radius:4px;background:var(--c)}
 .chip3[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 1.5px var(--ink)}
+.tdays{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.tday{flex:0 0 auto;min-width:128px;padding:10px 14px;display:grid;gap:1px;text-align:left}
+.tday b{font-size:22px;font-variant-numeric:tabular-nums}.tday b span{font-size:12px;font-weight:400;color:var(--muted);margin-left:3px}
+.tday .t{font-size:14px}.tday .d{font-size:12px;color:var(--muted)}
+.tday.add{border-style:dashed;background:transparent;color:var(--muted);place-content:center;font-size:14px;box-shadow:none}
+.focus{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fslot{min-height:72px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.fslot.empty{border-style:dashed;background:transparent;color:var(--muted);font-size:13.5px;place-content:center;text-align:center;box-shadow:none}
+.fp{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}.fp i{width:9px;height:9px;border-radius:3px}
+.fslot label{display:flex;gap:8px;align-items:flex-start;cursor:pointer;font-size:15px}
+.fslot input{margin-top:5px;accent-color:var(--ink)}
+.fslot.done .ftx{text-decoration:line-through;color:var(--muted)}
+.board{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;align-items:flex-start}
+.col{flex:0 0 220px;padding:12px;display:grid;gap:8px;align-content:start}
+.colh{border:0;background:none;padding:0;font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:7px;text-align:left}
+.colh i{width:11px;height:11px;border-radius:4px;flex:none}.colh small{font-weight:400;color:var(--muted);font-size:12px;margin-left:auto}
+.task{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;display:grid;gap:6px}
+.task.done .ttx{text-decoration:line-through;color:var(--muted)}
+.ttx{border:0;background:none;padding:0;text-align:left;font-size:13.5px}
+.task .bt{display:flex;gap:6px}
+.task .bt button{border:1px solid var(--line);background:#FAF6EF;border-radius:999px;font-size:12px;padding:2px 10px;color:var(--muted)}
+.task .bt button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FFF8EC}
+.tadd{border:1px dashed var(--line);background:transparent;border-radius:10px;padding:6px;font-size:13px;color:var(--muted)}
+.addcol{border-style:dashed;background:transparent;color:var(--muted);min-height:80px;font-size:14px;box-shadow:none}
+.cdot{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}.cdot[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.check2{display:flex;gap:8px;align-items:center;font-size:14px}
+@media (max-width:640px){.focus{grid-template-columns:1fr}}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:#FFF8EC;padding:9px 16px;border-radius:999px;font-size:13.5px;transition:.25s;pointer-events:none;z-index:20}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 @media (max-width:640px){
@@ -312,14 +339,14 @@ async function render(){
   <header><h1>夢想版</h1><p class="lede">清單不是承諾。願望先養在許願池，每一季只撈一條出來實現。</p></header>
   ${needReview?`<div class="card nudge"><span>${sLabel(ps)}結束了：「${esc(pf.name)}」那一季，翻面寫一句回顧吧。</span><button class="btn sm" data-season="${ps}">寫回顧</button></div>`:""}
   <section><h2>北極星<small>點卡片可以改日期</small></h2><div class="stars">${D.northStars.map(starCard).join("")}</div></section>
-  <nav class="tabs" role="tablist">${[["five","五年・旅行"],["two","兩年・每季"],["week","一週"]].map(([k,t])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
-  ${tab==="week"?layer3():tab==="two"?layer2(cs):`
+  <nav class="tabs" role="tablist">${[["five","五年・旅行"],["two","兩年・每季"],["week","一週"],["todo","待辦重點"]].map(([k,t])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
+  ${tab==="todo"?layer4():tab==="week"?layer3():tab==="two"?layer2(cs):`
   <section><h2>時間軸<small>2026 秋 → ${END_YEAR}，點任何一季看那季的魚缸</small></h2>${timeline(cs)}</section>
   <section><h2>這一季的魚缸<small>${sLabel(cs)}・${SEASON_MON[sParse(cs).q]}・最多一條魚</small></h2>${tankCard(cs,tf)}</section>
   <section id="studySec"><h2>今日三題<small>${tf?`「${esc(tf.name)}」的旅行 QA・連續 7 天蓋一個章`:"魚缸有魚時才會出題"}</small></h2><div id="study"></div></section>
   <section><h2>許願池<small>點一條魚，放進這一季的魚缸</small></h2>${poolCard()}</section>`}`;
   bind();
-  if(tab==="week")bind3();else if(tab==="two")bind2();else await renderStudy(tf);}
+  if(tab==="todo")bind4();else if(tab==="week")bind3();else if(tab==="two")bind2();else await renderStudy(tf);}
 
 /* ---------- 第二層：每季力氣 ---------- */
 const ST={rest:"休息",keep:"維持",main:"主力",heal:"修復期"},NEXT={rest:"keep",keep:"main",main:"heal",heal:"rest"};
@@ -362,6 +389,66 @@ function perfDialog(id){D.perfM=D.perfM||{};const p=D.perf[id]||{},ms=pMonths(id
   <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn ghost" data-x>取消</button></div>`,
   box=>{box.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{st[b.dataset.m]=b.dataset.st;box.querySelectorAll(`[data-m="${b.dataset.m}"]`).forEach(x=>x.setAttribute("aria-pressed",x===b));});
     box.querySelector("[data-ok]").onclick=()=>{ms.forEach(m=>{if(st[m]==="none")delete D.perfM[m];else D.perfM[m]=st[m];});D.perf[id]={note:box.querySelector("#pn").value.trim()};save();closeDlg();render();};});}
+/* ---------- 第四層：待辦重點 ---------- */
+const TCOL=["#D9A23A","#D9604A","#A08C72","#9CC4C0","#5E7A55","#3A2F27","#B5546F","#7C93A8"];
+function TODO(){let n=0;const id=()=>"t"+(n++).toString(36)+Date.now().toString(36);
+  const prj=(name,color,note,ts)=>({id:id(),name,color,note,tasks:ts.map(text=>({id:id(),text,done:false}))});
+  return{projects:[
+    prj("Bangkok","#D9A23A","10/30–11/8",["確認金流／退澳／mate","DriverAda","訂機票住宿","行程及攻略"]),
+    prj("正顎","#D9604A","12/18",["醫師選擇：超音波刀、出血量、美感","手術研究／正顎手冊","11/9 醫師手術方案","住院準備","術後一個月休養／職場","牙套近照紀錄"]),
+    prj("Cathay","#A08C72","",["美愛康盈","工具書：電訪、年月曆","服務件寄信／電話／年月曆","總覽／客製工具書／劇本"]),
+    prj("重慶","#9CC4C0","",["vlog、貼文、宮廷宴","寫真整理","房間整理","衣櫥整理"]),
+    prj("寫程式","#5E7A55","AI agent",["旅遊手冊","紀錄手冊","剪輯"])],
+    days:[{id:id(),date:"2026-10-30",text:"Bangkok 出發"},{id:id(),date:"2026-11-09",text:"手術醫師討論"},{id:id(),date:"2026-12-18",text:"正顎手術"},{id:id(),date:"2027-01-04",text:"新年開始上班"},{id:id(),date:"2027-02-04",text:"農曆年"}],
+    month:{},week:{}};}
+const monthKey=()=>today().slice(0,7);
+const weekKey=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return ymd(d);};
+function taskById(tid){for(const p of D.todo.projects){const t=p.tasks.find(x=>x.id===tid);if(t)return{p,t};}return null;}
+function layer4(){
+  D.todo=D.todo||TODO();const T=D.todo,mk=monthKey(),wk=weekKey();
+  T.month[mk]=(T.month[mk]||[]).filter(taskById);T.week[wk]=(T.week[wk]||[]).filter(taskById);
+  const days=T.days.slice().sort((a,b)=>a.date<b.date?-1:1).filter(d=>daysTo(d.date)>=-1);
+  const slot=(tid,isW)=>{const x=tid&&taskById(tid);if(!x)return `<div class="card fslot empty">空著也沒關係</div>`;
+    return `<div class="card fslot${x.t.done?" done":""}"><div class="fp"><i style="background:${x.p.color}"></i>${esc(x.p.name)}</div><label><input type="checkbox" data-tdone="${x.t.id}" ${x.t.done?"checked":""}><span class="ftx">${esc(x.t.text)}</span></label></div>`;};
+  const [wy,wm,wd]=wk.split("-").map(Number);
+  return `<section><h2>重要日子<small>點一下可以改・自動倒數</small></h2><div class="tdays">${days.map(d=>{const n=daysTo(d.date);return `<button class="card tday" data-day="${d.id}"><b>${n<=0?(n===0?"今天":"昨天"):n}${n>0?"<span>天</span>":""}</b><span class="t">${esc(d.text)}</span><span class="d">${+d.date.slice(5,7)}/${+d.date.slice(8)}</span></button>`;}).join("")}<button class="card tday add" data-addday>＋ 新增日子</button></div></section>
+  <section><h2>本月三件<small>${+mk.slice(5)} 月・最多三件</small></h2><div class="focus">${[0,1,2].map(i=>slot(T.month[mk][i])).join("")}</div></section>
+  <section><h2>本週三件<small>${wm}/${wd} 那週・最多三件・做完打勾</small></h2><div class="focus">${[0,1,2].map(i=>slot(T.week[wk][i],1)).join("")}</div></section>
+  <section><h2>專案抽屜<small>按「本月」「本週」把它拿出來；點文字可以改</small></h2>
+    <div class="board">${T.projects.map(p=>`<div class="card col"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button>
+      ${p.tasks.map(t=>`<div class="task${t.done?" done":""}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}">本月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}">本週</button></div></div>`).join("")}
+      <button class="tadd" data-addtask="${p.id}">＋ 新增一件</button></div>`).join("")}
+      <button class="card col addcol" data-addproj>＋ 新專案</button></div></section>`;}
+function bind4(){const T=D.todo,mk=monthKey(),wk=weekKey();
+  const tog=(L,tid,name)=>{const i=L.indexOf(tid);if(i>=0)L.splice(i,1);else if(L.length>=3)return toast(`${name}已經有三件了，先拿掉一件`);else L.push(tid);save();render();};
+  document.querySelectorAll("[data-tm]").forEach(b=>b.onclick=()=>tog(T.month[mk],b.dataset.tm,"本月"));
+  document.querySelectorAll("[data-tw]").forEach(b=>b.onclick=()=>tog(T.week[wk],b.dataset.tw,"本週"));
+  document.querySelectorAll("[data-tdone]").forEach(c=>c.onchange=()=>{taskById(c.dataset.tdone).t.done=c.checked;save();render();});
+  document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>dayDialog(T.days.find(d=>d.id===b.dataset.day)));
+  $("[data-addday]").onclick=()=>dayDialog(null);
+  document.querySelectorAll("[data-task]").forEach(b=>b.onclick=()=>{const x=taskById(b.dataset.task);taskDialog(x.p,x.t);});
+  document.querySelectorAll("[data-addtask]").forEach(b=>b.onclick=()=>taskDialog(T.projects.find(p=>p.id===b.dataset.addtask),null));
+  document.querySelectorAll("[data-proj]").forEach(b=>b.onclick=()=>projDialog(T.projects.find(p=>p.id===b.dataset.proj)));
+  $("[data-addproj]").onclick=()=>projDialog(null);}
+const nid=()=>"t"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+function dayDialog(d){dialog(`<h3>${d?"改這個日子":"新增重要日子"}</h3><label class="field">日期<input type="date" id="dd" value="${esc(d?d.date:today())}"></label><label class="field">是什麼日子<input id="dt" maxlength="20" value="${esc(d?d.text:"")}"></label>
+  <div class="row"><button class="btn pri" data-ok>存好</button>${d?`<button class="btn" data-del>刪除</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
+  box=>{box.querySelector("[data-ok]").onclick=()=>{const date=box.querySelector("#dd").value,text=box.querySelector("#dt").value.trim();if(!date||!text)return;if(d){d.date=date;d.text=text;}else D.todo.days.push({id:nid(),date,text});save();closeDlg();render();};
+    const x=box.querySelector("[data-del]");if(x)x.onclick=()=>{D.todo.days=D.todo.days.filter(y=>y!==d);save();closeDlg();render();};});}
+function taskDialog(p,t){dialog(`<h3>${esc(p.name)}・${t?"改這件事":"新增一件"}</h3><label class="field">內容<input id="tt" maxlength="60" value="${esc(t?t.text:"")}"></label>
+  ${t?`<label class="check2"><input type="checkbox" id="tdn" ${t.done?"checked":""}> 做完了</label>`:""}
+  <div class="row"><button class="btn pri" data-ok>存好</button>${t?`<button class="btn" data-del>刪除</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
+  box=>{const ok=()=>{const v=box.querySelector("#tt").value.trim();if(!v)return;if(t){t.text=v;t.done=box.querySelector("#tdn").checked;}else p.tasks.push({id:nid(),text:v,done:false});save();closeDlg();render();};
+    box.querySelector("[data-ok]").onclick=ok;box.querySelector("#tt").onkeydown=e=>{if(e.key==="Enter")ok();};
+    const x=box.querySelector("[data-del]");if(x)x.onclick=()=>{p.tasks=p.tasks.filter(y=>y!==t);save();closeDlg();render();};});}
+function projDialog(p){let color=p?p.color:TCOL[D.todo.projects.length%TCOL.length];
+  dialog(`<h3>${p?"改這個專案":"新專案"}</h3><label class="field">名稱<input id="pn2" maxlength="16" value="${esc(p?p.name:"")}"></label><label class="field">小註記（選填，例如日期）<input id="pt" maxlength="16" value="${esc(p?p.note||"":"")}"></label>
+  <div class="field">顏色<div class="fishes">${TCOL.map(c=>`<button class="cdot" data-c="${c}" aria-pressed="${c===color}" style="background:${c}" aria-label="顏色"></button>`).join("")}</div></div>
+  <div class="row"><button class="btn pri" data-ok>存好</button>${p?`<button class="btn" data-del>刪除專案</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
+  box=>{box.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{color=b.dataset.c;box.querySelectorAll("[data-c]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    box.querySelector("[data-ok]").onclick=()=>{const n=box.querySelector("#pn2").value.trim();if(!n)return;const note=box.querySelector("#pt").value.trim();if(p){p.name=n;p.note=note;p.color=color;}else D.todo.projects.push({id:nid(),name:n,note,color,tasks:[]});save();closeDlg();render();};
+    const x=box.querySelector("[data-del]");if(x)x.onclick=()=>dialog(`<h3>刪除「${esc(p.name)}」和裡面所有的事？</h3><div class="row"><button class="btn pri" data-yes>刪除</button><button class="btn ghost" data-x>取消</button></div>`,
+      b2=>b2.querySelector("[data-yes]").onclick=()=>{D.todo.projects=D.todo.projects.filter(y=>y!==p);save();closeDlg();render();});});}
 function laneDialog(l){dialog(`<h3>${esc(l.name)}</h3><label class="field">名稱<input id="ln" maxlength="16" value="${esc(l.name)}"></label><label class="field">為了哪顆北極星（選填）<input id="lf" maxlength="24" value="${esc(l.for||"")}"></label>
   <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn" data-watchit>放回觀察中</button><button class="btn" data-del>刪除</button><button class="btn ghost" data-x>取消</button></div>`,
   box=>{box.querySelector("[data-ok]").onclick=()=>{l.name=box.querySelector("#ln").value.trim()||l.name;l.for=box.querySelector("#lf").value.trim();save();closeDlg();render();};

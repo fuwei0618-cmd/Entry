@@ -36,6 +36,17 @@ h2 small{font-size:12px;letter-spacing:.04em;color:var(--muted);font-weight:400}
 .star .days span{font-size:13px;font-weight:400;color:var(--muted);margin-left:4px}
 .star::after{content:"";position:absolute;right:-18px;top:-18px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle,rgba(226,184,92,.35),transparent 70%)}
 
+/* 80 歲的我（平常收起來） */
+.at80{border:1px solid var(--line);border-radius:16px;background:linear-gradient(160deg,#FBF7F0,#EFE8DC);box-shadow:var(--shadow)}
+.at80>summary{list-style:none;cursor:pointer;padding:12px 16px;display:flex;align-items:center;gap:10px}
+.at80>summary::-webkit-details-marker{display:none}
+.at80>summary b{font-size:15px;letter-spacing:.08em}
+.at80>summary .muted{font-size:12.5px;margin-left:auto}
+.at80 .in{padding:0 16px 16px;display:grid;gap:10px}
+.at80 .tx{white-space:pre-wrap;line-height:1.9;font-size:15.5px}
+.at80 img{width:100%;max-height:280px;object-fit:cover;border-radius:12px}
+.at80 .down{font-size:12.5px;color:var(--muted);text-align:center}
+
 /* 時間軸 */
 .tl{padding:14px;overflow-x:auto}
 .tl table{border-collapse:separate;border-spacing:6px;width:100%;min-width:340px}
@@ -345,6 +356,20 @@ function finishDay(f){
 
 /* ---------- 畫面 ---------- */
 let flipped=false,tab="todo";try{tab=localStorage.getItem("dream-tab2")||"todo";}catch(e){}
+function at80HTML(){const A=D.at80||{};let open=false;try{open=localStorage.getItem("dream-80open")==="1";}catch(e){}
+  return `<details class="at80" id="at80" ${open?"open":""}><summary><span aria-hidden="true">${open?"▾":"▸"}</span><b>80 歲的我</b><span class="muted">${open?"點這裡收起":"平常收起來，只有你點開才看得到"}</span></summary>
+    <div class="in">${A.img?`<img src="${A.img}" alt="">`:""}
+      <div class="tx">${A.text?esc(A.text):`<span class="muted">她住在哪裡？每天在做什麼？身邊有誰？用你自己的話寫幾句。</span>`}</div>
+      <div class="row"><button class="btn sm" data-at80>${A.text?"改寫":"寫下來"}</button></div>
+      <div class="down">↓ 往下是五年和兩年的北極星，再往下是這一週</div></div></details>`;}
+function at80Dialog(){const A=D.at80||{};let img=A.img||"";
+  dialog(`<h3>80 歲的我</h3><label class="field">她住在哪裡、每天在做什麼、身邊有誰<textarea id="a8" style="min-height:160px">${esc(A.text||"")}</textarea></label>
+    <div class="field">一張圖（可以不放）<div class="row">${img?`<img src="${img}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px">`:""}<label class="btn sm">選一張<input type="file" accept="image/*" id="a8f" hidden></label>${img?`<button class="btn sm" id="a8x">拿掉</button>`:""}</div></div>
+    <div class="row"><button class="btn pri" data-ok>存好</button><button class="btn ghost" data-x>取消</button></div>`,
+  box=>{const keep=()=>{D.at80=Object.assign(D.at80||{},{text:box.querySelector("#a8").value});};
+    box.querySelector("#a8f").onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const N=900,sc=Math.min(1,N/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);keep();D.at80.img=c.toDataURL("image/jpeg",.8);at80Dialog();};im.src=u;};
+    const x=box.querySelector("#a8x");if(x)x.onclick=()=>{keep();D.at80.img="";at80Dialog();};
+    box.querySelector("[data-ok]").onclick=()=>{keep();save();closeDlg();render();};});}
 async function render(){
   const cs=curSeason(),tf=seasonFish(cs);
   // 上一季有魚卻還沒回顧：提醒翻面
@@ -352,6 +377,7 @@ async function render(){
   $("#app").innerHTML=`
   <header><h1>夢想版</h1><p class="lede">清單不是承諾。願望先養在許願池，每一季只撈一條出來實現。</p></header>
   ${needReview?`<div class="card nudge"><span>${sLabel(ps)}結束了：「${esc(pf.name)}」那一季，翻面寫一句回顧吧。</span><button class="btn sm" data-season="${ps}">寫回顧</button></div>`:""}
+  ${at80HTML()}
   <section><h2>北極星<small>點卡片可以改日期</small></h2><div class="stars">${D.northStars.map(starCard).join("")}</div></section>
   <nav class="tabs" role="tablist">${[["todo","待辦重點"],["week","一週"],["two","兩年・每季"],["five","五年・旅行"]].map(([k,t])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${t}</button>`).join("")}</nav>
   ${tab==="todo"?layer4():tab==="week"?layer3():tab==="two"?layer2(cs):`
@@ -718,6 +744,8 @@ function openApp(name,url){ // 在 Origina 裡打開；單獨打開時直接換�
   location.href=url;}
 
 function bind(){
+  {const d=document.getElementById("at80");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-80open",d.open?"1":"0");}catch(e){}const s=d.querySelector("summary");s.firstElementChild.textContent=d.open?"▾":"▸";s.querySelector(".muted").textContent=d.open?"點這裡收起":"平常收起來，只有你點開才看得到";});
+   const b=document.querySelector("[data-at80]");if(b)b.onclick=at80Dialog;}
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;try{localStorage.setItem("dream-tab2",tab);}catch(e){}render();});
   document.querySelectorAll("[data-star]").forEach(b=>b.onclick=()=>starDialog(D.northStars.find(s=>s.id===b.dataset.star)));
   document.querySelectorAll("[data-season]").forEach(b=>b.onclick=()=>seasonDialog(b.dataset.season));

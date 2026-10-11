@@ -91,6 +91,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .mapbox>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .mspot{position:absolute;display:flex;align-items:center;gap:4px;transform:translate(-7px,-50%)}
 .mapps{position:absolute;display:flex;gap:6px;transform:translate(-50%,-50%)}
+.mapps.colL{flex-direction:column;align-items:center;transform:translate(-50%,calc(-1 * min(28px,3vw)))}
 .mspot.below .mlab{position:absolute;bottom:calc(50% + 9px);left:5px;transform:translateX(-50%)}
 .mspot.below .mdown{position:absolute;top:calc(50% + 12px);left:5px;transform:translateX(-50%);display:flex;gap:6px}
 .mspot.col{transform:translate(-5px,-5px);display:block}.mspot.col i.dot{display:block}.mspot.col .mlab{position:absolute;top:13px;left:5px;transform:translateX(-50%)}.mspot.col .mup{position:absolute;bottom:13px;left:5px;transform:translateX(-50%);display:flex;gap:6px}
@@ -838,7 +839,8 @@ B2.hots=[
   {id:'ladder',name:'往下的樓梯',verb:'到禱告房',x:-9,z:-1.2,r:1.2,go:()=>goto('attic','ladder')},
   {id:'down',name:'樓梯',verb:'上樓',x:-7.3,z:5.4,r:1.2,go:()=>goto('f1','stairs')}
 ];
-B2.spawns={stairs:[-6.8,5.4,Math.PI/2,-Math.PI/2],ladder:[-7.4,-1.0,Math.PI/2,-Math.PI/2],bed:[0,1.2,Math.PI,0]};
+// 一進臥室：站在右下角，同時看得到床、往下的樓梯口、下沉庭院
+B2.spawns={stairs:[8.8,6.0,Math.PI,1.0,-.12,'first'],ladder:[-7.4,-1.0,Math.PI/2,-Math.PI/2],bed:[8.8,6.0,Math.PI,1.0,-.12,'first']};
 
 /* =========================================================
    4 · B2 禱告房（最深處，頭頂一道天光）
@@ -915,7 +917,7 @@ AT.hots=[
   {id:'downA',name:'樓梯',verb:'上樓',x:WA/2-2.2,z:DA/2-2.6,r:1.3,go:()=>goto('f2','ladder')}
 ];
 // 一進來：第一人稱、站在跪墊正後方，看得到三殿的門和轉運流水盆
-AT.spawns={ladder:[1.0,3.9,Math.PI,.37,-.14,'first'],stairs:[WA/2-2.6,DA/2-3.2,Math.PI,0],halls:[0,-DA/2+2.6,0,Math.PI]};
+AT.spawns={ladder:[0.8,7.6,Math.PI,.06,-.1,'first'],stairs:[WA/2-2.6,DA/2-3.2,Math.PI,0],halls:[0,-DA/2+2.6,0,Math.PI]};
 AT.update=(dt,t)=>{stoneBall.rotation.y+=dt*.35;stoneBall.rotation.x+=dt*.12;waterDisc.material.opacity=.8+Math.sin(t*1.7)*.06;const k=.85+Math.sin(t*9)*.08+Math.sin(t*23)*.05;AT.light.intensity=.5*k;flame.scale.set(1,1.7*k,1);};
 
 /* =========================================================
@@ -1185,6 +1187,7 @@ const X0=-40,Z0=-19,MW=76,MH=80,pct=(x,z)=>[(x-X0)/MW*100,(z-Z0)/MH*100];
 function spotHTML(n,g,lp,apps,ap){const [l,t]=lp;
   const btns=(apps||[]).map(a=>APPMAP[a]?`<button class="mapp" data-app="${esc(a)}" aria-label="打開 ${esc(a)}" title="${esc(a)}">${APPMAP[a].svg}</button>`:'').join('');
   // ap：App 圖示另外放的位置（地圖座標），不跟在文字後面
+  if(n==='日曆牆'&&ap)return `<div class="mspot" style="left:${l}%;top:${t}%"><i class="dot"></i></div><div class="mapps colL" style="left:${ap[0]}%;top:${ap[1]}%">${btns}<button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
   if(['樓梯','Lucky','玄關','健身房'].includes(n))return `<div class="mspot below" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${btns?`<div class="mdown">${btns}</div>`:''}</div>`;
   if(['廚房','舞台門','世界之門'].includes(n))return `<div class="mspot col" style="left:${l}%;top:${t}%">${btns?`<div class="mup">${btns}</div>`:''}<i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
   return `<div class="mspot${l>68||n==='金庫'||n==='蘑菇攝影棚'?' flip':''}" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${ap?'':btns}</div>${ap&&btns?`<div class="mapps" style="left:${ap[0]}%;top:${ap[1]}%">${btns}</div>`:''}`;}

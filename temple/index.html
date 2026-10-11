@@ -54,6 +54,26 @@ footer{position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bott
 #halls button{font:inherit;font-size:14px;color:var(--mute);background:none;border:0;padding:6px 10px;cursor:pointer;letter-spacing:.1em;border-bottom:1px solid transparent}
 #halls button.on{color:var(--ink);border-bottom-color:var(--ink)}
 #hint{font-size:13px;color:var(--ink);text-shadow:0 1px 6px rgba(0,0,0,.85);min-height:1.2em;text-align:center;letter-spacing:.08em;transition:opacity .6s}
+/* 光明燈 */
+.lamp{position:absolute;pointer-events:auto;background:none;border:0;padding:0;cursor:pointer;transform:translate(-50%,-100%)}
+.lamp svg{display:block;width:100%;height:100%;overflow:visible}
+.lamp .fl{transform-origin:12px 13px;animation:flick 2.4s ease-in-out infinite}
+.lamp .gl{animation:glowp 3.6s ease-in-out infinite}
+.lamp.off .fl,.lamp.off .gl{display:none}
+.lamp.off .cup{opacity:.55}
+@keyframes flick{0%,100%{transform:scale(1,1)}30%{transform:scale(.92,1.08)}60%{transform:scale(1.05,.95)}}
+@keyframes glowp{0%,100%{opacity:.55}50%{opacity:.85}}
+.lamp .nm{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:2px;white-space:nowrap;font-size:10.5px;letter-spacing:.06em;color:var(--ink);text-shadow:0 1px 4px rgba(0,0,0,.9)}
+.lamp.done .nm{color:#F2DFA6}
+#lampAdd{display:none}
+body:not(.isfront) #lampAdd{display:inline-flex}
+.frow{display:flex;gap:8px;align-items:center}
+.hold{position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none}
+.hold i{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,214,140,.45)}
+.hold.on i{width:100%;transition:width 3s linear}
+.oil{border-left:2px solid rgba(255,214,140,.5);padding:4px 0 4px 10px;margin:6px 0;font-size:14px;line-height:1.6}
+.oil small{display:block;color:var(--mute);font-size:12px}
+.cd{font-size:28px;letter-spacing:.06em;margin:4px 0 2px}
 .sheet{position:fixed;inset:0;z-index:10;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.35)}
 .sheet[hidden]{display:none}
 .box{width:min(520px,100%);max-height:82vh;overflow:auto;background:#24211e;border:1px solid var(--line);border-radius:20px 20px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom))}
@@ -85,7 +105,7 @@ label.f{display:block;font-size:13px;color:var(--mute);margin:10px 0 6px}
 <button class="btn" id="book">祈願存摺</button>
 <footer>
   <div id="hint"></div>
-  <button class="btn pri" id="pray">合十・許願</button>
+  <div class="frow"><button class="btn pri" id="pray">合十・許願</button><button class="btn" id="lampAdd">＋ 點一盞燈</button></div>
   <nav id="halls"></nav>
 </footer>
 <div id="pan">← 左右滑動看整個空間 →</div>
@@ -135,11 +155,11 @@ function layout(){const w=innerWidth,h=innerHeight,H=HALLS[cur],s=Math.max(w/102
     const k=document.createElement("button");k.className="spot";k.setAttribute("aria-label","跪下");k.innerHTML="<span>跪下</span>";k.innerHTML="<span>跪下</span>";Object.assign(k.style,R(H.kneelAt));k.onclick=kneel;hz.appendChild(k);
     const wa=document.createElement("div");wa.className="water";Object.assign(wa.style,R(H.water));hz.appendChild(wa);
     const [bx,by,br]=H.ball,ba=document.createElement("div");ba.className="sheen";Object.assign(ba.style,R([bx-br,by-br,bx+br,by+br]));hz.appendChild(ba);
-    Object.assign($("#hit").style,{width:0,height:0});Object.assign($("#halo").style,{width:0,height:0});return;}
+    Object.assign($("#hit").style,{width:0,height:0});Object.assign($("#halo").style,{width:0,height:0});drawLamps(hz,ox,oy,s,w);return;}
   const [x0,y0,x1,y1]=H.stat;box={x:ox+x0*s,y:oy+y0*s,w:(x1-x0)*s,h:(y1-y0)*s};
   const hit=$("#hit");Object.assign(hit.style,{left:box.x+"px",top:box.y+"px",width:box.w+"px",height:box.h+"px"});
   const r=Math.max(box.w,box.h)*1.1,cx=box.x+box.w/2,cy=box.y+box.h*.45;
-  Object.assign($("#halo").style,{left:(cx-r)+"px",top:(cy-r)+"px",width:2*r+"px",height:2*r+"px"});}
+  Object.assign($("#halo").style,{left:(cx-r)+"px",top:(cy-r)+"px",width:2*r+"px",height:2*r+"px"});drawLamps(hz,ox,oy,s,w);}
 addEventListener("resize",layout);
 {let px=null,p0=0;addEventListener("pointerdown",e=>{if(e.target.closest("button,.sheet,#kneelv,a,input,textarea"))return;px=e.clientX;p0=panX;});
   addEventListener("pointermove",e=>{if(px==null)return;panX=p0+(e.clientX-px);layout();});
@@ -182,6 +202,56 @@ function kneel(){const hr=new Date().getHours(),M=hr>=4&&hr<15,B=ls("origina.bed
     $("#kneelv").hidden=false;$("#kb").onclick=bell;$("#ku").onclick=rise;
     $("#kw").onclick=()=>{const H=HALLS.front;H.ask="為了什麼禱告？";wishForm();};},1500);}
 function rise(){$("#kneelv").hidden=true;document.body.classList.remove("kneel");}
+
+/* ---------- 光明燈：點燈・添油・圓燈 ---------- */
+const LAMP_SEED=[["mazu","正顎手術",1],["yuelao","HH"],["caishen","金庫手冊"],["caishen","國泰業績"],["caishen","晏任行銷"]];
+function PL(){const P=ls(PKEY)||{items:[]};P.items=P.items||[];if(!P.lampsSeeded){P.lamps=(P.lamps||[]).concat(LAMP_SEED.map(([d,t,dated],i)=>({id:"L"+Date.now().toString(36)+i,deity:d,text:t,dated:!!dated,date:"",lit:"",oil:[],done:""})));P.lampsSeeded=1;ls(PKEY,P);}P.lamps=P.lamps||[];return P;}
+const daysTo=d=>{if(!d)return null;const [y,m,dd]=d.split("-").map(Number),t=new Date(y,m-1,dd),n=new Date();n.setHours(0,0,0,0);return Math.round((t-n)/864e5);};
+const LAMP_SVG=`<svg viewBox="0 0 24 34"><radialGradient id="lg" cx="50%" cy="40%" r="50%"><stop offset="0" stop-color="#FFE7AE" stop-opacity=".95"/><stop offset="1" stop-color="#FFC86A" stop-opacity="0"/></radialGradient>
+  <circle class="gl" cx="12" cy="12" r="12" fill="url(#lg)"/><path class="fl" d="M12 4c2.2 3 3.2 4.8 3.2 6.6a3.2 3.2 0 0 1-6.4 0C8.8 8.8 9.8 7 12 4Z" fill="#FFD27A"/><path class="fl" d="M12 7.5c1 1.5 1.5 2.4 1.5 3.3a1.5 1.5 0 0 1-3 0c0-.9.5-1.8 1.5-3.3Z" fill="#FFF6DE"/>
+  <path class="cup" d="M3 16h18l-2.2 9.5c-.4 1.6-1.8 2.5-3.4 2.5H8.6c-1.6 0-3-.9-3.4-2.5Z" fill="var(--cup,#F2EEE6)" stroke="rgba(0,0,0,.18)" stroke-width=".6"/><rect class="cup" x="7.5" y="28" width="9" height="2.2" rx="1" fill="var(--cup,#E6E0D5)"/></svg>`;
+// 燈的位置（照片座標）：三殿排在台座兩側；前殿把圓滿的燈排在光縫兩旁的牆腳
+function lampSpots(n,front){const out=[];for(let i=0;i<n;i++){const k=Math.floor(i/2),side=i%2?-1:1;
+  if(front){out.push([512+side*(30+k*40),416]);}else{const row=Math.floor(k/4),col=k%4;out.push([512+side*(92+col*46),410-row*40]);}}return out;}
+function drawLamps(hz,ox,oy,s,w){const P=PL();const front=!!HALLS[cur].front;
+  const L=front?P.lamps.filter(l=>l.done):P.lamps.filter(l=>l.deity===cur&&!l.done);
+  const pos=lampSpots(L.length,front),sz=Math.max(18,22*s*(front?.9:1));
+  L.forEach((l,i)=>{const b=document.createElement("button");b.className="lamp"+(l.done?" done":l.lit?"":" off");b.setAttribute("aria-label",(l.done?"圓滿的燈：":l.lit?"點亮的燈：":"還沒點的燈：")+l.text);
+    b.style.cssText=`left:${ox+pos[i][0]*s}px;top:${oy+pos[i][1]*s}px;width:${sz}px;height:${sz*34/24}px;${l.done?"--cup:#E2C377;":""}`;
+    b.innerHTML=LAMP_SVG+`<span class="nm">${esc(l.text)}</span>`;b.onclick=()=>lampView(l.id);hz.appendChild(b);});}
+function saveLamp(id,fn){const P=PL(),l=P.lamps.find(x=>x.id===id);if(!l)return;fn(l,P);ls(PKEY,P);layout();}
+function lampView(id){const P=PL(),l=P.lamps.find(x=>x.id===id);if(!l)return;const dn=DNAME[l.deity],n=daysTo(l.date);
+  const cd=l.date?(n>0?`<div class="cd">還有 ${n} 天</div><p class="m">${esc(l.date)}</p>`:n===0?`<div class="cd">就是今天</div><p class="m">燈為你亮著。</p>`:`<p class="m">${esc(l.date)} 已經過了 ${-n} 天</p>`):"";
+  if(l.done){open(`<h3>圓滿・${esc(l.text)}</h3><p class="m">${dn}的燈，${esc(l.lit||"")} 點亮，${esc(l.done)} 圓滿。</p>${l.oil.map(o=>`<div class="oil">${esc(o.t)}<small>${esc(o.d)}</small></div>`).join("")}
+      <div class="row"><button class="btn" data-undo>還沒圓滿，放回${dn}那裡</button><button class="btn pri" data-x>好</button></div>`,
+    b=>{b.querySelector("[data-undo]").onclick=()=>{saveLamp(id,x=>{x.done="";});close();};});return;}
+  if(!l.lit){open(`<h3>${dn}・${esc(l.text)}</h3><p class="m">這盞燈還沒點。按住下面的按鈕三秒，燈就會亮起來。</p>
+      ${l.dated||l.date?`<label class="f">日子（例如手術那天，可以之後再填）</label><input type="date" id="ld" value="${esc(l.date)}">`:""}
+      <div class="row"><button class="btn pri hold" id="hold"><i></i><span style="position:relative">按住點燈</span></button><button class="btn" data-edit>改名稱</button><button class="btn" data-x>先不要</button></div>`,
+    b=>{holdBtn(b.querySelector("#hold"),()=>{const d=b.querySelector("#ld");saveLamp(id,x=>{x.lit=ymd(new Date());if(d)x.date=d.value;});bell();navigator.vibrate&&navigator.vibrate([20,40,20]);
+        open(`<h3>燈亮了</h3><p class="m">${dn}的燈，為「${esc(l.text)}」亮著。想回來的時候，在燈前記一句近況。</p><div class="row"><button class="btn pri" data-x>好</button></div>`);});
+      b.querySelector("[data-edit]").onclick=()=>editLamp(id);});return;}
+  open(`<h3>${dn}・${esc(l.text)}</h3>${cd}<p class="m">${esc(l.lit)} 點亮${l.oil.length?`・添過 ${l.oil.length} 次油`:""}</p>
+    ${l.oil.slice().reverse().map(o=>`<div class="oil">${esc(o.t)}<small>${esc(o.d)}</small></div>`).join("")}
+    <label class="f">添油：記一句近況（可以不寫）</label><textarea id="lo" placeholder="例如：這個月做到七成" style="min-height:70px"></textarea>
+    ${l.dated||l.date?`<label class="f">日子</label><input type="date" id="ld" value="${esc(l.date)}">`:""}
+    <div class="row"><button class="btn pri" data-oil>添油</button><button class="btn" data-done>圓燈・事情成了</button><button class="btn" data-edit>改名稱</button><button class="btn" data-x>關起來</button></div>`,
+  b=>{b.querySelector("[data-oil]").onclick=()=>{const t=b.querySelector("#lo").value.trim(),d=b.querySelector("#ld");saveLamp(id,x=>{if(t)x.oil.push({d:ymd(new Date()),t});if(d)x.date=d.value;});lampView(id);};
+    b.querySelector("[data-done]").onclick=()=>{saveLamp(id,x=>{x.done=ymd(new Date());});bell();
+      open(`<h3>圓燈</h3><p class="m">「${esc(l.text)}」圓滿了。這盞燈變成金色，搬到前殿光縫旁的牆腳，每次走進禱告室都看得到。</p><div class="row"><button class="btn pri" data-x>好</button></div>`);};
+    b.querySelector("[data-edit]").onclick=()=>editLamp(id);});}
+function editLamp(id){const P=PL(),l=id&&P.lamps.find(x=>x.id===id);
+  open(`<h3>${l?"改這盞燈":"點一盞新的燈・"+HALLS[cur].name}</h3><label class="f">為了什麼</label><input type="text" id="ln" maxlength="16" value="${esc(l?l.text:"")}" style="width:100%;font:inherit;font-size:16px;color:var(--ink);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;padding:12px">
+    <label class="f">日子（可以不填）</label><input type="date" id="ld" value="${esc(l?l.date:"")}">
+    <div class="row"><button class="btn pri" data-ok>${l?"存好":"放上燈牆"}</button>${l?`<button class="btn" data-del>撤下這盞燈</button>`:""}<button class="btn" data-x>取消</button></div>`,
+  b=>{b.querySelector("[data-ok]").onclick=()=>{const t=b.querySelector("#ln").value.trim(),d=b.querySelector("#ld").value;if(!t)return;
+      if(l)saveLamp(id,x=>{x.text=t;x.date=d;x.dated=x.dated||!!d;});else{const P2=PL();const nl={id:"L"+Date.now().toString(36),deity:cur,text:t,dated:!!d,date:d,lit:"",oil:[],done:""};P2.lamps.push(nl);ls(PKEY,P2);layout();lampView(nl.id);return;}
+      l?lampView(id):close();};
+    const del=b.querySelector("[data-del]");if(del)del.onclick=()=>{if(!confirm("撤下這盞燈？"))return;const P2=PL();P2.lamps=P2.lamps.filter(x=>x.id!==id);ls(PKEY,P2);layout();close();};});}
+function holdBtn(el,done){let t=null;const start=e=>{e.preventDefault();el.classList.add("on");t=setTimeout(()=>{el.classList.remove("on");t=null;done();},3000);};
+  const stop=()=>{if(t){clearTimeout(t);t=null;}el.classList.remove("on");};
+  el.addEventListener("pointerdown",start);el.addEventListener("pointerup",stop);el.addEventListener("pointerleave",stop);el.addEventListener("pointercancel",stop);el.addEventListener("contextmenu",e=>e.preventDefault());}
+$("#lampAdd").onclick=()=>editLamp(null);
 
 /* ---------- 祈願存摺 ---------- */
 const DNAME={mazu:"媽祖",yuelao:"月老",caishen:"財神爺",front:"前殿"};

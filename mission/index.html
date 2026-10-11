@@ -443,7 +443,7 @@ function renderMe(){
   const sel=items.find(it=>it.id===meSel);
   const miniMap=pl=>`<div class="cmini">${map}${Object.entries(MPL).map(([p,[x,y]])=>`<span class="${(pl||[]).includes(p)?"lit":""}" style="left:${x}%;top:${y}%">${esc(p)}</span>`).join("")}</div>`;
   let detail=`<p class="muted" style="margin:0">點任何一件收藏。中間那把火，是三個我都有的事。</p>`;
-  if(sel)detail=`<div class="row" style="justify-content:flex-end;margin:0 0 6px"><button class="btn sm" data-editc="${sel.id}">修改這張卡</button></div><h3 class="cname">${esc(sel.n)}<small class="k-${sel.k}">${KINDS[sel.k]}</small></h3><div class="ctags">${sel.tags.split("").map(k=>`<span style="background:${PERS[k].c}">${PERS[k].n}</span>`).join("")}</div><p>${esc(sel.t||"")}</p>${miniMap(sel.pl)}
+  if(sel)detail=`<h3 class="cname" style="display:flex;align-items:center;gap:8px">${esc(sel.n)}<small class="k-${sel.k}">${KINDS[sel.k]}</small><button class="btn sm" data-editc="${sel.id}" style="margin-left:auto;font-family:system-ui,-apple-system,sans-serif;font-weight:400;letter-spacing:0">修改這張卡</button></h3><div class="ctags">${sel.tags.split("").map(k=>`<span style="background:${PERS[k].c}">${PERS[k].n}</span>`).join("")}</div><p>${esc(sel.t||"")}</p>${miniMap(sel.pl)}
     <div class="row">${(sel.pl||[])[0]&&MPL[sel.pl[0]]?`<button class="btn pri" data-walk2="${esc(sel.pl[0])}">走去 Origina 的${esc(sel.pl[0])}</button>`:""}</div>`;
   else if(meView==="map"&&meSelP){const L=items.filter(it=>(it.pl||[]).includes(meSelP));detail=`<h3 class="cname">${esc(meSelP)}</h3><p class="muted" style="margin:0;font-size:13px">住在這裡的收藏</p><div class="ctags" style="gap:6px">${L.map(it=>chip(it,0)).join("")||'<span class="muted">還沒有</span>'}</div>${MPL[meSelP]?`<button class="btn pri" data-walk2="${esc(meSelP)}">走去 Origina 的${esc(meSelP)}</button>`:""}`;}
   $("#app").innerHTML=`<section style="display:grid;gap:12px">
@@ -630,6 +630,7 @@ function renderProof(){
     <div class="card num"><b>${thisM.length}</b><span>這個月鈴響</span></div>
     <div class="card num"><b>${top?esc(alarmById(top[0])?.name||"—"):"—"}</b><span>最常響的警報</span></div>
     <div class="card num"><b>${D.recordings.length}</b><span>錄音</span></div></div></section>
+  ${(()=>{let P;try{P=JSON.parse(localStorage.getItem('origina.prayer.v1')||'null');}catch(e){}const L=((P&&P.lamps)||[]).filter(l=>l.done).sort((a,b)=>a.done<b.done?1:-1);const DN={mazu:'媽祖',yuelao:'月老',caishen:'財神爺'};return L.length?`<section><h2>圓滿的燈<small>在禱告室圓燈的事</small></h2><div class="card" style="display:grid;gap:8px">${L.map(l=>`<div class="row" style="justify-content:space-between"><span>🪔 ${esc(l.text)} <span class="muted" style="font-size:12.5px">${DN[l.deity]||''}</span></span><span class="muted" style="font-size:12.5px">${esc(l.done)}</span></div>`).join('')}</div></section>`:'';})()}
   <section><h2>鈴響趨勢<small></small></h2><div class="card chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="最近六個月每月鈴響次數">${grid}${bars}</svg>
     <div class="leg">${D.alarms.map(a=>`<span><i style="background:${alarmColor(a.id)}"></i>${esc(a.name)}</span>`).join("")}<span><i style="background:#D8D0C2"></i>沒選警報</span></div></div></section>
   <section><h2>每月錄音牆</h2><div class="card recs">

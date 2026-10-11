@@ -7,7 +7,9 @@
 :root{--ink:#f4f0e8;--mute:rgba(244,240,232,.68);--glass:rgba(24,22,20,.55);--line:rgba(255,255,255,.16);--red:#C8323C}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#1c1b19;color:var(--ink);font-family:"Noto Serif TC","Songti TC","PMingLiU",serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
-#bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .7s}
+#bg{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;transition:opacity .7s;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
+#pan{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);transform:translateX(-50%);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12px;letter-spacing:.1em;pointer-events:none;transition:opacity .8s;z-index:2}
+.kneel #pan{opacity:0}
 #hit{position:fixed;background:none;border:0;padding:0;cursor:pointer;border-radius:40% 40% 8px 8px}
 #halo{position:fixed;pointer-events:none;border-radius:50%;background:radial-gradient(closest-side,rgba(255,250,236,.22),rgba(255,250,236,0));mix-blend-mode:screen;animation:breath 7s ease-in-out infinite}
 @keyframes breath{0%,100%{opacity:.15}50%{opacity:.75}}
@@ -74,7 +76,7 @@ label.f{display:block;font-size:13px;color:var(--mute);margin:10px 0 6px}
 .empty{color:var(--mute);font-size:14px;padding:16px 0;text-align:center}
 </style>
 </head><body>
-<img id="bg" alt="">
+<img id="bg" alt="" draggable="false">
 <div id="halo"></div><div id="hz"></div><button id="hit" aria-label="參拜神像"></button>
 <div id="kneelv" hidden><div class="kc" id="kc"></div></div>
 <div id="veil"></div><div id="glow"></div>
@@ -86,6 +88,7 @@ label.f{display:block;font-size:13px;color:var(--mute);margin:10px 0 6px}
   <button class="btn pri" id="pray">合十・許願</button>
   <nav id="halls"></nav>
 </footer>
+<div id="pan">← 左右滑動看整個空間 →</div>
 <div class="sheet" id="sheet" hidden><div class="box" id="box" role="dialog" aria-modal="true"></div></div>
 <script src="../sync/origina-sync.js" data-app="bedside" data-folder="Bedside" data-keys="origina.bedside.v1,origina.prayer.v1" data-pos="bl" data-offset="160"></script>
 <script>
@@ -114,19 +117,21 @@ let box={x:0,y:0,w:0,h:0};
 function setHall(id,instant){
   const H=HALLS[id];cur=id;document.body.classList.add("fade");
   const go=()=>{
-    $("#bg").src=H.img;$("#ttl").textContent=H.name;$("#sub").textContent=H.sub;$("#hint").textContent=H.hint;
+    panX=0;$("#bg").src=H.img;$("#ttl").textContent=H.name;$("#sub").textContent=H.sub;$("#hint").textContent=H.hint;
     const F=!!H.front;document.body.classList.toggle("isfront",F);$("#pray").textContent=F?"跪下":"合十・許願";
     $("#back").textContent=F?"← Origina":"← 前殿";
     document.querySelectorAll("#halls button").forEach(b=>b.classList.toggle("on",b.dataset.h===id));
     try{history.replaceState(null,"","?d="+id)}catch(e){}
     layout();const done=()=>document.body.classList.remove("fade");$("#bg").complete?requestAnimationFrame(done):($("#bg").onload=done);};
   instant?go():setTimeout(go,450);}
-function layout(){const w=innerWidth,h=innerHeight,H=HALLS[cur],s=Math.max(w/1024,h/572),ox=(w-1024*s)/2,oy=(h-572*s)/2;
+let panX=0;   // 直式畫面：照片比螢幕寬，可以左右滑動
+function layout(){const w=innerWidth,h=innerHeight,H=HALLS[cur],s=Math.max(w/1024,h/572),spare=Math.max(0,1024*s-w);panX=Math.max(-spare/2,Math.min(spare/2,panX));const ox=(w-1024*s)/2+panX,oy=(h-572*s)/2;
+  Object.assign($("#bg").style,{left:ox+"px",top:oy+"px",width:1024*s+"px",height:572*s+"px"});$("#pan").style.display=spare>8?"":"none";
   const R=([a,b,c,d])=>({left:ox+a*s+"px",top:oy+b*s+"px",width:(c-a)*s+"px",height:(d-b)*s+"px"});
   const hz=$("#hz");hz.innerHTML="";
   if(H.front){
     (H.labels||[]).forEach(([id,lx,ly])=>{const l=document.createElement("button");l.className="door lbl";l.setAttribute("aria-label","走進"+HALLS[id].name);l.innerHTML=`<span>${HALLS[id].name}</span>`;Object.assign(l.style,R([lx-1,ly,lx+1,ly+1]));l.onclick=()=>setHall(id);hz.appendChild(l);});
-    H.doors.forEach(([id,bb,lab])=>{const d=document.createElement("button");d.className="door";d.setAttribute("aria-label","走進"+HALLS[id].name);d.innerHTML=lab?`<span>${HALLS[id].name}</span>`:"";Object.assign(d.style,R(bb));if(lab&&bb[1]<279)d.firstChild.style.top=((279-bb[1])*s-30)+"px";d.onclick=()=>setHall(id);hz.appendChild(d);const sp=d.firstChild;if(!sp)return;const r=sp.getBoundingClientRect();if(r.left<8)sp.style.transform=`translateX(calc(-50% + ${8-r.left}px))`;else if(r.right>w-8)sp.style.transform=`translateX(calc(-50% - ${r.right-w+8}px))`;});
+    H.doors.forEach(([id,bb,lab])=>{const d=document.createElement("button");d.className="door";d.setAttribute("aria-label","走進"+HALLS[id].name);d.innerHTML=lab?`<span>${HALLS[id].name}</span>`:"";Object.assign(d.style,R(bb));if(lab&&bb[1]<279)d.firstChild.style.top=((279-bb[1])*s-30)+"px";d.onclick=()=>setHall(id);hz.appendChild(d);const sp=d.firstChild;if(!sp)return;const db=d.getBoundingClientRect();if(db.right<0||db.left>w){sp.style.display="none";return;}const r=sp.getBoundingClientRect();if(r.left<8)sp.style.transform=`translateX(calc(-50% + ${8-r.left}px))`;else if(r.right>w-8)sp.style.transform=`translateX(calc(-50% - ${r.right-w+8}px))`;});
     const k=document.createElement("button");k.className="spot";k.setAttribute("aria-label","跪下");k.innerHTML="<span>跪下</span>";k.innerHTML="<span>跪下</span>";Object.assign(k.style,R(H.kneelAt));k.onclick=kneel;hz.appendChild(k);
     const wa=document.createElement("div");wa.className="water";Object.assign(wa.style,R(H.water));hz.appendChild(wa);
     const [bx,by,br]=H.ball,ba=document.createElement("div");ba.className="sheen";Object.assign(ba.style,R([bx-br,by-br,bx+br,by+br]));hz.appendChild(ba);
@@ -136,6 +141,10 @@ function layout(){const w=innerWidth,h=innerHeight,H=HALLS[cur],s=Math.max(w/102
   const r=Math.max(box.w,box.h)*1.1,cx=box.x+box.w/2,cy=box.y+box.h*.45;
   Object.assign($("#halo").style,{left:(cx-r)+"px",top:(cy-r)+"px",width:2*r+"px",height:2*r+"px"});}
 addEventListener("resize",layout);
+{let px=null,p0=0;addEventListener("pointerdown",e=>{if(e.target.closest("button,.sheet,#kneelv,a,input,textarea"))return;px=e.clientX;p0=panX;});
+  addEventListener("pointermove",e=>{if(px==null)return;panX=p0+(e.clientX-px);layout();});
+  addEventListener("pointerup",()=>{px=null;});addEventListener("pointercancel",()=>{px=null;});
+  setTimeout(()=>{const p=$("#pan");if(p)p.style.opacity="0";},4000);}
 ORDER.forEach(id=>{const b=document.createElement("button");b.textContent=HALLS[id].name;b.dataset.h=id;b.onclick=()=>id!==cur&&setHall(id);$("#halls").appendChild(b);});
 $("#hit").onclick=()=>pray();
 

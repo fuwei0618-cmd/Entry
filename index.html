@@ -91,6 +91,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .mapbox>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .mspot{position:absolute;display:flex;align-items:center;gap:4px;transform:translate(-7px,-50%)}
 .mapps{position:absolute;display:flex;gap:6px;transform:translate(-50%,-50%)}
+.mspot.below .mlab{position:absolute;bottom:calc(50% + 9px);left:5px;transform:translateX(-50%)}
 .mspot.below .mdown{position:absolute;top:calc(50% + 12px);left:5px;transform:translateX(-50%);display:flex;gap:6px}
 .mspot.col{transform:translate(-5px,-5px);display:block}.mspot.col i.dot{display:block}.mspot.col .mlab{position:absolute;top:13px;left:5px;transform:translateX(-50%)}.mspot.col .mup{position:absolute;bottom:13px;left:5px;transform:translateX(-50%);display:flex;gap:6px}
 .mspot.flip{flex-direction:row-reverse;transform:translate(calc(-100% + 7px),-50%)}
@@ -1173,7 +1174,7 @@ addEventListener('message',e=>{if(e.origin!=='https://fuwei0618-cmd.github.io'||
 function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(null,'',location.pathname)}catch(e){}canvas.focus({preventScroll:true});}
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
-  ['森林入口',['forest','start'],[0,GZ+6]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,EC.cz-8.6]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
+  ['森林入口',['forest','start'],[0,GZ+6]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
   ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
   ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
   ['健身房',['f1','gym'],W1F(7.5,4.3),['健身房']],['Lucky',['f1','front'],W1F(-6.4,4.3),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],

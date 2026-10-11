@@ -155,7 +155,8 @@ textarea{min-height:76px;resize:vertical}
 .cstage.editing{box-shadow:0 0 0 2px var(--brass)}
 .citem{position:absolute;transform:translate(-50%,-50%);border:1px solid rgba(59,53,46,.12);border-radius:999px;padding:.15em .75em;cursor:pointer;white-space:nowrap;color:var(--ink);line-height:1.5;touch-action:none}
 .cstage:not(.editing) .citem{touch-action:manipulation}
-.citem.ico{width:2.7em;height:2.7em;padding:0;border-radius:50%;display:grid;place-items:center}.citem.ico svg{width:1.7em;height:1.7em;display:block}
+.citem.ico{width:2.7em;height:2.7em;padding:0;border-radius:50%;box-sizing:border-box;overflow:hidden}.citem.ico svg,.citem.ico img{position:absolute;left:50%;top:50%;width:1.7em;height:1.7em;transform:translate(-50%,-50%);display:block}.citem.ico img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.cicons{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.cicons button,.cicons .upl{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#fff;display:inline-flex;align-items:center;justify-content:center;padding:0;color:var(--ink);cursor:pointer;overflow:hidden}.cicons button svg{width:20px;height:20px}.cicons button img{width:100%;height:100%;object-fit:cover}.cicons .txt,.cicons .upl{width:auto;padding:0 12px;border-radius:999px;font-size:13px}.cicons button[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}
 .citem.dim{opacity:.22}.citem.on{outline:2px solid var(--ink);outline-offset:1px}.citem.fire{box-shadow:0 0 0 2px #C9A55A,0 0 14px rgba(226,184,92,.6)}
 .editing .citem{cursor:grab}
 .cplace{position:absolute;transform:translate(-50%,-14px);display:flex;flex-direction:column;align-items:center;gap:3px}
@@ -225,7 +226,7 @@ const DEFAULT={v:1,
   smallActs:["帶自己去一間漂亮的咖啡廳","錄一首歌","散步十五分鐘","整理 Origina 一個房間","煮好吃的給自己","送自己一個平常不敢買的小東西","聽一首鄧麗君"],
   bellLog:[],breakdowns:[],
   frameworks:[
-    {id:"copy",name:"副本檢查",questions:["讓我不舒服的是誰的什麼？","那是他的副本，還是我的？","它在我的公式（一生唱、一生愛、一生豐盛）裡嗎？","如果在，我自己的版本長什麼樣？如果不在，我可以放下它嗎？"]},
+    {id:"copy",name:"副本檢查",questions:["讓我不舒服的是誰的什麼？","那是他的副本，還是我的？","它在我的公式（聲音領路、一生愛、一生豐盛）裡嗎？","如果在，我自己的版本長什麼樣？如果不在，我可以放下它嗎？"]},
     {id:"5w",name:"人事時地物",questions:["人：誰觸發了這個念頭？","事：當下發生了什麼？","時：那時我的狀態（累、餓、剛結束一件事、旅行尾聲）？","地：我在哪裡？","物：我看到了什麼（照片、訊息、別人的成果）？"]},
     {id:"maslow",name:"馬斯洛",questions:["這個念頭威脅到的是哪一層：生理、安全、愛與歸屬、尊重、自我實現？","那一層現在其實有被照顧嗎？證據是什麼？","今天可以幫那一層補一點點的是什麼？"]},
     {id:"dilts",name:"邏輯層次",questions:["環境：我在哪裡被觸發？","行為：別人做了什麼？我做了什麼？","能力：我是缺能力、缺時間，還是缺錢？","信念：我相信了什麼「應該」？","身份：這個念頭在說我是誰？是真的嗎？","使命：回到我的一把火，這件事跟它有關嗎？"]},
@@ -233,12 +234,13 @@ const DEFAULT={v:1,
     {id:"loop",name:"閉環",questions:["這件事卡在哪一環：表達（唱歌）、身體主權（性感）、落地（財富）？","補哪一環，會讓另外兩環也動起來？","今天能做的最小一步是什麼？"]}],
   recordings:[],
   personas:[
-    {id:"teresa",formula:"共鳴・一生唱",give:"給世界",tattoos:["左腕銀杏","胸口 Camino","左手狼與捕夢網","手背藍色小星星"],place:"舞台、營火",go:["stage","back"],text:""},
+    {id:"teresa",formula:"共鳴・聲音領路",give:"給世界",tattoos:["左腕銀杏","胸口 Camino","左手狼與捕夢網","手背藍色小星星"],place:"舞台、營火",go:["stage","back"],text:""},
     {id:"elva",formula:"慾望・一生愛",give:"給自己",tattoos:["右腕罌粟花","右腰女人與老虎"],place:"Beauty",go:["f1","closet"],text:""},
     {id:"chiara",formula:"豐盛・一生豐盛",give:"地基",tattoos:["還沒刻在身上"],place:"噴水池、家（房子、Lucky）",go:["forest","vault"],text:""}]};
 
 let D;try{D=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){D=null;}
 if(!D||!D.alarms)D=JSON.parse(JSON.stringify(DEFAULT));
+else{const j=JSON.stringify(D);if(j.includes("一生唱"))D=JSON.parse(j.split("一生唱").join("聲音領路"));}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -393,7 +395,7 @@ $("#mute").onclick=()=>{muted=!muted;try{localStorage.setItem("mission-muted",mu
 function muteLabel(){$("#mute").textContent=muted?"聲音 關":"聲音 開";$("#mute").setAttribute("aria-pressed",muted);}
 
 /* ---------- 我是誰：收藏放在三個我的交集裡；也可以換成 Origina 地圖看 ---------- */
-const PERS={T:{n:"Teresa",s:"一生唱",c:"#C9705A"},E:{n:"Elva",s:"一生愛",c:"#B5546F"},C:{n:"Chiara",s:"一生豐盛",c:"#8C9A6B"}};
+const PERS={T:{n:"Teresa",s:"聲音領路",c:"#C9705A"},E:{n:"Elva",s:"一生愛",c:"#B5546F"},C:{n:"Chiara",s:"一生豐盛",c:"#8C9A6B"}};
 const KINDS={idol:"偶像",tat:"刺青",film:"電影",plan:"計畫",space:"地圖空間"};
 const MPL={"舞台":[22,6,"stage","back"],"世界之門":[62,6,"f1","stage"],"家・老宅":[50,22,"f1","front"],"Beauty":[84,18,"f1","closet"],"健身房":[66,50,"f1","gym"],"Lucky":[40,38,"f1","front"],"攝影棚":[8,44,"forest","studio"],"記錄之河":[9,68,"forest","river"],"金庫":[28,70,"forest","vault"],"日晷":[52,62,"forest","center"],"營火":[78,70,"forest","campfire"]};
 const VREG={T:[50,25],E:[80,70],C:[20,70],TE:[66,47],TC:[34,47],EC:[50,78],TEC:[50,57]};
@@ -423,13 +425,13 @@ const CICON={
  coins:'<ellipse cx="12" cy="6" rx="6" ry="2.5"/><path d="M6 6v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V6M6 10v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4M6 14v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4"/>',
  dog:'<path d="M5 9 4 5l4 2h5l4-2-1 4c2 1 3 3 3 6v4h-3v-3H8v3H5v-4c0-2 0-4 0-6Z"/><circle cx="10" cy="11" r=".6"/><circle cx="14" cy="11" r=".6"/>'};
 const CICON_BY_NAME={"銀杏":"ginkgo","Camino":"shell","狼與捕夢網":"wolf","藍色小星星":"star","罌粟花":"poppy","女人與老虎":"tiger","皮拉提斯":"yoga","街頭表演":"guitar","旅行":"plane","Getty 那一天":"flame","老宅Home":"house","金庫":"coins","Lucky":"dog"};
-const cIcon=it=>CICON[it.ic||CICON_BY_NAME[it.n]];
+const cIcon=it=>it.ic==="none"?null:CICON[it.ic||CICON_BY_NAME[it.n]];
 let meView="venn",meSel=null,meSelP=null,meEdit=false,meDraft=null,meKinds={idol:1,tat:1,film:1,plan:1,space:1};
 const meItems=()=>meEdit?meDraft:(D.collection=D.collection||defaultCollection());
 function renderMe(){
   const items=meItems();
-  const chip=(it,abs)=>{const ic=cIcon(it);return `<button class="citem k-${it.k}${ic?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};
-  const venn=`<svg viewBox="0 0 100 100" aria-hidden="true"><g fill-opacity=".12" stroke-width=".5"><circle cx="50" cy="36" r="27" fill="#C9705A" stroke="#C9705A"/><circle cx="35" cy="62" r="27" fill="#8C9A6B" stroke="#8C9A6B"/><circle cx="65" cy="62" r="27" fill="#B5546F" stroke="#B5546F"/></g><g font-family="serif" font-size="4" text-anchor="middle"><text x="50" y="4.5" fill="#C9705A">Teresa・一生唱</text><text x="3" y="97" text-anchor="start" fill="#8C9A6B">Chiara・一生豐盛</text><text x="97" y="97" text-anchor="end" fill="#B5546F">Elva・一生愛</text></g><path d="M50 46 C54 50 55 53 53 56 C52 58 48 58 47 56 C45 53 47 51 49 49 C49 51 50 52 50 46Z" fill="#E2B85C"/></svg>`;
+  const chip=(it,abs)=>{const ic=it.img?null:cIcon(it);return `<button class="citem k-${it.k}${ic||it.img?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${it.img?`<img src="${esc(it.img)}" alt="">`:ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};
+  const venn=`<svg viewBox="0 0 100 100" aria-hidden="true"><g fill-opacity=".12" stroke-width=".5"><circle cx="50" cy="36" r="27" fill="#C9705A" stroke="#C9705A"/><circle cx="35" cy="62" r="27" fill="#8C9A6B" stroke="#8C9A6B"/><circle cx="65" cy="62" r="27" fill="#B5546F" stroke="#B5546F"/></g><g font-family="serif" font-size="4" text-anchor="middle"><text x="50" y="4.5" fill="#C9705A">Teresa・聲音領路</text><text x="3" y="97" text-anchor="start" fill="#8C9A6B">Chiara・一生豐盛</text><text x="97" y="97" text-anchor="end" fill="#B5546F">Elva・一生愛</text></g><path d="M50 46 C54 50 55 53 53 56 C52 58 48 58 47 56 C45 53 47 51 49 49 C49 51 50 52 50 46Z" fill="#E2B85C"/></svg>`;
   const map=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="#DCE6D2"/><path d="M0 40 C6 55 4 75 10 100 L0 100Z" fill="#AFCBD0"/><ellipse cx="50" cy="66" rx="40" ry="24" fill="none" stroke="#E6D6B4" stroke-width="2.4"/><rect x="30" y="6" width="56" height="44" rx="2" fill="#F1ECE2" stroke="#D8CFBE" stroke-width=".8"/><circle cx="50" cy="66" r="5" fill="#9CC7CF"/><circle cx="50" cy="66" r="3.6" fill="#EFE9DD"/></svg>`;
   const at={};items.forEach(it=>{const p=(it.pl||[])[0];if(p)(at[p]=at[p]||[]).push(it);});
   const stage=meView==="venn"?venn+items.map(it=>chip(it,1)).join(""):map+Object.entries(MPL).map(([p,[x,y]])=>`<div class="cplace" style="left:${x}%;top:${y}%"><button class="cpl${meSelP===p?" on":""}" data-p="${esc(p)}">${esc(p)}</button><div class="cstack">${(at[p]||[]).filter(it=>meKinds[it.k]).map(it=>chip(it,0)).join("")}</div></div>`).join("");
@@ -464,19 +466,24 @@ function renderMe(){
       it.x=Math.max(3,Math.min(97,(e.clientX-r.left)/r.width*100));it.y=Math.max(3,Math.min(97,(e.clientY-r.top)/r.height*100));el.style.left=it.x+"%";el.style.top=it.y+"%";});
     el.addEventListener("pointerup",()=>{drag=false;});
     el.addEventListener("click",e=>{e.stopPropagation();if(moved)return;meSel=el.dataset.id;renderMe();});});}
-function collectionDialog(it){const isNew=!it;it=it||{id:"c"+Date.now().toString(36),n:"",k:"film",tags:"",t:"",pl:[],x:50,y:50,s:1};let k=it.k,tags=new Set(it.tags.split("").filter(Boolean)),pl=new Set(it.pl||[]);
+function collectionDialog(it){const isNew=!it;it=it||{id:"c"+Date.now().toString(36),n:"",k:"film",tags:"",t:"",pl:[],x:50,y:50,s:1};let k=it.k,tags=new Set(it.tags.split("").filter(Boolean)),pl=new Set(it.pl||[]),icSel=it.img?"":(it.ic||CICON_BY_NAME[it.n]||""),imgSel=it.img||"";
   const seg=(attr,obj,cur,multi)=>`<div class="pseg">${Object.entries(obj).map(([v,t])=>`<button data-${attr}="${v}" aria-pressed="${multi?cur.has(v):cur===v}">${typeof t==="string"?t:t.n}</button>`).join("")}</div>`;
   const draw=box=>{box.querySelector("#cbody").innerHTML=`<label class="field">名稱<input type="text" id="cn" maxlength="16" value="${esc(it.n)}"></label>
     <div class="field">類型${seg("ck",KINDS,k)}</div><div class="field">屬於哪幾個我（可以多選）${seg("ct",PERS,tags,1)}</div>
+    <div class="field">圖示（沒選就顯示文字）<div class="cicons"><button data-ic="" aria-pressed="${!icSel&&!imgSel}" class="txt">文字</button>${imgSel?`<button data-ic="__img" aria-pressed="true" class="up"><img src="${esc(imgSel)}" alt=""></button>`:""}${Object.entries(CICON).map(([key,svg])=>`<button data-ic="${key}" aria-pressed="${!imgSel&&icSel===key}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${svg}</svg></button>`).join("")}<label class="upl">＋ 上傳<input type="file" accept="image/*" id="cupl" hidden></label></div></div>
     <label class="field">一句話<textarea id="cdesc">${esc(it.t)}</textarea></label>
     <div class="field">住在 Origina 的哪裡（可以多選，第一個是主要的）${seg("cp",Object.fromEntries(Object.keys(MPL).map(p=>[p,p])),pl,1)}</div>`;
     box.querySelectorAll("[data-ck]").forEach(b=>b.onclick=()=>{it.n=box.querySelector("#cn").value;it.t=box.querySelector("#cdesc").value;k=b.dataset.ck;draw(box);});
     box.querySelectorAll("[data-ct]").forEach(b=>b.onclick=()=>{it.n=box.querySelector("#cn").value;it.t=box.querySelector("#cdesc").value;const v=b.dataset.ct;tags.has(v)?tags.delete(v):tags.add(v);draw(box);});
-    box.querySelectorAll("[data-cp]").forEach(b=>b.onclick=()=>{it.n=box.querySelector("#cn").value;it.t=box.querySelector("#cdesc").value;const v=b.dataset.cp;pl.has(v)?pl.delete(v):pl.add(v);draw(box);});};
+    box.querySelectorAll("[data-cp]").forEach(b=>b.onclick=()=>{it.n=box.querySelector("#cn").value;it.t=box.querySelector("#cdesc").value;const v=b.dataset.cp;pl.has(v)?pl.delete(v):pl.add(v);draw(box);});
+    box.querySelectorAll("[data-ic]").forEach(b=>b.onclick=()=>{it.n=box.querySelector("#cn").value;it.t=box.querySelector("#cdesc").value;const v=b.dataset.ic;if(v==="__img")return;icSel=v;imgSel="";draw(box);});
+    box.querySelector("#cupl").onchange=e=>{const f=e.target.files[0];if(!f)return;it.n=box.querySelector("#cn").value;it.t=box.querySelector("#cdesc").value;
+      const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const N=128,c=document.createElement("canvas");c.width=c.height=N;const g=c.getContext("2d"),m=Math.min(im.width,im.height);
+        g.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,N,N);URL.revokeObjectURL(u);let d=c.toDataURL("image/webp",.82);if(!d.startsWith("data:image/webp"))d=c.toDataURL("image/png");imgSel=d;draw(box);};im.src=u;};};
   dialog(`<h3>${isNew?"新增收藏":"修改這張卡"}</h3><div id="cbody" style="display:grid;gap:10px"></div><div class="row"><button class="btn pri" data-ok>存好</button>${isNew?"":`<button class="btn" data-del>刪除這件</button>`}<button class="btn ghost" data-x>取消</button></div>`,
   box=>{draw(box);box.querySelector("[data-ok]").onclick=()=>{const n=box.querySelector("#cn").value.trim();if(!n||!tags.size)return;
       const order=["T","E","C"];const T=order.filter(x=>tags.has(x)).join("");const L=meEdit?meDraft:(D.collection=D.collection||defaultCollection());
-      Object.assign(it,{n,k,t:box.querySelector("#cdesc").value.trim(),pl:[...pl]});if(it.tags!==T||isNew){it.tags=T;const [cx,cy]=VREG[T];it.x=cx+(Math.random()-.5)*8;it.y=cy+(Math.random()-.5)*8;}
+      Object.assign(it,{n,k,t:box.querySelector("#cdesc").value.trim(),pl:[...pl]});if(imgSel){it.img=imgSel;delete it.ic;}else{delete it.img;it.ic=icSel||"none";}if(it.tags!==T||isNew){it.tags=T;const [cx,cy]=VREG[T];it.x=cx+(Math.random()-.5)*8;it.y=cy+(Math.random()-.5)*8;}
       if(isNew)L.push(it);if(!meEdit)save();meSel=it.id;closeDlg();renderMe();};
     const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{const L=meEdit?meDraft:D.collection;const i=L.indexOf(it);if(i>=0)L.splice(i,1);if(!meEdit)save();meSel=null;closeDlg();renderMe();};});}
 /* ---------- 拆解室：說一個事件 → 帶去 Claude 拆 → 貼回拆解碼 → 存成紀錄 ---------- */
@@ -495,7 +502,7 @@ function claudePrompt(story){
   const anti=D.breakdowns.filter(b=>b.antidote).slice(-6).map(b=>`- ${b.theme||""}：${b.antidote}`).join("\n");
   return `請幫我拆解一個事件（我在 Origina 使命板的拆解室）。
 
-【我的公式】共鳴（Teresa・一生唱，給世界）× 慾望（Elva・一生愛，給自己）× 豐盛（Chiara・一生豐盛，地基）＝生命力。是乘法，任何一項變零整個就是零。
+【我的公式】共鳴（Teresa・聲音領路，給世界）× 慾望（Elva・一生愛，給自己）× 豐盛（Chiara・一生豐盛，地基）＝生命力。是乘法，任何一項變零整個就是零。
 【我為什麼努力】${D.why}
 【常見警報】${D.alarms.map(a=>a.name).join("、")}
 ${themes.length?`【以前拆過的主題】${themes.join("、")}（同一個主題請用一樣的名字）\n`:""}${anti?`【以前的解藥句】\n${anti}\n`:""}
@@ -524,7 +531,7 @@ function fearLamps(lit){lit=lit||[];return `<div class="lamps">${STEPS[1].lamps.
 function ladder(all,lit,solveAt){lit=lit||[];return `<div class="ladder">${all.slice().reverse().map(x=>`<div class="rung${lit.includes(x)?" on":""}${solveAt===x?" solve":""}"><span>${esc(x)}</span>${solveAt===x?"<em>← 到這一層去解</em>":lit.includes(x)?"<em>卡在這裡</em>":""}</div>`).join("")}</div>`;}
 function miniMap(lit){lit=lit||[];return `<div class="fmap mini"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="#DCE6D2"/><path d="M0 40 C6 55 4 75 10 100 L0 100Z" fill="#AFCBD0"/><ellipse cx="50" cy="62" rx="40" ry="26" fill="none" stroke="#E6D6B4" stroke-width="2.4"/><rect x="34" y="6" width="44" height="34" rx="2" fill="#F1ECE2" stroke="#D8CFBE" stroke-width=".8"/><circle cx="50" cy="62" r="5" fill="#9CC7CF"/><circle cx="50" cy="62" r="3.6" fill="#EFE9DD"/></svg>
   ${PLACES.map(([n,s2,x,y])=>`<span class="pin${lit.includes(n)?" lit":""}" style="left:${x}%;top:${y}%"><i></i><span>${esc(n)}<small>${s2}</small></span></span>`).join("")}</div>`;}
-const ROLE={Teresa:"共鳴・一生唱",Elva:"慾望・一生愛",Chiara:"豐盛・一生豐盛"};
+const ROLE={Teresa:"共鳴・聲音領路",Elva:"慾望・一生愛",Chiara:"豐盛・一生豐盛"};
 function boardHTML(b){
   const row=(i,body,note)=>{const st=STEPS[i];return `<div class="lrow"><div class="lh"><b>${i+1}. ${st.n}</b><span>${st.q}</span></div>${body}${note?`<p class="ln">${esc(note)}</p>`:""}</div>`;};
   const t=b.truth||{},o=b.origina||{},f=o.formula||{};

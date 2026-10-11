@@ -787,7 +787,7 @@ H1S.update=(dt,t)=>{
 /* =========================================================
    3 · B1 臥室（面向下沉庭院）
    ========================================================= */
-const W2=14,D2=10,H2=4.2;
+const W2=20,D2=14,H2=4.8;
 const f2r=makeRoom({W:W2,D:D2,WH:H2,floorMap:planksTex([2.4,1.8]),wall:0xEDE7DE,bg:0xDCE6E4,hemi:.5,sunI:.55,shadow:14});
 f2r.scene.children.filter(o=>o.isMesh&&Math.abs(o.position.z+D2/2)<.05).forEach(o=>o.visible=false);
 const B2=addScene('f2',{scene:f2r.scene,where:'家 · B1 臥室',floor:()=>0,bounds:[-W2/2+.45,W2/2-.45,-D2/2+.45,D2/2-.45],camDist:4.4});
@@ -803,39 +803,41 @@ B2.ceil=ceiling(f2r.scene,W2,D2,H2);B2.ceilH=H2;B2.ceil.material=new R.MeshStand
   const cy=new R.Mesh(new R.PlaneGeometry(W2+.4,5.5),new R.MeshStandardMaterial({color:0x8FAE74,roughness:1}));cy.rotation.x=-Math.PI/2;cy.position.set(0,.005,-D2/2-2.75);cy.receiveShadow=true;s.add(cy);
   const cw=new R.MeshStandardMaterial({color:0xCFCAC1,roughness:.95});
   mesh(new R.BoxGeometry(W2+.8,6.4,.4),cw,0,3.2,-D2/2-5.7,s);mesh(new R.BoxGeometry(.4,6.4,5.8),cw,-W2/2-.2,3.2,-D2/2-2.9,s);mesh(new R.BoxGeometry(.4,6.4,5.8),cw,W2/2+.2,3.2,-D2/2-2.9,s);
-  for(let i=0;i<9;i++){const b=mesh(new R.IcosahedronGeometry(.35+(i%3)*.1,0),mat(0x6E9A5B),-6+i*1.5,.3,-D2/2-5.1,s);b.scale.y=.7;}
+  for(let i=0;i<9;i++){const b=mesh(new R.IcosahedronGeometry(.35+(i%3)*.1,0),mat(0x6E9A5B),-9+i*2.25,.3,-D2/2-5.1,s);b.scale.y=.7;}
   makeHeliotrope(s,-1.4,-D2/2-2.4,1.25);
   const sunIn=new R.SpotLight(0xFFF2DC,.7,20,.6,.6);sunIn.position.set(0,9,-D2/2-3);sunIn.target.position.set(0,0,-1);s.add(sunIn);s.add(sunIn.target);
-  boxIn(B2,2.6,.45,3.2,0xC9A27A,3.6,.22,2.9,true);
-  boxIn(B2,2.5,.25,3.0,0xFFF8EC,3.6,.57,2.9,false);
-  boxIn(B2,2.55,.12,1.9,0xD9CBB4,3.6,.72,2.3,false);
-  boxIn(B2,.9,.18,.5,0xFFFFFF,3.1,.78,4.0,false);boxIn(B2,.9,.18,.5,0xFFFFFF,4.1,.78,4.0,false);
-  boxIn(B2,2.7,1.3,.15,0xA97C55,3.6,.85,4.55,false);
-  boxIn(B2,.6,.55,.5,0xC9A27A,5.5,.28,4.3,true);
-  mesh(new R.CylinderGeometry(.14,.18,.25,10),mat(0xF4EFE6),5.5,.68,4.3,s);
-  mesh(new R.ConeGeometry(.22,.24,12,1,true),new R.MeshStandardMaterial({color:0xFFE6B0,emissive:0xFFC77A,emissiveIntensity:.7,side:R.DoubleSide}),5.5,.95,4.3,s,false);
-  const lamp=new R.PointLight(0xFFC77A,.55,7);lamp.position.set(5.5,1.2,4);s.add(lamp);
-  B2.bedPos={x:3.6,y:.92,z:2.45};
-  B2.blanket=mesh(new R.BoxGeometry(2.3,.16,2.2),new R.MeshStandardMaterial({color:0xE9DFD0,roughness:1}),3.6,1.02,2.15,s);B2.blanket.visible=false;
+  // 床放在房間正中間，床頭靠後牆
+  const BXc=0,BZo=2;
+  boxIn(B2,2.6,.45,3.2,0xC9A27A,BXc,.22,2.9+BZo,true);
+  boxIn(B2,2.5,.25,3.0,0xFFF8EC,BXc,.57,2.9+BZo,false);
+  boxIn(B2,2.55,.12,1.9,0xD9CBB4,BXc,.72,2.3+BZo,false);
+  boxIn(B2,.9,.18,.5,0xFFFFFF,BXc-.5,.78,4.0+BZo,false);boxIn(B2,.9,.18,.5,0xFFFFFF,BXc+.5,.78,4.0+BZo,false);
+  boxIn(B2,2.7,1.3,.15,0xA97C55,BXc,.85,4.55+BZo,false);
+  boxIn(B2,.6,.55,.5,0xC9A27A,BXc+1.9,.28,4.3+BZo,true);
+  mesh(new R.CylinderGeometry(.14,.18,.25,10),mat(0xF4EFE6),BXc+1.9,.68,4.3+BZo,s);
+  mesh(new R.ConeGeometry(.22,.24,12,1,true),new R.MeshStandardMaterial({color:0xFFE6B0,emissive:0xFFC77A,emissiveIntensity:.7,side:R.DoubleSide}),BXc+1.9,.95,4.3+BZo,s,false);
+  const lamp=new R.PointLight(0xFFC77A,.55,7);lamp.position.set(BXc+1.9,1.2,4+BZo);s.add(lamp);
+  B2.bedPos={x:BXc,y:.92,z:2.45+BZo};
+  B2.blanket=mesh(new R.BoxGeometry(2.3,.16,2.2),new R.MeshStandardMaterial({color:0xE9DFD0,roughness:1}),BXc,1.02,2.15+BZo,s);B2.blanket.visible=false;
   mesh(new R.BoxGeometry(2.32,.17,.3),new R.MeshStandardMaterial({color:0xF7F2EA,roughness:1}),0,.01,1.05,B2.blanket);
-  const rug=mesh(new R.PlaneGeometry(3.6,2.4),mat(0xE9DDEB),1.6,.01,0,s,false);rug.rotation.x=-Math.PI/2;
-  boxIn(B2,1.8,.1,.8,0xA97C55,-3.6,.85,-4.4,true);[[-4.4,-4.7],[-2.8,-4.7],[-4.4,-4.1],[-2.8,-4.1]].forEach(([x,z])=>boxIn(B2,.08,.8,.08,0x8C6646,x,.4,z,false));
-  boxIn(B2,.5,.05,.36,0xF2C04E,-3.7,.93,-4.3,false);
-  {const h2=mesh(new R.PlaneGeometry(1.6,2.4),new R.MeshBasicMaterial({color:0x2A2420}),-6.0,.012,-2.6,s,false,false);h2.rotation.x=-Math.PI/2;
-    for(let i=0;i<4;i++){const st=mesh(new R.PlaneGeometry(1.5,.45),mat(0x7A6450-(i*0x080604)),-6.0,.014,-1.7-i*.55,s,false,false);st.rotation.x=-Math.PI/2;}
-    boxIn(B2,.06,.9,2.4,0x2E2A25,-5.15,.45,-2.6,false);B2.col.push({x0:-6.8,x1:-5.15,z0:-3.8,z1:-1.4});}
-  for(let i=0;i<6;i++)boxIn(B2,1.8,.3*(i+1),.42,0xC9A27A,-5.8,.15*(i+1),2.4+i*.42,false);
-  B2.col.push({x0:-6.8,x1:-4.9,z0:2.3,z1:4.5});
+  const rug=mesh(new R.PlaneGeometry(3.6,2.4),mat(0xE9DDEB),0,.01,1.4,s,false);rug.rotation.x=-Math.PI/2;
+  boxIn(B2,1.8,.1,.8,0xA97C55,-3.6,.85,-6.4,true);[[-4.4,-6.7],[-2.8,-6.7],[-4.4,-6.1],[-2.8,-6.1]].forEach(([x,z])=>boxIn(B2,.08,.8,.08,0x8C6646,x,.4,z,false));
+  boxIn(B2,.5,.05,.36,0xF2C04E,-3.7,.93,-6.3,false);
+  {const h2=mesh(new R.PlaneGeometry(1.6,2.4),new R.MeshBasicMaterial({color:0x2A2420}),-9.0,.012,-2.6,s,false,false);h2.rotation.x=-Math.PI/2;
+    for(let i=0;i<4;i++){const st=mesh(new R.PlaneGeometry(1.5,.45),mat(0x7A6450-(i*0x080604)),-9.0,.014,-1.7-i*.55,s,false,false);st.rotation.x=-Math.PI/2;}
+    boxIn(B2,.06,.9,2.4,0x2E2A25,-8.15,.45,-2.6,false);B2.col.push({x0:-9.8,x1:-8.15,z0:-3.8,z1:-1.4});}
+  for(let i=0;i<6;i++)boxIn(B2,1.8,.3*(i+1),.42,0xC9A27A,-8.8,.15*(i+1),4.4+i*.42,false);
+  B2.col.push({x0:-9.8,x1:-7.9,z0:4.3,z1:6.5});
 }
-[['白水木 · 下沉庭院',-1.4,3.3,-D2/2-2.4],['床 · 作息',3.6,2.4,2.6],['書桌 · 記錄',-3.6,2.2,-4.2],['往下 · 禱告房',-6,2.2,-2.6],['樓梯 · 上樓',-5.8,3,3.4]].forEach(([t,x,y,z])=>label(f2r.scene,t,x,y,z,null,.6));
+[['白水木 · 下沉庭院',-1.4,3.3,-D2/2-2.4],['床 · 作息',0,2.4,4.6],['書桌 · 記錄',-3.6,2.2,-6.2],['往下 · 禱告房',-9,2.2,-2.6],['樓梯 · 上樓',-8.8,3,5.4]].forEach(([t,x,y,z])=>label(f2r.scene,t,x,y,z,null,.6));
 B2.hots=[
-  {id:'bed',name:'床邊・起床與睡前',verb:'打開',x:2.0,z:2.0,r:1.8,go:()=>openApp('床邊','https://fuwei0618-cmd.github.io/Entry/bedside/')},
-  {id:'plant',name:'白水木',verb:'看看',x:-1.4,z:-4.3,r:1.3},
-  {id:'desk',name:'書桌',verb:'寫一點',x:-3.6,z:-3.3,r:1.3},
-  {id:'ladder',name:'往下的樓梯',verb:'到禱告房',x:-6,z:-1.2,r:1.2,go:()=>goto('attic','ladder')},
-  {id:'down',name:'樓梯',verb:'上樓',x:-4.3,z:3.4,r:1.2,go:()=>goto('f1','stairs')}
+  {id:'bed',name:'床邊・起床與睡前',verb:'打開',x:0,z:2.6,r:1.8,go:()=>openApp('床邊','https://fuwei0618-cmd.github.io/Entry/bedside/')},
+  {id:'plant',name:'白水木',verb:'看看',x:-1.4,z:-6.3,r:1.3},
+  {id:'desk',name:'書桌',verb:'寫一點',x:-3.6,z:-5.3,r:1.3},
+  {id:'ladder',name:'往下的樓梯',verb:'到禱告房',x:-9,z:-1.2,r:1.2,go:()=>goto('attic','ladder')},
+  {id:'down',name:'樓梯',verb:'上樓',x:-7.3,z:5.4,r:1.2,go:()=>goto('f1','stairs')}
 ];
-B2.spawns={stairs:[-3.8,3.4,Math.PI/2,-Math.PI/2],ladder:[-4.4,-1.0,Math.PI/2,-Math.PI/2],bed:[1.6,1.0,Math.PI,0]};
+B2.spawns={stairs:[-6.8,5.4,Math.PI/2,-Math.PI/2],ladder:[-7.4,-1.0,Math.PI/2,-Math.PI/2],bed:[0,1.2,Math.PI,0]};
 
 /* =========================================================
    4 · B2 禱告房（最深處，頭頂一道天光）
@@ -898,7 +900,7 @@ let flame,stoneBall,waterDisc;
 }
 AT.kneel={x:0,y:.2,z:1.2};
 label(atr.scene,'轉運流水盆',-3.0,1.6,1.6,null,.6);
-label(atr.scene,'跪墊',0,1.5,1.2,'點一下進前殿',.6);label(atr.scene,'樓梯 · 上樓',WA/2-1.0,3.2,DA/2-2,null,.6);
+label(atr.scene,'跪墊',0,1.1,1.2,'點一下進前殿',.42);label(atr.scene,'樓梯 · 上樓',WA/2-1.0,3.2,DA/2-2,null,.6);
 label(atr.scene,'媽祖殿',0,4.3,-DA/2+.4,'中殿 · 出發平安',.75);
 label(atr.scene,'財神殿',-WA/2+.6,5.2,-5.0,'虎邊 · 豐盛',.7);label(atr.scene,'月老殿',WA/2-.6,5.2,-5.0,'龍邊 · 愛',.7);
 const TEMPLE='https://fuwei0618-cmd.github.io/Entry/temple/?d=';
@@ -912,7 +914,7 @@ AT.hots=[
   {id:'downA',name:'樓梯',verb:'上樓',x:WA/2-2.2,z:DA/2-2.6,r:1.3,go:()=>goto('f2','ladder')}
 ];
 // 一進來：第一人稱、站在跪墊正後方，看得到三殿的門和轉運流水盆
-AT.spawns={ladder:[0,7.0,Math.PI,0,-.1,'first'],stairs:[WA/2-2.6,DA/2-3.2,Math.PI,0],halls:[0,-DA/2+2.6,0,Math.PI]};
+AT.spawns={ladder:[1.0,3.9,Math.PI,.37,-.14,'first'],stairs:[WA/2-2.6,DA/2-3.2,Math.PI,0],halls:[0,-DA/2+2.6,0,Math.PI]};
 AT.update=(dt,t)=>{stoneBall.rotation.y+=dt*.35;stoneBall.rotation.x+=dt*.12;waterDisc.material.opacity=.8+Math.sin(t*1.7)*.06;const k=.85+Math.sin(t*9)*.08+Math.sin(t*23)*.05;AT.light.intensity=.5*k;flame.scale.set(1,1.7*k,1);};
 
 /* =========================================================
@@ -1173,8 +1175,8 @@ const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
   ['森林入口',['forest','start'],[0,GZ+6]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,EC.cz-8.6]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
   ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
-  ['玄關',['f1','front'],W1F(0,1.4)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
-  ['健身房',['f1','gym'],W1F(7.5,1.4),['健身房']],['Lucky',['f1','front'],W1F(-6.4,1.4),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,1.4)],
+  ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
+  ['健身房',['f1','gym'],W1F(7.5,4.3),['健身房']],['Lucky',['f1','front'],W1F(-6.4,4.3),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
   ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];
 const MAP_B=[['B1 臥室',['f2','bed'],[30,30],['床邊']],['B2 禱告房',['attic','ladder'],[68,74]]];
 const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[36,82],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[90,48],['Podcast']]];

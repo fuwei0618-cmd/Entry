@@ -148,7 +148,7 @@ textarea{min-height:76px;resize:vertical}
 .fmap.mini .pin.lit i{background:#FFD97A;border-color:#E2B85C;box-shadow:0 0 0 4px rgba(255,210,110,.45),0 0 18px rgba(255,190,80,.8)}
 .fmap.mini .pin.lit span{background:var(--ink);color:#FBF9F5}
 .cseg{display:flex;justify-content:center;gap:6px}.cseg button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:13.5px}.cseg button[aria-pressed="true"]{background:var(--ink);color:#FBF9F5;border-color:var(--ink)}
-.ckinds{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}.ckinds button{border:1px solid rgba(59,53,46,.12);border-radius:999px;padding:3px 11px;font-size:12.5px}.ckinds button[aria-pressed="false"]{opacity:.35}
+.ckinds{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}.ckinds button{border:1px solid rgba(59,53,46,.12);border-radius:999px;padding:3px 11px;font-size:12.5px}.ckinds button[aria-pressed="false"]{opacity:.35}.ckinds .kall{background:none;border:1px dashed rgba(59,53,46,.35);color:var(--muted)}
 .k-idol{background:#F6D9CF}.k-tat{background:#E4E0F2}.k-film{background:#D8E7EE}.k-plan{background:#DDEBD6}.k-space{background:#F3E6C8}.k-god{background:#F1E7D2;border-color:rgba(176,140,70,.45)!important}
 .cstage{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:1/1;border-radius:18px;background:var(--card);border:1px solid var(--line);overflow:hidden}
 .cstage svg{position:absolute;inset:0;width:100%;height:100%}
@@ -443,18 +443,19 @@ function renderMe(){
   const sel=items.find(it=>it.id===meSel);
   const miniMap=pl=>`<div class="cmini">${map}${Object.entries(MPL).map(([p,[x,y]])=>`<span class="${(pl||[]).includes(p)?"lit":""}" style="left:${x}%;top:${y}%">${esc(p)}</span>`).join("")}</div>`;
   let detail=`<p class="muted" style="margin:0">點任何一件收藏。中間那把火，是三個我都有的事。</p>`;
-  if(sel)detail=`<h3 class="cname">${esc(sel.n)}<small class="k-${sel.k}">${KINDS[sel.k]}</small></h3><div class="ctags">${sel.tags.split("").map(k=>`<span style="background:${PERS[k].c}">${PERS[k].n}</span>`).join("")}</div><p>${esc(sel.t||"")}</p>${miniMap(sel.pl)}
-    <div class="row">${(sel.pl||[])[0]&&MPL[sel.pl[0]]?`<button class="btn pri" data-walk2="${esc(sel.pl[0])}">走去 Origina 的${esc(sel.pl[0])}</button>`:""}<button class="btn" data-editc="${sel.id}">修改這張卡</button></div>`;
+  if(sel)detail=`<div class="row" style="justify-content:flex-end;margin:0 0 6px"><button class="btn sm" data-editc="${sel.id}">修改這張卡</button></div><h3 class="cname">${esc(sel.n)}<small class="k-${sel.k}">${KINDS[sel.k]}</small></h3><div class="ctags">${sel.tags.split("").map(k=>`<span style="background:${PERS[k].c}">${PERS[k].n}</span>`).join("")}</div><p>${esc(sel.t||"")}</p>${miniMap(sel.pl)}
+    <div class="row">${(sel.pl||[])[0]&&MPL[sel.pl[0]]?`<button class="btn pri" data-walk2="${esc(sel.pl[0])}">走去 Origina 的${esc(sel.pl[0])}</button>`:""}</div>`;
   else if(meView==="map"&&meSelP){const L=items.filter(it=>(it.pl||[]).includes(meSelP));detail=`<h3 class="cname">${esc(meSelP)}</h3><p class="muted" style="margin:0;font-size:13px">住在這裡的收藏</p><div class="ctags" style="gap:6px">${L.map(it=>chip(it,0)).join("")||'<span class="muted">還沒有</span>'}</div>${MPL[meSelP]?`<button class="btn pri" data-walk2="${esc(meSelP)}">走去 Origina 的${esc(meSelP)}</button>`:""}`;}
   $("#app").innerHTML=`<section style="display:grid;gap:12px">
     <h2 style="margin:0;text-align:center;font-family:var(--serif);font-size:22px;color:var(--ink);letter-spacing:.1em">我是誰</h2>
     <div class="cseg">${[["venn","三個我（交集）"],["map","Origina 地圖"]].map(([k,t])=>`<button data-mv="${k}" aria-pressed="${meView===k}">${t}</button>`).join("")}</div>
-    <div class="ckinds">${Object.entries(KINDS).map(([k,t])=>`<button class="k-${k}" data-k="${k}" aria-pressed="${!!meKinds[k]}">${t}</button>`).join("")}</div>
+    <div class="ckinds">${Object.entries(KINDS).map(([k,t])=>`<button class="k-${k}" data-k="${k}" aria-pressed="${!!meKinds[k]}">${t}</button>`).join("")}<button class="kall" data-kall>${Object.keys(KINDS).every(k=>meKinds[k])?"全部取消":"全部顯示"}</button></div>
     <div class="cstage${meEdit?" editing":""}" id="cstage">${stage}</div>
     <div class="row" style="justify-content:center">${meEdit?`<button class="btn pri" id="cSave">儲存</button><button class="btn" id="cCancel">取消</button></div><div class="csize">${sel?`<label class="field">「${esc(sel.n)}」的份量（在我心中有多重）<input type="range" id="csize" min="0.7" max="2" step="0.1" value="${sel.s||1}"></label>`:`<span class="muted" style="font-size:12.5px">拖曳移動位置；點一件，這裡會出現份量滑桿</span>`}`:`<button class="btn" id="cEdit">調整位置和大小</button><button class="btn" id="cAdd">＋ 新增收藏</button>`}</div>
     <div class="card cdetail">${detail}</div></section>`;
   document.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{meView=b.dataset.mv;meSelP=null;renderMe();});
   document.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{meKinds[b.dataset.k]=meKinds[b.dataset.k]?0:1;renderMe();});
+  const ka=$("[data-kall]");if(ka)ka.onclick=()=>{const on=!Object.keys(KINDS).every(k=>meKinds[k]);Object.keys(KINDS).forEach(k=>meKinds[k]=on?1:0);renderMe();};
   document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{meSelP=b.dataset.p;meSel=null;renderMe();});
   document.querySelectorAll("[data-walk2]").forEach(b=>b.onclick=()=>{const m=MPL[b.dataset.walk2];try{if(window.parent!==window){window.parent.postMessage({origina:"goto",scene:m[2],spawn:m[3]},"*");return;}}catch(e){}location.href="https://fuwei0618-cmd.github.io/Entry/?go="+m[2]+","+m[3];});
   document.querySelectorAll("[data-editc]").forEach(b=>b.onclick=()=>collectionDialog(items.find(it=>it.id===b.dataset.editc)));

@@ -184,6 +184,7 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .wknav{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}.wknav button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted)}.wknav button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FFF8EC}
 .linkbtn{border:0;background:none;color:var(--gold);text-decoration:underline;font-size:12.5px;padding:0 4px}
 .slot.once{outline:1.5px dashed rgba(255,255,255,.7);outline-offset:-4px}
+.wkd{display:block;font-size:11px;font-weight:400;color:var(--muted,#8A8178);margin-top:1px;letter-spacing:0}th.today{color:var(--gold,#B8913E)}th.today .wkd{color:var(--gold,#B8913E);font-weight:700}
 .slot.multi{background:none;gap:2px;padding:0;justify-content:stretch}
 .slot.multi .band{position:relative;flex:1;width:100%;display:flex;align-items:center;justify-content:center;background:var(--c);border-radius:6px;overflow:hidden;min-height:0}
 .slot.multi .band b{font-size:11px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:94%;padding:0 2px}
@@ -430,7 +431,7 @@ function layer3(){
   const nav=`<div class="wknav">${["tpl",0,1,2,3,4,5,6,7].map(n=>`<button data-wk="${n}" aria-pressed="${String(wkView)===String(n)}">${lab(n)}</button>`).join("")}</div>`;
   const state=S.tpl?`<p class="hint">這是範本：每一週一開始都長這樣。改範本，還沒調整過的週都會跟著變。</p>`:S.own?`<p class="hint">這週有自己的安排。<button class="linkbtn" data-reset>還原成範本</button></p>`:`<p class="hint">這週目前跟範本一樣；一改就會變成這週專屬的安排，不影響範本。</p>`;
   return top3+`<section><h2>一週的樣子<small>點格子放沙子（一格最多三件）・按住拖曳換位置</small></h2>${nav}
-    <div class="card wk"><div class="wkscroll"><table><thead><tr><th></th>${DAYS.map(d=>`<th>${d}</th>`).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>${state}</div></section>
+    <div class="card wk"><div class="wkscroll"><table><thead><tr><th></th>${DAYS.map((d,i)=>{if(S.tpl)return `<th>${d}</th>`;const [y,m,dd]=wkKeyOff(wkView).split("-").map(Number),x=new Date(y,m-1,dd+i),today=ymd(x)===ymd(new Date());return `<th${today?' class="today"':''}>${d}<small class="wkd">${x.getMonth()+1}/${x.getDate()}</small></th>`;}).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>${state}</div></section>
   <section><h2>這週的沙<small>每一格是一把沙，看看力氣流向哪裡</small></h2><div class="card wk">${sand}</div></section>
   <section><h2>沙子的種類<small>常態的事；臨時的事直接在格子裡寫就好</small></h2><div class="card tray2">${W.items.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}<button class="chip2 add" data-additem>＋ 新的沙子</button></div></section>`;}
 function bind3(){

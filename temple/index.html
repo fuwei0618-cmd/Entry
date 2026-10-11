@@ -16,7 +16,6 @@ html,body{margin:0;height:100%;background:#1c1b19;color:var(--ink);font-family:"
 #hz{position:fixed;inset:0;pointer-events:none;transition:opacity .7s}
 #hz .door,#hz .spot{position:absolute;pointer-events:auto;background:none;border:0;padding:0;cursor:pointer}
 #hz .door span{position:absolute;left:50%;top:-30px;transform:translateX(-50%);white-space:nowrap;font:inherit;font-size:13px;letter-spacing:.2em;color:var(--ink);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:4px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:.88}
-#hz .door[aria-label="走進媽祖殿"] span{top:auto;bottom:-6px}
 #hz .water{position:absolute;border-radius:50%;pointer-events:none;mix-blend-mode:screen;opacity:.55;
   background:repeating-radial-gradient(ellipse at 52% 40%,rgba(255,255,255,0) 0 6px,rgba(255,255,255,.22) 7px,rgba(255,255,255,0) 9px 14px);background-size:140% 160%;animation:ripple 5s linear infinite}
 @keyframes ripple{from{background-position:0 0}to{background-position:-30% -40%}}
@@ -44,7 +43,12 @@ header p{margin:4px 0 0;font-size:13px;color:var(--mute);letter-spacing:.15em;te
 #back{position:fixed;left:12px;top:calc(10px + env(safe-area-inset-top));z-index:3}
 #book{position:fixed;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:3}
 footer{position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 16px}
-#halls{display:flex;gap:6px}
+#halls{position:fixed;left:0;right:0;top:calc(84px + env(safe-area-inset-top));display:flex;justify-content:center;gap:4px;z-index:3}
+#halls button{text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.isfront #pray,.isfront #hint{display:none}
+#hz .spot::before{content:"";position:absolute;inset:-4% -2%;border-radius:50%;border:1.5px solid rgba(255,250,236,.75);animation:pulse 3.2s ease-in-out infinite}
+#hz .spot span{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);white-space:nowrap;font:inherit;font-size:13px;letter-spacing:.3em;color:var(--ink);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 13px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+@keyframes pulse{0%,100%{opacity:.2;transform:scale(.96)}50%{opacity:.9;transform:scale(1.04)}}
 #halls button{font:inherit;font-size:14px;color:var(--mute);background:none;border:0;padding:6px 10px;cursor:pointer;letter-spacing:.1em;border-bottom:1px solid transparent}
 #halls button.on{color:var(--ink);border-bottom-color:var(--ink)}
 #hint{font-size:13px;color:var(--ink);text-shadow:0 1px 6px rgba(0,0,0,.85);min-height:1.2em;text-align:center;letter-spacing:.08em;transition:opacity .6s}
@@ -88,7 +92,7 @@ label.f{display:block;font-size:13px;color:var(--mute);margin:10px 0 6px}
 "use strict";
 const PKEY="origina.prayer.v1";
 const HALLS={
-  front:{name:"前殿",sub:"跪下・敲鈴・對自己說",img:"img/front.webp",front:1,hint:"點跪墊跪下；點門走進三殿",
+  front:{name:"前殿",sub:"點跪墊跪下・點門走進三殿",img:"img/front.webp",front:1,hint:"",
     doors:[["mazu",[490,60,534,418]],["yuelao",[326,279,402,418]],["caishen",[622,279,698,418]]],
     kneelAt:[462,488,532,546],water:[92,459,244,486],ball:[169,458,27]},
   yuelao:{name:"月老殿",sub:"愛・先愛自己，再遇見對的人",img:"img/yuelao.webp",stat:[474,252,550,394],
@@ -121,11 +125,11 @@ function layout(){const w=innerWidth,h=innerHeight,H=HALLS[cur],s=Math.max(w/102
   const R=([a,b,c,d])=>({left:ox+a*s+"px",top:oy+b*s+"px",width:(c-a)*s+"px",height:(d-b)*s+"px"});
   const hz=$("#hz");hz.innerHTML="";
   if(H.front){
-    H.doors.forEach(([id,bb])=>{const d=document.createElement("button");d.className="door";d.setAttribute("aria-label","走進"+HALLS[id].name);d.innerHTML=`<span>${HALLS[id].name}</span>`;Object.assign(d.style,R(bb));d.onclick=()=>setHall(id);hz.appendChild(d);const sp=d.firstChild,r=sp.getBoundingClientRect();if(r.left<8)sp.style.transform=`translateX(calc(-50% + ${8-r.left}px))`;else if(r.right>w-8)sp.style.transform=`translateX(calc(-50% - ${r.right-w+8}px))`;});
-    const k=document.createElement("button");k.className="spot";k.setAttribute("aria-label","跪下");Object.assign(k.style,R(H.kneelAt));k.onclick=kneel;hz.appendChild(k);
+    H.doors.forEach(([id,bb])=>{const d=document.createElement("button");d.className="door";d.setAttribute("aria-label","走進"+HALLS[id].name);d.innerHTML=`<span>${HALLS[id].name}</span>`;Object.assign(d.style,R(bb));if(bb[1]<279)d.firstChild.style.top=((279-bb[1])*s-30)+"px";d.onclick=()=>setHall(id);hz.appendChild(d);const sp=d.firstChild,r=sp.getBoundingClientRect();if(r.left<8)sp.style.transform=`translateX(calc(-50% + ${8-r.left}px))`;else if(r.right>w-8)sp.style.transform=`translateX(calc(-50% - ${r.right-w+8}px))`;});
+    const k=document.createElement("button");k.className="spot";k.setAttribute("aria-label","跪下");k.innerHTML="<span>跪下</span>";k.innerHTML="<span>跪下</span>";Object.assign(k.style,R(H.kneelAt));k.onclick=kneel;hz.appendChild(k);
     const wa=document.createElement("div");wa.className="water";Object.assign(wa.style,R(H.water));hz.appendChild(wa);
     const [bx,by,br]=H.ball,ba=document.createElement("div");ba.className="sheen";Object.assign(ba.style,R([bx-br,by-br,bx+br,by+br]));hz.appendChild(ba);
-    Object.assign($("#hit").style,{width:0,height:0});$("#halo").style.width=0;return;}
+    Object.assign($("#hit").style,{width:0,height:0});Object.assign($("#halo").style,{width:0,height:0});return;}
   const [x0,y0,x1,y1]=H.stat;box={x:ox+x0*s,y:oy+y0*s,w:(x1-x0)*s,h:(y1-y0)*s};
   const hit=$("#hit");Object.assign(hit.style,{left:box.x+"px",top:box.y+"px",width:box.w+"px",height:box.h+"px"});
   const r=Math.max(box.w,box.h)*1.1,cx=box.x+box.w/2,cy=box.y+box.h*.45;

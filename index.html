@@ -91,7 +91,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .mapbox>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .mspot{position:absolute;display:flex;align-items:center;gap:4px;transform:translate(-7px,-50%)}
 .mapps{position:absolute;display:flex;gap:6px;transform:translate(-50%,-50%)}
-.mapps.colL{flex-direction:column;align-items:center;transform:translate(-50%,calc(-1 * min(28px,3vw)))}
+.mapps.colL{transform:translate(-50%,-50%)}.mapps.colL .mlab{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%)}
 .mspot.below .mlab{position:absolute;bottom:calc(50% + 9px);left:5px;transform:translateX(-50%)}
 .mspot.below .mdown{position:absolute;top:calc(50% + 12px);left:5px;transform:translateX(-50%);display:flex;gap:6px}
 .mspot.col{transform:translate(-5px,-5px);display:block}.mspot.col i.dot{display:block}.mspot.col .mlab{position:absolute;top:13px;left:5px;transform:translateX(-50%)}.mspot.col .mup{position:absolute;bottom:13px;left:5px;transform:translateX(-50%);display:flex;gap:6px}
@@ -1178,7 +1178,7 @@ const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
   ['森林入口',['forest','start'],[0,GZ+6]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
   ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
-  ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
+  ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(12,-1.5),['正顎手冊'],W1F(16.3,-1.5)],
   ['健身房',['f1','gym'],W1F(7.5,4.3),['健身房']],['Lucky',['f1','front'],W1F(-6.4,4.3),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
   ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];
 const MAP_B=[['B1 臥室',['f2','bed'],[30,30],['床邊']],['B2 禱告房',['attic','ladder'],[68,74]]];
@@ -1187,7 +1187,7 @@ const X0=-40,Z0=-19,MW=76,MH=80,pct=(x,z)=>[(x-X0)/MW*100,(z-Z0)/MH*100];
 function spotHTML(n,g,lp,apps,ap){const [l,t]=lp;
   const btns=(apps||[]).map(a=>APPMAP[a]?`<button class="mapp" data-app="${esc(a)}" aria-label="打開 ${esc(a)}" title="${esc(a)}">${APPMAP[a].svg}</button>`:'').join('');
   // ap：App 圖示另外放的位置（地圖座標），不跟在文字後面
-  if(n==='日曆牆'&&ap)return `<div class="mspot" style="left:${l}%;top:${t}%"><i class="dot"></i></div><div class="mapps colL" style="left:${ap[0]}%;top:${ap[1]}%">${btns}<button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
+  if((n==='日曆牆'||n==='Beauty')&&ap)return `<div class="mspot" style="left:${l}%;top:${t}%"><i class="dot"></i></div><div class="mapps colL" style="left:${ap[0]}%;top:${ap[1]}%">${btns}<button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
   if(['樓梯','Lucky','玄關','健身房'].includes(n))return `<div class="mspot below" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${btns?`<div class="mdown">${btns}</div>`:''}</div>`;
   if(['廚房','舞台門','世界之門'].includes(n))return `<div class="mspot col" style="left:${l}%;top:${t}%">${btns?`<div class="mup">${btns}</div>`:''}<i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
   return `<div class="mspot${l>68||n==='金庫'||n==='蘑菇攝影棚'?' flip':''}" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${ap?'':btns}</div>${ap&&btns?`<div class="mapps" style="left:${ap[0]}%;top:${ap[1]}%">${btns}</div>`:''}`;}

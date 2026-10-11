@@ -30,6 +30,7 @@ textarea{min-height:70px;resize:vertical}
 .stage{position:relative;text-align:center;padding:8px 0 4px}
 .stage svg{width:min(320px,80vw);height:auto;display:block;margin:0 auto;overflow:visible}
 .stage img.stg{width:min(300px,76vw);height:auto;display:block;margin:0 auto;mix-blend-mode:multiply;border-radius:12px}
+.stage img.fly{animation:bob 4s ease-in-out infinite,flapI 3.2s ease-in-out infinite}@keyframes flapI{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.9)}}
 .stage .nm{font-family:var(--serif);font-size:19px;letter-spacing:.2em;margin-top:2px}
 .stage .ct{font-size:13px;color:var(--muted)}
 .bar{height:6px;border-radius:999px;background:var(--soft);overflow:hidden;max-width:260px;margin:8px auto 0}
@@ -93,8 +94,8 @@ let tab="wish";
 const points=()=>L.log.length+L.dates.filter(d=>d.done).length+L.bounds.length+L.words.filter(w=>w.d).length;
 const STAGES=[[0,"卵","一個小小的開始"],[1,"毛毛蟲","慢慢吃、慢慢長"],[5,"蛹","安靜地在裡面變化"],[12,"燕尾蝶","展開翅膀了"]];
 function stageOf(n){let s=0;STAGES.forEach((x,i)=>{if(n>=x[0])s=i;});return s;}
-const IMG=["img/egg.webp","img/caterpillar.webp","img/chrysalis.webp",null];
-function art(n){const st=stageOf(n);if(IMG[st])return `<img class="stg bob" src="${IMG[st]}" alt="${STAGES[st][1]}">`;
+const IMG=["img/egg.webp","img/caterpillar.webp","img/chrysalis.webp","img/butterfly.webp"];
+function art(n){const st=stageOf(n);if(st===3){const g=Math.min(1,(n-12)/36);return `<img class="stg fly bob" src="${IMG[3]}" alt="燕尾蝶" style="filter:saturate(${(.45+.75*g).toFixed(2)})">`;}if(IMG[st])return `<img class="stg bob" src="${IMG[st]}" alt="${STAGES[st][1]}">`;
   const leaf=`<path d="M30 132 C70 112 130 112 172 128 C130 144 70 146 30 132Z" fill="#DCE5CF" stroke="#A9B996" stroke-width="1"/><path d="M34 132 C80 126 130 126 168 128" stroke="#A9B996" stroke-width=".8" fill="none"/>`;
   if(st===0)return `<svg viewBox="0 0 200 160">${leaf}<g class="bob"><ellipse cx="100" cy="118" rx="7" ry="9" fill="#FBF3EA" stroke="#C9A5A0" stroke-width="1.2"/><ellipse cx="98" cy="115" rx="2" ry="3" fill="#fff"/></g></svg>`;
   if(st===1){const k=Math.min(9,4+n);let seg="";for(let i=0;i<k;i++){const x=70+i*8,y=118+Math.sin(i*.9)*4;seg+=`<circle cx="${x}" cy="${y}" r="${i===k-1?6.5:5.5}" fill="${i%2?"#E7C3C0":"#F1D9D3"}" stroke="#C99A96" stroke-width="1"/>`;}

@@ -184,6 +184,11 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .wknav{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}.wknav button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted)}.wknav button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FFF8EC}
 .linkbtn{border:0;background:none;color:var(--gold);text-decoration:underline;font-size:12.5px;padding:0 4px}
 .slot.once{outline:1.5px dashed rgba(255,255,255,.7);outline-offset:-4px}
+.slot.multi{background:none;gap:2px;padding:0;justify-content:stretch}
+.slot.multi .band{position:relative;flex:1;width:100%;display:flex;align-items:center;justify-content:center;background:var(--c);border-radius:6px;overflow:hidden;min-height:0}
+.slot.multi .band b{font-size:11px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:94%;padding:0 2px}
+.slot.multi .band.once{outline:1px dashed rgba(255,255,255,.75);outline-offset:-3px}
+.slot.multi .tm{position:absolute;right:3px;top:1px;font-size:9.5px;color:#fff;opacity:.9;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 .chip3{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:14px}
 .chip3 i{width:12px;height:12px;border-radius:4px;background:var(--c)}
 .chip3[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 1.5px var(--ink)}
@@ -403,13 +408,17 @@ let wkView=0; // "tpl"＝範本；0＝本週；1＝下週…
 const wkKeyOff=n=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7)+7*n);return ymd(d);};
 function wkS(){const W=D.week;W.weeks=W.weeks||{};if(wkView==="tpl")return{slots:W.slots,outfit:W.outfit,own:true,tpl:true};const k=wkKeyOff(wkView),o=W.weeks[k];return o?{slots:o.slots,outfit:o.outfit,own:true,key:k}:{slots:W.slots,outfit:W.outfit,own:false,key:k};}
 function wkOwn(){const W=D.week,S=wkS();if(S.own)return S;W.weeks[S.key]={slots:JSON.parse(JSON.stringify(W.slots)),outfit:W.outfit.slice()};return wkS();}
-const slotInfo=v=>{if(!v)return null;if(v.item){const it=itemById(v.item);return it?{name:it.name,cat:it.cat}:null;}return v.text?{name:v.text,cat:v.cat||"life",once:1}:null;};
+const slotList=v=>Array.isArray(v)?v:(v?[v]:[]);   // 一格可以放 1～3 件事（舊資料是單一件）
+const slotInfos=v=>slotList(v).map(slotInfo1).filter(Boolean);
+const slotInfo=v=>slotInfos(v)[0]||null;
+const slotInfo1=v=>{if(!v)return null;if(v.item){const it=itemById(v.item);return it?{name:it.name,cat:it.cat}:null;}return v.text?{name:v.text,cat:v.cat||"life",once:1}:null;};
 function layer3(){
   const W=D.week,S=wkS(),cnt={},total=21;let filled=0;
-  Object.values(S.slots).forEach(v=>{const it=slotInfo(v);if(!it)return;cnt[it.cat]=(cnt[it.cat]||0)+1;filled++;});
+  Object.values(S.slots).forEach(v=>{const its=slotInfos(v);if(!its.length)return;its.forEach(it=>cnt[it.cat]=(cnt[it.cat]||0)+1/its.length);filled++;});
   const blank=total-filled;
-  const cellHTML=(d,p)=>{const v=S.slots[d+"-"+p],it=slotInfo(v);
-    return `<td><div class="slot${it?" full":""}${it&&it.once?" once":""}" data-slot="${d}-${p}" style="${it?`--c:${CATS[it.cat].c}`:""}">${it?`<span class="grain"></span><b>${esc(it.name)}</b>${v.time?`<small>${esc(v.time)}</small>`:""}`:"<i>＋</i>"}</div></td>`;};
+  const cellHTML=(d,p)=>{const v=S.slots[d+"-"+p],its=slotInfos(v),it=its[0],tm=(slotList(v)[0]||{}).time;
+    if(its.length>1)return `<td><div class="slot full multi" data-slot="${d}-${p}">${its.map(x=>`<span class="band${x.once?" once":""}" style="--c:${CATS[x.cat].c}"><span class="grain"></span><b>${esc(x.name)}</b></span>`).join("")}${tm?`<small class="tm">${esc(tm)}</small>`:""}</div></td>`;
+    return `<td><div class="slot${it?" full":""}${it&&it.once?" once":""}" data-slot="${d}-${p}" style="${it?`--c:${CATS[it.cat].c}`:""}">${it?`<span class="grain"></span><b>${esc(it.name)}</b>${tm?`<small>${esc(tm)}</small>`:""}`:"<i>＋</i>"}</div></td>`;};
   const rows=PARTS.map((pt,p)=>`<tr><th>${pt}</th>${DAYS.map((_,d)=>cellHTML(d,p)).join("")}</tr>`).join("");
   const outfit=`<tr class="outfit"><th>服裝</th>${DAYS.map((_,d)=>`<td><button data-outfit="${d}" class="of of-${["正裝","運動服","休閒"].indexOf(S.outfit[d])}">${esc(S.outfit[d]||"—")}</button></td>`).join("")}</tr>`;
   const segs=Object.keys(CATS).filter(k=>cnt[k]).map(k=>({k,n:cnt[k]}));if(blank)segs.push({k:"blank",n:blank});
@@ -420,7 +429,7 @@ function layer3(){
   const lab=n=>{if(n==="tpl")return "範本";const[y,m,d]=wkKeyOff(n).split("-").map(Number);return n===0?`本週 ${m}/${d}`:n===1?`下週 ${m}/${d}`:`${m}/${d} 那週`;};
   const nav=`<div class="wknav">${["tpl",0,1,2,3,4,5,6,7].map(n=>`<button data-wk="${n}" aria-pressed="${String(wkView)===String(n)}">${lab(n)}</button>`).join("")}</div>`;
   const state=S.tpl?`<p class="hint">這是範本：每一週一開始都長這樣。改範本，還沒調整過的週都會跟著變。</p>`:S.own?`<p class="hint">這週有自己的安排。<button class="linkbtn" data-reset>還原成範本</button></p>`:`<p class="hint">這週目前跟範本一樣；一改就會變成這週專屬的安排，不影響範本。</p>`;
-  return top3+`<section><h2>一週的樣子<small>點格子放沙子・按住拖曳換位置</small></h2>${nav}
+  return top3+`<section><h2>一週的樣子<small>點格子放沙子（一格最多三件）・按住拖曳換位置</small></h2>${nav}
     <div class="card wk"><div class="wkscroll"><table><thead><tr><th></th>${DAYS.map(d=>`<th>${d}</th>`).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>${state}</div></section>
   <section><h2>這週的沙<small>每一格是一把沙，看看力氣流向哪裡</small></h2><div class="card wk">${sand}</div></section>
   <section><h2>沙子的種類<small>常態的事；臨時的事直接在格子裡寫就好</small></h2><div class="card tray2">${W.items.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}<button class="chip2 add" data-additem>＋ 新的沙子</button></div></section>`;}
@@ -448,17 +457,24 @@ function bind3(){
     el.addEventListener("click",()=>{if(!moved&&Date.now()-(window._slotDragEnd||0)>400)slotDialog(el.dataset.slot);});
     el.addEventListener("pointercancel",()=>{clearTimeout(timer);if(drag){drag.remove();drag=null;el.classList.remove("lift");}});
     el.addEventListener("contextmenu",e=>e.preventDefault());});}
-function slotDialog(key){const W=D.week,[d,p]=key.split("-").map(Number),v=wkS().slots[key]||{};let pick=v.item||null,cat=v.cat||"life";
-  dialog(`<h3>星期${DAYS[d]}・${PARTS[p]}</h3><div class="field">放哪一種沙子？<div class="fishes">${W.items.map(i=>`<button class="chip3" data-pick="${i.id}" aria-pressed="${pick===i.id}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}</div></div>
-    <label class="field">或是臨時的事（只放這一格，不會變成沙子種類）<input id="once" maxlength="14" value="${esc(v.text||"")}" placeholder="例如：看牙醫、朋友婚禮"></label>
+function slotDialog(key){const W=D.week,[d,p]=key.split("-").map(Number),L=slotList(wkS().slots[key]);
+  let picks=L.filter(x=>x.item&&itemById(x.item)).map(x=>x.item);const o=L.find(x=>x.text)||{};let cat=o.cat||"life";const tm0=(L[0]||{}).time||"";
+  dialog(`<h3>星期${DAYS[d]}・${PARTS[p]}</h3><div class="field">放哪幾種沙子？<small class="muted" id="pc">可以選 1～3 種，這一格的沙會平分</small><div class="fishes">${W.items.map(i=>`<button class="chip3" data-pick="${i.id}" aria-pressed="${picks.includes(i.id)}" style="--c:${CATS[i.cat].c}"><i></i>${esc(i.name)}</button>`).join("")}</div></div>
+    <label class="field">再加一件臨時的事（只放這一格，不會變成沙子種類）<input id="once" maxlength="14" value="${esc(o.text||"")}" placeholder="例如：看牙醫、朋友婚禮"></label>
     <div class="field">臨時的事算哪一類<div class="fishes">${Object.entries(CATS).map(([k,c])=>`<button class="chip3" data-ocat="${k}" aria-pressed="${cat===k}" style="--c:${c.c}"><i></i>${c.n}</button>`).join("")}</div></div>
-    <label class="field">時間（選填）<input id="tm" maxlength="12" value="${esc(v.time||"")}" placeholder="例如 1030"></label>
-    <div class="row"><button class="btn pri" data-ok>放好</button>${v.item||v.text?`<button class="btn" data-clear>清空這格</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
-  box=>{box.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{pick=b.dataset.pick;box.querySelector("#once").value="";box.querySelectorAll("[data-pick]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
-    box.querySelector("#once").oninput=()=>{pick=null;box.querySelectorAll("[data-pick]").forEach(x=>x.setAttribute("aria-pressed","false"));};
+    <label class="field">時間（選填）<input id="tm" maxlength="12" value="${esc(tm0)}" placeholder="例如 1030"></label>
+    <div class="row"><button class="btn pri" data-ok>放好</button>${L.length?`<button class="btn" data-clear>清空這格</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
+  box=>{const pc=box.querySelector("#pc"),onceEl=box.querySelector("#once");
+    const total=()=>picks.length+(onceEl.value.trim()?1:0);
+    const warn=()=>{pc.textContent=total()>3?"一格最多三件，先拿掉一件":"可以選 1～3 種，這一格的沙會平分";pc.style.color=total()>3?"var(--rose,#B5534A)":"";};
+    box.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{const id=b.dataset.pick;
+      if(picks.includes(id))picks=picks.filter(x=>x!==id);else{if(total()>=3){warn();pc.textContent="一格最多三件，先拿掉一件";pc.style.color="var(--rose,#B5534A)";return;}picks.push(id);}
+      b.setAttribute("aria-pressed",picks.includes(id));warn();});
+    onceEl.oninput=warn;
     box.querySelectorAll("[data-ocat]").forEach(b=>b.onclick=()=>{cat=b.dataset.ocat;box.querySelectorAll("[data-ocat]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
-    box.querySelector("[data-ok]").onclick=()=>{const t=box.querySelector("#tm").value.trim(),once=box.querySelector("#once").value.trim();
-      if(pick||once){const S=wkOwn(),val=pick?{item:pick}:{text:once,cat};if(t)val.time=t;S.slots[key]=val;save();}closeDlg();render();};
+    box.querySelector("[data-ok]").onclick=()=>{if(total()>3){warn();return;}const t=box.querySelector("#tm").value.trim(),once=onceEl.value.trim();
+      const list=picks.map(id=>({item:id}));if(once)list.push({text:once,cat});
+      const S=wkOwn();if(list.length){if(t)list[0].time=t;S.slots[key]=list.length===1?list[0]:list;}else delete S.slots[key];save();closeDlg();render();};
     const c=box.querySelector("[data-clear]");if(c)c.onclick=()=>{const S=wkOwn();delete S.slots[key];save();closeDlg();render();};});}
 function itemDialog(it){const W=D.week;let cat=it?it.cat:"body";
   dialog(`<h3>${it?"編輯沙子":"新的沙子"}</h3><label class="field">名稱<input id="inm" maxlength="12" value="${esc(it?it.name:"")}"></label>
@@ -466,7 +482,7 @@ function itemDialog(it){const W=D.week;let cat=it?it.cat:"body";
     <div class="row"><button class="btn pri" data-ok>存好</button>${it?`<button class="btn" data-del>刪除</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
   box=>{box.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;box.querySelectorAll("[data-cat]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
     box.querySelector("[data-ok]").onclick=()=>{const n=box.querySelector("#inm").value.trim();if(!n)return;if(it){it.name=n;it.cat=cat;}else W.items.push({id:"i"+Date.now().toString(36),name:n,cat});save();closeDlg();render();};
-    const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{W.items=W.items.filter(x=>x!==it);Object.keys(W.slots).forEach(k=>{if(W.slots[k].item===it.id)delete W.slots[k];});save();closeDlg();render();};});}
+    const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{W.items=W.items.filter(x=>x!==it);[W.slots,...Object.values(W.weeks||{}).map(w=>w.slots)].forEach(sl=>Object.keys(sl).forEach(k=>{const l=slotList(sl[k]).filter(x=>x.item!==it.id);if(!l.length)delete sl[k];else sl[k]=l.length===1?l[0]:l;}));save();closeDlg();render();};});}
 /* ---------- 第四層：待辦重點 ---------- */
 const TCOL=["#D9A23A","#D9604A","#A08C72","#9CC4C0","#5E7A55","#3A2F27","#B5546F","#7C93A8"];
 function TODO(){let n=0;const id=()=>"t"+(n++).toString(36)+Date.now().toString(36);

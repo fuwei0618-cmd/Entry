@@ -12,7 +12,27 @@ html,body{margin:0;height:100%;background:#1c1b19;color:var(--ink);font-family:"
 #halo{position:fixed;pointer-events:none;border-radius:50%;background:radial-gradient(closest-side,rgba(255,250,236,.22),rgba(255,250,236,0));mix-blend-mode:screen;animation:breath 7s ease-in-out infinite}
 @keyframes breath{0%,100%{opacity:.15}50%{opacity:.75}}
 .calm #halo{animation:none;opacity:1;transition:opacity 1.5s}
-.fade #bg,.fade #halo{opacity:0}
+.fade #bg,.fade #halo,.fade #hz{opacity:0}
+#hz{position:fixed;inset:0;pointer-events:none;transition:opacity .7s}
+#hz .door,#hz .spot{position:absolute;pointer-events:auto;background:none;border:0;padding:0;cursor:pointer}
+#hz .door span{position:absolute;left:50%;top:-30px;transform:translateX(-50%);white-space:nowrap;font:inherit;font-size:13px;letter-spacing:.2em;color:var(--ink);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:4px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:.88}
+#hz .door[aria-label="走進媽祖殿"] span{top:auto;bottom:-6px}
+#hz .water{position:absolute;border-radius:50%;pointer-events:none;mix-blend-mode:screen;opacity:.55;
+  background:repeating-radial-gradient(ellipse at 52% 40%,rgba(255,255,255,0) 0 6px,rgba(255,255,255,.22) 7px,rgba(255,255,255,0) 9px 14px);background-size:140% 160%;animation:ripple 5s linear infinite}
+@keyframes ripple{from{background-position:0 0}to{background-position:-30% -40%}}
+#hz .sheen{position:absolute;border-radius:50%;pointer-events:none;mix-blend-mode:soft-light;
+  background:conic-gradient(from 0deg,rgba(255,255,255,.0),rgba(255,255,255,.55) 12%,rgba(0,0,0,.0) 30%,rgba(0,0,0,.25) 55%,rgba(255,255,255,0) 80%);animation:spin 14s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#bg{transform-origin:50% 88%;transition:opacity .7s,transform 1.8s ease,filter 1.8s ease}
+.kneel #bg{transform:scale(1.12);filter:brightness(.62)}
+.kneel #hz,.kneel footer,.kneel header,.kneel #book{opacity:0;pointer-events:none}
+#kneelv{position:fixed;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;padding:24px}
+#kneelv[hidden]{display:none}
+.kc{width:min(520px,100%);text-align:center;animation:rise 1.6s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.kc h3{margin:0 0 18px;font-weight:500;letter-spacing:.3em;font-size:15px;color:var(--mute)}
+.kc .w{white-space:pre-wrap;line-height:2.1;font-size:19px;letter-spacing:.06em;text-shadow:0 1px 10px rgba(0,0,0,.6)}
+.kc .row{justify-content:center;margin-top:26px}
 #veil{position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(0,0,0,.22),rgba(0,0,0,0) 16%,rgba(0,0,0,0) 74%,rgba(0,0,0,.32))}
 #glow{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity 2.2s;background:rgba(255,248,230,.06)}
 .calm #glow{opacity:1}
@@ -51,7 +71,8 @@ label.f{display:block;font-size:13px;color:var(--mute);margin:10px 0 6px}
 </style>
 </head><body>
 <img id="bg" alt="">
-<div id="halo"></div><button id="hit" aria-label="參拜神像"></button>
+<div id="halo"></div><div id="hz"></div><button id="hit" aria-label="參拜神像"></button>
+<div id="kneelv" hidden><div class="kc" id="kc"></div></div>
 <div id="veil"></div><div id="glow"></div>
 <header><h1 id="ttl"></h1><p id="sub"></p></header>
 <button class="btn" id="back">← 前殿</button>
@@ -62,11 +83,14 @@ label.f{display:block;font-size:13px;color:var(--mute);margin:10px 0 6px}
   <nav id="halls"></nav>
 </footer>
 <div class="sheet" id="sheet" hidden><div class="box" id="box" role="dialog" aria-modal="true"></div></div>
-<script src="../sync/origina-sync.js" data-app="bedside" data-folder="Bedside" data-keys="origina.bedside.v1,origina.prayer.v1" data-pos="br" data-offset="160"></script>
+<script src="../sync/origina-sync.js" data-app="bedside" data-folder="Bedside" data-keys="origina.bedside.v1,origina.prayer.v1" data-pos="bl" data-offset="160"></script>
 <script>
 "use strict";
 const PKEY="origina.prayer.v1";
 const HALLS={
+  front:{name:"前殿",sub:"跪下・敲鈴・對自己說",img:"img/front.webp",front:1,hint:"點跪墊跪下；點門走進三殿",
+    doors:[["mazu",[490,60,534,418]],["yuelao",[326,279,402,418]],["caishen",[622,279,698,418]]],
+    kneelAt:[462,488,532,546],water:[92,459,244,486],ball:[169,458,27]},
   yuelao:{name:"月老殿",sub:"愛・先愛自己，再遇見對的人",img:"img/yuelao.webp",stat:[474,252,550,394],
     ask:"想對自己說的愛，或想遇見什麼樣的人？",hint:"點月老，說說心裡的愛"},
   mazu:{name:"媽祖殿",sub:"出發平安・旅行、手術、上台",img:"img/mazu.webp",stat:[474,182,550,394],
@@ -74,12 +98,12 @@ const HALLS={
   caishen:{name:"財神殿",sub:"豐盛・夠用，而且越來越多",img:"img/caishen.webp",stat:[462,206,562,394],
     ask:"想要什麼樣的豐盛？可以寫數字，也可以寫畫面。",hint:"點財神爺，說說想要的豐盛"}
 };
-const ORDER=["yuelao","mazu","caishen"];
+const ORDER=["front","yuelao","mazu","caishen"];
 const ls=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pad=n=>String(n).padStart(2,"0"),ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-let cur=new URLSearchParams(location.search).get("d");if(!HALLS[cur])cur="mazu";
+let cur=new URLSearchParams(location.search).get("d");if(!HALLS[cur])cur="front";
 
 /* ---------- 神像在照片裡；這裡只負責點得到、會呼吸的光 ---------- */
 let box={x:0,y:0,w:0,h:0};
@@ -87,11 +111,21 @@ function setHall(id,instant){
   const H=HALLS[id];cur=id;document.body.classList.add("fade");
   const go=()=>{
     $("#bg").src=H.img;$("#ttl").textContent=H.name;$("#sub").textContent=H.sub;$("#hint").textContent=H.hint;
+    const F=!!H.front;document.body.classList.toggle("isfront",F);$("#pray").textContent=F?"跪下":"合十・許願";
+    $("#back").textContent=F?"← Origina":"← 前殿";
     document.querySelectorAll("#halls button").forEach(b=>b.classList.toggle("on",b.dataset.h===id));
     try{history.replaceState(null,"","?d="+id)}catch(e){}
     layout();const done=()=>document.body.classList.remove("fade");$("#bg").complete?requestAnimationFrame(done):($("#bg").onload=done);};
   instant?go():setTimeout(go,450);}
 function layout(){const w=innerWidth,h=innerHeight,H=HALLS[cur],s=Math.max(w/1024,h/572),ox=(w-1024*s)/2,oy=(h-572*s)/2;
+  const R=([a,b,c,d])=>({left:ox+a*s+"px",top:oy+b*s+"px",width:(c-a)*s+"px",height:(d-b)*s+"px"});
+  const hz=$("#hz");hz.innerHTML="";
+  if(H.front){
+    H.doors.forEach(([id,bb])=>{const d=document.createElement("button");d.className="door";d.setAttribute("aria-label","走進"+HALLS[id].name);d.innerHTML=`<span>${HALLS[id].name}</span>`;Object.assign(d.style,R(bb));d.onclick=()=>setHall(id);hz.appendChild(d);const sp=d.firstChild,r=sp.getBoundingClientRect();if(r.left<8)sp.style.transform=`translateX(calc(-50% + ${8-r.left}px))`;else if(r.right>w-8)sp.style.transform=`translateX(calc(-50% - ${r.right-w+8}px))`;});
+    const k=document.createElement("button");k.className="spot";k.setAttribute("aria-label","跪下");Object.assign(k.style,R(H.kneelAt));k.onclick=kneel;hz.appendChild(k);
+    const wa=document.createElement("div");wa.className="water";Object.assign(wa.style,R(H.water));hz.appendChild(wa);
+    const [bx,by,br]=H.ball,ba=document.createElement("div");ba.className="sheen";Object.assign(ba.style,R([bx-br,by-br,bx+br,by+br]));hz.appendChild(ba);
+    Object.assign($("#hit").style,{width:0,height:0});$("#halo").style.width=0;return;}
   const [x0,y0,x1,y1]=H.stat;box={x:ox+x0*s,y:oy+y0*s,w:(x1-x0)*s,h:(y1-y0)*s};
   const hit=$("#hit");Object.assign(hit.style,{left:box.x+"px",top:box.y+"px",width:box.w+"px",height:box.h+"px"});
   const r=Math.max(box.w,box.h)*1.1,cx=box.x+box.w/2,cy=box.y+box.h*.45;
@@ -124,20 +158,31 @@ function wishForm(){const H=HALLS[cur];
     const d=b.querySelector("#wd");if(d&&d.value)it.go=d.value;P.items.push(it);ls(PKEY,P);
     open(`<h3>已獻上</h3><p class="m">放在${H.name}了。成真的那天，回來祈願存摺按一下「還願」。</p><div class="row"><button class="btn pri" data-x>好</button></div>`);};});}
 
+/* ---------- 前殿：跪下 ---------- */
+const DEF_M="今天是新的一天。\n我不被外界的聲音帶走，我的身體柔軟、放鬆。\n我用聲音帶路，我允許自己被愛、也好好愛自己，我穩穩地累積豐盛。\n我先把心情照顧好，好事就會自然進來。";
+const DEF_N="今天的我已經夠好了。\n我放下今天，把明天交出去。";
+function kneel(){const hr=new Date().getHours(),M=hr>=4&&hr<15,B=ls("origina.bedside.v1")||{};
+  document.body.classList.add("kneel");navigator.vibrate&&navigator.vibrate(15);
+  setTimeout(()=>{bell();$("#kc").innerHTML=`<h3>${M?"起床的話":"睡前的話"}</h3><div class="w">${esc(M?(B.morning||DEF_M):(B.night||DEF_N))}</div>
+    <div class="row"><button class="btn" id="kb">再敲一下鈴</button><button class="btn" id="kw">記一筆禱告</button><button class="btn pri" id="ku">起身</button></div>`;
+    $("#kneelv").hidden=false;$("#kb").onclick=bell;$("#ku").onclick=rise;
+    $("#kw").onclick=()=>{const H=HALLS.front;H.ask="為了什麼禱告？";wishForm();};},1500);}
+function rise(){$("#kneelv").hidden=true;document.body.classList.remove("kneel");}
+
 /* ---------- 祈願存摺 ---------- */
-const DNAME={mazu:"媽祖",yuelao:"月老",caishen:"財神爺"};
+const DNAME={mazu:"媽祖",yuelao:"月老",caishen:"財神爺",front:"前殿"};
 let bookTab="here";
 function bookView(){const P=ls(PKEY)||{items:[]};
-  const list=P.items.filter(i=>bookTab==="all"||i.deity===cur).slice().reverse();
-  open(`<h3>祈願存摺</h3><div class="tabs"><button data-t="here" class="${bookTab==="here"?"on":""}">${HALLS[cur].name}</button><button data-t="all" class="${bookTab==="all"?"on":""}">全部</button></div>
+  if(HALLS[cur].front)bookTab="all";const list=P.items.filter(i=>bookTab==="all"||i.deity===cur).slice().reverse();
+  open(`<h3>祈願存摺</h3><div class="tabs">${HALLS[cur].front?"":`<button data-t="here" class="${bookTab==="here"?"on":""}">${HALLS[cur].name}</button>`}<button data-t="all" class="${bookTab==="all"?"on":""}">全部</button></div>
     ${list.length?list.map(i=>`<div class="it ${i.status==="done"?"done":""}"><div class="t">${bookTab==="all"?`<span class="tag">${esc(DNAME[i.deity]||"床邊")}</span>`:""}${esc(i.text)}<div class="d">${esc(i.date)}${i.go?" ・出發 "+esc(i.go):""}${i.status==="done"&&i.doneAt?" ・還願 "+esc(i.doneAt):""}</div></div><button class="mk" data-id="${esc(i.id)}">${i.status==="done"?"已還願":"還願"}</button></div>`).join("")
       :`<div class="empty">還沒有祈願</div>`}
     <div class="row"><button class="btn" data-x>關起來</button></div>`,
   b=>{b.querySelectorAll("[data-t]").forEach(x=>x.onclick=()=>{bookTab=x.dataset.t;bookView();});
     b.querySelectorAll("[data-id]").forEach(x=>x.onclick=()=>{const P2=ls(PKEY)||{items:[]};const it=P2.items.find(i=>i.id===x.dataset.id);if(!it)return;
       if(it.status==="done"){it.status="open";delete it.doneAt;}else{it.status="done";it.doneAt=ymd(new Date());}ls(PKEY,P2);bookView();});});}
-$("#pray").onclick=pray;$("#book").onclick=bookView;
-$("#back").onclick=()=>{if(window.top!==window.self)parent.postMessage({origina:"close-app"},"*");else location.href="https://fuwei0618-cmd.github.io/Entry/?go=attic,halls";};
+$("#pray").onclick=()=>HALLS[cur].front?kneel():pray();$("#book").onclick=bookView;
+$("#back").onclick=()=>{if(!HALLS[cur].front){setHall("front");return;}if(window.top!==window.self)parent.postMessage({origina:"close-app"},"*");else location.href="https://fuwei0618-cmd.github.io/Entry/?go=attic,halls";};
 setHall(cur,true);
 </script>
 </body></html>

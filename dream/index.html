@@ -246,7 +246,7 @@ const KIND={koi:"錦鯉・區域",goldfish:"小金魚・營／短程"};
 
 const DEFAULT={v:4,
   northStars:[
-    {id:"teresa",title:"Teresa",year:2028,date:"2028-12-31",sub:"Vocal・皮拉提斯"},
+    {id:"teresa",title:"Teresa",year:2028,date:"2028-12-31",sub:"Vocal・皮拉提斯・HH"},
     {id:"home",title:"老宅Home・Lucky・咪咪",year:2031,date:"2031-12-31",sub:"賺錢・出國"}],
   fish:[
     {id:"na",name:"北美",kind:"koi",status:"pool"},{id:"sa",name:"南美",kind:"koi",status:"pool"},
@@ -281,6 +281,7 @@ let D;
 try{D=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){D=null;}
 if(!D||!D.fish)D=JSON.parse(JSON.stringify(DEFAULT));
 // 已存過的資料也跟著更新名稱（v2：Vocal、中山路Home）
+(D.northStars||[]).forEach(s=>{if(s.id==="teresa"&&s.sub==="Vocal・皮拉提斯")s.sub="Vocal・皮拉提斯・HH";});
 if((D.v||1)<2){D.northStars.forEach(s=>{if(s.id==="teresa"&&s.sub==="唱歌・皮拉提斯・高跟鞋")s.sub="Vocal・皮拉提斯";if(s.id==="home"&&s.title==="老家・Lucky・咪咪")s.title="中山路Home・Lucky・咪咪";});D.v=2;}
 if(D.v<4&&D.v>=3){D.week=D.week||WEEK();D.v=4;try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
 if(D.v<3){D.northStars.forEach(s=>{if(s.id==="home")s.title=s.title.replace(/^(中山路Home|老家)/,"老宅Home");});if(!D.lanes)Object.assign(D,LAYER2());D.week=D.week||WEEK();D.v=4;try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}

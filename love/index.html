@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>燕尾蝶・愛自己</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&display=swap">
+<style>
+:root{--bg:#F6EFEA;--card:#FCF8F4;--ink:#3B302C;--muted:#8E7C74;--line:#EADBD2;--rose:#C9707A;--rose2:#F1D3D3;--gold:#C9A55A;--soft:#F2E6E0;
+  --serif:"Noto Serif TC","Songti TC",serif;--f:"PingFang TC","Noto Sans TC",system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);line-height:1.65}
+button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer}
+.wrap{max-width:640px;margin:0 auto;padding:14px 16px calc(40px + env(safe-area-inset-bottom));display:grid;gap:16px}
+.top{display:flex;align-items:center;gap:8px}
+.top h1{margin:0;font-family:var(--serif);font-size:21px;letter-spacing:.14em;flex:1;text-align:center}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-size:14px;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:4px}
+.btn.pri{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.sm{padding:4px 12px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:10px}
+h2{margin:0;font-family:var(--serif);font-size:17px;letter-spacing:.08em;display:flex;align-items:baseline;gap:8px}
+h2 small{font-family:var(--f);font-size:12.5px;color:var(--muted);letter-spacing:0;font-weight:400}
+.muted{color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input[type=text],input[type=date],textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg)}
+textarea{min-height:70px;resize:vertical}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:4px 12px;font-size:13px}
+.chips button[aria-pressed="true"]{background:var(--rose);border-color:var(--rose);color:#fff}
+/* 蝴蝶舞台 */
+.stage{position:relative;text-align:center;padding:8px 0 4px}
+.stage svg{width:min(320px,80vw);height:auto;display:block;margin:0 auto;overflow:visible}
+.stage .nm{font-family:var(--serif);font-size:19px;letter-spacing:.2em;margin-top:2px}
+.stage .ct{font-size:13px;color:var(--muted)}
+.bar{height:6px;border-radius:999px;background:var(--soft);overflow:hidden;max-width:260px;margin:8px auto 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--rose2),var(--rose));border-radius:999px}
+.wl{transform-origin:100px 82px;animation:flapL 3.2s ease-in-out infinite}
+.wr{transform-origin:100px 82px;animation:flapR 3.2s ease-in-out infinite}
+@keyframes flapL{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.78)}}
+@keyframes flapR{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.78)}}
+.bob{animation:bob 4s ease-in-out infinite}@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.sway{transform-origin:100px 40px;animation:sway 5s ease-in-out infinite}@keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@media (prefers-reduced-motion:reduce){.wl,.wr,.bob,.sway{animation:none}}
+.word{font-family:var(--serif);font-size:18px;line-height:1.8;text-align:center;padding:4px 6px}
+.list{display:grid;gap:6px}
+.it{display:flex;gap:10px;align-items:center;border-top:1px solid var(--line);padding:8px 0}
+.it:first-child{border-top:0}
+.it .t{flex:1;line-height:1.5}
+.it small{display:block;color:var(--muted);font-size:12px}
+.it.done .t{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(0,0,0,.2)}
+.ck{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--rose);background:none;flex:none;display:grid;place-items:center;color:#fff;font-size:14px;padding:0}
+.it.done .ck{background:var(--rose)}
+.x{border:0;background:none;color:var(--muted);font-size:18px;padding:0 4px}
+.tag{font-size:11px;border-radius:999px;padding:1px 8px;background:var(--soft);color:var(--muted);margin-right:6px}
+.ph{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none}
+.tabs{display:flex;gap:4px;background:var(--soft);border-radius:999px;padding:3px;overflow-x:auto}
+.tabs button{border:0;background:none;border-radius:999px;padding:6px 12px;font-size:13.5px;color:var(--muted);white-space:nowrap;flex:1}
+.tabs button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.empty{color:var(--muted);font-size:14px;text-align:center;padding:8px 0}
+.dlg{position:fixed;inset:0;background:rgba(30,20,18,.4);display:grid;place-items:end center;z-index:20;padding:12px}
+@media (min-width:640px){.dlg{place-items:center}}
+.dlg[hidden]{display:none}.dlg .box{width:100%;max-width:460px;max-height:88vh;overflow:auto}
+.dlg h3{margin:0;font-family:var(--serif);font-size:18px}
+.field{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.sugg{font-size:13px;color:var(--muted)}.sugg button{border:1px dashed var(--line);background:none;border-radius:999px;padding:3px 10px;margin:3px 4px 0 0;font-size:12.5px;color:var(--ink)}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="btn sm" href="../temple/?d=yuelao" id="back">← 月老殿</a><h1>燕尾蝶・愛自己</h1><span style="width:72px"></span></div>
+  <section class="card stage" id="stage"></section>
+  <section class="card" id="today"></section>
+  <nav class="tabs" id="tabs"></nav>
+  <section class="card" id="panel"></section>
+</div>
+<div class="dlg" id="dlg" hidden><div class="box card" role="dialog" aria-modal="true" id="dlgBox"></div></div>
+<script src="../sync/origina-sync.js" data-app="love" data-folder="Love" data-keys="origina.love.v1" data-pos="br" data-offset="16"></script>
+<script>
+"use strict";
+const KEY="origina.love.v1";
+const ls=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0"),ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,today=()=>ymd(new Date());
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const DEF={log:[],wish:[{id:"w1",t:"一杯喜歡的咖啡，坐在漂亮的位置",c:"喝"},{id:"w2",t:"去做一次指甲",c:"樂"},{id:"w3",t:"一個人看一場電影",c:"玩"}],
+  dates:[],words:[{d:"",t:"我值得被好好對待，先從我自己開始。"},{d:"",t:"我不用先變完美，才配得上愛。"}],bounds:[]};
+let L=ls(KEY)||JSON.parse(JSON.stringify(DEF));["log","wish","dates","words","bounds"].forEach(k=>L[k]=L[k]||[]);
+const save=()=>ls(KEY,L);
+const CATS=["吃","喝","玩","樂","休息","打扮","身體","其他"];
+let tab="wish";
+
+/* ---------- 蝴蝶：每一件為自己做的事，都讓它長大一點；只會往前，不會倒退 ---------- */
+const points=()=>L.log.length+L.dates.filter(d=>d.done).length+L.bounds.length+L.words.filter(w=>w.d).length;
+const STAGES=[[0,"卵","一個小小的開始"],[1,"毛毛蟲","慢慢吃、慢慢長"],[5,"蛹","安靜地在裡面變化"],[12,"燕尾蝶","展開翅膀了"]];
+function stageOf(n){let s=0;STAGES.forEach((x,i)=>{if(n>=x[0])s=i;});return s;}
+function art(n){const st=stageOf(n);
+  const leaf=`<path d="M30 132 C70 112 130 112 172 128 C130 144 70 146 30 132Z" fill="#DCE5CF" stroke="#A9B996" stroke-width="1"/><path d="M34 132 C80 126 130 126 168 128" stroke="#A9B996" stroke-width=".8" fill="none"/>`;
+  if(st===0)return `<svg viewBox="0 0 200 160">${leaf}<g class="bob"><ellipse cx="100" cy="118" rx="7" ry="9" fill="#FBF3EA" stroke="#C9A5A0" stroke-width="1.2"/><ellipse cx="98" cy="115" rx="2" ry="3" fill="#fff"/></g></svg>`;
+  if(st===1){const k=Math.min(9,4+n);let seg="";for(let i=0;i<k;i++){const x=70+i*8,y=118+Math.sin(i*.9)*4;seg+=`<circle cx="${x}" cy="${y}" r="${i===k-1?6.5:5.5}" fill="${i%2?"#E7C3C0":"#F1D9D3"}" stroke="#C99A96" stroke-width="1"/>`;}
+    return `<svg viewBox="0 0 200 160">${leaf}<g class="bob">${seg}<circle cx="${70+(k-1)*8+2}" cy="${118+Math.sin((k-1)*.9)*4-1}" r="1.2" fill="#5A4642"/></g></svg>`;}
+  if(st===2)return `<svg viewBox="0 0 200 160"><path d="M40 30 C80 22 120 22 160 30" stroke="#B9A48C" stroke-width="3" fill="none" stroke-linecap="round"/><g class="sway"><path d="M100 30 L100 40" stroke="#B9A48C" stroke-width="1.4"/>
+    <path d="M100 40 C114 52 116 82 108 104 C104 114 96 114 92 104 C84 82 86 52 100 40Z" fill="#E9D7C3" stroke="#BFA486" stroke-width="1.2"/><path d="M95 56 C99 62 101 62 105 56M93 72 C99 78 101 78 107 72M95 88 C99 93 101 93 105 88" stroke="#C9AE90" stroke-width="1" fill="none"/>
+    ${n>=9?`<path d="M96 60 C88 70 88 86 96 96" stroke="${"#E3A9AE"}" stroke-width="2" fill="none" opacity=".7"/>`:""}</g></svg>`;
+  // 燕尾蝶：翅膀顏色和花紋隨著次數越來越飽滿
+  const g=Math.min(1,(n-12)/36),fo=(.35+.55*g).toFixed(2),dots=Math.min(6,Math.floor((n-12)/5)+1);
+  const fw="M100 74 C116 44 160 22 190 28 C196 52 166 80 104 82 Z",hw="M102 84 C128 88 150 100 147 120 C144 131 134 134 130 152 C123 140 118 128 104 104 Z";
+  let sp="";for(let i=0;i<dots;i++){const t=i/5;sp+=`<circle cx="${126+t*16}" cy="${112+t*14}" r="${2.6-t}" fill="${i%2?"#F5E3B8":"#FFFFFF"}" opacity=".9"/>`;}
+  const veins=`<path d="M104 80 C130 60 160 40 186 30M106 80 C135 66 165 54 188 44M108 82 C130 76 150 72 170 70" stroke="#9E4E58" stroke-width=".7" fill="none" opacity=".45"/>`;
+  const wing=(cls,flip)=>`<g${flip?` transform="matrix(-1 0 0 1 200 0)"`:""}><g class="${cls}"><path d="${fw}" fill="url(#wg)" fill-opacity="${fo}" stroke="#8E3F4A" stroke-width="1.3"/>${veins}<path d="${hw}" fill="url(#wg2)" fill-opacity="${fo}" stroke="#8E3F4A" stroke-width="1.3"/>${sp}<path d="M150 34 C160 30 176 28 186 31" stroke="#3B2A2A" stroke-width="2.2" fill="none" opacity="${(.2+.5*g).toFixed(2)}"/></g></g>`;
+  return `<svg viewBox="0 0 200 160"><defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4C7C9"/><stop offset="1" stop-color="#C9707A"/></linearGradient><linearGradient id="wg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9A4AA"/><stop offset="1" stop-color="#9E4E58"/></linearGradient></defs>
+    <g class="bob">${wing("wl",1)}${wing("wr",0)}<ellipse cx="100" cy="90" rx="3.4" ry="20" fill="#4A3434"/><circle cx="100" cy="70" r="4" fill="#4A3434"/><path d="M99 67 C96 56 92 48 85 42M101 67 C104 56 108 48 115 42" stroke="#4A3434" stroke-width="1.1" fill="none"/><circle cx="85" cy="42" r="1.6" fill="#4A3434"/><circle cx="115" cy="42" r="1.6" fill="#4A3434"/></g></svg>`;}
+function renderStage(){const n=points(),st=stageOf(n),next=STAGES[st+1];
+  const pr=next?Math.round((n-STAGES[st][0])/(next[0]-STAGES[st][0])*100):Math.min(100,Math.round((n-12)/36*100));
+  $("#stage").innerHTML=`${art(n)}<div class="nm">${STAGES[st][1]}</div><div class="ct">${STAGES[st][2]}・已經為自己做了 ${n} 件事</div><div class="bar"><i style="width:${pr}%"></i></div>
+    <div class="ct" style="margin-top:4px">${next?`再 ${next[0]-n} 件，就會變成${next[1]}`:pr<100?"翅膀的顏色還會越來越飽滿":"翅膀已經完全展開了"}</div>`;}
+
+/* ---------- 今天 ---------- */
+let qc="吃";
+function renderToday(){const w=L.words.length?L.words[Math.floor((Date.now()/864e5))%L.words.length]:null;const tl=L.log.filter(x=>x.d===today());
+  $("#today").innerHTML=`${w?`<div class="word">「${esc(w.t)}」</div>`:""}
+    <h2>今天為自己做了什麼<small>小小的也算</small></h2>
+    <div class="chips">${CATS.map(c=>`<button data-qc="${c}" aria-pressed="${qc===c}">${c}</button>`).join("")}</div>
+    <div class="row" style="flex-wrap:nowrap"><input type="text" id="qt" maxlength="40" placeholder="例如：午餐吃了想吃的拉麵"><button class="btn pri" id="qa" style="white-space:nowrap">記下來</button></div>
+    ${tl.length?`<div class="list">${tl.map(x=>`<div class="it"><div class="t"><span class="tag">${esc(x.c)}</span>${esc(x.t)}</div></div>`).join("")}</div>`:""}`;
+  document.querySelectorAll("[data-qc]").forEach(b=>b.onclick=()=>{qc=b.dataset.qc;renderToday();});
+  const add=()=>{const t=$("#qt").value.trim();if(!t)return;L.log.push({d:today(),t,c:qc});save();render();navigator.vibrate&&navigator.vibrate(10);};
+  $("#qa").onclick=add;$("#qt").onkeydown=e=>{if(e.key==="Enter")add();};}
+
+/* ---------- 分頁 ---------- */
+const TABS=[["wish","寵自己清單"],["dates","跟自己約會"],["words","好話"],["bounds","界線"],["log","全部紀錄"]];
+function fromBreakdowns(){const M=ls("origina.mission.v1");const out=[];const walk=o=>{if(!o||typeof o!=="object")return;if(o.pleasure&&o.pleasure.do)out.push({t:o.pleasure.do,c:(o.pleasure.lit||[])[0]||"樂"});Object.values(o).forEach(v=>{if(v&&typeof v==="object")walk(v);});};
+  if(M&&M.breakdowns)walk(M.breakdowns);const have=new Set(L.wish.map(w=>w.t));return out.filter(x=>!have.has(x.t)).slice(0,6);}
+function renderPanel(){$("#tabs").innerHTML=TABS.map(([k,t])=>`<button data-tab="${k}" aria-pressed="${tab===k}">${t}</button>`).join("");
+  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;renderPanel();});
+  const P=$("#panel");
+  if(tab==="wish"){const sg=fromBreakdowns();
+    P.innerHTML=`<h2>寵自己清單<small>想對自己好的小事，做了就打勾</small></h2>
+      <div class="list">${L.wish.map(w=>`<div class="it"><button class="ck" data-wdo="${w.id}" aria-label="做了">✓</button><div class="t"><span class="tag">${esc(w.c)}</span>${esc(w.t)}</div><button class="x" data-wdel="${w.id}" aria-label="刪除">×</button></div>`).join("")||`<div class="empty">還沒有，先寫一件</div>`}</div>
+      <div class="row" style="flex-wrap:nowrap"><input type="text" id="wt" maxlength="40" placeholder="想為自己做的事"><button class="btn" id="wa" style="white-space:nowrap">＋ 加</button></div>
+      ${sg.length?`<div class="sugg">從拆解室來的「♡ 吃喝玩樂」：<br>${sg.map((x,i)=>`<button data-sg="${i}">＋ ${esc(x.t)}</button>`).join("")}</div>`:""}`;
+    P.querySelectorAll("[data-wdo]").forEach(b=>b.onclick=()=>{const w=L.wish.find(x=>x.id===b.dataset.wdo);L.log.push({d:today(),t:w.t,c:w.c});save();render();});
+    P.querySelectorAll("[data-wdel]").forEach(b=>b.onclick=()=>{L.wish=L.wish.filter(x=>x.id!==b.dataset.wdel);save();renderPanel();});
+    P.querySelectorAll("[data-sg]").forEach(b=>b.onclick=()=>{const x=sg[+b.dataset.sg];L.wish.push({id:uid(),t:x.t,c:CATS.includes(x.c)?x.c:"樂"});save();renderPanel();});
+    $("#wa").onclick=()=>{const t=$("#wt").value.trim();if(!t)return;L.wish.push({id:uid(),t,c:qc});save();renderPanel();};}
+  if(tab==="dates"){const D=L.dates.slice().sort((a,b)=>(a.done-b.done)||((a.when||"9")<(b.when||"9")?-1:1));
+    P.innerHTML=`<h2>跟自己約會<small>一個人去的咖啡廳、展覽、旅行</small></h2>
+      <div class="list">${D.map(d=>`<div class="it${d.done?" done":""}"><button class="ck" data-ddo="${d.id}" aria-label="完成">✓</button>${d.photo?`<img class="ph" src="${d.photo}" alt="">`:""}<div class="t">${esc(d.t)}<small>${d.when?esc(d.when):"還沒排日子"}${d.done?"・去過了":""}</small></div><button class="btn sm" data-dedit="${d.id}">編輯</button></div>`).join("")||`<div class="empty">還沒有約會，寫一個想自己去的地方</div>`}</div>
+      <button class="btn" id="da">＋ 新的約會</button>`;
+    P.querySelectorAll("[data-ddo]").forEach(b=>b.onclick=()=>{const d=L.dates.find(x=>x.id===b.dataset.ddo);d.done=!d.done;if(d.done&&!d.when)d.when=today();save();render();});
+    P.querySelectorAll("[data-dedit]").forEach(b=>b.onclick=()=>dateDialog(L.dates.find(x=>x.id===b.dataset.dedit)));
+    $("#da").onclick=()=>dateDialog(null);}
+  if(tab==="words"){P.innerHTML=`<h2>對自己說的好話<small>心情不好的時候翻來看</small></h2>
+      <div class="list">${L.words.slice().reverse().map((w,i)=>`<div class="it"><div class="t" style="font-family:var(--serif);font-size:16px">${esc(w.t)}${w.d?`<small>${esc(w.d)}</small>`:""}</div><button class="x" data-wodel="${L.words.length-1-i}" aria-label="刪除">×</button></div>`).join("")}</div>
+      <textarea id="wo" placeholder="今天想對自己說的一句話"></textarea><button class="btn pri" id="woa">收起來</button>`;
+    P.querySelectorAll("[data-wodel]").forEach(b=>b.onclick=()=>{L.words.splice(+b.dataset.wodel,1);save();render();});
+    $("#woa").onclick=()=>{const t=$("#wo").value.trim();if(!t)return;L.words.push({d:today(),t});save();render();};}
+  if(tab==="bounds"){P.innerHTML=`<h2>界線<small>這次，我沒有委屈自己</small></h2>
+      <div class="list">${L.bounds.slice().reverse().map((x,i)=>`<div class="it"><div class="t">${esc(x.t)}<small>${esc(x.d)}</small></div><button class="x" data-bdel="${L.bounds.length-1-i}" aria-label="刪除">×</button></div>`).join("")||`<div class="empty">第一次說「不」、第一次先照顧自己，都可以記在這裡</div>`}</div>
+      <textarea id="bt" placeholder="例如：今天拒絕了臨時加班，去上了我的課"></textarea><button class="btn pri" id="ba">記下來</button>`;
+    P.querySelectorAll("[data-bdel]").forEach(b=>b.onclick=()=>{L.bounds.splice(+b.dataset.bdel,1);save();render();});
+    $("#ba").onclick=()=>{const t=$("#bt").value.trim();if(!t)return;L.bounds.push({d:today(),t});save();render();};}
+  if(tab==="log"){const by={};L.log.forEach((x,i)=>(by[x.d]=by[x.d]||[]).push([x,i]));const days=Object.keys(by).sort().reverse();
+    const cnt={};L.log.forEach(x=>cnt[x.c]=(cnt[x.c]||0)+1);
+    P.innerHTML=`<h2>全部紀錄<small>${L.log.length} 件為自己做的事</small></h2>
+      ${L.log.length?`<div class="chips">${Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<span class="tag" style="font-size:12.5px;padding:3px 10px">${esc(c)} ${n}</span>`).join("")}</div>`:""}
+      ${days.map(d=>`<div><div class="muted" style="font-size:12.5px;margin-top:6px">${d}</div><div class="list">${by[d].map(([x,i])=>`<div class="it"><div class="t"><span class="tag">${esc(x.c)}</span>${esc(x.t)}</div><button class="x" data-ldel="${i}" aria-label="刪除">×</button></div>`).join("")}</div></div>`).join("")||`<div class="empty">還沒有紀錄</div>`}`;
+    P.querySelectorAll("[data-ldel]").forEach(b=>b.onclick=()=>{L.log.splice(+b.dataset.ldel,1);save();render();});}}
+function dialog(html,on){$("#dlgBox").innerHTML=html;$("#dlg").hidden=false;$("#dlg").onclick=e=>{if(e.target.id==="dlg"||e.target.closest("[data-x]"))$("#dlg").hidden=true;};on&&on($("#dlgBox"));}
+function dateDialog(d){const isNew=!d;d=d||{id:uid(),t:"",when:"",done:false,photo:""};let photo=d.photo||"";
+  dialog(`<h3>${isNew?"新的約會":"編輯約會"}</h3><label class="field">去哪裡、做什麼<input type="text" id="dt" maxlength="40" value="${esc(d.t)}" placeholder="例如：一個人去看展"></label>
+    <label class="field">日子（可以不填）<input type="date" id="dw" value="${esc(d.when)}"></label>
+    <div class="field">照片（可以不放）<div class="row">${photo?`<img class="ph" id="dp" src="${photo}" alt="">`:""}<label class="btn sm">選一張<input type="file" accept="image/*" id="df" hidden></label>${photo?`<button class="btn sm" id="dpx">拿掉</button>`:""}</div></div>
+    <div class="row"><button class="btn pri" data-ok>存好</button>${isNew?"":`<button class="btn" data-del>刪除</button>`}<button class="btn" data-x>取消</button></div>`,
+  box=>{box.querySelector("#df").onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const N=480,sc=Math.min(1,N/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);photo=c.toDataURL("image/jpeg",.78);d.t=box.querySelector("#dt").value;d.when=box.querySelector("#dw").value;d.photo=photo;dateDialog(isNew?Object.assign(d,{_new:1}):d);};im.src=u;};
+    const px=box.querySelector("#dpx");if(px)px.onclick=()=>{photo="";d.photo="";d.t=box.querySelector("#dt").value;d.when=box.querySelector("#dw").value;dateDialog(d);};
+    box.querySelector("[data-ok]").onclick=()=>{const t=box.querySelector("#dt").value.trim();if(!t)return;d.t=t;d.when=box.querySelector("#dw").value;d.photo=photo;const nw=d._new||isNew;delete d._new;if(nw&&!L.dates.includes(d))L.dates.push(d);save();$("#dlg").hidden=true;render();};
+    const del=box.querySelector("[data-del]");if(del)del.onclick=()=>{L.dates=L.dates.filter(x=>x!==d);save();$("#dlg").hidden=true;render();};});}
+function render(){renderStage();renderToday();renderPanel();}
+if(window.top===window.self){$("#back").href="https://fuwei0618-cmd.github.io/Entry/temple/?d=yuelao";}
+render();
+</script>
+</body></html>

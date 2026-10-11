@@ -8,7 +8,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#1c1b19;color:var(--ink);font-family:"Noto Serif TC","Songti TC","PMingLiU",serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
 #bg{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;transition:opacity .7s;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
-#pan{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);transform:translateX(-50%);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12px;letter-spacing:.1em;pointer-events:none;transition:opacity .8s;z-index:2}
+#pan{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 112px);transform:translateX(-50%);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12px;letter-spacing:.1em;pointer-events:none;transition:opacity .8s;z-index:2}
 .kneel #pan{opacity:0}
 #hit{position:fixed;background:none;border:0;padding:0;cursor:pointer;border-radius:40% 40% 8px 8px}
 #halo{position:fixed;pointer-events:none;border-radius:50%;background:radial-gradient(closest-side,rgba(255,250,236,.22),rgba(255,250,236,0));mix-blend-mode:screen;animation:breath 7s ease-in-out infinite}
@@ -65,6 +65,12 @@ footer{position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bott
 @keyframes glowp{0%,100%{opacity:.55}50%{opacity:.85}}
 .lamp .nm{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:2px;white-space:nowrap;font-size:10.5px;letter-spacing:.06em;color:var(--ink);text-shadow:0 1px 4px rgba(0,0,0,.9)}
 .lamp.done .nm{color:#F2DFA6}
+.fly{position:absolute;pointer-events:auto;background:none;border:0;padding:0;cursor:pointer;transform:translate(-50%,-50%);filter:drop-shadow(0 4px 10px rgba(201,112,122,.45));animation:flyb 5s ease-in-out infinite}
+.fly svg{width:100%;height:100%;display:block;overflow:visible}
+.fly .fwl,.fly .fwr{transform-origin:100px 82px;animation:fflap 2.6s ease-in-out infinite}
+.fly .nm{position:absolute;left:50%;top:100%;transform:translateX(-50%);white-space:nowrap;font-size:11.5px;letter-spacing:.12em;color:#FBE3E4;text-shadow:0 1px 5px rgba(0,0,0,.8)}
+@keyframes fflap{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.7)}}
+@keyframes flyb{0%,100%{margin-top:0}50%{margin-top:-6px}}
 #lampAdd{display:none}
 body:not(.isfront) #lampAdd{display:inline-flex}
 .frow{display:flex;gap:8px;align-items:center}
@@ -146,7 +152,7 @@ function setHall(id,instant){
   instant?go():setTimeout(go,450);}
 let panX=0;   // 直式畫面：照片比螢幕寬，可以左右滑動
 function layout(){const w=innerWidth,h=innerHeight,H=HALLS[cur],s=Math.max(w/1024,h/572),spare=Math.max(0,1024*s-w);panX=Math.max(-spare/2,Math.min(spare/2,panX));const ox=(w-1024*s)/2+panX,oy=(h-572*s)/2;
-  Object.assign($("#bg").style,{left:ox+"px",top:oy+"px",width:1024*s+"px",height:572*s+"px"});$("#pan").style.display=spare>8?"":"none";
+  Object.assign($("#bg").style,{left:ox+"px",top:oy+"px",width:1024*s+"px",height:572*s+"px"});$("#pan").style.display=spare>40?"":"none";
   const R=([a,b,c,d])=>({left:ox+a*s+"px",top:oy+b*s+"px",width:(c-a)*s+"px",height:(d-b)*s+"px"});
   const hz=$("#hz");hz.innerHTML="";
   if(H.front){
@@ -205,7 +211,8 @@ function rise(){$("#kneelv").hidden=true;document.body.classList.remove("kneel")
 
 /* ---------- 光明燈：點燈・添油・圓燈 ---------- */
 const LAMP_SEED=[["mazu","正顎手術",1],["yuelao","HH"],["caishen","金庫手冊"],["caishen","國泰業績"],["caishen","晏任行銷"]];
-function PL(){const P=ls(PKEY)||{items:[]};P.items=P.items||[];if(!P.lampsSeeded){P.lamps=(P.lamps||[]).concat(LAMP_SEED.map(([d,t,dated],i)=>({id:"L"+Date.now().toString(36)+i,deity:d,text:t,dated:!!dated,date:"",lit:"",oil:[],done:""})));P.lampsSeeded=1;ls(PKEY,P);}P.lamps=P.lamps||[];return P;}
+function PL(){const P=ls(PKEY)||{items:[]};P.items=P.items||[];if(!P.lampsSeeded){P.lamps=(P.lamps||[]).concat(LAMP_SEED.map(([d,t,dated],i)=>({id:"L"+Date.now().toString(36)+i,deity:d,text:t,dated:!!dated,date:"",lit:"",oil:[],done:""})));P.lampsSeeded=1;ls(PKEY,P);}P.lamps=P.lamps||[];
+  if(!P.seed2){if(!P.lamps.some(l=>l.text==="Vocal"))P.lamps.push({id:"Lv"+Date.now().toString(36),deity:"mazu",text:"Vocal",dated:true,date:"2028-09-01",lit:"",oil:[],done:""});P.seed2=1;ls(PKEY,P);}return P;}
 const daysTo=d=>{if(!d)return null;const [y,m,dd]=d.split("-").map(Number),t=new Date(y,m-1,dd),n=new Date();n.setHours(0,0,0,0);return Math.round((t-n)/864e5);};
 const LAMP_SVG=`<svg viewBox="0 0 24 34"><radialGradient id="lg" cx="50%" cy="40%" r="50%"><stop offset="0" stop-color="#FFE7AE" stop-opacity=".95"/><stop offset="1" stop-color="#FFC86A" stop-opacity="0"/></radialGradient>
   <circle class="gl" cx="12" cy="12" r="12" fill="url(#lg)"/><path class="fl" d="M12 4c2.2 3 3.2 4.8 3.2 6.6a3.2 3.2 0 0 1-6.4 0C8.8 8.8 9.8 7 12 4Z" fill="#FFD27A"/><path class="fl" d="M12 7.5c1 1.5 1.5 2.4 1.5 3.3a1.5 1.5 0 0 1-3 0c0-.9.5-1.8 1.5-3.3Z" fill="#FFF6DE"/>
@@ -214,6 +221,10 @@ const LAMP_SVG=`<svg viewBox="0 0 24 34"><radialGradient id="lg" cx="50%" cy="40
 function lampSpots(n,front){const out=[];for(let i=0;i<n;i++){const k=Math.floor(i/2),side=i%2?-1:1;
   if(front){out.push([512+side*(30+k*40),416]);}else{const row=Math.floor(k/4),col=k%4;out.push([512+side*(92+col*46),410-row*40]);}}return out;}
 function drawLamps(hz,ox,oy,s,w){const P=PL();const front=!!HALLS[cur].front;
+  if(cur==="yuelao"){const f=document.createElement("button");f.className="fly";f.setAttribute("aria-label","燕尾蝶燈・愛自己");const fs=Math.max(54,60*s);
+    f.style.cssText=`left:${ox+640*s}px;top:${oy+300*s}px;width:${fs}px;height:${fs*.8}px`;
+    f.innerHTML=`<svg viewBox="0 0 200 160"><defs><linearGradient id="fwg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7D5D6"/><stop offset="1" stop-color="#C9707A"/></linearGradient></defs><g class="fwl"><path d="M100 74 C84 44 40 22 10 28 C4 52 34 80 96 82Z M98 84 C72 88 50 100 53 120 C56 131 66 134 70 152 C77 140 82 128 96 104Z" fill="url(#fwg)" fill-opacity=".85" stroke="#8E3F4A" stroke-width="2"/></g><g class="fwr"><path d="M100 74 C116 44 160 22 190 28 C196 52 166 80 104 82Z M102 84 C128 88 150 100 147 120 C144 131 134 134 130 152 C123 140 118 128 104 104Z" fill="url(#fwg)" fill-opacity=".85" stroke="#8E3F4A" stroke-width="2"/></g><ellipse cx="100" cy="90" rx="4" ry="20" fill="#4A3434"/><path d="M99 70 C96 58 92 50 86 44M101 70 C104 58 108 50 114 44" stroke="#4A3434" stroke-width="2" fill="none"/></svg><span class="nm">燕尾蝶・愛自己</span>`;
+    f.onclick=()=>{location.href="../love/";};hz.appendChild(f);}
   const L=front?P.lamps.filter(l=>l.done):P.lamps.filter(l=>l.deity===cur&&!l.done);
   const pos=lampSpots(L.length,front),sz=Math.max(18,22*s*(front?.9:1));
   L.forEach((l,i)=>{const b=document.createElement("button");b.className="lamp"+(l.done?" done":l.lit?"":" off");b.setAttribute("aria-label",(l.done?"圓滿的燈：":l.lit?"點亮的燈：":"還沒點的燈：")+l.text);

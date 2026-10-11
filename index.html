@@ -91,6 +91,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .mapbox>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .mspot{position:absolute;display:flex;align-items:center;gap:4px;transform:translate(-7px,-50%)}
 .mapps{position:absolute;display:flex;gap:6px;transform:translate(-50%,-50%)}
+.mspot.below .mdown{position:absolute;top:calc(50% + 12px);left:5px;transform:translateX(-50%);display:flex;gap:6px}
 .mspot.col{transform:translate(-5px,-5px);display:block}.mspot.col i.dot{display:block}.mspot.col .mlab{position:absolute;top:13px;left:5px;transform:translateX(-50%)}.mspot.col .mup{position:absolute;bottom:13px;left:5px;transform:translateX(-50%);display:flex;gap:6px}
 .mspot.flip{flex-direction:row-reverse;transform:translate(calc(-100% + 7px),-50%)}
 .mspot i.dot{width:10px;height:10px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px var(--paper);flex:none}
@@ -868,7 +869,7 @@ let flame,stoneBall,waterDisc;
   const beam=new R.Mesh(new R.PlaneGeometry(.5,HA-1.2),beamMat);beam.position.set(0,(HA-1.2)/2,-DA/2+.25);s.add(beam);
   const fl=new R.Mesh(new R.PlaneGeometry(.35,DA*.55),new R.MeshBasicMaterial({color:0xFFFFFF,transparent:true,opacity:.18,depthWrite:false}));fl.rotation.x=-Math.PI/2;fl.position.set(0,.005,-DA/2+DA*.275);s.add(fl);
   // 左右牆：各有一個大開口（左＝財神殿、右＝月老殿）
-  const OZ=-3.6,OW=2.4,OH=4.6;
+  const OZ=-5.0,OW=2.4,OH=4.6;
   const side=(sgn)=>{const w=holeWall(DA,HA,[[-OZ*sgn-OW/2,.02,-OZ*sgn+OW/2,OH]],.9);w.rotation.y=sgn*Math.PI/2;w.position.x=sgn*WA/2;s.add(w);   // 旋轉後牆往外長 0.9，內面貼齊 x=±WA/2
     glow(OW,OH,0xF4F1EA,sgn*(WA/2+2.2),OH/2,OZ,-sgn*Math.PI/2);};
   side(-1);side(1);
@@ -885,32 +886,33 @@ let flame,stoneBall,waterDisc;
   flame=mesh(new R.SphereGeometry(.035,8,6),new R.MeshBasicMaterial({color:0xFFC860}),0,.61,-.5,s,false);flame.scale.y=1.7;
   AT.light=new R.PointLight(0xFFB15A,.5,4);AT.light.position.set(0,.8,-.5);s.add(AT.light);
   // 轉運流水盆：粗石盆、水面、白色花崗岩球（會慢慢轉）
-  const BX=-4.6,BZ=3.0;
+  const BX=-3.0,BZ=1.6;
   const basin=mesh(new R.DodecahedronGeometry(1,1),new R.MeshStandardMaterial({color:0x8E8A82,roughness:1,flatShading:true}),BX,.22,BZ,s);basin.scale.set(1.55,.32,1.05);
   waterDisc=mesh(new R.CircleGeometry(1.15,40),new R.MeshStandardMaterial({color:0x7E8C8C,roughness:.15,metalness:.2,transparent:true,opacity:.85}),BX,.36,BZ,s,false);waterDisc.rotation.x=-Math.PI/2;waterDisc.scale.set(1.25,.85,1);
   const gran=canvasTex(256,128,(g,w,h)=>{g.fillStyle='#EDEBE6';g.fillRect(0,0,w,h);for(let k=0;k<1400;k++){const c=Math.random();g.fillStyle=c<.5?'rgba(120,118,112,.35)':c<.8?'rgba(80,78,74,.25)':'rgba(255,255,255,.6)';g.fillRect(Math.random()*w,Math.random()*h,1.5,1.5);}});
-  stoneBall=mesh(new R.SphereGeometry(.5,32,24),new R.MeshStandardMaterial({map:gran,roughness:.45}),BX+.35,.36+.45,BZ-.1,s);
+  stoneBall=mesh(new R.SphereGeometry(.26,32,24),new R.MeshStandardMaterial({map:gran,roughness:.45}),BX,.36+.24,BZ,s);
   AT.col.push({x0:BX-1.6,x1:BX+1.6,z0:BZ-1.1,z1:BZ+1.1});
   // 回 B1 的樓梯（右前方角落）
   for(let i=0;i<7;i++)boxIn(AT,1.4,.3*(i+1),.42,0xB9B2A8,WA/2-1.0,.15*(i+1),DA/2-3.4+i*.42,false);
   AT.col.push({x0:WA/2-1.7,x1:WA/2-.3,z0:DA/2-3.7,z1:DA/2});
 }
 AT.kneel={x:0,y:.2,z:1.2};
-label(atr.scene,'轉運流水盆',-4.6,1.8,3.0,null,.6);
+label(atr.scene,'轉運流水盆',-3.0,1.6,1.6,null,.6);
 label(atr.scene,'跪墊',0,1.5,1.2,'點一下進前殿',.6);label(atr.scene,'樓梯 · 上樓',WA/2-1.0,3.2,DA/2-2,null,.6);
 label(atr.scene,'媽祖殿',0,4.3,-DA/2+.4,'中殿 · 出發平安',.75);
-label(atr.scene,'財神殿',-WA/2+.6,5.2,-3.6,'虎邊 · 豐盛',.7);label(atr.scene,'月老殿',WA/2-.6,5.2,-3.6,'龍邊 · 愛',.7);
+label(atr.scene,'財神殿',-WA/2+.6,5.2,-5.0,'虎邊 · 豐盛',.7);label(atr.scene,'月老殿',WA/2-.6,5.2,-5.0,'龍邊 · 愛',.7);
 const TEMPLE='https://fuwei0618-cmd.github.io/Entry/temple/?d=';
 AT.hots=[
   {id:'pray',name:'前殿',verb:'跪下禱告',x:0,z:1.2,r:1.3,go:()=>openApp('前殿',TEMPLE+'front')},
-  {id:'fountain',name:'轉運流水盆',verb:'看流水',x:-3.0,z:3.0,r:1.4},
+  {id:'fountain',name:'轉運流水盆',verb:'看流水',x:-3.0,z:3.0,r:1.0},
   {id:'mazu',name:'媽祖殿',verb:'走進',x:-4.3,z:-DA/2+1.2,r:1.3,go:()=>openApp('媽祖殿',TEMPLE+'mazu')},
   {id:'mazu2',name:'媽祖殿',verb:'走進',x:4.3,z:-DA/2+1.2,r:1.3,go:()=>openApp('媽祖殿',TEMPLE+'mazu')},
-  {id:'caishen',name:'財神殿',verb:'走進',x:-WA/2+1.2,z:-3.6,r:1.4,go:()=>openApp('財神殿',TEMPLE+'caishen')},
-  {id:'yuelao',name:'月老殿',verb:'走進',x:WA/2-1.2,z:-3.6,r:1.4,go:()=>openApp('月老殿',TEMPLE+'yuelao')},
+  {id:'caishen',name:'財神殿',verb:'走進',x:-WA/2+1.2,z:-5.0,r:1.4,go:()=>openApp('財神殿',TEMPLE+'caishen')},
+  {id:'yuelao',name:'月老殿',verb:'走進',x:WA/2-1.2,z:-5.0,r:1.4,go:()=>openApp('月老殿',TEMPLE+'yuelao')},
   {id:'downA',name:'樓梯',verb:'上樓',x:WA/2-2.2,z:DA/2-2.6,r:1.3,go:()=>goto('f2','ladder')}
 ];
-AT.spawns={ladder:[WA/2-2.6,DA/2-3.2,Math.PI,0],halls:[0,-DA/2+2.6,0,Math.PI]};
+// 一進來：第一人稱、站在跪墊正後方，看得到三殿的門和轉運流水盆
+AT.spawns={ladder:[0,7.0,Math.PI,0,-.1,'first'],stairs:[WA/2-2.6,DA/2-3.2,Math.PI,0],halls:[0,-DA/2+2.6,0,Math.PI]};
 AT.update=(dt,t)=>{stoneBall.rotation.y+=dt*.35;stoneBall.rotation.x+=dt*.12;waterDisc.material.opacity=.8+Math.sin(t*1.7)*.06;const k=.85+Math.sin(t*9)*.08+Math.sin(t*23)*.05;AT.light.intensity=.5*k;flame.scale.set(1,1.7*k,1);};
 
 /* =========================================================
@@ -1130,7 +1132,7 @@ const fade=$('#fade');
 function goto(id,spawn){closeSheet();fade.classList.add('on');setTimeout(()=>{
   cur.scene.remove(player);if(marker.parent)marker.parent.remove(marker);
   cur=SC[id];cur.scene.add(player);curHot=null;prompt.hidden=true;target=null;
-  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;
+  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}
   $('#where').textContent=cur.where;camInit=true;setTimeout(()=>fade.classList.remove('on'),60);},280);}
 
 /* ---------- sheets ---------- */
@@ -1171,8 +1173,8 @@ const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
   ['森林入口',['forest','start'],[0,GZ+6]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,EC.cz-8.6]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
   ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
-  ['玄關',['f1','front'],W1F(0,4.6)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-14.6,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
-  ['健身房',['f1','gym'],W1F(7.5,2.6),['健身房'],W1F(9.6,6.2)],['Lucky',['f1','front'],W1F(-4.5,1.6),['Lucky'],W1F(-5.8,4.6)],['樓梯',['f1','stairs'],W1F(-11.4,3.4)],
+  ['玄關',['f1','front'],W1F(0,1.4)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(11.6,-1.2),['正顎手冊']],
+  ['健身房',['f1','gym'],W1F(7.5,1.4),['健身房']],['Lucky',['f1','front'],W1F(-6.4,1.4),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,1.4)],
   ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];
 const MAP_B=[['B1 臥室',['f2','bed'],[30,30],['床邊']],['B2 禱告房',['attic','ladder'],[68,74]]];
 const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[36,82],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[90,48],['Podcast']]];
@@ -1180,6 +1182,7 @@ const X0=-40,Z0=-19,MW=76,MH=80,pct=(x,z)=>[(x-X0)/MW*100,(z-Z0)/MH*100];
 function spotHTML(n,g,lp,apps,ap){const [l,t]=lp;
   const btns=(apps||[]).map(a=>APPMAP[a]?`<button class="mapp" data-app="${esc(a)}" aria-label="打開 ${esc(a)}" title="${esc(a)}">${APPMAP[a].svg}</button>`:'').join('');
   // ap：App 圖示另外放的位置（地圖座標），不跟在文字後面
+  if(['樓梯','Lucky','玄關','健身房'].includes(n))return `<div class="mspot below" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${btns?`<div class="mdown">${btns}</div>`:''}</div>`;
   if(['廚房','舞台門','世界之門'].includes(n))return `<div class="mspot col" style="left:${l}%;top:${t}%">${btns?`<div class="mup">${btns}</div>`:''}<i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
   return `<div class="mspot${l>68||n==='金庫'||n==='蘑菇攝影棚'?' flip':''}" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${ap?'':btns}</div>${ap&&btns?`<div class="mapps" style="left:${ap[0]}%;top:${ap[1]}%">${btns}</div>`:''}`;}
 let mapBG=null;

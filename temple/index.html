@@ -93,7 +93,7 @@ label.f{display:block;font-size:13px;color:var(--mute);margin:10px 0 6px}
 const PKEY="origina.prayer.v1";
 const HALLS={
   front:{name:"前殿",sub:"點跪墊跪下・點門走進三殿",img:"img/front.webp",front:1,hint:"",
-    doors:[["mazu",[490,60,534,418]],["yuelao",[326,279,402,418]],["caishen",[622,279,698,418]]],
+    doors:[["mazu",[326,279,402,418],0],["mazu",[622,279,698,418],0],["caishen",[190,231,252,425],1],["yuelao",[848,192,924,436],1]],labels:[["mazu",512,279]],
     kneelAt:[462,488,532,546],water:[92,459,244,486],ball:[169,458,27]},
   yuelao:{name:"月老殿",sub:"愛・先愛自己，再遇見對的人",img:"img/yuelao.webp",stat:[474,252,550,394],
     ask:"想對自己說的愛，或想遇見什麼樣的人？",hint:"點月老，說說心裡的愛"},
@@ -102,7 +102,7 @@ const HALLS={
   caishen:{name:"財神殿",sub:"豐盛・夠用，而且越來越多",img:"img/caishen.webp",stat:[462,206,562,394],
     ask:"想要什麼樣的豐盛？可以寫數字，也可以寫畫面。",hint:"點財神爺，說說想要的豐盛"}
 };
-const ORDER=["front","yuelao","mazu","caishen"];
+const ORDER=["front","caishen","mazu","yuelao"];  // 由左到右：虎邊財神・中殿媽祖・龍邊月老
 const ls=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -125,7 +125,8 @@ function layout(){const w=innerWidth,h=innerHeight,H=HALLS[cur],s=Math.max(w/102
   const R=([a,b,c,d])=>({left:ox+a*s+"px",top:oy+b*s+"px",width:(c-a)*s+"px",height:(d-b)*s+"px"});
   const hz=$("#hz");hz.innerHTML="";
   if(H.front){
-    H.doors.forEach(([id,bb])=>{const d=document.createElement("button");d.className="door";d.setAttribute("aria-label","走進"+HALLS[id].name);d.innerHTML=`<span>${HALLS[id].name}</span>`;Object.assign(d.style,R(bb));if(bb[1]<279)d.firstChild.style.top=((279-bb[1])*s-30)+"px";d.onclick=()=>setHall(id);hz.appendChild(d);const sp=d.firstChild,r=sp.getBoundingClientRect();if(r.left<8)sp.style.transform=`translateX(calc(-50% + ${8-r.left}px))`;else if(r.right>w-8)sp.style.transform=`translateX(calc(-50% - ${r.right-w+8}px))`;});
+    (H.labels||[]).forEach(([id,lx,ly])=>{const l=document.createElement("button");l.className="door lbl";l.setAttribute("aria-label","走進"+HALLS[id].name);l.innerHTML=`<span>${HALLS[id].name}</span>`;Object.assign(l.style,R([lx-1,ly,lx+1,ly+1]));l.onclick=()=>setHall(id);hz.appendChild(l);});
+    H.doors.forEach(([id,bb,lab])=>{const d=document.createElement("button");d.className="door";d.setAttribute("aria-label","走進"+HALLS[id].name);d.innerHTML=lab?`<span>${HALLS[id].name}</span>`:"";Object.assign(d.style,R(bb));if(lab&&bb[1]<279)d.firstChild.style.top=((279-bb[1])*s-30)+"px";d.onclick=()=>setHall(id);hz.appendChild(d);const sp=d.firstChild;if(!sp)return;const r=sp.getBoundingClientRect();if(r.left<8)sp.style.transform=`translateX(calc(-50% + ${8-r.left}px))`;else if(r.right>w-8)sp.style.transform=`translateX(calc(-50% - ${r.right-w+8}px))`;});
     const k=document.createElement("button");k.className="spot";k.setAttribute("aria-label","跪下");k.innerHTML="<span>跪下</span>";k.innerHTML="<span>跪下</span>";Object.assign(k.style,R(H.kneelAt));k.onclick=kneel;hz.appendChild(k);
     const wa=document.createElement("div");wa.className="water";Object.assign(wa.style,R(H.water));hz.appendChild(wa);
     const [bx,by,br]=H.ball,ba=document.createElement("div");ba.className="sheen";Object.assign(ba.style,R([bx-br,by-br,bx+br,by+br]));hz.appendChild(ba);

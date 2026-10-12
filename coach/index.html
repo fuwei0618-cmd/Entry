@@ -52,6 +52,29 @@ html,body{margin:0;height:100%;background:#111;color:var(--ink);font-family:"Pin
 #review .rb{display:flex;gap:10px;justify-content:center;padding:14px 14px calc(env(safe-area-inset-bottom) + 18px)}
 #review .rb button{background:var(--glass);border:1px solid var(--line);color:#fff;border-radius:999px;padding:12px 20px;font:inherit;font-size:15px}
 #review .rb button.pri{background:#fff;color:#111}
+#burstUI{position:fixed;left:12px;right:12px;top:42%;transform:translateY(-50%);text-align:center;pointer-events:none;display:none}
+#burstUI .bn{font-size:15px;opacity:.85;letter-spacing:.1em}
+#burstUI .bc{display:inline-block;margin-top:6px;background:rgba(20,18,16,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:18px;padding:14px 20px;font-size:26px;font-weight:700;line-height:1.35;max-width:520px}
+#burstUI .bnext{display:block;margin-top:10px;font-size:14px;opacity:.75}
+#burstUI .bdots{margin-top:10px;display:flex;gap:6px;justify-content:center}
+#burstUI .bdots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.35)}
+#burstUI .bdots i.done{background:var(--ok)}#burstUI .bdots i.now{background:var(--gold)}
+.sheet{position:fixed;inset:0;background:rgba(10,9,8,.92);display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 18px);overflow:auto;z-index:5}
+.sheet h2{margin:0 0 4px;font-size:22px}.sheet p{margin:0 0 14px;color:#C9C0B5;font-size:14px;line-height:1.6}
+.plan{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.plan div{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.07);border-radius:14px;padding:8px 12px}
+.plan b{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#111;display:grid;place-items:center;font-size:14px;flex:none}
+.plan svg{height:44px;flex:none}.plan span{font-size:15px;line-height:1.4}
+.opts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.opts .chip.on{background:#fff;color:#111}
+.sheet .acts{display:flex;gap:10px;margin-top:auto;padding-top:12px}
+.sheet .acts button{flex:1;border-radius:999px;padding:14px;font:inherit;font-size:16px;border:1px solid var(--line);background:var(--glass);color:#fff}
+.sheet .acts button.pri{background:#fff;color:#111;font-weight:600}
+.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.bgrid button{position:relative;padding:0;border:2px solid transparent;border-radius:10px;overflow:hidden;background:#222;aspect-ratio:3/4}
+.bgrid button.sel{border-color:var(--gold)}
+.bgrid img{width:100%;height:100%;object-fit:cover;display:block}
+.bgrid em{position:absolute;left:6px;bottom:6px;font-style:normal;font-size:11px;background:rgba(0,0,0,.55);padding:2px 6px;border-radius:999px}
+.bgrid i{position:absolute;right:6px;top:6px;font-style:normal;font-size:18px}
 </style></head><body>
 <video id="v" playsinline muted autoplay></video>
 <img id="tpl" alt="">
@@ -63,6 +86,7 @@ html,body{margin:0;height:100%;background:#111;color:var(--ink);font-family:"Pin
 <div class="side">
   <button class="round on" id="bAuto">對到<br>就拍</button>
   <button class="round on" id="bWarm">暖身<br>倒數</button>
+  <button class="round" id="bBurst">連拍<br>關</button>
   <button class="round" id="bGrid">九宮格</button>
   <button class="round" id="bTpl">我的<br>模板</button>
   <button class="round" id="bFlip">前後<br>鏡頭</button>
@@ -75,6 +99,14 @@ html,body{margin:0;height:100%;background:#111;color:var(--ink);font-family:"Pin
   <button class="round" id="bNext" aria-label="下一個提醒">下一句</button>
 </div>
 <div id="warm"></div><div id="count"></div><div id="flash"></div>
+<div id="burstUI"><div class="bn" id="bN"></div><div class="bc" id="bC"></div><span class="bnext" id="bNx"></span><div class="bdots" id="bD"></div></div>
+<div class="sheet" id="planS"><h2>連拍 <span id="pN"></span> 張</h2><p>每一張前會說要做什麼動作，倒數後自動拍。手機放好、站到全身入鏡的位置就可以了。</p>
+ <div class="opts" id="pSpeed"><button class="chip" data-sp="1">快・1 秒</button><button class="chip on" data-sp="2">剛好・2 秒</button><button class="chip" data-sp="3">慢・3 秒</button></div>
+ <div class="opts"><button class="chip on" id="pVoice">🔊 唸出動作</button><button class="chip" id="pShuffle">🔀 換一組動作</button></div>
+ <div class="plan" id="pList"></div>
+ <div class="acts"><button id="pCancel">取消</button><button class="pri" id="pGo">開始（5 秒後）</button></div></div>
+<div class="sheet" id="pickS"><h2>挑照片</h2><p>點照片選起來（金框），再存。都不選就全部存。</p><div class="bgrid" id="bGridP"></div>
+ <div class="acts"><button id="kAgain">再拍一輪</button><button id="kSave">存到相簿</button><button class="pri" id="kRec">存到 WonderMedia</button></div></div>
 <input type="file" id="file" accept="image/*" hidden>
 <div id="review"><img id="rImg" alt="剛拍的照片"><div class="rb"><button id="rBack">繼續拍</button><button id="rSave">存到相簿</button><button class="pri" id="rRec">存到 WonderMedia</button></div></div>
 <div id="start"><div><h1>拍照教練</h1><p>鏡頭會認出你的身體，<br>把姿勢框對齊到你的位置和大小，<br>告訴你哪隻手、哪隻腳再調一點。<br>對到了會自動拍。</p><button id="go">打開相機</button></div></div>
@@ -101,6 +133,16 @@ const POSES={
  "側身回頭":{n:[58,22],rs:[44,38],ls:[60,37],re:[40,64],le:[62,64],rw:[46,86],lw:[58,84],rh:[46,94],lh:[56,94],rk:[46,142],lk:[60,140],ra:[44,190],la:[64,188]},
  "坐姿":{n:[50,40],rs:[34,58],ls:[66,58],re:[30,82],le:[70,82],rw:[46,102],lw:[56,104],rh:[44,110],lh:[56,110],rk:[40,142],lk:[60,142],ra:[40,182],la:[60,182]},
  "不用框":null
+};
+/* 連拍動作：每個場景一組，依序循環 */
+const ROUT={
+ "隨手":[["重心一腳","站好，重心放一隻腳"],["撥頭髮","手撥頭髮，眼睛往下看"],["手扶腰","手扶腰，下巴往前一點"],["側身回頭","身體轉側邊，回頭看鏡頭"],["走路","往前走一步"],["雙手舉高","雙手舉高，伸個懶腰"],["重心一腳","看遠方，不要看鏡頭"],["撥頭髮","大笑！"]],
+ "咖啡廳":[["坐姿","坐好，手扶杯子"],["坐姿","拿起杯子，假裝要喝"],["坐姿","看窗外"],["坐姿","低頭看飲料，微笑"],["坐姿","托著下巴看鏡頭"],["不用框","翻一頁書或看手機"]],
+ "戶外花海":[["走路","在花裡慢慢走"],["側身回頭","邊走邊回頭"],["雙手舉高","閉眼抬頭曬太陽"],["重心一腳","手指輕碰花"],["不用框","聞一下花"],["撥頭髮","撥頭髮，看遠方"]],
+ "街拍":[["走路","自然往前走"],["走路","再走一步，看前面"],["側身回頭","回頭看鏡頭"],["重心一腳","靠牆，只靠一邊肩膀"],["手扶腰","手插半個口袋"],["重心一腳","低頭看地上，慢慢抬頭"]],
+ "海邊":[["走路","往海邊走"],["側身回頭","回頭看鏡頭"],["雙手舉高","張開手感受風"],["不用框","踢一下水"],["重心一腳","背對鏡頭看海"],["撥頭髮","讓風吹頭髮"]],
+ "室內民宿":[["坐姿","坐窗邊，看窗外"],["坐姿","抱著抱枕笑"],["坐姿","低頭看書"],["側身回頭","轉頭看鏡頭"],["雙手舉高","伸懶腰"]],
+ "夜拍":[["重心一腳","站到燈下，停住不動"],["側身回頭","側身，看光的方向"],["走路","慢慢走過招牌"],["重心一腳","眼睛看光，微笑"],["手扶腰","手扶腰，酷一點"]]
 };
 const IDX={n:0,ls:11,rs:12,le:13,re:14,lw:15,rw:16,lh:23,rh:24,lk:25,rk:26,la:27,ra:28};
 const LIMBS=[["rs","re","右手臂"],["re","rw","右手"],["ls","le","左手臂"],["le","lw","左手"],["rh","rk","右大腿"],["rk","ra","右小腿"],["lh","lk","左大腿"],["lk","la","左小腿"]];
@@ -211,7 +253,52 @@ async function shoot(auto){
   lastShot=performance.now();goodSince=0;
  }finally{busy=false;}
 }
-$("#shot").onclick=()=>shoot(false);
+$("#shot").onclick=()=>{if(burstN)openPlan();else shoot(false);};
+/* ===== 連拍 ===== */
+let burstN=0,burstSp=2,burstVoice=true,burstOff=0,burstShots=[],burstRun=false;
+const BN=[0,3,5,8];
+$("#bBurst").onclick=e=>{burstN=BN[(BN.indexOf(burstN)+1)%BN.length];e.currentTarget.innerHTML=burstN?`連拍<br>${burstN} 張`:"連拍<br>關";e.currentTarget.classList.toggle("on",!!burstN);};
+function routine(){const R=ROUT[scene]||ROUT["隨手"];return Array.from({length:burstN},(_,i)=>R[(i+burstOff)%R.length]);}
+function icon(k){const p=POSES[k];if(!p)return `<svg viewBox="0 0 100 200"><circle cx="50" cy="60" r="30" fill="none" stroke="#fff" stroke-width="7"/><path d="M38 60 L62 60" stroke="#fff" stroke-width="7"/></svg>`;
+ return `<svg viewBox="0 0 100 200"><circle cx="${p.n[0]}" cy="${p.n[1]}" r="11" fill="none" stroke="#fff" stroke-width="7"/><path d="${BONES.map(([a,b])=>`M${p[a]} L${p[b]}`).join(" ")} M${(p.rs[0]+p.ls[0])/2} ${(p.rs[1]+p.ls[1])/2} L${p.n}" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>`;}
+function openPlan(){$("#pN").textContent=burstN;$("#pList").innerHTML=routine().map(([k,c],i)=>`<div><b>${i+1}</b>${icon(k)}<span>${c}<br><small style="opacity:.6">${k}</small></span></div>`).join("");$("#planS").style.display="flex";}
+$("#pSpeed").onclick=e=>{const b=e.target.closest("[data-sp]");if(!b)return;burstSp=+b.dataset.sp;$("#pSpeed").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x===b));};
+$("#pVoice").onclick=e=>{burstVoice=!burstVoice;e.currentTarget.classList.toggle("on",burstVoice);e.currentTarget.textContent=burstVoice?"🔊 唸出動作":"🔇 不唸";};
+$("#pShuffle").onclick=()=>{burstOff+=burstN;openPlan();};
+$("#pCancel").onclick=()=>$("#planS").style.display="none";
+let AC;function beep(f=880,d=.12){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),gn=AC.createGain();o.frequency.value=f;gn.gain.setValueAtTime(.25,AC.currentTime);gn.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(gn);gn.connect(AC.destination);o.start();o.stop(AC.currentTime+d);}catch(e){}}
+function say(t){if(!burstVoice||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="zh-TW";u.rate=1.05;speechSynthesis.speak(u);}catch(e){}}
+async function grab(){if(!V.videoWidth)return null;const k=document.createElement("canvas");k.width=V.videoWidth;k.height=V.videoHeight;const x=k.getContext("2d");
+ if(facing==="user"){x.translate(k.width,0);x.scale(-1,1);}x.drawImage(V,0,0);const f=$("#flash");f.style.opacity=.8;setTimeout(()=>f.style.opacity=0,120);
+ return await new Promise(r=>k.toBlob(r,"image/jpeg",.92));}
+$("#pGo").onclick=async()=>{$("#planS").style.display="none";if(burstRun)return;burstRun=true;const keepAuto=autoOn,keepPose=pose;autoOn=false;clearInterval(tipTimer);$("#tip").style.display="none";
+ beep(660,.05);say("準備好了嗎");/* iOS 要在點擊時先啟動聲音 */
+ const R=routine(),ui=$("#burstUI"),c=$("#count");burstShots=[];ui.style.display="block";
+ const dots=i=>$("#bD").innerHTML=R.map((_,j)=>`<i class="${j<i?"done":j===i?"now":""}"></i>`).join("");
+ try{
+  // 開始前 5 秒：看第一個動作
+  for(let t=5;t>0;t--){$("#bN").textContent=`${t} 秒後開始・先看第一個動作`;$("#bC").textContent=R[0][1];$("#bNx").textContent="";dots(0);if(t===5){pose=R[0][0];goodSince=0;chips();}await sleep(1000);}
+  for(let i=0;i<R.length;i++){const [k,cue]=R[i];pose=k;goodSince=0;chips();dots(i);
+   $("#bN").textContent=`第 ${i+1} / ${R.length} 張`;$("#bC").textContent=cue;$("#bNx").textContent=R[i+1]?`下一個：${R[i+1][1]}`:"最後一張！";say(cue);
+   await sleep(Math.max(900,burstSp*1000-700));
+   c.style.display="grid";for(const n of [2,1]){c.textContent=n;beep(880,.08);await sleep(350);}c.style.display="none";
+   beep(1320,.15);const b=await grab();if(b)burstShots.push({b,pose:k,cue});}
+  say("好了，來挑照片");
+ }finally{ui.style.display="none";$("#tip").style.display="";autoOn=keepAuto;pose=keepPose;chips();showTip();burstRun=false;}
+ if(burstShots.length){lastBlob=burstShots[burstShots.length-1].b;const u=URL.createObjectURL(lastBlob);$("#thumb").innerHTML=`<img src="${u}" alt="">`;$("#rImg").src=u;openPick();}
+};
+function openPick(){$("#bGridP").innerHTML=burstShots.map((x,i)=>`<button data-i="${i}" class="${x.sel?"sel":""}"><img src="${x.u||(x.u=URL.createObjectURL(x.b))}" alt=""><em>${i+1}・${x.cue}</em>${x.sel?"<i>★</i>":""}</button>`).join("");$("#pickS").style.display="flex";}
+$("#bGridP").onclick=e=>{const b=e.target.closest("[data-i]");if(!b)return;const x=burstShots[+b.dataset.i];x.sel=!x.sel;openPick();};
+const chosen=()=>{const s=burstShots.filter(x=>x.sel);return s.length?s:burstShots;};
+$("#kAgain").onclick=()=>{$("#pickS").style.display="none";burstOff+=burstN;openPlan();};
+$("#kSave").onclick=async()=>{const files=chosen().map((x,i)=>new File([x.b],`burst-${Date.now()}-${i+1}.jpg`,{type:"image/jpeg"}));
+ if(navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files});return;}catch(e){if(e.name==="AbortError")return;}}
+ files.forEach(f=>{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=f.name;a.click();});};
+$("#kRec").onclick=async()=>{try{const db=await inbox();const L=chosen(),t0=Date.now(),bid="b"+t0;
+  await new Promise((ok,no)=>{const t=db.transaction("photos","readwrite"),st=t.objectStore("photos");L.forEach((x,i)=>st.put({id:"p"+t0+"_"+i,blob:x.b,takenAt:new Date(t0+i).toISOString(),scene,pose:x.pose,cue:x.cue,burst:bid,source:"coach-burst"}));t.oncomplete=ok;t.onerror=()=>no(t.error);});
+  const b=$("#kRec");b.textContent=`已存 ${L.length} 張 ✓`;setTimeout(()=>b.textContent="存到 WonderMedia",1500);
+  const ret=new URLSearchParams(location.search).get("return");if(ret&&/^https:\/\/fuwei0618-cmd\.github\.io\//.test(ret))setTimeout(()=>location.href=ret,700);
+ }catch(e){alert("存不進去："+e.message);}};
 $("#thumb").onclick=()=>{if(lastBlob)$("#review").style.display="flex";};
 $("#rBack").onclick=()=>$("#review").style.display="none";
 /* 存到 WonderMedia：放進同網站共用的 IndexedDB「origina-inbox」，WonderMedia打開時會自動收成一則照片紀錄 */

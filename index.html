@@ -636,41 +636,52 @@ F.hots=[
   {id:'campfire',name:'營火',verb:'坐下',x:FX,z:FZ+1.6,r:3},
   {id:'fireflies',name:'螢火蟲',verb:'看看',x:4,z:GZ+2.5,r:3}
 ];
-// 守護者：格柵內側，狼（左・Teresa・給世界）與虎（右・Elva・給自己）側身沿著矮牆巡邏；約 9 倍人高
-// 立體：一張側面圖，用深度圖往前後各鼓起一半（displacement），再用法線圖打光，所以有弧度、有厚度
+// 守護者：格柵內側，狼（左・Teresa・給世界）與虎（右・Elva・給自己），約 9 倍人高
+// 巡邏：走向門口時面對面 → 到門口轉身面向外面，站崗看守很久 → 轉身背對背走向牆的盡頭 → 停一下看外面 → 再走回門口
+// 立體：側面、正面各一張圖，用深度圖往前後各鼓起一半（displacement），再用法線圖打光；轉身轉到一半時換成正面那張
 {const tl=new R.TextureLoader(),H=14,GZI=GZ-7,DEP=1.25;const guards=[];
   const ld=(u,flip)=>{const t=tl.load(u);if(flip){t.wrapS=R.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;}return t;};
-  [['wolf',-1,366],['tiger',1,454]].forEach(([k,sd,pw],i)=>{
-    const w=H*pw/1024,x0=sd*5.5,x1=sd*15;                       // 巡邏範圍：門邊 ↔ 格柵末端
-    const root=new R.Group();out.add(root);
+  const statue=(k,v,pw,ph)=>{const w=H*pw/ph,g=new R.Group(),base=`img/guard-${k}-${v}`;
     const geo=new R.PlaneGeometry(w,H,Math.round(pw/4),256);geo.translate(0,H/2,0);
-    const half=flip=>{const mat=new R.MeshStandardMaterial({map:ld(`img/guard-${k}-side.webp`,flip),normalMap:ld(`img/guard-${k}-side-normal.webp`,flip),
-        displacementMap:ld(`img/guard-${k}-side-depth.webp`,flip),displacementScale:DEP,alphaTest:.5,roughness:.92,metalness:0,
-        emissive:0xFFFFFF,emissiveMap:ld(`img/guard-${k}-side.webp`,flip),emissiveIntensity:.28,side:R.FrontSide});
+    const half=flip=>{const mat=new R.MeshStandardMaterial({map:ld(base+'.webp',flip),normalMap:ld(base+'-normal.webp',flip),displacementMap:ld(base+'-depth.webp',flip),
+        displacementScale:DEP,alphaTest:.5,roughness:.92,metalness:0,emissive:0xFFFFFF,emissiveMap:ld(base+'.webp',flip),emissiveIntensity:.28});
       const me=new R.Mesh(geo,mat);me.castShadow=true;if(flip)me.rotation.y=Math.PI;
       me.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map:mat.map,alphaTest:.5});return me;};
-    const mid=new R.Mesh(new R.PlaneGeometry(w,H).translate(0,H/2,0),new R.MeshStandardMaterial({map:ld(`img/guard-${k}-side.webp`),alphaTest:.5,roughness:.95,side:R.DoubleSide,color:0xB9AE9E}));   // 中線補縫
-    const body=new R.Group();body.add(half(false),half(true),mid);root.add(body);   // 前半＋後半（後半鏡射），邊緣在中線相接
-    const glow=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xFFD98A,transparent:true,opacity:0,depthWrite:false,blending:R.AdditiveBlending}));glow.position.set(-w*.43,H*.965,0);glow.scale.set(2.4,2.4,1);body.add(glow);
+    const mid=new R.Mesh(new R.PlaneGeometry(w,H).translate(0,H/2,0),new R.MeshStandardMaterial({map:ld(base+'.webp'),alphaTest:.5,roughness:.95,side:R.DoubleSide,color:0xB9AE9E}));
+    g.add(half(false),half(true),mid);g.userData.w=w;return g;};
+  [['wolf',-1,366,328,898],['tiger',1,454,371,906]].forEach(([k,sd,pw,fw,fh],i)=>{
+    const x0=sd*5.2,x1=sd*15;                                  // 門口 ↔ 牆的盡頭
+    const root=new R.Group();out.add(root);
+    const side=statue(k,'side',pw,1024),front=statue(k,'front',fw,fh);front.visible=false;root.add(side,front);
+    const w=side.userData.w;
+    const glow=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xFFD98A,transparent:true,opacity:0,depthWrite:false,blending:R.AdditiveBlending}));glow.scale.set(2.4,2.4,1);root.add(glow);
     const halo=new R.Mesh(new R.CircleGeometry(w*.6,32),new R.MeshBasicMaterial({color:0xFFE7B0,transparent:true,opacity:.12,depthWrite:false}));halo.rotation.x=-Math.PI/2;halo.position.y=.03;root.add(halo);
     const N=30,pos=new Float32Array(N*3);for(let q=0;q<N;q++){pos[q*3]=(Math.random()-.5)*w*1.4;pos[q*3+1]=Math.random()*H;pos[q*3+2]=(Math.random()-.5)*4;}
     const pg=new R.BufferGeometry();pg.setAttribute('position',new R.BufferAttribute(pos,3));
     root.add(new R.Points(pg,new R.PointsMaterial({color:0xFFE9B8,size:.3,transparent:true,opacity:.7,depthWrite:false,blending:R.AdditiveBlending})));
     const col={x:x0,z:GZI,r:Math.max(1.6,w*.32)};F.col.push(col);
     const hot={id:i?'guardTiger':'guardWolf',name:i?'虎・守護者':'狼・守護者',verb:'抬頭看',x:x0,z:GZI-3,r:3.5};F.hots.push(hot);
-    const dir=i?-1:1;guards.push({root,body,glow,halo,pg,N,col,hot,x:x0+(x1-x0)*(i?.7:.3),dir,ry:dir>0?Math.PI:0,x0,x1,wait:0,ph:i*1.7,step:0});});
+    // 側面圖的臉朝 -x：ry=0 面向 -x、ry=π 面向 +x、ry=π/2 面向外面（+z）
+    const faceGate=sd<0?Math.PI:0,faceEnd=sd<0?0:Math.PI;
+    guards.push({root,side,front,glow,halo,pg,N,col,hot,sd,x:x0,x0,x1,faceGate,faceEnd,ry:Math.PI/2,st:'watch',tm:20+i*6,ph:i*1.7,step:0});});
+  const OUT=Math.PI/2;
   F.guardUpdate=(dt,t)=>{const h=new Date().getHours(),eve=h>=17||h<6;
     guards.forEach(g=>{
-      const near=Math.hypot(P.x-g.x,P.z-GZI)<9;                // 你靠近時停下來陪你
-      let mv=0;if(!near){if(g.wait>0)g.wait-=dt;else{mv=.55*dt*g.dir;g.x+=mv;const lo=Math.min(g.x0,g.x1),hi=Math.max(g.x0,g.x1);
-        if(g.x<lo||g.x>hi){g.x=Math.max(lo,Math.min(hi,g.x));g.dir*=-1;g.wait=3+Math.random()*4;}}}
-      // 圖裡的臉朝左（-x）：往 -x 走用原本的面，往 +x 走就轉 180°；轉身是慢慢轉過去的
-      const tgt=g.dir>0?Math.PI:0;g.ry+=(tgt-g.ry)*Math.min(1,dt*1.2);
+      const near=Math.hypot(P.x-g.x,P.z-GZI)<9;
+      let tgt=g.ry,mv=0;
+      if(g.st==='walkIn'||g.st==='walkOut'){const to=g.st==='walkIn'?g.x0:g.x1;tgt=g.st==='walkIn'?g.faceGate:g.faceEnd;
+        if(Math.abs(tgt-g.ry)<.08&&!near){const d=to-g.x,s=Math.sign(d)*Math.min(Math.abs(d),.6*dt);g.x+=s;mv=s;
+          if(Math.abs(to-g.x)<.01){g.st=g.st==='walkIn'?'watch':'rest';g.tm=g.st==='watch'?35+Math.random()*25:6+Math.random()*4;}}}
+      else{tgt=OUT;if(Math.abs(tgt-g.ry)<.05){g.tm-=dt;if(g.tm<=0)g.st=g.st==='watch'?'walkOut':'walkIn';}}   // 門口站崗很久；盡頭只停一下
+      g.ry+=(tgt-g.ry)*Math.min(1,dt*1.1);
+      const isFront=Math.abs(g.ry-OUT)<Math.PI/4;g.front.visible=isFront;g.side.visible=!isFront;
+      g.side.rotation.y=g.ry;g.front.rotation.y=g.ry-OUT;
       if(mv)g.step+=dt*1.7;
       const y=heightAt(g.x,GZI),bob=mv?Math.abs(Math.sin(g.step*Math.PI))*.14:0;
-      g.root.position.set(g.x,y-.05+bob,GZI);g.body.rotation.y=g.ry;
-      g.body.rotation.z=mv?Math.sin(g.step*Math.PI)*.01:0;
-      const b=1+Math.sin(t*.6+g.ph)*.006;g.body.scale.set(1,b,1);
+      g.root.position.set(g.x,y+.08+bob,GZI);
+      const b=1+Math.sin(t*.6+g.ph)*.006;g.side.scale.set(1,b,1);g.front.scale.set(1,b,1);
+      // 矛尖的光：跟著目前看得到的那一尊
+      const sw=g.side.userData.w;if(isFront)g.glow.position.set(-g.front.userData.w*.45,H*.97,0);else{const c=Math.cos(g.ry);g.glow.position.set(-sw*.43*c,H*.965,sw*.43*Math.sin(g.ry));}
       g.col.x=g.x;g.hot.x=g.x;
       g.glow.material.opacity=(eve?.85:.25)*(.8+.2*Math.sin(t*1.3+g.ph));g.halo.material.opacity=(eve?.2:.1)+.04*Math.sin(t*.8+g.ph);
       const a=g.pg.attributes.position.array;for(let q=0;q<g.N;q++){a[q*3+1]+=dt*(.4+(q%5)*.1);if(a[q*3+1]>H)a[q*3+1]=0;}g.pg.attributes.position.needsUpdate=true;});};}

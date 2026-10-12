@@ -442,7 +442,7 @@ let vaultF;
     const edge=[];for(let k=0;k<16;k++){const a2=k/16*Math.PI*2,l=new R.Mesh(new R.SphereGeometry(.09,8,6),new R.MeshBasicMaterial({color:0xFFD98A}));l.position.set(Math.cos(a2)*5.35,.14,Math.sin(a2)*5.35);P_.add(l);edge.push(l);}
     // 低多邊形私人噴射機（白色機身＋金色腰線），機頭朝外（+z 那側是家的正面）
     const J=new R.Group();J.position.set(.6,.62*.85,0);J.rotation.y=-Math.PI/2;J.scale.setScalar(.85);P_.add(J);
-    const white=new R.MeshStandardMaterial({color:0x2B2B30,roughness:.28,metalness:.55,emissive:0x111114,emissiveIntensity:.6}),dark=new R.MeshStandardMaterial({color:0xC9A14A,roughness:.25,metalness:.85,emissive:0x3A2808,emissiveIntensity:.3});   // 黑色機身＋金色窗框與細節
+    const white=new R.MeshStandardMaterial({color:0x2B2B30,roughness:.28,metalness:.55,emissive:0x111114,emissiveIntensity:.6}),dark=new R.MeshStandardMaterial({color:0x0A0D12,roughness:.05,metalness:.9,emissive:0x1A2430,emissiveIntensity:.5});   // 黑色機身、深色鏡面車窗與擋風（墨鏡），金色腰線
     const add=(g,m,x,y,z,rx=0,ry=0,rz=0)=>{const o=new R.Mesh(g,m);o.position.set(x,y,z);o.rotation.set(rx,ry,rz);o.castShadow=true;J.add(o);return o;};
     add(new R.CylinderGeometry(.62,.62,4.6,18),white,0,.9,0,Math.PI/2);                       // 機身
     const nose=add(new R.SphereGeometry(.62,18,12,0,Math.PI*2,0,Math.PI/2),white,0,.9,2.3,Math.PI/2);nose.scale.set(1,1.9,1);
@@ -756,7 +756,10 @@ F.hots=[
 { // 屋頂：鋼梯是斜坡，梯頂之後可以在屋頂上走；屋頂邊緣不會掉下去
   const y0h=heightAt(hx,hz),RYw=5.9,base=F.floor,stair=(lx,lz)=>lx>13.7&&lx<15&&lz>-2.2&&lz<7.4;
   F.floor=(x,z)=>{const lx=x-hx,lz=z-hz;if(stair(lx,lz)){const t=clamp((6.9-lz)/8.6,0,1);return y0h+.5+t*(RYw-.5);}
-    if(roofOn&&lx>-13.6&&lx<13.75&&lz>-7&&lz<8.3)return y0h+RYw;return base(x,z);};
+    if(roofOn&&lx>-13.6&&lx<13.75&&lz>-7&&lz<8.3)return y0h+RYw;
+    if(lx>-15&&lx<15&&lz>-7.5&&lz<9.5)return Math.max(base(x,z),y0h+.5);          // 家的基座平台（高 0.5 m），走上去不會陷進去
+    if(Math.abs(lx)<1.82&&lz>=9.5&&lz<9.8)return Math.max(base(x,z),y0h+.56);    // 門口的黑石門檻
+    return base(x,z);};
   F.post=p=>{const lx=p.x-hx,lz=p.z-hz;if(cur!==F){roofOn=false;return;}
     if(stair(lx,lz)){roofOn=(6.9-lz)/8.6>.88;return;}
     if(roofOn){p.x=hx+clamp(lx,-13.4,13.75);p.z=hz+clamp(lz,-6.8,8.1);}};
@@ -1018,25 +1021,34 @@ let flame,stoneBall,waterDisc;
   flame=mesh(new R.SphereGeometry(.035,8,6),new R.MeshBasicMaterial({color:0xFFC860}),0,.61,-.5,s,false);flame.scale.y=1.7;
   AT.light=new R.PointLight(0xFFB15A,.5,4);AT.light.position.set(0,.8,-.5);s.add(AT.light);
   // 轉運流水盆：粗石盆、水面、白色花崗岩球（會慢慢轉）
-  const BX=-3.0,BZ=1.6;
-  const basin=mesh(new R.DodecahedronGeometry(1,1),new R.MeshStandardMaterial({color:0x8E8A82,roughness:1,flatShading:true}),BX,.22,BZ,s);basin.scale.set(1.55,.32,1.05);
-  waterDisc=mesh(new R.CircleGeometry(1.15,40),new R.MeshStandardMaterial({color:0x7E8C8C,roughness:.15,metalness:.2,transparent:true,opacity:.85}),BX,.36,BZ,s,false);waterDisc.rotation.x=-Math.PI/2;waterDisc.scale.set(1.25,.85,1);
+  const BX=-4.6,BZ=1.6,K=2/3;
+  const stoneM=new R.MeshStandardMaterial({color:0x8E8A82,roughness:1,flatShading:true});
+  const bowl=mesh(new R.LatheGeometry([new R.Vector2(.001,0),new R.Vector2(1.05,0),new R.Vector2(1.3,.12),new R.Vector2(1.42,.42),new R.Vector2(1.36,.52),new R.Vector2(1.18,.5),new R.Vector2(1.12,.3),new R.Vector2(.001,.3)],10),stoneM,BX,0,BZ,s);
+  bowl.scale.set(K*1.2,K,K*.95);
+  // 水面：一直在動的波光（會反光、有漣漪），水快滿到盆口
+  const wTex=canvasTex(256,256,(g,w,h)=>{g.fillStyle='#6E8C8E';g.fillRect(0,0,w,h);for(let k=0;k<70;k++){g.strokeStyle=`rgba(230,245,245,${.08+Math.random()*.18})`;g.lineWidth=1+Math.random()*1.5;g.beginPath();const x=Math.random()*w,y=Math.random()*h,r=10+Math.random()*40;g.ellipse(x,y,r,r*.4,Math.random()*3,0,Math.PI*2);g.stroke();}});
+  wTex.wrapS=wTex.wrapT=R.RepeatWrapping;
+  waterDisc=mesh(new R.CircleGeometry(1.17,40),new R.MeshStandardMaterial({map:wTex,color:0xBFD8DA,roughness:.05,metalness:.35,transparent:true,opacity:.9,emissive:0x2E4A4C,emissiveIntensity:.35}),BX,.48*K,BZ,s,false);waterDisc.rotation.x=-Math.PI/2;waterDisc.scale.set(1.2*K,.95*K,1);
   const gran=canvasTex(256,128,(g,w,h)=>{g.fillStyle='#EDEBE6';g.fillRect(0,0,w,h);for(let k=0;k<1400;k++){const c=Math.random();g.fillStyle=c<.5?'rgba(120,118,112,.35)':c<.8?'rgba(80,78,74,.25)':'rgba(255,255,255,.6)';g.fillRect(Math.random()*w,Math.random()*h,1.5,1.5);}});
-  stoneBall=mesh(new R.SphereGeometry(.26,32,24),new R.MeshStandardMaterial({map:gran,roughness:.45}),BX,.36+.24,BZ,s);
-  AT.col.push({x0:BX-1.6,x1:BX+1.6,z0:BZ-1.1,z1:BZ+1.1});
+  stoneBall=mesh(new R.SphereGeometry(.26*K,32,24),new R.MeshStandardMaterial({map:gran,roughness:.45}),BX,.48*K+.2*K,BZ,s);
+  // 從盆口一角溢出去的細水流＋地上的小水窪
+  const spill=mesh(new R.PlaneGeometry(.12,.36*K),new R.MeshBasicMaterial({color:0xDDEFF0,transparent:true,opacity:.55,side:R.DoubleSide,depthWrite:false}),BX+1.42*K*1.2,.18*K,BZ,s,false);spill.rotation.y=Math.PI/2;
+  const pud=mesh(new R.CircleGeometry(.32,24),new R.MeshStandardMaterial({color:0x8FA6A8,roughness:.05,metalness:.3,transparent:true,opacity:.6}),BX+1.42*K*1.2+.2,.012,BZ,s,false);pud.rotation.x=-Math.PI/2;pud.scale.set(1,.6,1);
+  AT.waterFx=(t)=>{wTex.offset.set(t*.02,t*.013);wTex.rotation=t*.03;spill.material.opacity=.45+Math.sin(t*7)*.12;};
+  AT.col.push({x0:BX-1.15,x1:BX+1.15,z0:BZ-.8,z1:BZ+.8});
   // 回 B1 的樓梯（右前方角落）
   for(let i=0;i<7;i++)boxIn(AT,1.4,.3*(i+1),.42,0xB9B2A8,WA/2-1.0,.15*(i+1),DA/2-3.4+i*.42,false);
   AT.col.push({x0:WA/2-1.7,x1:WA/2-.3,z0:DA/2-3.7,z1:DA/2});
 }
 AT.kneel={x:0,y:.2,z:1.2};
-label(atr.scene,'轉運流水盆',-3.0,1.6,1.6,null,.6);
+label(atr.scene,'轉運流水盆',-4.6,1.3,1.6,null,.6);
 label(atr.scene,'跪墊',0,1.1,1.2,'點一下進前殿',.42);label(atr.scene,'樓梯 · 上樓',WA/2-1.0,3.2,DA/2-2,null,.6);
 label(atr.scene,'媽祖殿',0,4.3,-DA/2+.4,'中殿 · 出發平安',.75);
 label(atr.scene,'財神殿',-WA/2+.6,5.2,-5.0,'虎邊 · 豐盛',.7);label(atr.scene,'月老殿',WA/2-.6,5.2,-5.0,'龍邊 · 愛',.7);
 const TEMPLE='https://fuwei0618-cmd.github.io/Entry/temple/?d=';
 AT.hots=[
   {id:'pray',name:'前殿',verb:'跪下禱告',x:0,z:1.2,r:1.3,go:()=>openApp('前殿',TEMPLE+'front')},
-  {id:'fountain',name:'轉運流水盆',verb:'看流水',x:-3.0,z:3.0,r:1.0},
+  {id:'fountain',name:'轉運流水盆',verb:'看流水',x:-4.6,z:2.8,r:1.0},
   {id:'mazu',name:'媽祖殿',verb:'走進',x:-4.3,z:-DA/2+1.2,r:1.3,go:()=>openApp('媽祖殿',TEMPLE+'mazu')},
   {id:'mazu2',name:'媽祖殿',verb:'走進',x:4.3,z:-DA/2+1.2,r:1.3,go:()=>openApp('媽祖殿',TEMPLE+'mazu')},
   {id:'caishen',name:'財神殿',verb:'走進',x:-WA/2+1.2,z:-5.0,r:1.4,go:()=>openApp('財神殿',TEMPLE+'caishen')},
@@ -1045,7 +1057,7 @@ AT.hots=[
 ];
 // 一進來：第一人稱、站在跪墊正後方，看得到三殿的門和轉運流水盆
 AT.spawns={ladder:[0.8,7.6,Math.PI,.06,-.1,'first'],stairs:[WA/2-2.6,DA/2-3.2,Math.PI,0],halls:[0,-DA/2+2.6,0,Math.PI]};
-AT.update=(dt,t)=>{stoneBall.rotation.y+=dt*.35;stoneBall.rotation.x+=dt*.12;waterDisc.material.opacity=.8+Math.sin(t*1.7)*.06;const k=.85+Math.sin(t*9)*.08+Math.sin(t*23)*.05;AT.light.intensity=.5*k;flame.scale.set(1,1.7*k,1);};
+AT.update=(dt,t)=>{stoneBall.rotation.y+=dt*.35;stoneBall.rotation.x+=dt*.12;waterDisc.material.opacity=.86+Math.sin(t*1.7)*.05;AT.waterFx&&AT.waterFx(t);const k=.85+Math.sin(t*9)*.08+Math.sin(t*23)*.05;AT.light.intensity=.5*k;flame.scale.set(1,1.7*k,1);};
 
 /* =========================================================
    5 · 舞台（獨立空間：從家裡的舞台門進來）

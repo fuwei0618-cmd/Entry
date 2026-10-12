@@ -855,9 +855,10 @@ F.hots=[
       const m=new R.Mesh(g,new R.MeshStandardMaterial({map,normalMap:L(base+'-normal.webp'),displacementMap:L(base+'-depth.webp'),displacementScale:.3,alphaTest:.5,roughness:.6,emissive:0xFFFFFF,emissiveMap:map,emissiveIntensity:.35}));
       m.castShadow=true;m.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map,alphaTest:.5});if(flip)m.rotation.y=Math.PI;m.userData.tap='butler';body.add(m);});};
   dress();
-  const BX=hx+2.6,BZ=hz+9.6,piv=new R.Group();piv.position.set(BX,heightAt(hx,hz)+.5,BZ);piv.add(body);out.add(piv);
-  F.col.push({x:BX,z:BZ,r:.4});
-  F.hots.push({id:'butler',name:'管家',verb:'換一套',x:BX,z:BZ+1.4,r:4.5,go:()=>{oi=(oi+1)%OUTFITS.length;localStorage.setItem('origina.butler',OUTFITS[oi].k);dress();say('換好了，'+OUTFITS[oi].n+'。');}});
+  let BX=hx+2.6,BZ=hz+9.6;const GROUND=[hx+2.6,hz+9.6,heightAt(hx,hz)+.5],ROOF=[hx+11.6,hz+6.4,heightAt(hx,hz)+5.9];   // 平常在門口；你上屋頂時到屋頂左上角（地圖上）
+  const piv=new R.Group();piv.position.set(BX,GROUND[2],BZ);piv.add(body);out.add(piv);
+  const bcol={x:BX,z:BZ,r:.4};F.col.push(bcol);let onRoof=false;
+  const bh_={id:'butler',name:'管家',verb:'換一套',x:BX,z:BZ+1.4,r:4.5,go:()=>{oi=(oi+1)%OUTFITS.length;localStorage.setItem('origina.butler',OUTFITS[oi].k);dress();say('換好了，'+OUTFITS[oi].n+'。');}};F.hots.push(bh_);
   // 他會開口：走近時說一句。外表交給圖，聰明交給他說的話
   const bub=document.createElement('div');bub.id='butlerSay';document.body.appendChild(bub);
   const st=document.createElement('style');st.textContent='#butlerSay{position:fixed;z-index:6;max-width:min(260px,62vw);padding:9px 13px;border-radius:14px 14px 14px 4px;background:rgba(28,26,24,.88);color:#F3EDE2;font:500 13.5px/1.55 "Noto Sans TC",system-ui,sans-serif;letter-spacing:.02em;pointer-events:none;opacity:0;transition:opacity .4s;transform:translate(12px,-100%)}#butlerSay.on{opacity:1}#butlerSay b{color:#D9B35A;font-weight:600}';document.head.appendChild(st);
@@ -866,12 +867,13 @@ F.hots=[
     return [`<b>${hm}・週${wd}</b>　${greet}`,'金庫這個月的帳我對過了，沒有漏掉的。','你想出發的時候，飛機隨時可以起飛。','明天要帶的東西，我已經放在門口了。','今天先做一件事就好，其他的我幫你記著。'];};
   let li=0,shown=false,sayT=0,sayTxt='';const say=t=>{sayTxt=t;sayT=3.5;};
   const v3=new R.Vector3();let bow=0;
-  F.butlerUpdate=dt=>{const tgt=Math.atan2(camera.position.x-BX,camera.position.z-BZ);let d=tgt-piv.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));piv.rotation.y+=d*Math.min(1,dt*2);
+  F.butlerUpdate=dt=>{if(roofOn!==onRoof){onRoof=roofOn;const Q=onRoof?ROOF:GROUND;BX=Q[0];BZ=Q[1];piv.position.set(BX,Q[2],BZ);bcol.x=BX;bcol.z=BZ;bh_.x=BX;bh_.z=BZ+1.4;shown=false;}
+    const tgt=Math.atan2(camera.position.x-BX,camera.position.z-BZ);let d=tgt-piv.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));piv.rotation.y+=d*Math.min(1,dt*2);
     const dist=Math.hypot(P.x-BX,P.z-BZ),near=dist<3.2&&cur===F;bow+=((near?.14:0)-bow)*Math.min(1,dt*2.5);body.rotation.x=-bow;
     const talk=dist<5&&cur===F&&!overlayOpen();
     if(talk&&!shown){const L=lines();sayTxt=L[li%L.length];li++;shown=true;}else if(!talk&&dist>6)shown=false;
     if(sayT>0)sayT-=dt;
-    const on=(talk||sayT>0)&&sayTxt;if(on){v3.set(BX,heightAt(hx,hz)+.5+bh*1.02,BZ).project(camera);if(v3.z<1){bub.style.left=(v3.x*.5+.5)*innerWidth+'px';bub.style.top=(-v3.y*.5+.5)*innerHeight+'px';}if(bub.innerHTML!==sayTxt)bub.innerHTML=sayTxt;}
+    const on=(talk||sayT>0)&&sayTxt;if(on){v3.set(BX,piv.position.y+bh*1.02,BZ).project(camera);if(v3.z<1){bub.style.left=(v3.x*.5+.5)*innerWidth+'px';bub.style.top=(-v3.y*.5+.5)*innerHeight+'px';}if(bub.innerHTML!==sayTxt)bub.innerHTML=sayTxt;}
     bub.classList.toggle('on',!!on&&v3.z<1);};}
 { // 屋頂：鋼梯是斜坡，梯頂之後可以在屋頂上走；屋頂邊緣不會掉下去
   const y0h=heightAt(hx,hz),RYw=5.9,base=F.floor,stair=(lx,lz)=>lx>13.4&&lx<15.6&&lz>-4.15&&lz<7.3,
@@ -1074,7 +1076,11 @@ B2.ceil=ceiling(f2r.scene,W2,D2,H2);B2.ceilH=H2;B2.ceil.material=new R.MeshStand
   B2.blanket=mesh(new R.BoxGeometry(2.3,.16,2.2),new R.MeshStandardMaterial({color:0xE9DFD0,roughness:1}),BXc,1.02,2.15+BZo,s);B2.blanket.visible=false;
   mesh(new R.BoxGeometry(2.32,.17,.3),new R.MeshStandardMaterial({color:0xF7F2EA,roughness:1}),0,.01,1.05,B2.blanket);
   const rug=mesh(new R.PlaneGeometry(3.6,2.4),mat(0xE9DDEB),0,.01,1.4,s,false);rug.rotation.x=-Math.PI/2;
-  boxIn(B2,1.8,.1,.8,0xA97C55,-3.6,.85,-6.4,true);[[-4.4,-6.7],[-2.8,-6.7],[-4.4,-6.1],[-2.8,-6.1]].forEach(([x,z])=>boxIn(B2,.08,.8,.08,0x8C6646,x,.4,z,false));
+  boxIn(B2,1.8,.1,.8,0xA97C55,-3.6,.85,-6.4,true);
+  { // 書桌上：一本《交屋手冊》、一本《成長故事》，疊在一起
+    const bk=(w,h,d,c,x,y,z,ry)=>{const m=new R.Mesh(new R.BoxGeometry(w,h,d),new R.MeshStandardMaterial({color:c,roughness:.7}));m.position.set(x,y,z);m.rotation.y=ry;m.castShadow=true;f2r.scene.add(m);return m;};
+    bk(.34,.035,.25,0xEDE6D8,-3.95,.92,-6.35,.12);bk(.33,.012,.24,0xD2AE5C,-3.95,.94,-6.35,.12);   // 米白封面＋金色書口
+    bk(.3,.03,.22,0x6E7F5E,-3.9,.97,-6.33,-.18);}[[-4.4,-6.7],[-2.8,-6.7],[-4.4,-6.1],[-2.8,-6.1]].forEach(([x,z])=>boxIn(B2,.08,.8,.08,0x8C6646,x,.4,z,false));
   boxIn(B2,.5,.05,.36,0xF2C04E,-3.7,.93,-6.3,false);
   {const h2=mesh(new R.PlaneGeometry(1.6,2.4),new R.MeshBasicMaterial({color:0x2A2420}),-9.0,.012,-2.6,s,false,false);h2.rotation.x=-Math.PI/2;
     for(let i=0;i<4;i++){const st=mesh(new R.PlaneGeometry(1.5,.45),mat(0x7A6450-(i*0x080604)),-9.0,.014,-1.7-i*.55,s,false,false);st.rotation.x=-Math.PI/2;}
@@ -1082,11 +1088,11 @@ B2.ceil=ceiling(f2r.scene,W2,D2,H2);B2.ceilH=H2;B2.ceil.material=new R.MeshStand
   for(let i=0;i<6;i++)boxIn(B2,1.8,.3*(i+1),.42,0xC9A27A,-8.8,.15*(i+1),4.4+i*.42,false);
   B2.col.push({x0:-9.8,x1:-7.9,z0:4.3,z1:6.5});
 }
-[['白水木 · 下沉庭院',-1.4,3.3,-D2/2-2.4],['床 · 作息',0,2.4,4.6],['書桌 · 記錄',-3.6,2.2,-6.2],['往下 · 禱告房',-9,2.2,-2.6],['樓梯 · 上樓',-8.8,3,5.4]].forEach(([t,x,y,z])=>label(f2r.scene,t,x,y,z,null,.6));
+[['白水木 · 下沉庭院',-1.4,3.3,-D2/2-2.4],['床 · 作息',0,2.4,4.6],['書桌 · 交屋手冊',-3.6,2.2,-6.2],['往下 · 禱告房',-9,2.2,-2.6],['樓梯 · 上樓',-8.8,3,5.4]].forEach(([t,x,y,z])=>label(f2r.scene,t,x,y,z,null,.6));
 B2.hots=[
   {id:'bed',name:'床邊・起床與睡前',verb:'打開',x:0,z:2.6,r:1.8,go:()=>openApp('床邊','https://fuwei0618-cmd.github.io/Entry/bedside/')},
   {id:'plant',name:'白水木',verb:'看看',x:-1.4,z:-6.3,r:1.3},
-  {id:'desk',name:'書桌',verb:'寫一點',x:-3.6,z:-5.3,r:1.3},
+  {id:'desk',name:'書桌',verb:'翻開',x:-3.6,z:-5.3,r:1.3},
   {id:'ladder',name:'往下的樓梯',verb:'到禱告房',x:-9,z:-1.2,r:1.2,go:()=>goto('attic','ladder')},
   {id:'down',name:'樓梯',verb:'上樓',x:-7.3,z:5.4,r:1.2,go:()=>goto('f1','stairs')}
 ];
@@ -1162,7 +1168,7 @@ AT.kneel={x:0,y:.2,z:1.2};
 label(atr.scene,'轉運流水盆',-4.6,1.3,1.6,null,.6);
 label(atr.scene,'跪墊',0,1.1,1.2,'點一下進前殿',.42);label(atr.scene,'樓梯 · 上樓',WA/2-1.0,3.2,DA/2-2,null,.6);
 label(atr.scene,'月老殿',0,4.3,-DA/2+.4,'中殿 · 愛',.75);
-label(atr.scene,'媽祖殿',-WA/2+.6,5.2,-5.0,'左殿 · 出發平安',.7);label(atr.scene,'財神殿',WA/2-.6,5.2,-5.0,'右殿 · 豐盛',.7);
+label(atr.scene,'媽祖殿',-WA/2+.6,5.2,-5.0,'龍邊 · 出發平安',.7);label(atr.scene,'財神殿',WA/2-.6,5.2,-5.0,'虎邊 · 豐盛',.7);
 const TEMPLE='https://fuwei0618-cmd.github.io/Entry/temple/?d=';
 AT.hots=[
   {id:'pray',name:'前殿',verb:'跪下禱告',x:0,z:1.2,r:1.3,go:()=>openApp('前殿',TEMPLE+'front')},
@@ -1264,7 +1270,7 @@ const INFO={
   plant:{tag:'B1 · 下沉庭院',title:'白水木',body:'種在臥室外的下沉庭院，躺在床上就看得到。銀綠色、毛茸茸的葉子一叢一叢長在枝頭。這盆植物代表什麼，可以由你來定義。'},
   worlddoor:{tag:'家 · 世界之門',title:'旅遊手冊 World',body:'行程、旅行日誌、足跡地圖、人文史地。',links:[['打開旅遊手冊 World','https://fuwei0618-cmd.github.io/World/']]},
   bed:{tag:'B1 · 臥室',title:'床邊',body:'起床和睡前的小儀式：對自己說的話、今天或明天的重點、躺著伸展三個動作。',links:[['打開床邊','https://fuwei0618-cmd.github.io/Entry/bedside/']]},
-  desk:{tag:'B1 · 書桌',title:'睡前寫一點',body:'今天的心情、想法，寫完就流進記錄之河。',soon:true},
+  desk:{tag:'B1 · 書桌',title:'交屋手冊與成長故事',body:'書桌上疊著兩本書：一本是 Origina 的交屋手冊，怎麼住、怎麼改建都寫在裡面；一本是這座房子長大的故事。只有你打得開。',links:[['交屋手冊','https://claude.ai/code/artifact/d64af28c-5a90-48f1-b6ac-5d76d3122070'],['成長故事','https://claude.ai/artifact/YJ8LsncjD8kGmEKnmmbarz']]},
   pray:{tag:'B2 · 禱告房',title:'今日宣告',quote:true,body:'光從頭頂一道縫落下來。讀出聲音一次，深呼吸三次，再上樓開始今天。'},
   mic:{tag:'舞台 · 主唱',title:'我是主唱',body:'聚光燈會一直跟著你。你一站上台，觀眾席就亮起整片燈海，為眾生而唱。',list:['街演：場地、時段、器材','接演：邀約、報價、檔期','歌單：依場合分類、Key 與熟練度'],links:[['打開街演 App','https://fuwei0618-cmd.github.io/Vocal/']]},
   choir:{tag:'舞台 · 合唱台',title:'合唱團',body:'站在後方的階梯上，跟大家一起唱。',list:['練唱進度','排練與演出行程'],links:[['打開合唱團','https://fuwei0618-cmd.github.io/Chrous/']]},

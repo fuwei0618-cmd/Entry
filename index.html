@@ -1408,7 +1408,9 @@ function act(h){if(h.go){h.go();return;}const L=appLinks(h.id);if(L.length===1){
 
 /* ---------- scene switching ---------- */
 const fade=$('#fade');
-function goto(id,spawn){closeSheet();fade.classList.add('on');setTimeout(()=>{
+// 地下（B1 臥室、B2 禱告房）改成擬真照片頁：地面以上是可以走的 3D 世界，地下是靜下來的內在空間
+const BEDROOM='https://fuwei0618-cmd.github.io/Entry/bedroom/';
+function goto(id,spawn){if(id==='f2'){openApp('B1 臥室',BEDROOM);return;}if(id==='attic'){openApp('禱告房',TEMPLE+'front');return;}closeSheet();fade.classList.add('on');setTimeout(()=>{
   cur.scene.remove(player);if(marker.parent)marker.parent.remove(marker);
   cur=SC[id];cur.scene.add(player);curHot=null;prompt.hidden=true;target=null;
   const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];roofOn=(id==='forest'&&(spawn==='roof'||spawn==='garden'));P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}

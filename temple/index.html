@@ -277,7 +277,7 @@ function bookView(){const P=ls(PKEY)||{items:[]};
     b.querySelectorAll("[data-id]").forEach(x=>x.onclick=()=>{const P2=ls(PKEY)||{items:[]};const it=P2.items.find(i=>i.id===x.dataset.id);if(!it)return;
       if(it.status==="done"){it.status="open";delete it.doneAt;}else{it.status="done";it.doneAt=ymd(new Date());}ls(PKEY,P2);bookView();});});}
 $("#pray").onclick=()=>HALLS[cur].front?kneel():pray();$("#book").onclick=bookView;
-$("#back").onclick=()=>{if(!HALLS[cur].front){setHall("front");return;}if(window.top!==window.self)parent.postMessage({origina:"close-app"},"*");else location.href="https://fuwei0618-cmd.github.io/Entry/?go=attic,halls";};
+$("#back").onclick=()=>{if(!HALLS[cur].front){setHall("front");return;}if(new URLSearchParams(location.search).get("from")==="bedroom"){location.href="../bedroom/";return;}if(window.top!==window.self)parent.postMessage({origina:"close-app"},"*");else location.href="https://fuwei0618-cmd.github.io/Entry/bedroom/";};
 setHall(cur,true);
 </script>
 </body></html>

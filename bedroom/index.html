@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>B1 臥室</title>
+<meta name="theme-color" content="#E9E3D8">
+<style>
+:root{--ink:#f6f2ea;--mute:rgba(246,242,234,.72);--glass:rgba(40,34,28,.48);--line:rgba(255,255,255,.22)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#E9E3D8;color:var(--ink);font-family:"Noto Serif TC","Songti TC","PMingLiU",serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#bg{position:fixed;left:0;top:0;transform-origin:0 0;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;touch-action:none;transition:opacity .6s}
+#veil{position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(0,0,0,.22),rgba(0,0,0,0) 16%,rgba(0,0,0,0) 78%,rgba(0,0,0,.2))}
+#hz{position:fixed;inset:0;pointer-events:none}
+.spot{position:absolute;pointer-events:auto;background:none;border:0;padding:0;cursor:pointer}
+.spot::before{content:"";position:absolute;inset:0;border-radius:18px;border:1.5px solid rgba(255,250,236,.0);transition:border-color .3s}
+.spot:hover::before,.spot:focus-visible::before{border-color:rgba(255,250,236,.7)}
+.spot span{position:absolute;left:50%;top:var(--ly,50%);transform:translate(-50%,-50%);white-space:nowrap;font:inherit;font-size:13px;letter-spacing:.2em;color:var(--ink);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:5px 12px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.spot span small{display:block;font-size:10.5px;letter-spacing:.12em;color:var(--mute);text-align:center}
+header{position:fixed;top:calc(12px + env(safe-area-inset-top));left:0;right:0;text-align:center;pointer-events:none}
+header h1{margin:0;font-size:21px;letter-spacing:.3em;font-weight:500;text-shadow:0 1px 10px rgba(0,0,0,.5)}
+header p{margin:4px 0 0;font-size:12.5px;color:var(--mute);letter-spacing:.15em;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.btn{font:inherit;color:var(--ink);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:14px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn.pri{background:rgba(246,242,234,.94);color:#2a2622;border-color:transparent}
+#back{position:fixed;left:12px;top:calc(10px + env(safe-area-inset-top));z-index:3}
+#pan{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translateX(-50%);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12px;letter-spacing:.15em;pointer-events:none;transition:opacity .6s}
+#sheet{position:fixed;inset:0;z-index:9;display:flex;align-items:flex-end;justify-content:center;background:rgba(20,16,12,.35);padding:16px}
+#sheet[hidden]{display:none}
+.box{width:min(440px,100%);background:rgba(250,246,238,.97);color:#2E2822;border-radius:20px;padding:20px 20px calc(18px + env(safe-area-inset-bottom));box-shadow:0 12px 40px rgba(0,0,0,.25);animation:up .35s ease both}
+@keyframes up{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.box .tag{font-size:11.5px;letter-spacing:.2em;color:#9A8C7C}
+.box h2{margin:4px 0 8px;font-size:19px;letter-spacing:.12em;font-weight:600}
+.box p{margin:0 0 14px;font-size:14.5px;line-height:1.8;color:#5A5046}
+.box .row{display:flex;gap:8px;flex-wrap:wrap}
+.box .btn{color:#2E2822;background:#EFE8DC;border-color:#E2D8C8;backdrop-filter:none}
+.box .btn.pri{background:#2E2822;color:#F6F2EA}
+</style></head><body>
+<img id="bg" src="img/room.webp" alt="B1 臥室：床、靠窗的書桌、下沉天井裡的白水木、左邊的樓梯間" draggable="false">
+<div id="veil"></div>
+<div id="hz"></div>
+<header><h1>B1 臥室</h1><p>點床、書桌、白水木或樓梯間</p></header>
+<a class="btn" id="back" href="https://fuwei0618-cmd.github.io/Entry/?go=f1,stairs">← 回 1F</a>
+<div id="pan" hidden>← 左右滑動看整個房間 →</div>
+<div id="sheet" hidden><div class="box" id="box" role="dialog" aria-modal="true"></div></div>
+<script>
+"use strict";
+const W0=1024,H0=572,$=s=>document.querySelector(s);
+// 熱點（以原圖 1024×572 為座標）：[名稱, 小字, x0,y0,x1,y1, 動作]
+const SPOTS=[
+  ["樓梯間","上 1F・下禱告房",55,60,185,505,"stairs"],
+  ["書桌","交屋手冊",200,300,385,445,"desk"],
+  ["白水木","下沉天井",390,140,650,370,"plant"],
+  ["床","作息",520,300,1000,535,"bed"]];
+const INFO={
+  desk:{tag:"B1 · 書桌",title:"交屋手冊與成長故事",body:"書桌上疊著兩本書：一本是 Origina 的交屋手冊，怎麼住、怎麼改建都寫在裡面；一本是這座房子長大的故事。只有你打得開。",
+    links:[["交屋手冊","https://claude.ai/code/artifact/d64af28c-5a90-48f1-b6ac-5d76d3122070",1],["成長故事","https://claude.ai/artifact/YJ8LsncjD8kGmEKnmmbarz",1]]},
+  plant:{tag:"B1 · 下沉天井",title:"白水木",body:"種在臥室外的下沉天井，躺在床上就看得到。銀綠色、毛茸茸的葉子一叢一叢長在枝頭。天光從上面落下來，每天從這道光開始。"},
+  bed:{tag:"B1 · 臥室",title:"床・作息",body:"起床和睡前的小儀式：對自己說的話、今天或明天的重點、躺著伸展三個動作。",links:[["打開床邊","../bedside/"]]},
+  stairs:{tag:"B1 · 樓梯間",title:"樓梯間",body:"一道樓梯接起整棟房子：往上回到 1F，往下是禱告房。",links:[["↑ 上 1F","https://fuwei0618-cmd.github.io/Entry/?go=f1,stairs","top"],["↓ 下禱告房","../temple/?d=front&from=bedroom"]]}};
+const img=$("#bg"),hz=$("#hz");let s=1,ox=0,oy=0,panX=0,spare=0;
+function layout(){const w=innerWidth,h=innerHeight;s=Math.max(w/W0,h/H0);spare=Math.max(0,W0*s-w);panX=Math.max(-spare/2,Math.min(spare/2,panX));
+  ox=(w-W0*s)/2+panX;oy=(h-H0*s)/2;img.style.width=W0+"px";img.style.height=H0+"px";img.style.transform=`translate(${ox}px,${oy}px) scale(${s})`;
+  hz.innerHTML="";SPOTS.forEach(([n,sub,x0,y0,x1,y1,k])=>{const b=document.createElement("button");b.className="spot";b.setAttribute("aria-label",n+"・"+sub);
+    b.style.cssText=`left:${ox+x0*s}px;top:${oy+y0*s}px;width:${(x1-x0)*s}px;height:${(y1-y0)*s}px`;
+    b.innerHTML=`<span>${n}<small>${sub}</small></span>`;b.onclick=()=>open(k);hz.appendChild(b);});
+  $("#pan").hidden=spare<40;}
+function open(k){const I=INFO[k];
+  $("#box").innerHTML=`<div class="tag">${I.tag}</div><h2>${I.title}</h2><p>${I.body}</p><div class="row">${(I.links||[]).map(([n,u,t],i)=>`<a class="btn${i===0?" pri":""}" href="${u}"${t==="top"?' target="_top"':t?' target="_blank" rel="noopener"':""}>${n}</a>`).join("")}<button class="btn" data-x>關閉</button></div>`;
+  $("#sheet").hidden=false;$("#box [data-x]").onclick=close;}
+function close(){$("#sheet").hidden=true;}
+$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")close();});
+// 在 Origina 裡打開時：「回 1F」關掉這頁回到 3D
+$("#back").addEventListener("click",e=>{if(window.top!==window.self){e.preventDefault();parent.postMessage({origina:"close-app"},"*");}});
+document.addEventListener("click",e=>{const a=e.target.closest('a[target="_top"]');if(a&&window.top!==window.self){e.preventDefault();parent.postMessage({origina:"close-app"},"*");}});
+// 直式手機：左右滑動
+let dx=null;addEventListener("pointerdown",e=>{if(e.target.closest(".spot,.btn,#sheet"))return;dx=e.clientX;});
+addEventListener("pointermove",e=>{if(dx===null)return;panX+=e.clientX-dx;dx=e.clientX;layout();$("#pan").style.opacity=0;});
+addEventListener("pointerup",()=>dx=null);addEventListener("resize",layout);
+img.complete?layout():img.onload=layout;layout();
+</script>
+</body></html>

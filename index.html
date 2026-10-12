@@ -413,14 +413,14 @@ let vaultF;
   const pit=mesh(new R.PlaneGeometry(12,5.4),new R.MeshBasicMaterial({color:0x4E5A48}),-5,.05,-10.5,H,false,false);pit.rotation.x=-Math.PI/2;
   makeHeliotrope(H,-5,-10.5,1.3);
   // 屋頂停機坪＋私人飛機：家可以只有一個，但隨時可以起飛
-  {const RY=Y+HH+.6,PX=6.6,PZ=.6,P_=new R.Group();P_.position.set(PX,RY,PZ);H.add(P_);
+  {const RY=Y+HH+.6,PX=6.6,PZ=.6,P_=new R.Group();P_.position.set(PX,RY,PZ);P_.scale.setScalar(.82);H.add(P_);
     const padM=new R.MeshStandardMaterial({color:0x3A3834,roughness:.85}),lineM=new R.MeshBasicMaterial({color:0xF4F0E6}),goldM=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.7,roughness:.3,emissive:0x4A3510,emissiveIntensity:.4});
     const pad=new R.Mesh(new R.CylinderGeometry(5.6,5.6,.08,48),padM);pad.position.y=.04;pad.receiveShadow=true;P_.add(pad);
     const ring=new R.Mesh(new R.RingGeometry(4.9,5.1,64),lineM);ring.rotation.x=-Math.PI/2;ring.position.y=.09;P_.add(ring);
     const oRing=new R.Mesh(new R.RingGeometry(1.5,1.9,48),goldM);oRing.rotation.x=-Math.PI/2;oRing.position.set(-3.2,.095,0);P_.add(oRing);   // 金色的 O：Origina
     const edge=[];for(let k=0;k<16;k++){const a2=k/16*Math.PI*2,l=new R.Mesh(new R.SphereGeometry(.09,8,6),new R.MeshBasicMaterial({color:0xFFD98A}));l.position.set(Math.cos(a2)*5.35,.14,Math.sin(a2)*5.35);P_.add(l);edge.push(l);}
     // 低多邊形私人噴射機（白色機身＋金色腰線），機頭朝外（+z 那側是家的正面）
-    const J=new R.Group();J.position.set(.6,.62,0);J.rotation.y=-Math.PI/2;P_.add(J);
+    const J=new R.Group();J.position.set(.6,.62*.85,0);J.rotation.y=-Math.PI/2;J.scale.setScalar(.85);P_.add(J);
     const white=new R.MeshStandardMaterial({color:0xFFFFFF,roughness:.4,metalness:0,emissive:0xFFFFFF,emissiveIntensity:.18}),dark=new R.MeshStandardMaterial({color:0x1E2632,roughness:.2,metalness:.5});
     const add=(g,m,x,y,z,rx=0,ry=0,rz=0)=>{const o=new R.Mesh(g,m);o.position.set(x,y,z);o.rotation.set(rx,ry,rz);o.castShadow=true;J.add(o);return o;};
     add(new R.CylinderGeometry(.62,.62,4.6,18),white,0,.9,0,Math.PI/2);                       // 機身
@@ -438,8 +438,8 @@ let vaultF;
     [[0,1.9],[.55,-.4],[-.55,-.4]].forEach(([x,z])=>{add(new R.CylinderGeometry(.05,.05,.45,8),dark,x,.32,z);add(new R.CylinderGeometry(.14,.14,.1,12),dark,x,.12,z,0,0,Math.PI/2);});   // 起落架
     const beacon=new R.Mesh(new R.SphereGeometry(.08,8,6),new R.MeshBasicMaterial({color:0xFF5A4A}));beacon.position.set(0,2.75,-4.3);J.add(beacon);
     // 右側外牆的一道鋼梯：從地面走上屋頂
-    {const st=new R.MeshStandardMaterial({color:0x2E2A25,metalness:.5,roughness:.45});const n=14;for(let k=0;k<n;k++){const sp=new R.Mesh(new R.BoxGeometry(1.1,.08,.42),st);sp.position.set(14.35-PX,.5+k*(RY-.5)/n-RY+.1,6.6-k*.62-PZ);sp.castShadow=true;P_.add(sp);}
-      const rail=new R.Mesh(new R.BoxGeometry(.05,.05,Math.hypot(n*.62,RY-.5)),st);rail.position.set(14.9-PX,(RY-.5)/2+.95-RY,6.6-n*.31-PZ);rail.rotation.x=Math.atan2(RY-.5,n*.62);P_.add(rail);}
+    {const st=new R.MeshStandardMaterial({color:0x2E2A25,metalness:.5,roughness:.45});const n=14;for(let k=0;k<n;k++){const sp=new R.Mesh(new R.BoxGeometry(1.1,.08,.42),st);sp.position.set(14.35,.5+k*(RY-.5)/n+.1,6.6-k*.62);sp.castShadow=true;H.add(sp);}
+      const rail=new R.Mesh(new R.BoxGeometry(.05,.05,Math.hypot(n*.62,RY-.5)),st);rail.position.set(14.9,(RY-.5)/2+.95,6.6-n*.31);rail.rotation.x=Math.atan2(RY-.5,n*.62);H.add(rail);}
     F.padUpdate=(dt,t)=>{beacon.visible=(t%1.6)<.12;edge.forEach((l,k)=>l.material.color.setHSL(.11,.9,.55+.25*Math.max(0,Math.sin(t*2-k*.4))));};}
   // 金庫：門口右前方的噴水池，金幣被你吸過來
   // 金庫：三層圓形石階的祭壇，一條石板參道從小路分出來，四盞石燈，金色內嵌圓環
@@ -451,8 +451,10 @@ let vaultF;
       const lt=new R.Mesh(new R.BoxGeometry(.42,.32,.42),new R.MeshBasicMaterial({color:0xFFE2A8}));lt.position.set(x,y+1.45,z);out.add(lt);const cap=new R.Mesh(new R.BoxGeometry(.6,.08,.6),stone2);cap.position.set(x,y+1.65,z);out.add(cap);
       const pl=new R.PointLight(0xFFCF8A,.35,6);pl.position.set(x,y+1.5,z);out.add(pl);});
     vaultF=makeMoneyFountain(out,VX,VZ,VY+.48);}
-  F.col.push({x0:hx-15,x1:hx+15,z0:hz-7.2,z1:hz+6.8});
+  F.col.push({x0:hx-15,x1:hx+13.6,z0:hz-7.2,z1:hz+6.8,house:1});
   F.col.push({x0:hx-11.4,x1:hx+1.4,z0:hz-13.5,z1:hz-7.2});
+  // 屋頂上的飛機（只有站在屋頂時才擋人）
+  [-2.4,0,2.4].forEach(dx=>F.col.push({x:hx+6.6+.5+dx,z:hz+.6,r:1.0,roof:1}));
   F.col.push({x:VX,z:VZ,r:2.0});[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>F.col.push({x:VX+a*3.9,z:VZ+b*3.9,r:.3}));
   label(out,'家',hx,y0+7.8,hz+7,'點門進去');
   label(out,'金庫',VX,heightAt(VX,VZ)+5.2,VZ,'源源不絕');
@@ -715,7 +717,15 @@ F.hots=[
       g.col.x=g.x;g.hot.x=g.x;
       g.glow.material.opacity=(eve?.85:.25)*(.8+.2*Math.sin(t*1.3+g.ph));g.halo.material.opacity=(eve?.2:.1)+.04*Math.sin(t*.8+g.ph);
       const a=g.pg.attributes.position.array;for(let q=0;q<g.N;q++){a[q*3+1]+=dt*(.4+(q%5)*.1);if(a[q*3+1]>H)a[q*3+1]=0;}g.pg.attributes.position.needsUpdate=true;});};}
-F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[-8,GZ+2.6,Math.PI,0],guardT:[8,GZ+2.6,Math.PI,0]};
+{ // 屋頂：鋼梯是斜坡，梯頂之後可以在屋頂上走；屋頂邊緣不會掉下去
+  const y0h=heightAt(hx,hz),RYw=5.9,base=F.floor,stair=(lx,lz)=>lx>13.7&&lx<15&&lz>-2.2&&lz<7.4;
+  F.floor=(x,z)=>{const lx=x-hx,lz=z-hz;if(stair(lx,lz)){const t=clamp((6.9-lz)/8.6,0,1);return y0h+.5+t*(RYw-.5);}
+    if(roofOn&&lx>-13.6&&lx<13.75&&lz>-7&&lz<8.3)return y0h+RYw;return base(x,z);};
+  F.post=p=>{const lx=p.x-hx,lz=p.z-hz;if(cur!==F){roofOn=false;return;}
+    if(stair(lx,lz)){roofOn=(6.9-lz)/8.6>.88;return;}
+    if(roofOn){p.x=hx+clamp(lx,-13.4,13.75);p.z=hz+clamp(lz,-6.8,8.1);}};
+  F.hots.push({id:'jet',name:'私人飛機',verb:'起飛',x:hx+3.2,z:hz+3.4,r:2.6,go:()=>openWorld()});}
+F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[-8,GZ+2.6,Math.PI,0],guardT:[8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2]};
 F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
   pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);};
 
@@ -1146,14 +1156,17 @@ const marker=new R.Mesh(new R.RingGeometry(.35,.5,24),new R.MeshBasicMaterial({c
 function showMarker(p){marker.position.set(p.x,p.y+.06,p.z);marker.material.opacity=.9;marker.scale.setScalar(1);if(marker.parent!==cur.scene)cur.scene.add(marker);}
 
 /* ---------- movement ---------- */
+let roofOn=false;   // 走上家的屋頂了沒（右側鋼梯上去）
 function resolve(p){
   for(const c of cur.col){
+    if((c.house&&roofOn)||(c.roof&&!roofOn))continue;
     if(c.r!==undefined){const dx=p.x-c.x,dz=p.z-c.z,d=Math.hypot(dx,dz),m=c.r+.32;if(d<m&&d>1e-4){p.x=c.x+dx/d*m;p.z=c.z+dz/d*m;}}
     else{const m=.32;if(p.x>c.x0-m&&p.x<c.x1+m&&p.z>c.z0-m&&p.z<c.z1+m){const pen=[p.x-(c.x0-m),(c.x1+m)-p.x,p.z-(c.z0-m),(c.z1+m)-p.z];const i=pen.indexOf(Math.min(...pen));
       if(i===0)p.x=c.x0-m;else if(i===1)p.x=c.x1+m;else if(i===2)p.z=c.z0-m;else p.z=c.z1+m;}}
   }
   if(cur.bounds){const[a,b,c,d]=cur.bounds;p.x=clamp(p.x,a,b);p.z=clamp(p.z,c,d);}
   else{const r=Math.hypot(p.x,p.z);if(r>58){p.x*=58/r;p.z*=58/r;}}
+  if(cur.post)cur.post(p);
 }
 function step(dt){
   let ix=0,iy=0;
@@ -1221,7 +1234,7 @@ const fade=$('#fade');
 function goto(id,spawn){closeSheet();fade.classList.add('on');setTimeout(()=>{
   cur.scene.remove(player);if(marker.parent)marker.parent.remove(marker);
   cur=SC[id];cur.scene.add(player);curHot=null;prompt.hidden=true;target=null;
-  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}
+  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];roofOn=(id==='forest'&&spawn==='roof');P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}
   $('#where').textContent=cur.where;camInit=true;setTimeout(()=>fade.classList.remove('on'),60);},280);}
 
 /* ---------- sheets ---------- */

@@ -649,7 +649,7 @@ F.hots=[
       me.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map:mat.map,alphaTest:.5});return me;};
     const mid=new R.Mesh(new R.PlaneGeometry(w,H).translate(0,H/2,0),new R.MeshStandardMaterial({map:ld(base+'.webp'),alphaTest:.5,roughness:.95,side:R.DoubleSide,color:0xB9AE9E}));
     g.add(half(false),half(true),mid);g.userData.w=w;return g;};
-  [['wolf',-1,366,328,898],['tiger',1,454,371,906]].forEach(([k,sd,pw,fw,fh],i)=>{
+  [['wolf',-1,366,328,898],['tiger',1,454,394,1024]].forEach(([k,sd,pw,fw,fh],i)=>{
     const x0=sd*5.2,x1=sd*15;                                  // 門口 ↔ 牆的盡頭
     const root=new R.Group();out.add(root);
     const side=statue(k,'side',pw,1024),front=statue(k,'front',fw,fh);front.visible=false;root.add(side,front);

@@ -792,7 +792,7 @@ F.hots=[
   {id:'fireflies',name:'螢火蟲',verb:'看看',x:4,z:GZ+2.5,r:3},
   {id:'helipad',name:'屋頂停機坪・私人飛機',verb:'起飛',x:hx+14.6,z:hz+8.2,r:3,go:()=>openWorld()}
 ];
-// 守護者：格柵內側，狼（左・Teresa・給世界）與虎（右・Elva・給自己），約 9 倍人高
+// 守護者：格柵內側。以「從家裡往外看」為準（跟刺青一樣）：狼在左（Teresa・給世界）、虎在右（Elva・給自己），約 9 倍人高
 // 巡邏：走向門口時面對面 → 到門口轉身面向外面，站崗看守很久 → 轉身背對背走向牆的盡頭 → 停一下看外面 → 再走回門口
 // 立體：側面、正面各一張圖，用深度圖往前後各鼓起一半（displacement），再用法線圖打光；轉身轉到一半時換成正面那張
 {const tl=new R.TextureLoader(),H=14,GZI=GZ-7,DEP=1.25;const guards=[];
@@ -807,7 +807,7 @@ F.hots=[
       me.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map:mat.map,alphaTest:.5});return me;};
     const mid=new R.Mesh(new R.PlaneGeometry(w,H).translate(0,H/2,0),new R.MeshStandardMaterial({map:ld(base+'.webp'),alphaTest:.5,roughness:.95,side:R.DoubleSide,color:0xB9AE9E}));
     g.add(half(false),half(true),mid);g.userData.w=w;return g;};
-  [['wolf',-1,730,604,2048],['tiger',1,908,394,1024]].forEach(([k,sd,pw,fw,fh],i)=>{
+  [['wolf',1,730,604,2048],['tiger',-1,908,394,1024]].forEach(([k,sd,pw,fw,fh],i)=>{
     const x0=sd*5.2,x1=sd*15;                                  // 門口 ↔ 牆的盡頭
     const root=new R.Group();out.add(root);
     const side=statue(k,'side',pw,2048),front=statue(k,'front',fw,fh);front.visible=false;root.add(side,front);
@@ -885,7 +885,7 @@ F.hots=[
     if(stair(lx,lz)){roofOn=stairT(lz)>.92;return;}
     if(roofOn){p.x=hx+clamp(lx,-13.4,13.75);p.z=hz+clamp(lz,-6.8,8.1);}};
   F.hots.push({id:'jet',name:'私人飛機',verb:'起飛',x:hx+3.2,z:hz+3.4,r:2.6,go:()=>openWorld()});}
-F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[-8,GZ+2.6,Math.PI,0],guardT:[8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI,-.1,'first']};
+F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI,-.1,'first']};
 F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
   pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);F.doorUpdate&&F.doorUpdate(dt);};
 
@@ -1244,8 +1244,8 @@ ST.update=(dt,t)=>{ST.choirLbl.visible=ST.micLbl.visible=!(P.z<-6.5&&P.y>1.5);fo
 const QUOTES=['先把呼吸放慢，今天要做的事就會排好隊。','我不需要一次做完全部，我只需要把眼前這一件做好。','穩定的節奏比偶爾的爆發更走得遠。','我的時間有限，所以我只把它交給真正重要的事。','紀錄是給未來的自己的禮物，今天也留下一點。','平靜不是什麼都不做，而是知道自己正在做什麼。','先完成，再完美；先出發，再調整。'];
 const todayQuote=()=>QUOTES[Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5)%QUOTES.length];
 const INFO={
-  guardWolf:{tag:'森林 · 鍛鐵門內',title:'狼・守護者',body:'左邊這一尊是狼，你左手的刺青：熱血、為眾生、用聲音帶路的 Teresa。像金字塔旁的阿努比斯，她守著 Origina，擋住會傷害你的東西。'},
-  guardTiger:{tag:'森林 · 鍛鐵門內',title:'虎・守護者',body:'右邊這一尊是虎，你右腰的刺青：女人的力量、允許自己想要的 Elva。像守著金字塔的獅身人面像，她守著你自己的空間。'},
+  guardWolf:{tag:'森林 · 鍛鐵門內',title:'狼・守護者',body:'從家裡往外看，左邊這一尊是狼，跟你左手的刺青同一邊：熱血、為眾生、用聲音帶路的 Teresa。像金字塔旁的阿努比斯，她守著 Origina，擋住會傷害你的東西。'},
+  guardTiger:{tag:'森林 · 鍛鐵門內',title:'虎・守護者',body:'從家裡往外看，右邊這一尊是虎，跟你右腰的刺青同一邊：女人的力量、允許自己想要的 Elva。像守著金字塔的獅身人面像，她守著你自己的空間。'},
   river:{tag:'森林 · 記錄之河',title:'記錄之河',body:'WonderMedia 的源頭和河流：每天的日記、照片、影音、想法都流進這條河，是所有作品的原料。',list:['源頭：隨手記文字、語音、照片；想拍好看時用拍照教練','河流：所有素材依時間流下來，加標籤、挑選'],links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/'],['拍照教練','https://fuwei0618-cmd.github.io/Entry/coach/']]},
   studio:{tag:'森林 · 蘑菇攝影棚',title:'工作台',body:'WonderMedia 的工作台和出海口：從記錄之河撈起素材，用你的萬用公式（積木）組成作品，再發到各個平台。',links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/']],list:['工作台：企劃、腳本、剪映草稿','出海口：發布排程與成效']},
   campfire:{tag:'森林 · 營火',title:'鐵粉朋友',body:'火是你的熱情。很多人是先看到你的表演、影片或 Podcast 才找過來的，你不一定認識他們，但他們會被火吸引，慢慢圍到火邊，聽懂你在唱什麼、做什麼。',list:['他們從哪裡認識你','回訪與互動','你可以為他們做的事'],soon:true},
@@ -1442,14 +1442,14 @@ addEventListener('message',e=>{if(e.origin!=='https://fuwei0618-cmd.github.io'||
 function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(null,'',location.pathname)}catch(e){}canvas.focus({preventScroll:true});}
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
-  ['森林入口',['forest','start'],[0,GZ+6]],['狼',['forest','guardW'],[-10,GZ-7]],['虎',['forest','guardT'],[10,GZ-7]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
+  ['森林入口',['forest','start'],[0,GZ+6]],['狼',['forest','guardW'],[10,GZ-7]],['虎',['forest','guardT'],[-10,GZ-7]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
   ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
   ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(12,-1.5),['正顎手冊'],W1F(16.3,-1.5)],
   ['健身房',['f1','gym'],W1F(7.5,4.3),['健身房']],['Lucky',['f1','front'],W1F(-6.4,4.3),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
   ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];
 const MAP_B=[['B1 臥室',['f2','bed'],[30,30],['床邊']],['B2 禱告房',['attic','ladder'],[68,74]]];
 const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[36,82],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[90,48],['Podcast']]];
-const X0=-40,Z0=-19,MW=76,MH=80,pct=(x,z)=>[(x-X0)/MW*100,(z-Z0)/MH*100];
+const X0=-40,Z0=-19,MW=76,MH=80,pct=(x,z)=>[100-(x-X0)/MW*100,100-(z-Z0)/MH*100];   // 地圖倒過來：家在下、森林入口在上，像站在家裡往外看
 function spotHTML(n,g,lp,apps,ap){const [l,t]=lp;
   if(n==='狼'||n==='虎')return `<div class="mspot gd" style="left:${l}%;top:${t}%"><button class="gico" data-g="${g.join(',')}" aria-label="${n}・守護者"><img src="https://fuwei0618-cmd.github.io/Entry/img/guard-${n==='狼'?'wolf':'tiger'}-face.webp" alt=""></button><button class="mlab" data-g="${g.join(',')}">${n}・守護者</button></div>`;
   const btns=(apps||[]).map(a=>APPMAP[a]?`<button class="mapp" data-app="${esc(a)}" aria-label="打開 ${esc(a)}" title="${esc(a)}">${APPMAP[a].svg}</button>`:'').join('');
@@ -1457,7 +1457,7 @@ function spotHTML(n,g,lp,apps,ap){const [l,t]=lp;
   if((n==='日曆牆'||n==='Beauty')&&ap)return `<div class="mspot" style="left:${l}%;top:${t}%"><i class="dot"></i></div><div class="mapps colL" style="left:${ap[0]}%;top:${ap[1]}%">${btns}<button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
   if(['樓梯','Lucky','玄關','健身房'].includes(n))return `<div class="mspot below" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${btns?`<div class="mdown">${btns}</div>`:''}</div>`;
   if(['廚房','舞台門','世界之門'].includes(n))return `<div class="mspot col" style="left:${l}%;top:${t}%">${btns?`<div class="mup">${btns}</div>`:''}<i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
-  return `<div class="mspot${l>68||n==='金庫'||n==='蘑菇攝影棚'?' flip':''}" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${ap?'':btns}</div>${ap&&btns?`<div class="mapps" style="left:${ap[0]}%;top:${ap[1]}%">${btns}</div>`:''}`;}
+  return `<div class="mspot${(l>68&&n!=='蘑菇攝影棚')||n==='金庫'?' flip':''}" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${ap?'':btns}</div>${ap&&btns?`<div class="mapps" style="left:${ap[0]}%;top:${ap[1]}%">${btns}</div>`:''}`;}
 let mapBG=null;
 function buildMapBG(){
   let r=1;const rnd=()=>{r=(r*16807)%2147483647;return r/2147483647;};
@@ -1471,7 +1471,7 @@ function buildMapBG(){
   const gate=`<g fill="none" stroke-linecap="round"><path d="${wl(1)}" stroke="#CDB48D" stroke-width="1"/><path d="${wl(-1)}" stroke="#CDB48D" stroke-width="1"/><path d="${wl(1)}" stroke="#3FA7B5" stroke-width=".35" stroke-dasharray=".4 .5"/><path d="${wl(-1)}" stroke="#E2B04A" stroke-width=".35" stroke-dasharray=".4 .5"/></g><circle cx="2.45" cy="${wallZ(2.45)}" r=".6" fill="#2D5DA8"/><circle cx="-2.45" cy="${wallZ(-2.45)}" r=".6" fill="#C8673E"/><line x1="-1.9" y1="${wallZ(0)}" x2="1.9" y2="${wallZ(0)}" stroke="#2E2A26" stroke-width=".35"/>`;
   const cross=`<line x1="0" y1="${EC.cz-EC.rz+1.5}" x2="0" y2="${EC.cz+EC.rz-1.5}" stroke="#C9A55A" stroke-width=".25" stroke-dasharray=".8 .8" opacity=".8"/><circle cx="0" cy="${EC.cz}" r="6" fill="#9CC7CF"/><circle cx="0" cy="${EC.cz}" r="4.75" fill="#EFE9DD" stroke="#C9A55A" stroke-width=".25"/>${Array.from({length:4},(_,k)=>{const a=Math.PI/4+k*Math.PI/2;return `<circle cx="${(Math.cos(a)*4.1).toFixed(2)}" cy="${(EC.cz+Math.sin(a)*4.1).toFixed(2)}" r=".3" fill="#B9AE98"/>`;}).join('')}<line x1="0" y1="${EC.cz-2.9}" x2="0" y2="${EC.cz+2.9}" stroke="#E2B64F" stroke-width=".18"/><line x1="-2.9" y1="${EC.cz-2.9}" x2="2.9" y2="${EC.cz+2.9}" stroke="#D8CFBE" stroke-width=".3"/><line x1="2.9" y1="${EC.cz-2.9}" x2="-2.9" y2="${EC.cz+2.9}" stroke="#D8CFBE" stroke-width=".3"/><circle cx="0" cy="${EC.cz-2.2}" r=".35" fill="#FFE9A8"/>`;
   const focus=`<line x1="${VX}" y1="${VZ}" x2="${FX}" y2="${FZ}" stroke="#C9A55A" stroke-width=".25" stroke-dasharray=".8 .8" opacity=".8"/>`;
-  return `<svg viewBox="${X0} ${Z0} ${MW} ${MH}" preserveAspectRatio="none" aria-hidden="true">
+  return `<svg viewBox="${X0} ${Z0} ${MW} ${MH}" preserveAspectRatio="none" aria-hidden="true"><g transform="rotate(180 ${X0+MW/2} ${Z0+MH/2})">
   <rect x="${X0}" y="${Z0}" width="${MW}" height="${MH}" fill="#A8C18D"/>${trees}
   <path d="${river}" fill="none" stroke="#86B7C2" stroke-width="7.5" stroke-linecap="round"/><path d="${river}" fill="none" stroke="#B5D7DC" stroke-width="2" stroke-linecap="round" opacity=".7"/>
   <g stroke="#E6D3AA" stroke-width="1.8" stroke-linecap="round">${paths}</g>
@@ -1484,8 +1484,8 @@ function buildMapBG(){
   <circle cx="${VX}" cy="${VZ}" r="4.4" fill="#E9E3D7" stroke="#C9A55A" stroke-width=".3"/><circle cx="${VX}" cy="${VZ}" r="2.8" fill="#F2EDE3" stroke="#C9A55A" stroke-width=".25"/><circle cx="${VX}" cy="${VZ}" r="1.6" fill="#9CC7CF"/>
   <circle cx="${mx}" cy="${mz}" r="2" fill="#D9583F"/><circle cx="${mx-.6}" cy="${mz-.5}" r=".35" fill="#fff"/><circle cx="${mx+.7}" cy="${mz+.3}" r=".3" fill="#fff"/>
   ${RESTS.map(q=>`<circle cx="${q.tx}" cy="${q.tz}" r="2.6" fill="#6E8F59"/><rect x="${q.x-1}" y="${q.z-.45}" width="2" height=".9" rx=".3" fill="#F1EBDF" stroke="#9A7653" stroke-width=".2"/>`).join('')}${LANTERNS.map(([x,z])=>`<rect x="${x-.4}" y="${z-.4}" width=".8" height=".8" fill="#FFE2A8" stroke="#B8A98F" stroke-width=".15"/>`).join('')}${focus}${cross}<circle cx="${FX}" cy="${FZ}" r="3.2" fill="#E6D3AA"/><circle cx="${FX}" cy="${FZ}" r="2.2" fill="#F6B25A" opacity=".45"/><circle cx="${FX}" cy="${FZ}" r=".9" fill="#E8742C"/>${gate}${ff}
-  <text x="${hx}" y="${hz-2.2}" font-size="1.5" text-anchor="middle" fill="#B5ADA1" font-weight="700" letter-spacing=".3">1F</text>
-  </svg>`;}
+  <text transform="rotate(180 ${hx} ${hz-2.2})" x="${hx}" y="${hz-2.2}" font-size="1.5" text-anchor="middle" fill="#B5ADA1" font-weight="700" letter-spacing=".3">1F</text>
+  </g>  </svg>`;}
 const BSEC=`<svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true"><rect width="160" height="90" fill="#E7DCCB"/><rect width="160" height="14" fill="#A8C18D"/><rect x="0" y="14" width="160" height="76" fill="#CDBFA9"/>
   <rect x="14" y="16" width="64" height="26" fill="#F5F0E7"/><rect x="78" y="10" width="26" height="32" fill="#6E8A62" opacity=".8"/><rect x="88" y="44" width="40" height="34" fill="#E2DCD2"/><rect x="106" y="0" width="3" height="44" fill="#FFF3D6"/><polygon points="107,44 98,78 118,78" fill="#FFF3D6" opacity=".6"/></svg>`;
 const SSEC=`<svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true"><rect width="160" height="90" fill="#2A2420"/><path d="M30 70 A50 50 0 0 1 130 70 Z" fill="#B8936D"/><rect x="40" y="12" width="80" height="14" fill="#5A4E6A"/>
@@ -1505,7 +1505,7 @@ function openMap(){closeSheet();if(!mapBG)mapBG=buildMapBG();
   mapV.querySelectorAll('[data-app]').forEach(b=>b.addEventListener('click',()=>{const a=APPMAP[b.dataset.app];openApp(b.dataset.app,a.u);}));
   // 點森林地圖上任何空地：直接傳送到那裡（不用一定是有名字的地點）
   {const mb=mapV.querySelector('.mapscroll .mapbox');if(mb)mb.addEventListener('click',e=>{if(e.target.closest('button,a'))return;const r=mb.getBoundingClientRect();
-    const x=X0+(e.clientX-r.left)/r.width*MW,z=Z0+(e.clientY-r.top)/r.height*MH;if(Math.hypot(x,z)>57)return;
+    const x=X0+(1-(e.clientX-r.left)/r.width)*MW,z=Z0+(1-(e.clientY-r.top)/r.height)*MH;if(Math.hypot(x,z)>57)return;
     const p={x,z};const was=cur;cur=F;resolve(p);cur=was;F.spawns.__free=[p.x,p.z,Math.PI,0];closeMap();goto('forest','__free');});}}
 const ISO_NUM={"AW":"533","AF":"004","AO":"024","AI":"660","AX":"248","AL":"008","AD":"020","AE":"784","AR":"032","AM":"051","AS":"016","AQ":"010","TF":"260","AG":"028","AU":"036","AT":"040","AZ":"031","BI":"108","BE":"056","BJ":"204","BQ":"535","BF":"854","BD":"050","BG":"100","BH":"048","BS":"044","BA":"070","BL":"652","BY":"112","BZ":"084","BM":"060","BO":"068","BR":"076","BB":"052","BN":"096","BT":"064","BV":"074","BW":"072","CF":"140","CA":"124","CC":"166","CH":"756","CL":"152","CN":"156","CI":"384","CM":"120","CD":"180","CG":"178","CK":"184","CO":"170","KM":"174","CV":"132","CR":"188","CU":"192","CW":"531","CX":"162","KY":"136","CY":"196","CZ":"203","DE":"276","DJ":"262","DM":"212","DK":"208","DO":"214","DZ":"012","EC":"218","EG":"818","ER":"232","EH":"732","ES":"724","EE":"233","ET":"231","FI":"246","FJ":"242","FK":"238","FR":"250","FO":"234","FM":"583","GA":"266","GB":"826","GE":"268","GG":"831","GH":"288","GI":"292","GN":"324","GP":"312","GM":"270","GW":"624","GQ":"226","GR":"300","GD":"308","GL":"304","GT":"320","GF":"254","GU":"316","GY":"328","HK":"344","HM":"334","HN":"340","HR":"191","HT":"332","HU":"348","ID":"360","IM":"833","IN":"356","IO":"086","IE":"372","IR":"364","IQ":"368","IS":"352","IL":"376","IT":"380","JM":"388","JE":"832","JO":"400","JP":"392","KZ":"398","KE":"404","KG":"417","KH":"116","KI":"296","KN":"659","KR":"410","KW":"414","LA":"418","LB":"422","LR":"430","LY":"434","LC":"662","LI":"438","LK":"144","LS":"426","LT":"440","LU":"442","LV":"428","MO":"446","MF":"663","MA":"504","MC":"492","MD":"498","MG":"450","MV":"462","MX":"484","MH":"584","MK":"807","ML":"466","MT":"470","MM":"104","ME":"499","MN":"496","MP":"580","MZ":"508","MR":"478","MS":"500","MQ":"474","MU":"480","MW":"454","MY":"458","YT":"175","NA":"516","NC":"540","NE":"562","NF":"574","NG":"566","NI":"558","NU":"570","NL":"528","NO":"578","NP":"524","NR":"520","NZ":"554","OM":"512","PK":"586","PA":"591","PN":"612","PE":"604","PH":"608","PW":"585","PG":"598","PL":"616","PR":"630","KP":"408","PT":"620","PY":"600","PS":"275","PF":"258","QA":"634","RE":"638","RO":"642","RU":"643","RW":"646","SA":"682","SD":"729","SN":"686","SG":"702","GS":"239","SH":"654","SJ":"744","SB":"090","SL":"694","SV":"222","SM":"674","SO":"706","PM":"666","RS":"688","SS":"728","ST":"678","SR":"740","SK":"703","SI":"705","SE":"752","SZ":"748","SX":"534","SC":"690","SY":"760","TC":"796","TD":"148","TG":"768","TH":"764","TJ":"762","TK":"772","TM":"795","TL":"626","TO":"776","TT":"780","TN":"788","TR":"792","TV":"798","TW":"158","TZ":"834","UG":"800","UA":"804","UM":"581","UY":"858","US":"840","UZ":"860","VA":"336","VC":"670","VE":"862","VG":"092","VI":"850","VN":"704","VU":"548","WF":"876","WS":"882","YE":"887","ZA":"710","ZM":"894","ZW":"716","XK":"-99"};
 const worldV=$('#worldView');

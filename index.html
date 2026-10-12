@@ -674,17 +674,18 @@ F.hots=[
 {const tl=new R.TextureLoader(),H=14,GZI=GZ-7,DEP=1.25;const guards=[];
   const ld=(u,flip)=>{const t=tl.load(u);if(flip){t.wrapS=R.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;}return t;};
   const statue=(k,v,pw,ph)=>{const w=H*pw/ph,g=new R.Group(),base=`img/guard-${k}-${v}`;
-    const geo=new R.PlaneGeometry(w,H,Math.round(pw/4),256);geo.translate(0,H/2,0);
-    const half=flip=>{const mat=new R.MeshStandardMaterial({map:ld(base+'.webp',flip),normalMap:ld(base+'-normal.webp',flip),displacementMap:ld(base+'-depth.webp',flip),
-        displacementScale:DEP,alphaTest:.5,roughness:.92,metalness:0,emissive:0xFFFFFF,emissiveMap:ld(base+'.webp',flip),emissiveIntensity:.28});
+    const geo=new R.PlaneGeometry(w,H,Math.round(pw/ph*256),256);geo.translate(0,H/2,0);
+    const half=flip=>{const col=(v==='front'&&flip)?base+'-back.webp':base+'.webp';   // 正面像的背後：同輪廓、抹掉五官的石頭背面
+      const mat=new R.MeshStandardMaterial({map:ld(col,flip),normalMap:ld((v==='front'&&flip)?base+'-back-normal.webp':base+'-normal.webp',flip),normalScale:new R.Vector2(1.2,1.2),displacementMap:ld(base+'-depth.webp',flip),
+        displacementScale:DEP,alphaTest:.5,roughness:.88,metalness:0,emissive:0xFFFFFF,emissiveMap:ld(col,flip),emissiveIntensity:.22});
       const me=new R.Mesh(geo,mat);me.castShadow=true;if(flip)me.rotation.y=Math.PI;
       me.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map:mat.map,alphaTest:.5});return me;};
     const mid=new R.Mesh(new R.PlaneGeometry(w,H).translate(0,H/2,0),new R.MeshStandardMaterial({map:ld(base+'.webp'),alphaTest:.5,roughness:.95,side:R.DoubleSide,color:0xB9AE9E}));
     g.add(half(false),half(true),mid);g.userData.w=w;return g;};
-  [['wolf',-1,366,328,898],['tiger',1,454,394,1024]].forEach(([k,sd,pw,fw,fh],i)=>{
+  [['wolf',-1,730,604,2048],['tiger',1,908,394,1024]].forEach(([k,sd,pw,fw,fh],i)=>{
     const x0=sd*5.2,x1=sd*15;                                  // 門口 ↔ 牆的盡頭
     const root=new R.Group();out.add(root);
-    const side=statue(k,'side',pw,1024),front=statue(k,'front',fw,fh);front.visible=false;root.add(side,front);
+    const side=statue(k,'side',pw,2048),front=statue(k,'front',fw,fh);front.visible=false;root.add(side,front);
     const w=side.userData.w;
     const glow=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xFFD98A,transparent:true,opacity:0,depthWrite:false,blending:R.AdditiveBlending}));glow.scale.set(2.4,2.4,1);root.add(glow);
     const halo=new R.Mesh(new R.CircleGeometry(w*.6,32),new R.MeshBasicMaterial({color:0xFFE7B0,transparent:true,opacity:.12,depthWrite:false}));halo.rotation.x=-Math.PI/2;halo.position.y=.03;root.add(halo);

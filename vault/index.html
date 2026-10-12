@@ -60,6 +60,30 @@ button,input,textarea{font:inherit;color:inherit}button{cursor:pointer}
 .ent{display:grid;grid-template-columns:1fr 1fr auto;gap:4px;align-items:center}
 .ent .why{grid-column:1/3}
 .foot{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding:6px 0}
+
+/* 一目了然版 */
+.vg{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px 12px;display:grid;gap:2px}
+.vnote2{background:linear-gradient(135deg,var(--card),var(--gold2))}
+.vl{font-size:11.5px;letter-spacing:.12em;color:var(--gold);font-weight:700;margin-top:6px;display:flex;align-items:center;gap:8px}.vl:first-child{margin-top:0}
+.vl em{font-style:normal;color:var(--muted);font-weight:500;letter-spacing:0}.plus{font-size:16px;line-height:1}
+.bl{width:100%;border:0;border-bottom:1px dashed transparent;background:none;color:var(--ink);padding:2px 0;font-size:15px;line-height:1.55;resize:none;overflow:hidden;outline:none;min-width:0}
+.bl:focus{border-bottom-color:var(--gold)}.bl::placeholder{color:var(--muted);opacity:.8}
+.bl.serif{font-family:var(--serif);font-size:16.5px}
+.bl.box{border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:14px;flex:1;width:auto}
+.blist .bl{padding-left:14px;background:radial-gradient(circle at 4px 50%,var(--gold) 2.5px,transparent 3px) no-repeat}
+.story4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.story4>div{display:grid;gap:1px;align-content:start}.story4 i{font-style:normal;font-size:18px}.story4 b{font-family:var(--serif);font-size:14px}.story4 p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.5}.story4 .end p{color:var(--ink)}
+@media (max-width:520px){.story4{grid-template-columns:1fr 1fr}}
+.need2{border-top:1px dashed var(--line);padding:4px 0}
+.nh{display:flex;align-items:baseline;gap:8px}.nh i{font-style:normal;width:22px;text-align:center}.nh b{font-size:14.5px;white-space:nowrap}.nh small{flex:1;color:var(--muted);font-size:12px}
+.ent2{margin:2px 0 4px 30px;padding-left:8px;border-left:2px solid var(--gold2)}
+.er{display:flex;gap:6px;align-items:center}.bl.b{font-weight:600;font-size:14px}.bl.c{font-size:13px;color:var(--muted)}.bl.w{font-size:13.5px}
+.rf2{border-top:1px dashed var(--line);padding:4px 0 2px}.rf2:first-of-type{border-top:0}
+.rfh{display:flex;align-items:center;gap:6px}.rfh .lk{font-size:12px;white-space:nowrap}
+.bl.q{font-size:13.5px;color:var(--muted);font-weight:600}.bl.a{padding-left:16px;background:linear-gradient(var(--gold),var(--gold)) no-repeat 3px 6px/2px 1.1em}
+.vg .vrow{display:flex;gap:8px;margin-top:4px}
+.chips{margin-top:6px}
+.wins2{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.wins2 .w{display:inline-flex;align-items:center;gap:5px;background:var(--soft);border-radius:99px;padding:2px 4px 2px 10px;font-size:13px}.wins2 small{color:var(--muted)}.wins2 .x{font-size:15px;padding:0 4px}
 </style></head><body>
 <div class="wrap" id="app"></div>
 <script>
@@ -92,43 +116,44 @@ const open=new Set((()=>{try{return JSON.parse(localStorage.getItem(OPEN)||'[]')
 const isO=k=>open.has(k)?' open':'';
 const sec=(k,t,pv,body)=>`<details class="vs" data-vk="${k}"${isO(k)}><summary><b>${t}</b><span class="pv">${pv}</span></summary><div class="vb">${body}</div></details>`;
 const cut=(t,n=22)=>t?esc(t.length>n?t.slice(0,n)+'…':t):'<i>還沒寫</i>';
-function render(){const v=load(),ans=v.reframes.filter(r=>r.a).length,bec=v.become.filter(Boolean);
+function render(){const v=load(),ans=v.reframes.filter(r=>r.a).length;
   const nEnt=Object.values(v.needs).reduce((a,l)=>a+l.length,0);
+  const ta=(k,val,ph,cls='')=>`<textarea class="bl ${cls}" data-v="${k}" rows="1" placeholder="${esc(ph)}">${esc(val)}</textarea>`;
   document.getElementById('app').innerHTML=`
   <div class="top"><a class="lk" id="back" href="../?go=forest,vault" target="_top">← 金庫</a><h1>富偉</h1><span class="stat">${nEnt} 個看見・${v.wins.length} 個小勝利</span></div>
-  <details class="story" data-vk="story"${isO('story')}><summary><span class="eb">錢的故事</span><b>錢，是被存起來的謝謝</b><span class="hint">從以物易物到投資，四段話・點開看</span></summary>
-    <div class="steps">
-      <div class="st"><i>🐟</i><div><b>以物易物</b><p>我有魚，你有米。你需要我，我也需要你，交換的那一刻，兩個人都說了謝謝。</p></div></div>
-      <div class="st"><i>🐚</i><div><b>貝殼</b><p>可是你今天不需要魚。於是我們撿一枚漂亮的貝殼當作約定：「我欠你一個謝謝，下次還。」</p></div></div>
-      <div class="st"><i>🪙</i><div><b>錢</b><p>貝殼變成了錢。錢就是被存起來、可以帶著走的謝謝。你賺到的每一塊，都是有人在謝謝你為他做的事。</p></div></div>
-      <div class="st end"><i>🌱</i><div><b>投資</b><p>投資，是把你存下來的謝謝，交給你相信的那群人，讓他們去照顧更多人的需要。所以先看人的需求：哪裡有人在排隊、哪個東西你自己天天在用。產業不冷冰冰，每一個產業都是一群人在回答同一個人類需求。</p></div></div>
-    </div></details>
-  <details class="vnote" data-vk="note"${isO('note')}><summary><span class="eb">花錢、存錢之前讀這段</span><p>${esc(v.note||NOTE)}</p><span class="hint">${v.note?'點一下修改':'範本・點一下改成你的話'}</span></summary>
-    <textarea class="vt" data-v="note" rows="3" placeholder="範本：${NOTE}">${esc(v.note)}</textarea></details>
-  <div class="vlist">
-  ${sec('at80','80 歲的我',cut(v.at80),`<textarea class="vt" data-v="at80" rows="2" placeholder="範本：80 歲的我不用再為錢緊張。住在自己的房子裡，想唱就唱、想去哪就去哪，還有餘力請朋友吃飯、捐錢給在乎的事。">${esc(v.at80)}</textarea>`)}
-  ${sec('why','我想用錢換到什麼',cut(v.why),`<textarea class="vt" data-v="why" rows="2" placeholder="範本：我想要的不是數字，是自由：不用看別人臉色選工作，可以養 Lucky、去旅行、繼續唱歌。">${esc(v.why)}</textarea>`)}
-  ${sec('become','想成為的樣子',bec.length?bec.length+' 個':'<i>還沒寫</i>',v.become.map((b,i)=>`<input class="vt" data-vb="${i}" value="${esc(b)}" placeholder="${['例如：每個月先存再花','例如：看得懂我投資的每一家公司在做什麼','例如：有一筆夢想基金，唱歌、旅行都從這裡出'][i]||''}">`).join('')+`<button class="lk" data-a="vb-add" style="justify-self:start">＋ 再加一個</button>`)}
-  ${sec('needs','生活投資學・需求之樹',nEnt?nEnt+' 個看見':'<i>從生活開始看</i>',`<p class="hint">從人的需求出發：你自己天天在用、會排隊、會推薦給朋友的東西，記下來，寫一句為什麼。這是看世界的方式，不是買賣訊號；真的要投資前，再去看財報、問專業的人。</p>`+
-    NEEDS.map(([k,ic,n,ind])=>{const L=v.needs[k]||[];return `<details class="need" data-vk="n-${k}"${isO('n-'+k)}><summary><i>${ic}</i><b>${n}</b><small>${ind}</small><em>${L.length||''}</em></summary>
-      ${L.map((e,i)=>`<div class="ent"><input class="vt sm" data-ne="${k}:${i}:b" value="${esc(e.b)}" placeholder="品牌／店"><input class="vt sm" data-ne="${k}:${i}:c" value="${esc(e.c)}" placeholder="背後的公司（可空白）"><button class="x" data-a="ne-del" data-k="${k}" data-i="${i}" aria-label="刪除">×</button><input class="vt sm why" data-ne="${k}:${i}:w" value="${esc(e.w)}" placeholder="我為什麼愛它／為什麼有人排隊"></div>`).join('')}
-      <button class="lk" data-a="ne-add" data-k="${k}" style="justify-self:start">＋ 我看見一個${k==='eat'&&!L.length?'（例如：天天排隊的那家咖啡）':''}</button></details>`}).join(''))}
-  ${sec('rf','腦中的那句話',`回答了 ${ans}/${v.reframes.length}`,`<p class="hint">點一句展開，寫下你的回答。</p>`+v.reframes.map((r,i)=>`<details class="rf" data-vk="rf${i}"${isO('rf'+i)}><summary><span>${esc(r.q)||'<i>新的一句</i>'}</span><em class="${r.a?'ok':''}">${r.a?'✓':'範本'}</em></summary>
-      <textarea class="vt" data-ra="${i}" rows="2" placeholder="我的回答">${esc(r.a)}</textarea>
-      ${!r.a&&TPL[r.q]?`<p class="hint">範本：${esc(TPL[r.q])} <button class="lk" data-a="tpl" data-i="${i}">拿來改 →</button></p>`:''}
-      <div class="vrow"><input class="vt sm" data-rq="${i}" value="${esc(r.q)}" placeholder="腦中的那句話"><button class="x" data-a="rf-del" data-i="${i}" aria-label="刪除這句">×</button></div></details>`).join('')+`<div class="vrow"><button class="lk" data-a="rf-add">＋ 再加一句</button><a class="lk" href="../mission/" target="_top">去拆解室拆深一點 →</a></div>`)}
-  ${sec('wins','小勝利罐子',v.wins.length?`${v.wins.length} 顆・最近：${cut(v.wins[v.wins.length-1].t,12)}`:'<i>還是空的</i>',`<div class="vrow"><input class="vt sm" id="w-in" placeholder="今天的小勝利"><button class="btn pri" data-a="w-add">放進去</button></div>
-    <div class="chips">${['記了一天的帳','先轉了一筆進金庫','忍住一次衝動購物','看懂一家公司在做什麼','檢查了一張保單','多賺了一筆'].map(t=>`<button class="chip" data-a="w-q" data-t="${esc(t)}">${esc(t)}</button>`).join('')}</div>
-    ${v.wins.map((w,i)=>[w,i]).reverse().map(([w,i])=>`<div class="win"><span class="stat">${esc(w.d.slice(5))}</span><span>${esc(w.t)}</span><button class="x" data-a="w-del" data-i="${i}" aria-label="刪除">×</button></div>`).join('')}`)}
-  </div>
+  <div class="vg"><span class="vl">錢的故事・錢，是被存起來的謝謝</span>
+    <div class="story4">
+      <div><i>🐟</i><b>以物易物</b><p>我有魚、你有米，交換的那一刻，兩個人都說了謝謝。</p></div>
+      <div><i>🐚</i><b>貝殼</b><p>你今天不需要魚，就用一枚貝殼約定：我欠你一個謝謝。</p></div>
+      <div><i>🪙</i><b>錢</b><p>被存起來、可以帶著走的謝謝。賺到的每一塊，都是有人在謝謝你。</p></div>
+      <div class="end"><i>🌱</i><b>投資</b><p>把存下來的謝謝，交給你相信、正在照顧別人需要的那群人。</p></div>
+    </div></div>
+  <div class="vg vnote2"><span class="vl">花錢、存錢之前讀這段</span>${ta('note',v.note,'範本：'+NOTE,'serif')}</div>
+  <div class="vg"><span class="vl">80 歲的我</span>${ta('at80',v.at80,'範本：80 歲的我不用再為錢緊張。住在自己的房子裡，想唱就唱、想去哪就去哪，還有餘力請朋友吃飯、捐錢給在乎的事。')}
+    <span class="vl">我想用錢換到什麼</span>${ta('why',v.why,'範本：我想要的不是數字，是自由：不用看別人臉色選工作，可以養 Lucky、去旅行、繼續唱歌。')}
+    <span class="vl">想成為的樣子 <button class="lk plus" data-a="vb-add">＋</button></span>
+    <div class="blist">${v.become.map((b,i)=>`<input class="bl" data-vb="${i}" value="${esc(b)}" placeholder="${['每個月先存再花','看得懂我投資的每一家公司在做什麼','有一筆夢想基金，唱歌、旅行都從這裡出'][i]||'再寫一個'}">`).join('')}</div></div>
+  <div class="vg"><span class="vl">生活投資學・需求之樹 <em>${nEnt} 個看見</em></span>
+    <p class="hint">每一個產業，都是一群人在回答同一個人類需求。你天天在用、會排隊、會推薦給朋友的，記在對應的需求下。這是看世界的方式，不是買賣訊號；真的要投資前，再看財報、問專業的人。</p>
+    ${NEEDS.map(([k,ic,n,ind])=>{const L=v.needs[k]||[];return `<div class="need2"><div class="nh"><i>${ic}</i><b>${n}</b><small>${ind}</small><button class="lk plus" data-a="ne-add" data-k="${k}" aria-label="在${n}加一個">＋</button></div>
+      ${L.map((e,i)=>`<div class="ent2"><div class="er"><input class="bl b" data-ne="${k}:${i}:b" value="${esc(e.b)}" placeholder="${k==='eat'&&i===0?'例如：天天排隊的那家咖啡':'品牌／店'}"><input class="bl c" data-ne="${k}:${i}:c" value="${esc(e.c)}" placeholder="背後的公司"><button class="x" data-a="ne-del" data-k="${k}" data-i="${i}" aria-label="刪除">×</button></div><input class="bl w" data-ne="${k}:${i}:w" value="${esc(e.w)}" placeholder="我為什麼愛它／為什麼有人排隊"></div>`).join('')}</div>`}).join('')}</div>
+  <div class="vg"><span class="vl">腦中的那句話 → 我的回答 <em>${ans}/${v.reframes.length}</em> <button class="lk plus" data-a="rf-add">＋</button></span>
+    ${v.reframes.map((r,i)=>`<div class="rf2"><div class="rfh"><input class="bl q" data-rq="${i}" value="${esc(r.q)}" placeholder="腦中的那句話">${!r.a&&TPL[r.q]?`<button class="lk" data-a="tpl" data-i="${i}">用範本</button>`:''}<button class="x" data-a="rf-del" data-i="${i}" aria-label="刪除">×</button></div>
+      <textarea class="bl a" data-ra="${i}" rows="1" placeholder="${esc(TPL[r.q]?'範本：'+TPL[r.q]:'我的回答')}">${esc(r.a)}</textarea></div>`).join('')}
+    <a class="lk" href="../mission/" target="_top">想拆深一點：去拆解室 →</a></div>
+  <div class="vg"><span class="vl">小勝利罐子 <em>${v.wins.length} 顆</em></span>
+    <div class="vrow"><input class="bl box" id="w-in" placeholder="今天的小勝利…"><button class="btn pri" data-a="w-add">放進去</button></div>
+    <div class="chips">${['記了一天的帳','先轉了一筆進金庫','忍住一次衝動購物','看懂一家公司在做什麼','檢查了一張保單','多賺了一筆'].map(t=>`<button class="chip" data-a="w-q" data-t="${esc(t)}">＋${esc(t)}</button>`).join('')}</div>
+    ${v.wins.length?`<div class="wins2">${v.wins.map((w,i)=>[w,i]).reverse().map(([w,i])=>`<span class="w"><small>${esc(w.d.slice(5).replace('-','/'))}</small>${esc(w.t)}<button class="x" data-a="w-del" data-i="${i}" aria-label="刪除">×</button></span>`).join('')}</div>`:''}</div>
   <div class="foot"><a class="lk" href="https://fuwei0618-cmd.github.io/Wealth-mgm/" target="_top">財富管理 →</a><a class="lk" href="https://investment-beige-iota.vercel.app/" target="_top">投資 →</a><a class="lk" href="https://fuwei0618-cmd.github.io/Insurance/" target="_top">保險手冊 →</a></div>`;
   fit(document);}
-function fit(r){r.querySelectorAll('textarea.vt').forEach(t=>{if(!t.offsetParent)return;t.style.height='auto';t.style.height=t.scrollHeight+2+'px'})}
+function fitOne(t){const e=!t.value;if(e)t.value=t.placeholder;t.style.height='auto';t.style.height=t.scrollHeight+'px';if(e)t.value='';}
+function fit(r){r.querySelectorAll('textarea.bl').forEach(fitOne)}
 document.addEventListener('toggle',e=>{const d=e.target;if(!d.dataset||!d.dataset.vk)return;d.open?open.add(d.dataset.vk):open.delete(d.dataset.vk);localStorage.setItem(OPEN,JSON.stringify([...open]));if(d.open)fit(d);},true);
 document.addEventListener('input',e=>{const t=e.target,d=t.dataset;if(d.v==null&&d.vb==null&&d.rq==null&&d.ra==null&&d.ne==null)return;const v=load();
   if(d.v!=null)v[d.v]=t.value;else if(d.vb!=null)v.become[+d.vb]=t.value;else if(d.rq!=null)v.reframes[+d.rq].q=t.value;else if(d.ra!=null)v.reframes[+d.ra].a=t.value;
   else{const[k,i,f]=d.ne.split(':');v.needs[k][+i][f]=t.value;}
-  save(v);if(t.tagName==='TEXTAREA'){t.style.height='auto';t.style.height=t.scrollHeight+2+'px';}});
+  save(v);if(t.tagName==='TEXTAREA')fitOne(t);});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const v=load(),i=+b.dataset.i,k=b.dataset.k;
   switch(b.dataset.a){
     case 'vb-add':v.become.push('');break;

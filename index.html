@@ -1079,9 +1079,11 @@ B2.ceil=ceiling(f2r.scene,W2,D2,H2);B2.ceilH=H2;B2.ceil.material=new R.MeshStand
   boxIn(B2,1.8,.1,.8,0xA97C55,-3.6,.85,-6.4,true);
   { // 書桌上：一本《交屋手冊》、一本《成長故事》，疊在一起
     const bk=(w,h,d,c,x,y,z,ry)=>{const m=new R.Mesh(new R.BoxGeometry(w,h,d),new R.MeshStandardMaterial({color:c,roughness:.7}));m.position.set(x,y,z);m.rotation.y=ry;m.castShadow=true;f2r.scene.add(m);return m;};
-    bk(.34,.035,.25,0xEDE6D8,-3.95,.92,-6.35,.12);bk(.33,.012,.24,0xD2AE5C,-3.95,.94,-6.35,.12);   // 米白封面＋金色書口
-    bk(.3,.03,.22,0x6E7F5E,-3.9,.97,-6.33,-.18);}[[-4.4,-6.7],[-2.8,-6.7],[-4.4,-6.1],[-2.8,-6.1]].forEach(([x,z])=>boxIn(B2,.08,.8,.08,0x8C6646,x,.4,z,false));
-  boxIn(B2,.5,.05,.36,0xF2C04E,-3.7,.93,-6.3,false);
+    const g1=new R.Group();g1.position.set(-3.95,.9,-6.35);g1.rotation.y=.12;f2r.scene.add(g1);   // 《交屋手冊》：米白封面、三邊金色書口
+    const gb=(w,h,d,c,x,y,z)=>{const m=new R.Mesh(new R.BoxGeometry(w,h,d),new R.MeshStandardMaterial({color:c,roughness:.5,metalness:0,emissive:c===0xD2AE5C?0x5A4012:0}));m.position.set(x,y,z);m.castShadow=true;g1.add(m);};
+    gb(.42,.012,.3,0xF1EADC,0,.006,0);gb(.4,.046,.28,0xD2AE5C,.005,.035,0);gb(.42,.012,.3,0xF1EADC,0,.064,0);gb(.012,.07,.3,0xE6DCC8,-.209,.035,0);   // 封底、金色書頁、封面、書背
+    bk(.36,.04,.26,0x6E7F5E,-3.88,.99,-6.33,-.2);}   // 《成長故事》：灰綠色，斜斜疊在上面
+  [[-4.4,-6.7],[-2.8,-6.7],[-4.4,-6.1],[-2.8,-6.1]].forEach(([x,z])=>boxIn(B2,.08,.8,.08,0x8C6646,x,.4,z,false));
   {const h2=mesh(new R.PlaneGeometry(1.6,2.4),new R.MeshBasicMaterial({color:0x2A2420}),-9.0,.012,-2.6,s,false,false);h2.rotation.x=-Math.PI/2;
     for(let i=0;i<4;i++){const st=mesh(new R.PlaneGeometry(1.5,.45),mat(0x7A6450-(i*0x080604)),-9.0,.014,-1.7-i*.55,s,false,false);st.rotation.x=-Math.PI/2;}
     boxIn(B2,.06,.9,2.4,0x2E2A25,-8.15,.45,-2.6,false);B2.col.push({x0:-9.8,x1:-8.15,z0:-3.8,z1:-1.4});}

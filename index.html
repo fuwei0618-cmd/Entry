@@ -566,7 +566,7 @@ let vaultF;
   // 屋頂上的飛機（只有站在屋頂時才擋人）
   [-2.4,0,2.4].forEach(dx=>F.col.push({x:hx+6.6+.5+dx,z:hz+.6,r:1.0,roof:1}));
   F.col.push({x:VX,z:VZ,r:2.0});[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>F.col.push({x:VX+a*3.9,z:VZ+b*3.9,r:.3}));
-  label(out,'家',hx,y0+7.8,hz+7,'點門進去');
+  F.homeLabel=label(out,'家',hx,y0+7.8,hz+7,'點門進去');
   label(out,'金庫',VX,heightAt(VX,VZ)+5.2,VZ,'源源不絕');
 }
 { // 蘑菇攝影棚
@@ -889,7 +889,7 @@ F.hots=[
   F.hots.push({id:'jet',name:'私人飛機',verb:'起飛',x:hx+3.2,z:hz+3.4,r:2.6,go:()=>openWorld()});}
 F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI+.26,-.12,'first']};
 F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
-  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);F.doorUpdate&&F.doorUpdate(dt);};
+  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);if(F.homeLabel)F.homeLabel.visible=!roofOn;   /* 站在屋頂上時，家的字牌收起來，不擋視線 */F.doorUpdate&&F.doorUpdate(dt);};
 
 /* shared materials */
 const portalMat=new R.ShaderMaterial({uniforms:{t:{value:0}},side:R.DoubleSide,

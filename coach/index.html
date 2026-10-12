@@ -170,7 +170,7 @@ $("#opa").oninput=e=>$("#tpl").style.opacity=e.target.value/100;
 
 async function cam(){
  try{if(stream)stream.getTracks().forEach(t=>t.stop());
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1280},height:{ideal:720}},audio:false});
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:3840},height:{ideal:2160}},audio:false});
   V.srcObject=stream;V.classList.toggle("mirror",facing==="user");await V.play();
  }catch(e){$("#start").style.display="grid";$("#start p").innerHTML="打不開相機。<br>請在 iPhone「設定 → Safari → 相機」選「允許」，<br>或用 Safari 打開這個網址再試一次。";}
 }

@@ -492,7 +492,7 @@ let vaultF;
       [-.9,.2,1.1].forEach((x,k)=>sa(new R.BoxGeometry(.5,.4,.14),new R.MeshStandardMaterial({color:[0xC9A14A,0x8C9A7A,0xD8C9B0][k],roughness:.9}),x,.78,-.25));
       sa(new R.CylinderGeometry(.32,.32,.04,20),blk,2.35,.48,0);sa(new R.CylinderGeometry(.03,.03,.46,8),blk,2.35,.24,0);
       // 屋頂邊緣一圈低矮的清玻璃欄杆（只圍花園這一半）
-      [[-6.6,8.15,13.4,0],[-13.45,.6,15.1,Math.PI/2]].forEach(([x,z,l,ry])=>{add(new R.BoxGeometry(l,1.0,.04),glass,x,.5,z,ry);   // 無框玻璃，坐著看出去不會被擋});
+      [[-6.6,8.15,13.4,0],[-13.45,.6,15.1,Math.PI/2]].forEach(([x,z,l,ry])=>{add(new R.BoxGeometry(l,1.0,.04),glass,x,.5,z,ry);/* 無框玻璃，坐著看出去不會被擋 */});
       // 晚上會亮的矮燈
       [[-2.2,6.8],[-10.8,6.8],[-2.2,2.2],[-10.8,2.2]].forEach(([x,z])=>{add(new R.CylinderGeometry(.08,.1,.5,10),blk,x,.38,z);add(new R.SphereGeometry(.09,10,8),new R.MeshBasicMaterial({color:0xFFE2A8}),x,.68,z);});
       const gl=new R.PointLight(0xFFD49A,.5,9);gl.position.set(-6.4,1.6,4.6);G.add(gl);

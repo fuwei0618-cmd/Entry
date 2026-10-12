@@ -90,6 +90,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .mapbox{position:relative;width:100%;aspect-ratio:76/80;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(62,46,36,.12)}
 .mapbox>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .mspot{position:absolute;display:flex;align-items:center;gap:4px;transform:translate(-7px,-50%)}
+.mspot.gd{flex-direction:column;gap:2px;transform:translate(-50%,-50%)}.gico{width:min(34px,4.4vw);height:min(34px,4.4vw);border-radius:50%;padding:0;border:2px solid #F6EBDA;box-shadow:0 1px 4px rgba(62,46,36,.3);overflow:hidden;cursor:pointer;background:#ECE8E1}.gico img{width:100%;height:100%;display:block}
 .mapps{position:absolute;display:flex;gap:6px;transform:translate(-50%,-50%)}
 .mapps.colL{transform:translate(-50%,-50%)}.mapps.colL .mlab{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%)}
 .mspot.below .mlab{position:absolute;bottom:calc(50% + 9px);left:5px;transform:translateX(-50%)}
@@ -358,6 +359,7 @@ const waterMat=new R.ShaderMaterial({transparent:true,depthWrite:false,
     if(Math.hypot(x-FX,z-FZ)<7||Math.hypot(x-VX,z-VZ)<7||Math.hypot(x-mx,z-mz)<6.5)continue;
     {const q=inEllipse(x,z);if(q<1&&(q<.6||rand()>.25))continue;}
     if(Math.abs(z-GZ)<2.2&&Math.abs(x)<GW+1.5)continue;
+    if(Math.abs(z-(GZ-7))<5.5&&Math.abs(x)<19)continue;if(z>GZ&&z<GZ+6&&Math.abs(x)<14)continue;   // 守護者巡邏的那一條、牆外看牠們的位置留空
     if(pathD(x,z)<2.4)continue;
     if(spots.some(s=>Math.hypot(s[0]-x,s[1]-z)<2.6))continue;
     spots.push([x,z,d<10?1.35+rand()*.5:.85+rand()*.6,rand()<.42]);
@@ -636,14 +638,16 @@ F.hots=[
 ];
 // 守護者：格柵內側，狼（左・Teresa・給世界）與虎（右・Elva・給自己）沿著格柵慢慢巡邏，臉朝外面看守；約 10 倍人高
 {const tl=new R.TextureLoader(),GH=16,GZI=GZ-7;const guards=[];
-  [['img/guard-wolf.webp',-1,328/1024],['img/guard-tiger.webp',1,371/1024]].forEach(([src,sd,ar],i)=>{
-    const w=GH*ar,x0=sd*5.5,x1=sd*15;                       // 巡邏範圍：門邊 ↔ 格柵末端
+  [['img/guard-wolf.webp',-1,328,898],['img/guard-tiger.webp',1,371,906]].forEach(([src,sd,pw,ph],i)=>{
+    const H=GH*ph/1024,w=H*pw/ph,x0=sd*5.5,x1=sd*15;                       // 巡邏範圍：門邊 ↔ 格柵末端
     const root=new R.Group();out.add(root);
-    const geo=new R.PlaneGeometry(w,GH);geo.translate(0,GH/2,0);
+    const geo=new R.PlaneGeometry(w,H);geo.translate(0,H/2,0);
     const tex=tl.load(src);
     const m=new R.Mesh(geo,new R.MeshBasicMaterial({map:tex,alphaTest:.5,side:R.FrontSide,color:0xEDE6DA}));m.castShadow=true;root.add(m);
-    const back=new R.Mesh(geo,new R.MeshBasicMaterial({map:tex,alphaTest:.5,side:R.BackSide,color:0x8F877C}));root.add(back);   // 背面：同樣的輪廓、壓暗，像背光的石像
-    const glow=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xFFD98A,transparent:true,opacity:0,depthWrite:false,blending:R.AdditiveBlending}));glow.position.set(-w*.45,GH*.985,.3);glow.scale.set(2.4,2.4,1);m.add(glow);
+    // 厚度：後面疊 10 層同輪廓、越後越暗的片，斜著看會看到石頭的側面
+    for(let k=1;k<=10;k++){const sl=new R.Mesh(geo,new R.MeshBasicMaterial({map:tex,alphaTest:.5,side:R.DoubleSide,color:new R.Color(0xB8AE9F).multiplyScalar(1-k*.035)}));sl.position.z=-k*.075;root.add(sl);}
+    const back=new R.Mesh(geo,new R.MeshBasicMaterial({map:tex,alphaTest:.5,side:R.BackSide,color:0x8F877C}));back.position.z=-.8;root.add(back);   // 背面：同樣的輪廓、壓暗，像背光的石像
+    const glow=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xFFD98A,transparent:true,opacity:0,depthWrite:false,blending:R.AdditiveBlending}));glow.position.set(-w*.45,H*.985,.3);glow.scale.set(2.4,2.4,1);m.add(glow);
     const halo=new R.Mesh(new R.CircleGeometry(w*.55,32),new R.MeshBasicMaterial({color:0xFFE7B0,transparent:true,opacity:.12,depthWrite:false}));halo.rotation.x=-Math.PI/2;halo.position.y=.03;root.add(halo);
     const N=30,pos=new Float32Array(N*3);for(let k=0;k<N;k++){pos[k*3]=(Math.random()-.5)*w*1.4;pos[k*3+1]=Math.random()*GH;pos[k*3+2]=(Math.random()-.5)*4;}
     const pg=new R.BufferGeometry();pg.setAttribute('position',new R.BufferAttribute(pos,3));
@@ -664,7 +668,7 @@ F.hots=[
       g.col.x=g.x;g.hot.x=g.x;
       g.glow.material.opacity=(eve?.85:.25)*(.8+.2*Math.sin(t*1.3+g.ph));g.halo.material.opacity=(eve?.2:.1)+.04*Math.sin(t*.8+g.ph);
       const a=g.pg.attributes.position.array;for(let k=0;k<g.N;k++){a[k*3+1]+=dt*(.4+(k%5)*.1);if(a[k*3+1]>GH)a[k*3+1]=0;}g.pg.attributes.position.needsUpdate=true;});};}
-F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0]};
+F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[-8,GZ+2.6,Math.PI,0],guardT:[8,GZ+2.6,Math.PI,0]};
 F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
   pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);};
 
@@ -1208,7 +1212,7 @@ addEventListener('message',e=>{if(e.origin!=='https://fuwei0618-cmd.github.io'||
 function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(null,'',location.pathname)}catch(e){}canvas.focus({preventScroll:true});}
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
-  ['森林入口',['forest','start'],[0,GZ+6]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
+  ['森林入口',['forest','start'],[0,GZ+6]],['狼',['forest','guardW'],[-10,GZ-7]],['虎',['forest','guardT'],[10,GZ-7]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
   ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
   ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(12,-1.5),['正顎手冊'],W1F(16.3,-1.5)],
   ['健身房',['f1','gym'],W1F(7.5,4.3),['健身房']],['Lucky',['f1','front'],W1F(-6.4,4.3),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
@@ -1217,6 +1221,7 @@ const MAP_B=[['B1 臥室',['f2','bed'],[30,30],['床邊']],['B2 禱告房',['att
 const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[36,82],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[90,48],['Podcast']]];
 const X0=-40,Z0=-19,MW=76,MH=80,pct=(x,z)=>[(x-X0)/MW*100,(z-Z0)/MH*100];
 function spotHTML(n,g,lp,apps,ap){const [l,t]=lp;
+  if(n==='狼'||n==='虎')return `<div class="mspot gd" style="left:${l}%;top:${t}%"><button class="gico" data-g="${g.join(',')}" aria-label="${n}・守護者"><img src="https://fuwei0618-cmd.github.io/Entry/img/guard-${n==='狼'?'wolf':'tiger'}-face.webp" alt=""></button><button class="mlab" data-g="${g.join(',')}">${n}・守護者</button></div>`;
   const btns=(apps||[]).map(a=>APPMAP[a]?`<button class="mapp" data-app="${esc(a)}" aria-label="打開 ${esc(a)}" title="${esc(a)}">${APPMAP[a].svg}</button>`:'').join('');
   // ap：App 圖示另外放的位置（地圖座標），不跟在文字後面
   if((n==='日曆牆'||n==='Beauty')&&ap)return `<div class="mspot" style="left:${l}%;top:${t}%"><i class="dot"></i></div><div class="mapps colL" style="left:${ap[0]}%;top:${ap[1]}%">${btns}<button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
@@ -1227,7 +1232,7 @@ let mapBG=null;
 function buildMapBG(){
   let r=1;const rnd=()=>{r=(r*16807)%2147483647;return r/2147483647;};
   let trees='';for(let k=0;k<420;k++){const x=X0+rnd()*MW,z=Z0+rnd()*MH;
-    if(x>-17&&x<17&&z>-22&&z<3)continue;if(Math.hypot(x-VX,z-VZ)<6||Math.hypot(x-FX,z-FZ)<4||Math.hypot(x-mx,z-mz)<4)continue;{const q=inEllipse(x,z);if(q<1.15&&(q<.6||rnd()>.3))continue;}if(Math.abs(z-GZ)<1.5&&Math.abs(x)<GW+1)continue;if(Math.abs(x)<5&&z>EC.cz+EC.rz&&z<GZ)continue;if(RESTS.some(q=>Math.hypot(x-q.x,z-q.z)<3))continue;if(Math.abs(x-riverX(z))<5.5)continue;if(pathD(x,z)<2)continue;
+    if(x>-17&&x<17&&z>-22&&z<3)continue;if(Math.hypot(x-VX,z-VZ)<6||Math.hypot(x-FX,z-FZ)<4||Math.hypot(x-mx,z-mz)<4)continue;{const q=inEllipse(x,z);if(q<1.15&&(q<.6||rnd()>.3))continue;}if(Math.abs(z-GZ)<1.5&&Math.abs(x)<GW+1)continue;if(Math.abs(z-(GZ-7))<5.5&&Math.abs(x)<19)continue;if(Math.abs(x)<5&&z>EC.cz+EC.rz&&z<GZ)continue;if(RESTS.some(q=>Math.hypot(x-q.x,z-q.z)<3))continue;if(Math.abs(x-riverX(z))<5.5)continue;if(pathD(x,z)<2)continue;
     trees+=`<circle cx="${x.toFixed(1)}" cy="${z.toFixed(1)}" r="${(.9+rnd()*.9).toFixed(2)}" fill="${rnd()<.5?'#7F9F66':'#6E8F59'}"/>`;}
   let river='';for(let z=Z0-2;z<=Z0+MH+2;z+=1)river+=(river?' L':'M')+riverX(z).toFixed(2)+' '+z;
   const paths=PATHS.map(([a,b,c,d])=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}"/>`).join('');

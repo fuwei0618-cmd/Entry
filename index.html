@@ -442,14 +442,13 @@ let vaultF;
     const edge=[];for(let k=0;k<16;k++){const a2=k/16*Math.PI*2,l=new R.Mesh(new R.SphereGeometry(.09,8,6),new R.MeshBasicMaterial({color:0xFFD98A}));l.position.set(Math.cos(a2)*5.35,.14,Math.sin(a2)*5.35);P_.add(l);edge.push(l);}
     // 低多邊形私人噴射機（白色機身＋金色腰線），機頭朝外（+z 那側是家的正面）
     const J=new R.Group();J.position.set(.6,.62*.85,0);J.rotation.y=-Math.PI/2;J.scale.setScalar(.85);P_.add(J);
-    const white=new R.MeshStandardMaterial({color:0x2B2B30,roughness:.28,metalness:.55,emissive:0x111114,emissiveIntensity:.6}),dark=new R.MeshStandardMaterial({color:0x0A0D12,roughness:.05,metalness:.9,emissive:0x1A2430,emissiveIntensity:.5});   // 黑色機身、深色鏡面車窗與擋風（墨鏡），金色腰線
+    const white=new R.MeshStandardMaterial({color:0x2B2B30,roughness:.28,metalness:.55,emissive:0x111114,emissiveIntensity:.6}),dark=new R.MeshStandardMaterial({color:0xC9A14A,roughness:.25,metalness:.85,emissive:0x3A2808,emissiveIntensity:.3});   // 黑色機身＋金色窗框與細節（不做擋風玻璃）
     const add=(g,m,x,y,z,rx=0,ry=0,rz=0)=>{const o=new R.Mesh(g,m);o.position.set(x,y,z);o.rotation.set(rx,ry,rz);o.castShadow=true;J.add(o);return o;};
     add(new R.CylinderGeometry(.62,.62,4.6,18),white,0,.9,0,Math.PI/2);                       // 機身
     const nose=add(new R.SphereGeometry(.62,18,12,0,Math.PI*2,0,Math.PI/2),white,0,.9,2.3,Math.PI/2);nose.scale.set(1,1.9,1);
     add(new R.CylinderGeometry(.16,.62,2.4,18),white,0,1.02,-3.5,-Math.PI/2+.05);              // 機尾收細
     add(new R.BoxGeometry(.05,.12,4.4),goldM,.63,.82,-.1);add(new R.BoxGeometry(.05,.12,4.4),goldM,-.63,.82,-.1);   // 金色腰線
     for(let k=0;k<6;k++){add(new R.BoxGeometry(.04,.22,.3),dark,.61,1.12,1.4-k*.62);add(new R.BoxGeometry(.04,.22,.3),dark,-.61,1.12,1.4-k*.62);}   // 圓窗
-    add(new R.BoxGeometry(.9,.28,.5),dark,0,1.25,2.85,-.5);                                   // 駕駛艙擋風
     [-1,1].forEach(sd=>{const w=add(new R.BoxGeometry(3.6,.1,1.3),white,sd*2.1,.62,-.2,0,sd*.32,sd*-.06);   // 後掠翼
       add(new R.BoxGeometry(.08,.5,.5),white,sd*3.85,.8,-.75);                                  // 翼尖小翼
       add(new R.CylinderGeometry(.22,.2,1.3,14),white,sd*.88,1.22,-2.6,Math.PI/2);              // 尾部發動機
@@ -493,7 +492,7 @@ let vaultF;
   label(out,'蘑菇攝影棚',mx,y0+6.6,mz,'自媒體');
 }
 let fireUpdate;
-{ // 營火（知音）＋ 螢火蟲（通訊錄）
+{ // 營火（鐵粉朋友）＋ 螢火蟲（通訊錄）
   const y0=heightAt(FX,FZ),G=new R.Group();G.position.set(FX,y0,FZ);out.add(G);
   const stoneM=mat(0x9A988C);for(let i=0;i<11;i++){const a=i/11*Math.PI*2;const st=mesh(new R.DodecahedronGeometry(.22,0),stoneM,Math.cos(a)*.85,.1,Math.sin(a)*.85,G);st.scale.set(1.2,.7,1);st.rotation.y=a;}
   const logM=mat(0x7A5434);for(let i=0;i<4;i++){const l=mesh(new R.CylinderGeometry(.09,.1,1.2,7),logM,0,.18,0,G);l.rotation.set(Math.PI/2-.35,i*Math.PI/2+.4,0);}
@@ -516,7 +515,7 @@ let fireUpdate;
     kB.push({x,z,y:heightAt(x,z)+.6+rand()*2.4,p:rand()*6.28,s:.4+rand()*.6});}
   const kG=new R.BufferGeometry();kG.setAttribute('position',new R.BufferAttribute(kP,3));
   const known=new R.Points(kG,new R.PointsMaterial({color:0xF2FF9E,size:.4,map:glowTex,transparent:true,depthWrite:false}));out.add(known);
-  // 被火吸引來的光：知音（你不一定認識他們，他們從遠方被火吸引過來）
+  // 被火吸引來的光：鐵粉朋友（你不一定認識他們，他們從遠方被火吸引過來）
   const nF=70,fP=new Float32Array(nF*3),fB=[];
   for(let i=0;i<nF;i++){fB.push({a:rand()*6.28,r:6+rand()*22,tr:1.5+rand()*3,y:.8+rand()*2.4,s:.25+rand()*.5,in:.15+rand()*.5});}
   const fG=new R.BufferGeometry();fG.setAttribute('position',new R.BufferAttribute(fP,3));
@@ -529,7 +528,7 @@ let fireUpdate;
     known.material.opacity=.42+Math.sin(t*1.2)*.12;
     fB.forEach((b,i)=>{if(b.r>b.tr)b.r=Math.max(b.tr,b.r-dt*b.in);b.a+=dt*b.s*(2.2/b.r);fP[i*3]=Math.cos(b.a)*b.r;fP[i*3+1]=b.y+Math.sin(t*1.3+i)*.25;fP[i*3+2]=Math.sin(b.a)*b.r;});fG.attributes.position.needsUpdate=true;
   };
-  label(out,'營火',FX,y0+3.6,FZ,'被熱情吸引過來的知音');
+  label(out,'營火',FX,y0+3.6,FZ,'被熱情吸引過來的鐵粉朋友');
   label(out,'螢火蟲',14,heightAt(14,GZ+8)+3.4,GZ+8,'通訊錄');
 }
 {const x=riverX(EC.cz)+5.4,z=EC.cz;label(out,'記錄之河',x-3,heightAt(x,z)+3.6,z,'每天都流進來');}
@@ -742,7 +741,7 @@ F.hots=[
       const a=g.pg.attributes.position.array;for(let q=0;q<g.N;q++){a[q*3+1]+=dt*(.4+(q%5)*.1);if(a[q*3+1]>H)a[q*3+1]=0;}g.pg.attributes.position.needsUpdate=true;});};}
 { // 超級管家：站在家門口右側。不用做什麼事，看到他就知道一切都會被打理好、收好尾
   // 立體：跟守護者一樣，深度圖鼓起前後兩半＋法線打光
-  const bh=2.55,bw=bh*292/1024,tl=new R.TextureLoader(),T=u=>tl.load(u),FL=u=>{const t=tl.load(u);t.wrapS=R.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;return t;};
+  const bh=2.55,bw=bh*306/1024,tl=new R.TextureLoader(),T=u=>tl.load(u),FL=u=>{const t=tl.load(u);t.wrapS=R.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;return t;};
   const g=new R.PlaneGeometry(bw,bh,72,256);g.translate(0,bh/2,0);
   const mk=(flip)=>{const L=flip?FL:T,map=L(flip?'img/butler-back.webp':'img/butler.webp');
     const m=new R.Mesh(g,new R.MeshStandardMaterial({map,normalMap:L('img/butler-normal.webp'),displacementMap:L('img/butler-depth.webp'),displacementScale:.3,alphaTest:.5,roughness:.6,emissive:0xFFFFFF,emissiveMap:map,emissiveIntensity:.35}));
@@ -1030,11 +1029,8 @@ let flame,stoneBall,waterDisc;
   wTex.wrapS=wTex.wrapT=R.RepeatWrapping;
   waterDisc=mesh(new R.CircleGeometry(1.17,40),new R.MeshStandardMaterial({map:wTex,color:0xBFD8DA,roughness:.05,metalness:.35,transparent:true,opacity:.9,emissive:0x2E4A4C,emissiveIntensity:.35}),BX,.48*K,BZ,s,false);waterDisc.rotation.x=-Math.PI/2;waterDisc.scale.set(1.2*K,.95*K,1);
   const gran=canvasTex(256,128,(g,w,h)=>{g.fillStyle='#EDEBE6';g.fillRect(0,0,w,h);for(let k=0;k<1400;k++){const c=Math.random();g.fillStyle=c<.5?'rgba(120,118,112,.35)':c<.8?'rgba(80,78,74,.25)':'rgba(255,255,255,.6)';g.fillRect(Math.random()*w,Math.random()*h,1.5,1.5);}});
-  stoneBall=mesh(new R.SphereGeometry(.26*K,32,24),new R.MeshStandardMaterial({map:gran,roughness:.45}),BX,.48*K+.2*K,BZ,s);
-  // 從盆口一角溢出去的細水流＋地上的小水窪
-  const spill=mesh(new R.PlaneGeometry(.12,.36*K),new R.MeshBasicMaterial({color:0xDDEFF0,transparent:true,opacity:.55,side:R.DoubleSide,depthWrite:false}),BX+1.42*K*1.2,.18*K,BZ,s,false);spill.rotation.y=Math.PI/2;
-  const pud=mesh(new R.CircleGeometry(.32,24),new R.MeshStandardMaterial({color:0x8FA6A8,roughness:.05,metalness:.3,transparent:true,opacity:.6}),BX+1.42*K*1.2+.2,.012,BZ,s,false);pud.rotation.x=-Math.PI/2;pud.scale.set(1,.6,1);
-  AT.waterFx=(t)=>{wTex.offset.set(t*.02,t*.013);wTex.rotation=t*.03;spill.material.opacity=.45+Math.sin(t*7)*.12;};
+  stoneBall=mesh(new R.SphereGeometry(.39*K,32,24),new R.MeshStandardMaterial({map:gran,roughness:.45}),BX,.48*K+.3*K,BZ,s);
+  AT.waterFx=(t)=>{wTex.offset.set(t*.02,t*.013);wTex.rotation=t*.03;};
   AT.col.push({x0:BX-1.15,x1:BX+1.15,z0:BZ-.8,z1:BZ+.8});
   // 回 B1 的樓梯（右前方角落）
   for(let i=0;i<7;i++)boxIn(AT,1.4,.3*(i+1),.42,0xB9B2A8,WA/2-1.0,.15*(i+1),DA/2-3.4+i*.42,false);
@@ -1130,7 +1126,7 @@ const INFO={
   guardTiger:{tag:'森林 · 鍛鐵門內',title:'虎・守護者',body:'右邊這一尊是虎，你右腰的刺青：女人的力量、允許自己想要的 Elva。像守著金字塔的獅身人面像，她守著你自己的空間。'},
   river:{tag:'森林 · 記錄之河',title:'記錄之河',body:'WonderMedia 的源頭和河流：每天的日記、照片、影音、想法都流進這條河，是所有作品的原料。',list:['源頭：隨手記文字、語音、照片；想拍好看時用拍照教練','河流：所有素材依時間流下來，加標籤、挑選'],links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/'],['拍照教練','https://fuwei0618-cmd.github.io/Entry/coach/']]},
   studio:{tag:'森林 · 蘑菇攝影棚',title:'工作台',body:'WonderMedia 的工作台和出海口：從記錄之河撈起素材，用你的萬用公式（積木）組成作品，再發到各個平台。',links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/']],list:['工作台：企劃、腳本、剪映草稿','出海口：發布排程與成效']},
-  campfire:{tag:'森林 · 營火',title:'知音',body:'火是你的熱情。很多人是先看到你的表演、影片或 Podcast 才找過來的，你不一定認識他們，但他們會被火吸引，慢慢圍到火邊，聽懂你在唱什麼、做什麼。',list:['他們從哪裡認識你','回訪與互動','你可以為他們做的事'],soon:true},
+  campfire:{tag:'森林 · 營火',title:'鐵粉朋友',body:'火是你的熱情。很多人是先看到你的表演、影片或 Podcast 才找過來的，你不一定認識他們，但他們會被火吸引，慢慢圍到火邊，聽懂你在唱什麼、做什麼。',list:['他們從哪裡認識你','回訪與互動','你可以為他們做的事'],soon:true},
   fireflies:{tag:'森林 · 螢火蟲',title:'通訊錄',body:'每一點光，是一個跟你有連結的人。點開就是他的卡片：客觀事實、標籤、相處邊界。',soon:true},
   cal:{tag:'家 · 日曆牆',title:'日曆牆',body:'牆上掛著夢想版：兩顆北極星、到 2031 的季節時間軸、這一季的魚缸和許願池。清單不是承諾，每一季只撈一條魚出來實現。',links:[['打開夢想版','https://fuwei0618-cmd.github.io/Entry/dream/']],list:['夢想版：北極星・時間軸・魚缸・今日三題・許願池','之後：今天只做三件事、番茄鐘、每週固定排程']},
   kitchen:{tag:'家 · 廚房餐廳',title:'飲食公式',body:'固定的飲食組合，少做一個決定。',soon:true},
@@ -1301,7 +1297,7 @@ function openInfo(id){const x=INFO[id];if(!x)return;
     <div class="row">${links}<button class="btn light" data-close>回到場景</button></div>`);
   root.querySelectorAll('[data-app-url]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.appName,b.dataset.appUrl)));}
 const PLACES=[
-  ['森林',[['森林入口','起點',['forest','start']],['光孔日晷','使命板',['forest','center']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','知音',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
+  ['森林',[['森林入口','起點',['forest','start']],['光孔日晷','使命板',['forest','center']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉朋友',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
   ['家 · 1F',[['玄關','1F',['f1','front']],['日曆牆','每日 · 每週',['f1','cal']],['廚房餐廳','飲食',['f1','kitchen']],['Beauty','梳化 · 保養',['f1','closet']],['健身房','身體',['f1','gym']]]],
   ['地下',[['B1 臥室','作息 · 白水木',['f2','bed']],['B2 禱告房','前殿 · 媽祖 · 月老 · 財神',['attic','ladder']]]],
   ['舞台',[['後台入口','從家裡的舞台門進來',['stage','back']],['Vocal','',['stage','mic']],['合唱台','合唱團',['stage','choir']],['Podcast 桌','不專業音樂電台',['stage','podcast']]]]

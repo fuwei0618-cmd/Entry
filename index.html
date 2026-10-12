@@ -1033,7 +1033,7 @@ const INFO={
   closet:{tag:'家 · Beauty',title:'Beauty',body:'關於「美」的房間，像藝人上工前的梳化間，也是定期進廠保養的地方。裡面有兩扇門：',list:['梳化間：衣櫥、妝髮、美甲，整體造型與穿搭模板（製作中）','保養廠：醫美、半永久、日常保養；正顎手術也在這裡'],links:[['梳化間（製作中）',''],['保養廠 · 正顎手冊','https://fuwei0618-cmd.github.io/OGS/']]},
   gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',links:[['打開健身房','https://fuwei0618-cmd.github.io/Gym/']]},
   center:{tag:'森林 · 十字中心',title:'光孔日晷',body:'十字的交會點蓋了一座圓形小涼亭，兩道砂岩懸鏈拱從地面升起，四個拱腳讓出四個方向：東西連著金庫和營火（錢與熱情），南北連著家和森林入口（你自己和外面的世界）。兩道拱在頭頂交成十字，交點就是光孔，每天正午，一道光會落在地上那條金色的子午線上。站在這裡的人就是中心；不追趕什麼，只是每天都有一道光來找你。'},
-  vault:{tag:'家門口 · 金庫',title:'源源不絕',body:'噴水池的水不停往上噴，金幣被你吸引過來、砸在你身上，閃都閃不掉。理財、保險健檢、投資都在這裡。',links:[['保險手冊','https://fuwei0618-cmd.github.io/Insurance/'],['財富管理','https://fuwei0618-cmd.github.io/Wealth-mgm/'],['投資','https://investment-beige-iota.vercel.app/']]},
+  vault:{tag:'家門口 · 金庫',title:'源源不絕',body:'噴水池的水不停往上噴，金幣被你吸引過來、砸在你身上，閃都閃不掉。理財、保險健檢、投資都在這裡。',links:[['富偉・金庫願景','https://fuwei0618-cmd.github.io/Entry/vault/'],['保險手冊','https://fuwei0618-cmd.github.io/Insurance/'],['財富管理','https://fuwei0618-cmd.github.io/Wealth-mgm/'],['投資','https://investment-beige-iota.vercel.app/']]},
   fountain:{tag:'B2 · 前殿',title:'轉運流水盆',body:'粗石盆裡的水一直流，白色花崗岩球在水上慢慢轉。禱告的時候，耳邊一直有流水聲。'},
   plant:{tag:'B1 · 下沉庭院',title:'白水木',body:'種在臥室外的下沉庭院，躺在床上就看得到。銀綠色、毛茸茸的葉子一叢一叢長在枝頭。這盆植物代表什麼，可以由你來定義。'},
   worlddoor:{tag:'家 · 世界之門',title:'旅遊手冊 World',body:'行程、旅行日誌、足跡地圖、人文史地。',links:[['打開旅遊手冊 World','https://fuwei0618-cmd.github.io/World/']]},
@@ -1201,7 +1201,7 @@ const APPS=[["床邊", "https://fuwei0618-cmd.github.io/Entry/bedside/", "<svg v
 const APPMAP={};APPS.forEach(([n,u,svg])=>APPMAP[n]={u,svg});
 const mapV=$('#mapView'),appV=$('#appView');
 const overlayOpen=()=>!mapV.hidden||!appV.hidden||!document.getElementById('worldView').hidden;
-const PANEL_APPS=['/Entry/dream/','/Entry/mission/','/Entry/bedside/']; // 在原本的空間裡展開成面板，後面看得到房間
+const PANEL_APPS=['/Entry/vault/','/Entry/dream/','/Entry/mission/','/Entry/bedside/']; // 在原本的空間裡展開成面板，後面看得到房間
 function openApp(name,url){closeSheet();mapV.hidden=true;const panel=PANEL_APPS.some(p=>url.includes(p));appV.classList.toggle('panel',panel);appV.classList.remove('full');
   appV.innerHTML=`<div class="ovbar"><button class="btn light" id="appBack">✕ 回到 Origina</button><h2>${esc(name)}</h2>${panel?`<button class="btn light" id="appZoom" aria-label="放大">⤢ 放大</button>`:`<a class="btn light" href="${url}" target="_blank" rel="noopener" aria-label="在新分頁開啟">↗</a>`}</div><iframe src="${panel?url+(url.includes('?')?'&':'?')+'v='+Math.floor(Date.now()/60000):url}" title="${esc(name)}" allow="clipboard-write; fullscreen"></iframe>`;
   const z=appV.querySelector('#appZoom');if(z)z.onclick=()=>{const f=appV.classList.toggle('full');z.textContent=f?'⤡ 縮小':'⤢ 放大';z.setAttribute('aria-label',f?'縮小':'放大');};

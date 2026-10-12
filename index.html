@@ -414,14 +414,15 @@ let vaultF;
   makeHeliotrope(H,-5,-10.5,1.3);
   // 屋頂停機坪＋私人飛機：家可以只有一個，但隨時可以起飛
   {const RY=Y+HH+.6,PX=6.6,PZ=.6,P_=new R.Group();P_.position.set(PX,RY,PZ);P_.scale.setScalar(.82);H.add(P_);
-    const padM=new R.MeshStandardMaterial({color:0x3A3834,roughness:.85}),lineM=new R.MeshBasicMaterial({color:0xF4F0E6}),goldM=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.7,roughness:.3,emissive:0x4A3510,emissiveIntensity:.4});
+    const padM=new R.MeshStandardMaterial({color:0xEFE9DD,roughness:.55}),lineM=new R.MeshStandardMaterial({color:0xC9A14A,metalness:.8,roughness:.3,emissive:0x4A3510,emissiveIntensity:.35}),goldM=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.7,roughness:.3,emissive:0x4A3510,emissiveIntensity:.4});
     const pad=new R.Mesh(new R.CylinderGeometry(5.6,5.6,.08,48),padM);pad.position.y=.04;pad.receiveShadow=true;P_.add(pad);
     const ring=new R.Mesh(new R.RingGeometry(4.9,5.1,64),lineM);ring.rotation.x=-Math.PI/2;ring.position.y=.09;P_.add(ring);
+    const ring2=new R.Mesh(new R.RingGeometry(5.38,5.46,64),lineM);ring2.rotation.x=-Math.PI/2;ring2.position.y=.092;P_.add(ring2);
     const oRing=new R.Mesh(new R.RingGeometry(1.5,1.9,48),goldM);oRing.rotation.x=-Math.PI/2;oRing.position.set(-3.2,.095,0);P_.add(oRing);   // 金色的 O：Origina
     const edge=[];for(let k=0;k<16;k++){const a2=k/16*Math.PI*2,l=new R.Mesh(new R.SphereGeometry(.09,8,6),new R.MeshBasicMaterial({color:0xFFD98A}));l.position.set(Math.cos(a2)*5.35,.14,Math.sin(a2)*5.35);P_.add(l);edge.push(l);}
     // 低多邊形私人噴射機（白色機身＋金色腰線），機頭朝外（+z 那側是家的正面）
     const J=new R.Group();J.position.set(.6,.62*.85,0);J.rotation.y=-Math.PI/2;J.scale.setScalar(.85);P_.add(J);
-    const white=new R.MeshStandardMaterial({color:0xFFFFFF,roughness:.4,metalness:0,emissive:0xFFFFFF,emissiveIntensity:.18}),dark=new R.MeshStandardMaterial({color:0x1E2632,roughness:.2,metalness:.5});
+    const white=new R.MeshStandardMaterial({color:0x2B2B30,roughness:.28,metalness:.55,emissive:0x111114,emissiveIntensity:.6}),dark=new R.MeshStandardMaterial({color:0xC9A14A,roughness:.25,metalness:.85,emissive:0x3A2808,emissiveIntensity:.3});   // 黑色機身＋金色窗框與細節
     const add=(g,m,x,y,z,rx=0,ry=0,rz=0)=>{const o=new R.Mesh(g,m);o.position.set(x,y,z);o.rotation.set(rx,ry,rz);o.castShadow=true;J.add(o);return o;};
     add(new R.CylinderGeometry(.62,.62,4.6,18),white,0,.9,0,Math.PI/2);                       // 機身
     const nose=add(new R.SphereGeometry(.62,18,12,0,Math.PI*2,0,Math.PI/2),white,0,.9,2.3,Math.PI/2);nose.scale.set(1,1.9,1);
@@ -673,10 +674,11 @@ F.hots=[
 // 立體：側面、正面各一張圖，用深度圖往前後各鼓起一半（displacement），再用法線圖打光；轉身轉到一半時換成正面那張
 {const tl=new R.TextureLoader(),H=14,GZI=GZ-7,DEP=1.25;const guards=[];
   const ld=(u,flip)=>{const t=tl.load(u);if(flip){t.wrapS=R.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;}return t;};
+  const REAR={tiger:1};   // 已經有真正背面圖的守護者
   const statue=(k,v,pw,ph)=>{const w=H*pw/ph,g=new R.Group(),base=`img/guard-${k}-${v}`;
     const geo=new R.PlaneGeometry(w,H,Math.round(pw/ph*256),256);geo.translate(0,H/2,0);
-    const half=flip=>{const col=(v==='front'&&flip)?base+'-back.webp':base+'.webp';   // 正面像的背後：同輪廓、抹掉五官的石頭背面
-      const mat=new R.MeshStandardMaterial({map:ld(col,flip),normalMap:ld((v==='front'&&flip)?base+'-back-normal.webp':base+'-normal.webp',flip),normalScale:new R.Vector2(1.2,1.2),displacementMap:ld(base+'-depth.webp',flip),
+    const half=flip=>{const rear=v==='front'&&flip,real=rear&&REAR[k],col=real?base+'-rear.webp':rear?base+'-back.webp':base+'.webp';   // 背面：有真正的背面圖就用，沒有就用抹掉五官的石頭背面   // 正面像的背後：同輪廓、抹掉五官的石頭背面
+      const mat=new R.MeshStandardMaterial({map:ld(col,flip),normalMap:ld(real?base+'-rear-normal.webp':rear?base+'-back-normal.webp':base+'-normal.webp',flip),normalScale:new R.Vector2(1.2,1.2),displacementMap:ld(real?base+'-rear-depth.webp':base+'-depth.webp',flip),
         displacementScale:DEP,alphaTest:.5,roughness:.88,metalness:0,emissive:0xFFFFFF,emissiveMap:ld(col,flip),emissiveIntensity:.22});
       const me=new R.Mesh(geo,mat);me.castShadow=true;if(flip)me.rotation.y=Math.PI;
       me.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map:mat.map,alphaTest:.5});return me;};
@@ -719,15 +721,18 @@ F.hots=[
       g.glow.material.opacity=(eve?.85:.25)*(.8+.2*Math.sin(t*1.3+g.ph));g.halo.material.opacity=(eve?.2:.1)+.04*Math.sin(t*.8+g.ph);
       const a=g.pg.attributes.position.array;for(let q=0;q<g.N;q++){a[q*3+1]+=dt*(.4+(q%5)*.1);if(a[q*3+1]>H)a[q*3+1]=0;}g.pg.attributes.position.needsUpdate=true;});};}
 { // 超級管家：站在家門口右側。不用做什麼事，看到他就知道一切都會被打理好、收好尾
-  const bh=2.2,bw=bh*292/1024,tex=new R.TextureLoader().load('img/butler.webp');
-  const g=new R.PlaneGeometry(bw,bh);g.translate(0,bh/2,0);
-  const bm=new R.Mesh(g,new R.MeshBasicMaterial({map:tex,alphaTest:.5,side:R.DoubleSide}));bm.castShadow=true;
-  bm.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map:tex,alphaTest:.5});
-  const BX=hx+1.95,BZ=hz+7.35,piv=new R.Group();piv.position.set(BX,heightAt(hx,hz)+.5,BZ);piv.add(bm);out.add(piv);
-  F.col.push({x:BX,z:BZ,r:.35});
+  // 立體：跟守護者一樣，深度圖鼓起前後兩半＋法線打光
+  const bh=2.55,bw=bh*292/1024,tl=new R.TextureLoader(),T=u=>tl.load(u),FL=u=>{const t=tl.load(u);t.wrapS=R.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;return t;};
+  const g=new R.PlaneGeometry(bw,bh,72,256);g.translate(0,bh/2,0);
+  const mk=(flip)=>{const L=flip?FL:T,map=L(flip?'img/butler-back.webp':'img/butler.webp');
+    const m=new R.Mesh(g,new R.MeshStandardMaterial({map,normalMap:L('img/butler-normal.webp'),displacementMap:L('img/butler-depth.webp'),displacementScale:.3,alphaTest:.5,roughness:.6,emissive:0xFFFFFF,emissiveMap:map,emissiveIntensity:.35}));
+    m.castShadow=true;m.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map,alphaTest:.5});if(flip)m.rotation.y=Math.PI;return m;};
+  const body=new R.Group();body.add(mk(false),mk(true));
+  const BX=hx+2.05,BZ=hz+7.4,piv=new R.Group();piv.position.set(BX,heightAt(hx,hz)+.5,BZ);piv.add(body);out.add(piv);
+  F.col.push({x:BX,z:BZ,r:.4});
   F.hots.push({id:'butler',name:'管家',verb:'看看',x:BX,z:BZ+1.2,r:2.2});
-  let bow=0;F.butlerUpdate=dt=>{piv.rotation.y=Math.atan2(camera.position.x-BX,camera.position.z-BZ);   // 一直面向你
-    const near=Math.hypot(P.x-BX,P.z-BZ)<3.2;bow+=((near?.16:0)-bow)*Math.min(1,dt*2.5);bm.rotation.x=-bow;};}   // 你走近時微微欠身
+  let bow=0;F.butlerUpdate=dt=>{const tgt=Math.atan2(camera.position.x-BX,camera.position.z-BZ);let d=tgt-piv.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));piv.rotation.y+=d*Math.min(1,dt*2);   // 慢慢轉向你
+    const near=Math.hypot(P.x-BX,P.z-BZ)<3.2;bow+=((near?.14:0)-bow)*Math.min(1,dt*2.5);body.rotation.x=-bow;};}   // 你走近時微微欠身
 { // 屋頂：鋼梯是斜坡，梯頂之後可以在屋頂上走；屋頂邊緣不會掉下去
   const y0h=heightAt(hx,hz),RYw=5.9,base=F.floor,stair=(lx,lz)=>lx>13.7&&lx<15&&lz>-2.2&&lz<7.4;
   F.floor=(x,z)=>{const lx=x-hx,lz=z-hz;if(stair(lx,lz)){const t=clamp((6.9-lz)/8.6,0,1);return y0h+.5+t*(RYw-.5);}

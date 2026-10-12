@@ -402,9 +402,10 @@ const MPL={"禱告房":[58,36,"attic","ladder"],"舞台":[22,6,"stage","back"],"
 const VREG={E:[50,25],T:[20,70],C:[80,70],TE:[34,47],EC:[66,47],TC:[50,78],TEC:[50,57]};   // 三個我：Elva 上、Teresa 左（給世界）、Chiara 右（2026-10 改）
 const VREG_OLD={T:[50,25],E:[80,70],C:[20,70],TE:[66,47],TC:[34,47],EC:[50,78],TEC:[50,57]};
 function vregMigrate(L){if(!L||D.vreg2)return L;L.forEach(it=>{const o=VREG_OLD[it.tags],n=VREG[it.tags];if(o&&n&&typeof it.x==="number"){it.x=n[0]+(it.x-o[0]);it.y=n[1]+(it.y-o[1]);}});D.vreg2=1;try{save()}catch(e){}return L;}
-const GODS=[{id:"g-mazu",n:"媽祖",k:"god",tags:"T",t:"中殿。出發平安：旅行、手術、上台，都是出門。",pl:["禱告房"],x:24,y:82,s:1},
-  {id:"g-yuelao",n:"月老",k:"god",tags:"E",t:"龍邊。先愛自己，再遇見對的人。",pl:["禱告房"],x:50,y:13,s:1},
-  {id:"g-caishen",n:"財神爺",k:"god",tags:"C",t:"虎邊。夠用，而且越來越多。",pl:["禱告房"],x:76,y:82,s:1}];
+const GODS=[{id:"g-mazu",n:"媽祖",k:"god",tags:"T",t:"左殿。出發平安：旅行、手術、上台，都是出門。",pl:["禱告房"],x:24,y:82,s:1},
+  {id:"g-yuelao",n:"月老",k:"god",tags:"E",t:"中殿。先愛自己，再遇見對的人。",pl:["禱告房"],x:50,y:13,s:1},
+  {id:"g-caishen",n:"財神爺",k:"god",tags:"C",t:"右殿。夠用，而且越來越多。",pl:["禱告房"],x:76,y:82,s:1}];
+function godText(L){(L||[]).forEach(it=>{const g=GODS.find(x=>x.id===it.id);if(g&&it.t&&/^(中殿|龍邊|虎邊|左殿|右殿)。/.test(it.t))it.t=it.t.replace(/^(中殿|龍邊|虎邊|左殿|右殿)。/,g.t.slice(0,3));});return L;}
 function withGods(L){if(L&&!L.some(it=>it.k==="god"))GODS.forEach(g=>L.push(JSON.parse(JSON.stringify(g))));return L;}
 function defaultCollection(){
   const L=[["鄧麗君","idol","T","Teresa 的名字從她來：用聲音帶路，從台灣唱到世界。",["舞台"]],["鄧紫棋","idol","E","最喜歡的歌手；喜歡，但不是我唱歌的範本。",["舞台"]],["蕭亞軒","idol","E","Elva：允許自己想要、允許被愛。",["Beauty"]],["Chiara","idol","C","Chiara：豐盛是地基，讓想要的東西被允許。",["金庫"]],
@@ -434,7 +435,7 @@ const CICON={
 const CICON_BY_NAME={"銀杏":"ginkgo","Camino":"shell","狼與捕夢網":"wolf","藍色小星星":"star","罌粟花":"poppy","女人與老虎":"tiger","皮拉提斯":"yoga","街頭表演":"guitar","旅行":"plane","Getty 那一天":"flame","老宅Home":"house","金庫":"coins","Lucky":"dog"};
 const cIcon=it=>it.ic==="none"?null:CICON[it.ic||CICON_BY_NAME[it.n]];
 let meView="venn",meSel=null,meSelP=null,meEdit=false,meDraft=null,meKinds={idol:1,tat:1,film:1,plan:1,space:1,god:1};
-const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=vregMigrate(withGods(D.collection));};
+const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=godText(vregMigrate(withGods(D.collection)));};
 function renderMe(){
   const items=meItems();
   const chip=(it,abs)=>{const ic=it.img||it.emo?null:cIcon(it);return `<button class="citem k-${it.k}${ic||it.img||it.emo?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${it.emo?`<span class="emo">${esc(it.emo)}</span>`:it.img?`<img src="${esc(it.img)}" alt="" referrerpolicy="no-referrer">`:ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};

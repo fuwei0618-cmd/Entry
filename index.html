@@ -718,6 +718,16 @@ F.hots=[
       g.col.x=g.x;g.hot.x=g.x;
       g.glow.material.opacity=(eve?.85:.25)*(.8+.2*Math.sin(t*1.3+g.ph));g.halo.material.opacity=(eve?.2:.1)+.04*Math.sin(t*.8+g.ph);
       const a=g.pg.attributes.position.array;for(let q=0;q<g.N;q++){a[q*3+1]+=dt*(.4+(q%5)*.1);if(a[q*3+1]>H)a[q*3+1]=0;}g.pg.attributes.position.needsUpdate=true;});};}
+{ // 超級管家：站在家門口右側。不用做什麼事，看到他就知道一切都會被打理好、收好尾
+  const bh=2.2,bw=bh*292/1024,tex=new R.TextureLoader().load('img/butler.webp');
+  const g=new R.PlaneGeometry(bw,bh);g.translate(0,bh/2,0);
+  const bm=new R.Mesh(g,new R.MeshBasicMaterial({map:tex,alphaTest:.5,side:R.DoubleSide}));bm.castShadow=true;
+  bm.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map:tex,alphaTest:.5});
+  const BX=hx+1.95,BZ=hz+7.35,piv=new R.Group();piv.position.set(BX,heightAt(hx,hz)+.5,BZ);piv.add(bm);out.add(piv);
+  F.col.push({x:BX,z:BZ,r:.35});
+  F.hots.push({id:'butler',name:'管家',verb:'看看',x:BX,z:BZ+1.2,r:2.2});
+  let bow=0;F.butlerUpdate=dt=>{piv.rotation.y=Math.atan2(camera.position.x-BX,camera.position.z-BZ);   // 一直面向你
+    const near=Math.hypot(P.x-BX,P.z-BZ)<3.2;bow+=((near?.16:0)-bow)*Math.min(1,dt*2.5);bm.rotation.x=-bow;};}   // 你走近時微微欠身
 { // 屋頂：鋼梯是斜坡，梯頂之後可以在屋頂上走；屋頂邊緣不會掉下去
   const y0h=heightAt(hx,hz),RYw=5.9,base=F.floor,stair=(lx,lz)=>lx>13.7&&lx<15&&lz>-2.2&&lz<7.4;
   F.floor=(x,z)=>{const lx=x-hx,lz=z-hz;if(stair(lx,lz)){const t=clamp((6.9-lz)/8.6,0,1);return y0h+.5+t*(RYw-.5);}
@@ -728,7 +738,7 @@ F.hots=[
   F.hots.push({id:'jet',name:'私人飛機',verb:'起飛',x:hx+3.2,z:hz+3.4,r:2.6,go:()=>openWorld()});}
 F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[-8,GZ+2.6,Math.PI,0],guardT:[8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2]};
 F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
-  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);};
+  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);};
 
 /* shared materials */
 const portalMat=new R.ShaderMaterial({uniforms:{t:{value:0}},side:R.DoubleSide,
@@ -1091,6 +1101,7 @@ const INFO={
   closet:{tag:'家 · Beauty',title:'Beauty',body:'關於「美」的房間，像藝人上工前的梳化間，也是定期進廠保養的地方。裡面有兩扇門：',list:['梳化間：衣櫥、妝髮、美甲，整體造型與穿搭模板（製作中）','保養廠：醫美、半永久、日常保養；正顎手術也在這裡'],links:[['梳化間（製作中）',''],['保養廠 · 正顎手冊','https://fuwei0618-cmd.github.io/OGS/']]},
   gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',links:[['打開健身房','https://fuwei0618-cmd.github.io/Gym/']]},
   center:{tag:'森林 · 十字中心',title:'光孔日晷',body:'十字的交會點蓋了一座圓形小涼亭，兩道砂岩懸鏈拱從地面升起，四個拱腳讓出四個方向：東西連著金庫和營火（錢與熱情），南北連著家和森林入口（你自己和外面的世界）。兩道拱在頭頂交成十字，交點就是光孔，每天正午，一道光會落在地上那條金色的子午線上。站在這裡的人就是中心；不追趕什麼，只是每天都有一道光來找你。'},
+  butler:{tag:'家門口',title:'管家',body:'他什麼都不用說。看到他站在門口，就知道所有的事都會被打理乾淨、好好收尾。你只要安心出門，安心回家。'},
   helipad:{tag:'家 · 屋頂',title:'私人飛機',body:'家可以只有一個，但我隨時可以起飛。時間和地點綁不住我：想去哪裡，走上屋頂就出發。'},
   vault:{tag:'家門口 · 金庫',title:'源源不絕',body:'噴水池的水不停往上噴，金幣被你吸引過來、砸在你身上，閃都閃不掉。理財、保險健檢、投資都在這裡。',links:[['富偉・金庫願景','https://fuwei0618-cmd.github.io/Entry/vault/'],['保險手冊','https://fuwei0618-cmd.github.io/Insurance/'],['財富管理','https://fuwei0618-cmd.github.io/Wealth-mgm/'],['投資','https://investment-beige-iota.vercel.app/']]},
   fountain:{tag:'B2 · 前殿',title:'轉運流水盆',body:'粗石盆裡的水一直流，白色花崗岩球在水上慢慢轉。禱告的時候，耳邊一直有流水聲。'},

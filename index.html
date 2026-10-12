@@ -777,19 +777,36 @@ F.hots=[
       g.col.x=g.x;g.hot.x=g.x;
       g.glow.material.opacity=(eve?.85:.25)*(.8+.2*Math.sin(t*1.3+g.ph));g.halo.material.opacity=(eve?.2:.1)+.04*Math.sin(t*.8+g.ph);
       const a=g.pg.attributes.position.array;for(let q=0;q<g.N;q++){a[q*3+1]+=dt*(.4+(q%5)*.1);if(a[q*3+1]>H)a[q*3+1]=0;}g.pg.attributes.position.needsUpdate=true;});};}
-{ // 超級管家：站在家門口右側。不用做什麼事，看到他就知道一切都會被打理好、收好尾
-  // 立體：跟守護者一樣，深度圖鼓起前後兩半＋法線打光
-  const bh=2.55,bw=bh*306/1024,tl=new R.TextureLoader(),T=u=>tl.load(u),FL=u=>{const t=tl.load(u);t.wrapS=R.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;return t;};
-  const g=new R.PlaneGeometry(bw,bh,72,256);g.translate(0,bh/2,0);
-  const mk=(flip)=>{const L=flip?FL:T,map=L(flip?'img/butler-back.webp':'img/butler.webp');
-    const m=new R.Mesh(g,new R.MeshStandardMaterial({map,normalMap:L('img/butler-normal.webp'),displacementMap:L('img/butler-depth.webp'),displacementScale:.3,alphaTest:.5,roughness:.6,emissive:0xFFFFFF,emissiveMap:map,emissiveIntensity:.35}));
-    m.castShadow=true;m.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map,alphaTest:.5});if(flip)m.rotation.y=Math.PI;return m;};
-  const body=new R.Group();body.add(mk(false),mk(true));
+{ // 超級管家：站在家門口右側。看到他就知道一切都會被打理好、收好尾
+  // 好幾套穿法：點他「換一套」，記住最後選的。立體：深度圖鼓起前後兩半＋法線打光
+  const OUTFITS=[{k:'suit',n:'西裝',w:292},{k:'shirt',n:'白襯衫',w:306}];   // 之後的 iPad 版、不穿上衣版加在這裡
+  let oi=Math.max(0,OUTFITS.findIndex(o=>o.k===(localStorage.getItem('origina.butler')||'shirt')));
+  const bh=2.55,tl=new R.TextureLoader(),T=u=>tl.load(u),FL=u=>{const t=tl.load(u);t.wrapS=R.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;return t;};
+  const body=new R.Group();
+  const dress=()=>{while(body.children.length)body.remove(body.children[0]);const o=OUTFITS[oi],bw=bh*o.w/1024,base='img/butler-'+o.k;
+    const g=new R.PlaneGeometry(bw,bh,72,256);g.translate(0,bh/2,0);
+    [false,true].forEach(flip=>{const L=flip?FL:T,map=L(base+(flip?'-back.webp':'.webp'));
+      const m=new R.Mesh(g,new R.MeshStandardMaterial({map,normalMap:L(base+'-normal.webp'),displacementMap:L(base+'-depth.webp'),displacementScale:.3,alphaTest:.5,roughness:.6,emissive:0xFFFFFF,emissiveMap:map,emissiveIntensity:.35}));
+      m.castShadow=true;m.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map,alphaTest:.5});if(flip)m.rotation.y=Math.PI;body.add(m);});};
+  dress();
   const BX=hx+2.6,BZ=hz+9.6,piv=new R.Group();piv.position.set(BX,heightAt(hx,hz)+.5,BZ);piv.add(body);out.add(piv);
   F.col.push({x:BX,z:BZ,r:.4});
-  F.hots.push({id:'butler',name:'管家',verb:'看看',x:BX,z:BZ+1.2,r:2.2});
-  let bow=0;F.butlerUpdate=dt=>{const tgt=Math.atan2(camera.position.x-BX,camera.position.z-BZ);let d=tgt-piv.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));piv.rotation.y+=d*Math.min(1,dt*2);   // 慢慢轉向你
-    const near=Math.hypot(P.x-BX,P.z-BZ)<3.2;bow+=((near?.14:0)-bow)*Math.min(1,dt*2.5);body.rotation.x=-bow;};}   // 你走近時微微欠身
+  F.hots.push({id:'butler',name:'管家',verb:'換一套',x:BX,z:BZ+1.2,r:2.2,go:()=>{oi=(oi+1)%OUTFITS.length;localStorage.setItem('origina.butler',OUTFITS[oi].k);dress();say('換好了，'+OUTFITS[oi].n+'。');}});
+  // 他會開口：走近時說一句。外表交給圖，聰明交給他說的話
+  const bub=document.createElement('div');bub.id='butlerSay';document.body.appendChild(bub);
+  const st=document.createElement('style');st.textContent='#butlerSay{position:fixed;z-index:6;max-width:min(260px,62vw);padding:9px 13px;border-radius:14px 14px 14px 4px;background:rgba(28,26,24,.88);color:#F3EDE2;font:500 13.5px/1.55 "Noto Sans TC",system-ui,sans-serif;letter-spacing:.02em;pointer-events:none;opacity:0;transition:opacity .4s;transform:translate(12px,-100%)}#butlerSay.on{opacity:1}#butlerSay b{color:#D9B35A;font-weight:600}';document.head.appendChild(st);
+  const lines=()=>{const d=new Date(),h=d.getHours(),wd='日一二三四五六'[d.getDay()],hm=String(h).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    const greet=h<5?'這麼晚還沒睡？今天的事我都收好了，安心去休息。':h<11?'早安。今天的行程我已經排好，照著走就好。':h<14?'午安。下午要做的事我都準備好了。':h<18?'下午好。今天剩下的我來收尾。':'歡迎回家。今天辛苦了，剩下的交給我。';
+    return [`<b>${hm}・週${wd}</b>　${greet}`,'金庫這個月的帳我對過了，沒有漏掉的。','你想出發的時候，飛機隨時可以起飛。','明天要帶的東西，我已經放在門口了。','今天先做一件事就好，其他的我幫你記著。'];};
+  let li=0,shown=false,sayT=0,sayTxt='';const say=t=>{sayTxt=t;sayT=3.5;};
+  const v3=new R.Vector3();let bow=0;
+  F.butlerUpdate=dt=>{const tgt=Math.atan2(camera.position.x-BX,camera.position.z-BZ);let d=tgt-piv.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));piv.rotation.y+=d*Math.min(1,dt*2);
+    const dist=Math.hypot(P.x-BX,P.z-BZ),near=dist<3.2&&cur===F;bow+=((near?.14:0)-bow)*Math.min(1,dt*2.5);body.rotation.x=-bow;
+    const talk=dist<5&&cur===F&&!overlayOpen();
+    if(talk&&!shown){const L=lines();sayTxt=L[li%L.length];li++;shown=true;}else if(!talk&&dist>6)shown=false;
+    if(sayT>0)sayT-=dt;
+    const on=(talk||sayT>0)&&sayTxt;if(on){v3.set(BX,heightAt(hx,hz)+.5+bh*1.02,BZ).project(camera);if(v3.z<1){bub.style.left=(v3.x*.5+.5)*innerWidth+'px';bub.style.top=(-v3.y*.5+.5)*innerHeight+'px';}if(bub.innerHTML!==sayTxt)bub.innerHTML=sayTxt;}
+    bub.classList.toggle('on',!!on&&v3.z<1);};}
 { // 屋頂：鋼梯是斜坡，梯頂之後可以在屋頂上走；屋頂邊緣不會掉下去
   const y0h=heightAt(hx,hz),RYw=5.9,base=F.floor,stair=(lx,lz)=>lx>13.6&&lx<15.6&&lz>-2.2&&lz<7.3,
     stairT=lz=>lz>3.2?(7.0-lz)/3.8*.5:lz>1.8?.5:.5+(1.8-lz)/3.8*.5;   // 0 → 0.5（平台）→ 1
@@ -1173,7 +1190,7 @@ const INFO={
   closet:{tag:'家 · Beauty',title:'Beauty',body:'關於「美」的房間，像藝人上工前的梳化間，也是定期進廠保養的地方。裡面有兩扇門：',list:['梳化間：衣櫥、妝髮、美甲，整體造型與穿搭模板（製作中）','保養廠：醫美、半永久、日常保養；正顎手術也在這裡'],links:[['梳化間（製作中）',''],['保養廠 · 正顎手冊','https://fuwei0618-cmd.github.io/OGS/']]},
   gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',links:[['打開健身房','https://fuwei0618-cmd.github.io/Gym/']]},
   center:{tag:'森林 · 十字中心',title:'光孔日晷',body:'十字的交會點蓋了一座圓形小涼亭，兩道砂岩懸鏈拱從地面升起，四個拱腳讓出四個方向：東西連著金庫和營火（錢與熱情），南北連著家和森林入口（你自己和外面的世界）。兩道拱在頭頂交成十字，交點就是光孔，每天正午，一道光會落在地上那條金色的子午線上。站在這裡的人就是中心；不追趕什麼，只是每天都有一道光來找你。'},
-  butler:{tag:'家門口',title:'管家',body:'他什麼都不用說。看到他站在門口，就知道所有的事都會被打理乾淨、好好收尾。你只要安心出門，安心回家。'},
+  butler:{tag:'家門口',title:'管家',body:'他話不多。看到他站在門口，就知道所有的事都會被打理乾淨、好好收尾。你只要安心出門，安心回家。'},
   garden:{tag:'家 · 屋頂',title:'屋頂花園',body:'停機坪的另一邊。坐在長沙發上，整個園區都在眼前：森林入口的狼與虎、光孔日晷、金庫的噴泉、營火。累了就上來坐一下。'},
   helipad:{tag:'家 · 屋頂',title:'私人飛機',body:'家可以只有一個，但我隨時可以起飛。時間和地點綁不住我：想去哪裡，走上屋頂就出發。'},
   vault:{tag:'家門口 · 金庫',title:'源源不絕',body:'噴水池的水不停往上噴，金幣被你吸引過來、砸在你身上，閃都閃不掉。理財、保險健檢、投資都在這裡。',links:[['富偉・金庫願景','https://fuwei0618-cmd.github.io/Entry/vault/'],['保險手冊','https://fuwei0618-cmd.github.io/Insurance/'],['財富管理','https://fuwei0618-cmd.github.io/Wealth-mgm/'],['投資','https://investment-beige-iota.vercel.app/']]},

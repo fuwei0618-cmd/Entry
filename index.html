@@ -412,6 +412,35 @@ let vaultF;
   mesh(new R.BoxGeometry(.4,.6,6),conc,-11.2,.3,-10.5,H);mesh(new R.BoxGeometry(.4,.6,6),conc,1.2,.3,-10.5,H);
   const pit=mesh(new R.PlaneGeometry(12,5.4),new R.MeshBasicMaterial({color:0x4E5A48}),-5,.05,-10.5,H,false,false);pit.rotation.x=-Math.PI/2;
   makeHeliotrope(H,-5,-10.5,1.3);
+  // 屋頂停機坪＋私人飛機：家可以只有一個，但隨時可以起飛
+  {const RY=Y+HH+.6,PX=6.6,PZ=.6,P_=new R.Group();P_.position.set(PX,RY,PZ);H.add(P_);
+    const padM=new R.MeshStandardMaterial({color:0x3A3834,roughness:.85}),lineM=new R.MeshBasicMaterial({color:0xF4F0E6}),goldM=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.7,roughness:.3,emissive:0x4A3510,emissiveIntensity:.4});
+    const pad=new R.Mesh(new R.CylinderGeometry(5.6,5.6,.08,48),padM);pad.position.y=.04;pad.receiveShadow=true;P_.add(pad);
+    const ring=new R.Mesh(new R.RingGeometry(4.9,5.1,64),lineM);ring.rotation.x=-Math.PI/2;ring.position.y=.09;P_.add(ring);
+    const oRing=new R.Mesh(new R.RingGeometry(1.5,1.9,48),goldM);oRing.rotation.x=-Math.PI/2;oRing.position.set(-3.2,.095,0);P_.add(oRing);   // 金色的 O：Origina
+    const edge=[];for(let k=0;k<16;k++){const a2=k/16*Math.PI*2,l=new R.Mesh(new R.SphereGeometry(.09,8,6),new R.MeshBasicMaterial({color:0xFFD98A}));l.position.set(Math.cos(a2)*5.35,.14,Math.sin(a2)*5.35);P_.add(l);edge.push(l);}
+    // 低多邊形私人噴射機（白色機身＋金色腰線），機頭朝外（+z 那側是家的正面）
+    const J=new R.Group();J.position.set(.6,.62,0);J.rotation.y=-Math.PI/2;P_.add(J);
+    const white=new R.MeshStandardMaterial({color:0xFFFFFF,roughness:.4,metalness:0,emissive:0xFFFFFF,emissiveIntensity:.18}),dark=new R.MeshStandardMaterial({color:0x1E2632,roughness:.2,metalness:.5});
+    const add=(g,m,x,y,z,rx=0,ry=0,rz=0)=>{const o=new R.Mesh(g,m);o.position.set(x,y,z);o.rotation.set(rx,ry,rz);o.castShadow=true;J.add(o);return o;};
+    add(new R.CylinderGeometry(.62,.62,4.6,18),white,0,.9,0,Math.PI/2);                       // 機身
+    const nose=add(new R.SphereGeometry(.62,18,12,0,Math.PI*2,0,Math.PI/2),white,0,.9,2.3,Math.PI/2);nose.scale.set(1,1.9,1);
+    add(new R.CylinderGeometry(.16,.62,2.4,18),white,0,1.02,-3.5,-Math.PI/2+.05);              // 機尾收細
+    add(new R.BoxGeometry(.05,.12,4.4),goldM,.63,.82,-.1);add(new R.BoxGeometry(.05,.12,4.4),goldM,-.63,.82,-.1);   // 金色腰線
+    for(let k=0;k<6;k++){add(new R.BoxGeometry(.04,.22,.3),dark,.61,1.12,1.4-k*.62);add(new R.BoxGeometry(.04,.22,.3),dark,-.61,1.12,1.4-k*.62);}   // 圓窗
+    add(new R.BoxGeometry(.9,.28,.5),dark,0,1.25,2.85,-.5);                                   // 駕駛艙擋風
+    [-1,1].forEach(sd=>{const w=add(new R.BoxGeometry(3.6,.1,1.3),white,sd*2.1,.62,-.2,0,sd*.32,sd*-.06);   // 後掠翼
+      add(new R.BoxGeometry(.08,.5,.5),white,sd*3.85,.8,-.75);                                  // 翼尖小翼
+      add(new R.CylinderGeometry(.22,.2,1.3,14),white,sd*.88,1.22,-2.6,Math.PI/2);              // 尾部發動機
+      add(new R.CircleGeometry(.18,14),dark,sd*.88,1.22,-1.94);
+      add(new R.BoxGeometry(1.6,.07,.6),white,sd*.85,2.65,-4.35,0,sd*.3,0);});                  // T 型尾翼水平面
+    add(new R.BoxGeometry(.1,1.5,1.1),white,0,1.95,-4.2,-.35);                                  // 垂直尾翼
+    [[0,1.9],[.55,-.4],[-.55,-.4]].forEach(([x,z])=>{add(new R.CylinderGeometry(.05,.05,.45,8),dark,x,.32,z);add(new R.CylinderGeometry(.14,.14,.1,12),dark,x,.12,z,0,0,Math.PI/2);});   // 起落架
+    const beacon=new R.Mesh(new R.SphereGeometry(.08,8,6),new R.MeshBasicMaterial({color:0xFF5A4A}));beacon.position.set(0,2.75,-4.3);J.add(beacon);
+    // 右側外牆的一道鋼梯：從地面走上屋頂
+    {const st=new R.MeshStandardMaterial({color:0x2E2A25,metalness:.5,roughness:.45});const n=14;for(let k=0;k<n;k++){const sp=new R.Mesh(new R.BoxGeometry(1.1,.08,.42),st);sp.position.set(14.35-PX,.5+k*(RY-.5)/n-RY+.1,6.6-k*.62-PZ);sp.castShadow=true;P_.add(sp);}
+      const rail=new R.Mesh(new R.BoxGeometry(.05,.05,Math.hypot(n*.62,RY-.5)),st);rail.position.set(14.9-PX,(RY-.5)/2+.95-RY,6.6-n*.31-PZ);rail.rotation.x=Math.atan2(RY-.5,n*.62);P_.add(rail);}
+    F.padUpdate=(dt,t)=>{beacon.visible=(t%1.6)<.12;edge.forEach((l,k)=>l.material.color.setHSL(.11,.9,.55+.25*Math.max(0,Math.sin(t*2-k*.4))));};}
   // 金庫：門口右前方的噴水池，金幣被你吸過來
   // 金庫：三層圓形石階的祭壇，一條石板參道從小路分出來，四盞石燈，金色內嵌圓環
   {const VY=heightAt(VX,VZ),stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),stone2=new R.MeshStandardMaterial({color:0xD8D1C3,roughness:.7}),gold=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.8,roughness:.25,emissive:0x3A2600});
@@ -634,7 +663,8 @@ F.hots=[
   {id:'studio',name:'蘑菇攝影棚',verb:'進入',x:mx+2.2,z:mz+2.2,r:2.8},
   {id:'center',name:'光孔日晷・使命板',verb:'打開',x:0,z:EC.cz+2.2,r:2.4,go:()=>openApp('使命板','https://fuwei0618-cmd.github.io/Entry/mission/')},
   {id:'campfire',name:'營火',verb:'坐下',x:FX,z:FZ+1.6,r:3},
-  {id:'fireflies',name:'螢火蟲',verb:'看看',x:4,z:GZ+2.5,r:3}
+  {id:'fireflies',name:'螢火蟲',verb:'看看',x:4,z:GZ+2.5,r:3},
+  {id:'helipad',name:'屋頂停機坪・私人飛機',verb:'起飛',x:hx+14.4,z:hz+7.8,r:3,go:()=>openWorld()}
 ];
 // 守護者：格柵內側，狼（左・Teresa・給世界）與虎（右・Elva・給自己），約 9 倍人高
 // 巡邏：走向門口時面對面 → 到門口轉身面向外面，站崗看守很久 → 轉身背對背走向牆的盡頭 → 停一下看外面 → 再走回門口
@@ -687,7 +717,7 @@ F.hots=[
       const a=g.pg.attributes.position.array;for(let q=0;q<g.N;q++){a[q*3+1]+=dt*(.4+(q%5)*.1);if(a[q*3+1]>H)a[q*3+1]=0;}g.pg.attributes.position.needsUpdate=true;});};}
 F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[-8,GZ+2.6,Math.PI,0],guardT:[8,GZ+2.6,Math.PI,0]};
 F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
-  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);};
+  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);};
 
 /* shared materials */
 const portalMat=new R.ShaderMaterial({uniforms:{t:{value:0}},side:R.DoubleSide,
@@ -1050,6 +1080,7 @@ const INFO={
   closet:{tag:'家 · Beauty',title:'Beauty',body:'關於「美」的房間，像藝人上工前的梳化間，也是定期進廠保養的地方。裡面有兩扇門：',list:['梳化間：衣櫥、妝髮、美甲，整體造型與穿搭模板（製作中）','保養廠：醫美、半永久、日常保養；正顎手術也在這裡'],links:[['梳化間（製作中）',''],['保養廠 · 正顎手冊','https://fuwei0618-cmd.github.io/OGS/']]},
   gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',links:[['打開健身房','https://fuwei0618-cmd.github.io/Gym/']]},
   center:{tag:'森林 · 十字中心',title:'光孔日晷',body:'十字的交會點蓋了一座圓形小涼亭，兩道砂岩懸鏈拱從地面升起，四個拱腳讓出四個方向：東西連著金庫和營火（錢與熱情），南北連著家和森林入口（你自己和外面的世界）。兩道拱在頭頂交成十字，交點就是光孔，每天正午，一道光會落在地上那條金色的子午線上。站在這裡的人就是中心；不追趕什麼，只是每天都有一道光來找你。'},
+  helipad:{tag:'家 · 屋頂',title:'私人飛機',body:'家可以只有一個，但我隨時可以起飛。時間和地點綁不住我：想去哪裡，走上屋頂就出發。'},
   vault:{tag:'家門口 · 金庫',title:'源源不絕',body:'噴水池的水不停往上噴，金幣被你吸引過來、砸在你身上，閃都閃不掉。理財、保險健檢、投資都在這裡。',links:[['富偉・金庫願景','https://fuwei0618-cmd.github.io/Entry/vault/'],['保險手冊','https://fuwei0618-cmd.github.io/Insurance/'],['財富管理','https://fuwei0618-cmd.github.io/Wealth-mgm/'],['投資','https://investment-beige-iota.vercel.app/']]},
   fountain:{tag:'B2 · 前殿',title:'轉運流水盆',body:'粗石盆裡的水一直流，白色花崗岩球在水上慢慢轉。禱告的時候，耳邊一直有流水聲。'},
   plant:{tag:'B1 · 下沉庭院',title:'白水木',body:'種在臥室外的下沉庭院，躺在床上就看得到。銀綠色、毛茸茸的葉子一叢一叢長在枝頭。這盆植物代表什麼，可以由你來定義。'},

@@ -885,7 +885,7 @@ F.hots=[
     if(stair(lx,lz)){roofOn=stairT(lz)>.92;return;}
     if(roofOn){p.x=hx+clamp(lx,-13.4,13.75);p.z=hz+clamp(lz,-6.8,8.1);}};
   F.hots.push({id:'jet',name:'私人飛機',verb:'起飛',x:hx+3.2,z:hz+3.4,r:2.6,go:()=>openWorld()});}
-F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI,-.1,'first']};
+F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI+.26,-.12,'first']};
 F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
   pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);F.doorUpdate&&F.doorUpdate(dt);};
 
@@ -1421,7 +1421,7 @@ function openInfo(id){const x=INFO[id];if(!x)return;
     <div class="row">${links}<button class="btn light" data-close>回到場景</button></div>`);
   root.querySelectorAll('[data-app-url]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.appName,b.dataset.appUrl)));}
 const PLACES=[
-  ['森林',[['森林入口','起點',['forest','start']],['光孔日晷','使命板',['forest','center']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉朋友',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
+  ['森林',[['屋頂花園','沙發・停機坪',['forest','garden']],['森林入口','起點',['forest','start']],['光孔日晷','使命板',['forest','center']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉朋友',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
   ['家 · 1F',[['玄關','1F',['f1','front']],['日曆牆','每日 · 每週',['f1','cal']],['廚房餐廳','飲食',['f1','kitchen']],['Beauty','梳化 · 保養',['f1','closet']],['健身房','身體',['f1','gym']]]],
   ['地下',[['B1 臥室','作息 · 白水木',['f2','bed']],['B2 禱告房','前殿 · 媽祖 · 月老 · 財神',['attic','ladder']]]],
   ['舞台',[['後台入口','從家裡的舞台門進來',['stage','back']],['Vocal','',['stage','mic']],['合唱台','合唱團',['stage','choir']],['Podcast 桌','不專業音樂電台',['stage','podcast']]]]
@@ -1494,7 +1494,7 @@ function hereMarker(){let p=null;if(cur.id==='forest')p=[P.x,P.z];else if(cur.id
 function openMap(){closeSheet();if(!mapBG)mapBG=buildMapBG();
   const main=MAP_MAIN.map(([n,g,p,a,ap])=>spotHTML(n,g,pct(p[0],p[1]),a,ap&&pct(ap[0],ap[1]))).join('');
   const ins=(title,id,bg,list)=>`<section class="inset"><h3>${title}${list.some(x=>x[1][0]===cur.id)?'<em>● 你在這裡</em>':''}</h3><div class="mapbox">${bg}${list.map(([n,g,p,a])=>spotHTML(n,g,p,a)).join('')}</div></section>`;
-  mapV.innerHTML=`<div class="ovbar"><h2>Origina 地圖</h2><span style="display:flex;gap:8px"><a class="btn light" href="https://claude.ai/artifact/6tKf8aWatDsrMuhC2wVAhm" target="_blank" rel="noopener" style="text-decoration:none">總表 ↗</a><button class="btn light" id="mapClose">✕ 關閉</button></span></div>
+  mapV.innerHTML=`<div class="ovbar"><h2>Origina 地圖</h2><span style="display:flex;gap:8px"><button class="btn light" data-g="forest,garden">↑ 屋頂花園</button><a class="btn light" href="https://claude.ai/artifact/6tKf8aWatDsrMuhC2wVAhm" target="_blank" rel="noopener" style="text-decoration:none">總表 ↗</a><button class="btn light" id="mapClose">✕ 關閉</button></span></div>
   <div class="ovbody"><div class="mwrap"><div class="mnote">點地名走過去 · 點空地直接傳送 · 點圖示打開 App<span class="phone-only"> · 左右滑動看整張地圖</span></div>
   <div class="mapscroll"><div class="mapbox">${mapBG}${main}${hereMarker()}</div></div>
   <div class="insets">${ins('地下 · B1 / B2','b',BSEC,MAP_B)}${ins('家的後門 · 舞台','s',SSEC,MAP_S)}</div></div></div>`;
@@ -1572,7 +1572,7 @@ function frame(){
   requestAnimationFrame(frame);
 }
 P.y=cur.floor(P.x,P.z);
-{const qs=new URLSearchParams(location.search),g=qs.get('go'),ap=qs.get('app');if(g){const[id,sp]=g.split(',');if(SC[id])goto(id,sp);}if(ap&&APPMAP[ap])openApp(ap,APPMAP[ap].u);else if(qs.has('map'))openMap();}
+{const qs=new URLSearchParams(location.search),g=qs.get('go'),ap=qs.get('app');if(g){const[id,sp]=g.split(',');if(SC[id])goto(id,sp);}else goto('forest','garden');/* 一打開：坐在屋頂花園的沙發上，望向整個園區 */if(ap&&APPMAP[ap])openApp(ap,APPMAP[ap].u);else if(qs.has('map'))openMap();}
 requestAnimationFrame(frame);
 })();
 </script>

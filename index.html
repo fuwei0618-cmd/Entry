@@ -468,8 +468,10 @@ let vaultF;
       const lr=new R.Mesh(new R.BoxGeometry(.05,.05,1.4),st);lr.position.set(SX+SW/2-.03,.5+HALF+1.1,2.5);H.add(lr);
       flight(1.8,-2.0,HALF);                                                 // 第二段
       const top=new R.Mesh(new R.BoxGeometry(SW+.3,.14,2.2),st);top.position.set(SX-.15,RY-.07,-3.1);top.castShadow=true;H.add(top);   // 樓梯頂的平台，直接接到屋頂
-      [[SX+SW/2-.03,-3.1,2.2,0],[SX-.2,-4.18,SW+.4,Math.PI/2]].forEach(([x,z,l,ry])=>{const r=new R.Mesh(new R.BoxGeometry(.05,.05,l),st);r.position.set(x,RY+1.1,z);r.rotation.y=ry;H.add(r);
-        [-1,1].forEach(e=>{const pp=new R.Mesh(new R.BoxGeometry(.04,1.1,.04),st);pp.position.set(x+(ry?e*l/2:0),RY+.55,z+(ry?0:e*l/2));H.add(pp);});});}
+      {const gl=new R.MeshStandardMaterial({color:0xDDEEF0,transparent:true,opacity:.22,roughness:.05,metalness:.2,depthWrite:false}),
+         gd=new R.MeshStandardMaterial({color:0xD2AE5C,metalness:.85,roughness:.22,emissive:0x4A3510,emissiveIntensity:.3});
+        [[SX+SW/2-.03,-3.1,2.2,0],[SX-.2,-4.18,SW+.4,Math.PI/2]].forEach(([x,z,l,ry])=>{const g=new R.Mesh(new R.BoxGeometry(.03,1.05,l),gl);g.position.set(x,RY+.52,z);g.rotation.y=ry;H.add(g);
+          const r=new R.Mesh(new R.CylinderGeometry(.025,.025,l,10),gd);r.rotation.set(Math.PI/2,ry,0);r.position.set(x,RY+1.08,z);H.add(r);});}}   // 無框玻璃＋金色扶手
     // 屋頂花園（停機坪的另一邊）：木平台、苔草與低矮灌木、一棵楓樹、面向整個園區的長沙發
     {const G=new R.Group();G.position.set(0,RY,0);H.add(G);
       const deck=new R.MeshStandardMaterial({map:planksTex([3,6]),color:0xB98E66,roughness:.7}),cs=new R.MeshStandardMaterial({color:0xCFC8BC,roughness:.8}),
@@ -523,8 +525,26 @@ let vaultF;
         add(new R.CylinderGeometry(.12,.09,.16,14),new R.MeshStandardMaterial({color:0xEFE9DF,roughness:.4}),-6.25,.55,1.0);   // 茶几上一個小花器
         add(new R.IcosahedronGeometry(.13,0),new R.MeshStandardMaterial({color:0x7FA35A,flatShading:true}),-6.25,.68,1.0);
         [[-8.7,1.1,.75,1.45],[-4.1,1.1,.75,1.45],[-6.4,1.1,.65,.65]].forEach(([x,z,hw,hd])=>F.col.push({x0:hx+x-hw,x1:hx+x+hw,z0:hz+z-hd,z1:hz+z+hd,roof:1}));}
-      // 屋頂邊緣一圈低矮的清玻璃欄杆（只圍花園這一半）
-      [[-6.6,8.15,13.4,0],[-13.45,.6,15.1,Math.PI/2]].forEach(([x,z,l,ry])=>{add(new R.BoxGeometry(l,1.0,.04),glass,x,.5,z,ry);/* 無框玻璃，坐著看出去不會被擋 */});
+      // 屋頂邊緣的語言：綠色包住休息的地方、玻璃只留給視野、金色收在邊緣
+      {const conc=new R.MeshStandardMaterial({color:0xD6D1C8,roughness:.8}),soil=new R.MeshStandardMaterial({color:0x4E5A3C,roughness:1}),
+         gr=new R.MeshStandardMaterial({color:0x6E8B4E,roughness:1,flatShading:true}),gr2=new R.MeshStandardMaterial({color:0x93AE66,roughness:1,flatShading:true}),
+         goldE=new R.MeshStandardMaterial({color:0xD2AE5C,metalness:.85,roughness:.22,emissive:0x4A3510,emissiveIntensity:.3});
+        // ① 花園那半邊：60 cm 清水模花槽當欄杆，草往外垂下來；後面藏一道矮玻璃
+        const bed=(x0,z0,x1,z1,outX,outZ)=>{const L=Math.hypot(x1-x0,z1-z0),cx=(x0+x1)/2,cz=(z0+z1)/2,ry=Math.atan2(x1-x0,z1-z0)+Math.PI/2;
+          add(new R.BoxGeometry(L,.6,.55),conc,cx,.3,cz,ry);add(new R.BoxGeometry(L-.1,.05,.45),soil,cx,.6,cz,ry);
+          const n=Math.round(L*2.2);for(let k=0;k<n;k++){const t=(k+.5)/n,x=x0+(x1-x0)*t,z=z0+(z1-z0)*t,r=.18+((k*7)%5)*.04;
+            add(new R.IcosahedronGeometry(r,0),k%3?gr:gr2,x,.68+r*.5,z);                                                       // 草叢
+            if(k%2==0){const d=add(new R.ConeGeometry(.13,.5+((k*13)%4)*.15,5),k%4?gr:gr2,x+outX*.3,.42,z+outZ*.3);d.rotation.set(Math.PI+outZ*.35,0,-outX*.35);}}   // 垂到外面的草
+          const gw=add(new R.BoxGeometry(L,.45,.03),glass,cx-outX*.32,.83,cz-outZ*.32,ry);};
+        bed(-13.45,-6.85,-13.45,8.15,-1,0);            // 左側
+        bed(-13.45,-6.85,-.2,-6.85,0,-1);              // 後側（花園那半）
+        bed(-13.45,8.15,-9.6,8.15,0,1);bed(-3.2,8.15,-.2,8.15,0,1);   // 前側：長沙發前面留空
+        // ② 長沙發正前方：唯一一段全透明的無框玻璃
+        add(new R.BoxGeometry(6.4,1.05,.04),glass,-6.4,.53,8.2);
+        // ③ 停機坪那半邊：30 cm 清水模矮牆＋金色收邊；樓梯上來的地方留一個開口
+        const lip=(x0,z0,x1,z1)=>{const L=Math.hypot(x1-x0,z1-z0),cx=(x0+x1)/2,cz=(z0+z1)/2,ry=Math.atan2(x1-x0,z1-z0)+Math.PI/2;
+          add(new R.BoxGeometry(L,.3,.25),conc,cx,.15,cz,ry);add(new R.BoxGeometry(L,.03,.27),goldE,cx,.315,cz,ry);};
+        lip(-.2,8.15,13.5,8.15);lip(-.2,-6.85,13.5,-6.85);lip(13.5,-6.85,13.5,-4.3);lip(13.5,-1.9,13.5,8.15);}
       // 晚上會亮的矮燈
       [[-2.2,6.8],[-10.8,6.8],[-2.2,2.2],[-10.8,2.2]].forEach(([x,z])=>{add(new R.CylinderGeometry(.08,.1,.5,10),blk,x,.38,z);add(new R.SphereGeometry(.09,10,8),new R.MeshBasicMaterial({color:0xFFE2A8}),x,.68,z);});
       const gl=new R.PointLight(0xFFD49A,.5,9);gl.position.set(-6.4,1.6,4.6);G.add(gl);

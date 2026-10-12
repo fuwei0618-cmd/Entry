@@ -413,16 +413,17 @@ let vaultF;
     const strip=mesh(new R.BoxGeometry(IW-.4,.03,.06),new R.MeshBasicMaterial({color:0xFFE2A8}),0,TOP-T-.02,Z1-.3,H,false);   // 框內的一道暖光
     const dl=new R.SpotLight(0xFFD9A0,.9,9,.7,.6);dl.position.set(0,TOP-T-.1,Z1-1);dl.target.position.set(0,Y,Z1-1.4);H.add(dl,dl.target);
     mesh(new R.BoxGeometry(IW+T*2,.06,Z1-Z0+.6),new R.MeshStandardMaterial({color:0x2A2725,roughness:.4}),0,Y+.03,(Z0+Z1)/2+.2,H);   // 黑石門檻
-    // 樞軸門：轉軸在離左邊 0.45 m 的地方，門片 2.0 × 4.2，黑框＋深色木紋＋一根直立金色拉桿
-    const DW=2.0,DH=4.2,piv=new R.Group();piv.position.set(-DW/2+.45,Y,Z0+.12);H.add(piv);
-    const leaf=new R.Group();leaf.position.x=DW/2-.45;piv.add(leaf);
-    const add=(g,m,x,y,z)=>{const o=new R.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;leaf.add(o);return o;};
-    add(new R.BoxGeometry(DW,DH,.1),wood,0,DH/2,0);
-    [[DW,.08,0,DH-.04],[DW,.08,0,.04],[.08,DH,-DW/2+.04,DH/2],[.08,DH,DW/2-.04,DH/2]].forEach(([w,h,x,y])=>add(new R.BoxGeometry(w,h,.14),blk,x,y,0));
-    add(new R.CylinderGeometry(.03,.03,2.2,10),gold,DW/2-.32,DH*.5,.16);
-    [DH*.5-1.05,DH*.5+1.05].forEach(y=>add(new R.BoxGeometry(.04,.04,.12),gold,DW/2-.32,y,.1));
-    // 門兩側與上方的玻璃補滿（原本的落地玻璃不動，門就嵌在中間）
-    let open=0;F.doorUpdate=dt=>{const near=Math.hypot(P.x-hx,P.z-(hz+Z1-1))<3.4&&cur===F;open+=((near?1.15:0)-open)*Math.min(1,dt*2.2);piv.rotation.y=-open;};
+    // 雙開大門：兩扇各 1.4 × 4.2，黑框＋深色木紋，各一根直立金色拉桿，往內對開
+    const DW=1.4,DH=4.2,leaves=[];
+    [-1,1].forEach(sd=>{const piv=new R.Group();piv.position.set(sd*DW,Y,Z0+.12);H.add(piv);
+      const leaf=new R.Group();leaf.position.x=-sd*DW/2;piv.add(leaf);
+      const add=(g,m,x,y,z)=>{const o=new R.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;leaf.add(o);return o;};
+      add(new R.BoxGeometry(DW-.02,DH,.1),wood,0,DH/2,0);
+      [[DW,.08,0,DH-.04],[DW,.08,0,.04],[.08,DH,-DW/2+.04,DH/2],[.08,DH,DW/2-.04,DH/2]].forEach(([w,h,x,y])=>add(new R.BoxGeometry(w,h,.14),blk,x,y,0));
+      add(new R.CylinderGeometry(.03,.03,2.2,10),gold,-sd*(DW/2-.22),DH*.5,.16);
+      [DH*.5-1.05,DH*.5+1.05].forEach(y=>add(new R.BoxGeometry(.04,.04,.12),gold,-sd*(DW/2-.22),y,.1));
+      leaves.push({piv,sd});});
+    let open=0;F.doorUpdate=dt=>{const near=Math.hypot(P.x-hx,P.z-(hz+Z1-1))<3.4&&cur===F;open+=((near?1.25:0)-open)*Math.min(1,dt*2.2);leaves.forEach(l=>l.piv.rotation.y=l.sd*open);};
     F.col.push({x0:hx-IW/2-T,x1:hx-IW/2,z0:hz+Z0,z1:hz+Z1},{x0:hx+IW/2,x1:hx+IW/2+T,z0:hz+Z0,z1:hz+Z1});}
   const lamp=new R.PointLight(0xFFC77A,.5,10);lamp.position.set(0,Y+4,8);H.add(lamp);
   // 右側平台上的禱告天光縫（下面是 B2 禱告房）
@@ -457,9 +458,46 @@ let vaultF;
     add(new R.BoxGeometry(.1,1.5,1.1),white,0,1.95,-4.2,-.35);                                  // 垂直尾翼
     [[0,1.9],[.55,-.4],[-.55,-.4]].forEach(([x,z])=>{add(new R.CylinderGeometry(.05,.05,.45,8),dark,x,.32,z);add(new R.CylinderGeometry(.14,.14,.1,12),dark,x,.12,z,0,0,Math.PI/2);});   // 起落架
     const beacon=new R.Mesh(new R.SphereGeometry(.08,8,6),new R.MeshBasicMaterial({color:0xFF5A4A}));beacon.position.set(0,2.75,-4.3);J.add(beacon);
-    // 右側外牆的一道鋼梯：從地面走上屋頂
-    {const st=new R.MeshStandardMaterial({color:0x2E2A25,metalness:.5,roughness:.45});const n=14;for(let k=0;k<n;k++){const sp=new R.Mesh(new R.BoxGeometry(1.1,.08,.42),st);sp.position.set(14.35,.5+k*(RY-.5)/n+.1,6.6-k*.62);sp.castShadow=true;H.add(sp);}
-      const rail=new R.Mesh(new R.BoxGeometry(.05,.05,Math.hypot(n*.62,RY-.5)),st);rail.position.set(14.9,(RY-.5)/2+.95,6.6-n*.31);rail.rotation.x=Math.atan2(RY-.5,n*.62);H.add(rail);}
+    // 右側外牆的鋼梯：寬 2 m，兩段之間有休息平台，兩側扶手 1.1 m 高
+    {const st=new R.MeshStandardMaterial({color:0x2E2A25,metalness:.5,roughness:.45}),SX=14.6,SW=2.0,TOT=RY-.5,HALF=TOT/2;
+      const flight=(zA,zB,y0)=>{const n=12,len=zA-zB;for(let k=0;k<n;k++){const sp=new R.Mesh(new R.BoxGeometry(SW,.08,len/n+.04),st);sp.position.set(SX,.5+y0+(k+1)*HALF/n,zA-(k+.5)*len/n);sp.castShadow=true;H.add(sp);}
+        [-1,1].forEach(sd=>{const x=SX+sd*(SW/2-.03),L=Math.hypot(len,HALF);const r=new R.Mesh(new R.BoxGeometry(.05,.05,L),st);r.position.set(x,.5+y0+HALF/2+1.1,(zA+zB)/2);r.rotation.x=Math.atan2(HALF,len);H.add(r);
+          for(let k=0;k<=3;k++){const t=k/3,p=new R.Mesh(new R.BoxGeometry(.04,1.1,.04),st);p.position.set(x,.5+y0+t*HALF+.55,zA-t*len);H.add(p);}});};
+      flight(7.0,3.2,0);                                                     // 第一段
+      const land=new R.Mesh(new R.BoxGeometry(SW,.12,1.4),st);land.position.set(SX,.5+HALF,2.5);land.castShadow=true;H.add(land);   // 休息平台
+      const lr=new R.Mesh(new R.BoxGeometry(.05,.05,1.4),st);lr.position.set(SX+SW/2-.03,.5+HALF+1.1,2.5);H.add(lr);
+      flight(1.8,-2.0,HALF);}                                                // 第二段
+    // 屋頂花園（停機坪的另一邊）：木平台、苔草與低矮灌木、一棵楓樹、面向整個園區的長沙發
+    {const G=new R.Group();G.position.set(0,RY,0);H.add(G);
+      const deck=new R.MeshStandardMaterial({map:planksTex([3,6]),color:0xB98E66,roughness:.7}),cs=new R.MeshStandardMaterial({color:0xCFC8BC,roughness:.8}),
+        moss=new R.MeshStandardMaterial({color:0x6E8B4E,roughness:1,flatShading:true}),moss2=new R.MeshStandardMaterial({color:0x8AA35E,roughness:1,flatShading:true}),
+        grav=new R.MeshStandardMaterial({color:0xE4DED2,roughness:1}),fab=new R.MeshStandardMaterial({color:0xEDE6D8,roughness:.9}),blk=new R.MeshStandardMaterial({color:0x2A2725,roughness:.5,metalness:.3}),
+        glass=new R.MeshStandardMaterial({color:0xDDEEF0,transparent:true,opacity:.22,roughness:.05,metalness:.2,depthWrite:false});
+      const add=(g,m,x,y,z,ry=0)=>{const o=new R.Mesh(g,m);o.position.set(x,y,z);o.rotation.y=ry;o.castShadow=true;o.receiveShadow=true;G.add(o);return o;};
+      add(new R.BoxGeometry(11.5,.12,13.2),grav,-6.6,.06,.6);                              // 白砂礫底
+      add(new R.BoxGeometry(9,.16,5.2),deck,-6.2,.14,4.6);                                  // 木平台（朝園區那側）
+      for(let k=0;k<6;k++)add(new R.BoxGeometry(.9,.04,.6),cs,-6.2+(k%2?.25:-.25),.14,1.5-k*.95);   // 踏石
+      // 植栽槽：沿著後側與左側，低矮的苔草＋圓灌木
+      [[-6.6,-5.6,11,1.2],[-12.2,-.6,1.2,9.6]].forEach(([x,z,w,d])=>{add(new R.BoxGeometry(w,.5,d),cs,x,.25,z);add(new R.BoxGeometry(w-.2,.08,d-.2),moss,x,.52,z);
+        const n=Math.round((w+d)*1.2);for(let k=0;k<n;k++){const t=k/n,px=x+(w>d?(t-.5)*(w-.8):0)+(Math.sin(k*3.1)*.25),pz=z+(d>w?(t-.5)*(d-.8):0)+(Math.cos(k*2.3)*.2),r=.28+((k*7)%5)*.07;
+          add(new R.IcosahedronGeometry(r,0),k%3?moss:moss2,px,.55+r*.7,pz);}});
+      // 楓樹：後方角落
+      add(new R.CylinderGeometry(.09,.14,2.4,7),new R.MeshStandardMaterial({color:0x5A4030,roughness:.9}),-11.4,1.6,-5.0);
+      [[0,3.1,0,1.25],[.6,2.8,.3,.9],[-.5,2.9,-.2,.95],[.1,3.6,.2,.8]].forEach(([dx,y,dz,r],k)=>add(new R.IcosahedronGeometry(r,0),new R.MeshStandardMaterial({color:[0xC8582E,0xD9743A,0xB8452A,0xE08E44][k],roughness:.9,flatShading:true}),-11.4+dx,y,-5.0+dz));
+      // 長沙發（面向南邊的園區）＋小邊桌
+      const S=new R.Group();S.position.set(-6.4,.22,5.4);G.add(S);
+      const sa=(g,m,x,y,z)=>{const o=new R.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;S.add(o);return o;};
+      sa(new R.BoxGeometry(3.6,.32,1.1),blk,0,.16,0);sa(new R.BoxGeometry(3.5,.22,1.0),fab,0,.43,.02);sa(new R.BoxGeometry(3.5,.55,.24),fab,0,.75,-.42);
+      [-1,1].forEach(sd=>sa(new R.BoxGeometry(.22,.42,1.0),fab,sd*1.72,.62,0));
+      [-.9,.2,1.1].forEach((x,k)=>sa(new R.BoxGeometry(.5,.4,.14),new R.MeshStandardMaterial({color:[0xC9A14A,0x8C9A7A,0xD8C9B0][k],roughness:.9}),x,.78,-.25));
+      sa(new R.CylinderGeometry(.32,.32,.04,20),blk,2.35,.48,0);sa(new R.CylinderGeometry(.03,.03,.46,8),blk,2.35,.24,0);
+      // 屋頂邊緣一圈低矮的清玻璃欄杆（只圍花園這一半）
+      [[-6.6,8.15,13.4,0],[-13.45,.6,15.1,Math.PI/2]].forEach(([x,z,l,ry])=>{add(new R.BoxGeometry(l,1.0,.04),glass,x,.5,z,ry);   // 無框玻璃，坐著看出去不會被擋});
+      // 晚上會亮的矮燈
+      [[-2.2,6.8],[-10.8,6.8],[-2.2,2.2],[-10.8,2.2]].forEach(([x,z])=>{add(new R.CylinderGeometry(.08,.1,.5,10),blk,x,.38,z);add(new R.SphereGeometry(.09,10,8),new R.MeshBasicMaterial({color:0xFFE2A8}),x,.68,z);});
+      const gl=new R.PointLight(0xFFD49A,.5,9);gl.position.set(-6.4,1.6,4.6);G.add(gl);
+      [[-6.6,-5.6,5.6,.7],[-12.2,-.6,.7,4.9],[-11.4,-5,.6,.6],[-6.4,5.4,1.9,.65]].forEach(([x,z,hw,hd])=>F.col.push({x0:hx+x-hw,x1:hx+x+hw,z0:hz+z-hd,z1:hz+z+hd,roof:1}));
+      F.hots.push({id:'garden',name:'屋頂花園・長沙發',verb:'坐下來看園區',x:hx-6.4,z:hz+4.3,r:2.2,go:()=>goto('forest','garden')});}
     F.padUpdate=(dt,t)=>{beacon.visible=(t%1.6)<.12;edge.forEach((l,k)=>l.material.color.setHSL(.11,.9,.55+.25*Math.max(0,Math.sin(t*2-k*.4))));};}
   // 金庫：門口右前方的噴水池，金幣被你吸過來
   // 金庫：三層圓形石階的祭壇，一條石板參道從小路分出來，四盞石燈，金色內嵌圓環
@@ -686,7 +724,7 @@ F.hots=[
   {id:'center',name:'光孔日晷・使命板',verb:'打開',x:0,z:EC.cz+2.2,r:2.4,go:()=>openApp('使命板','https://fuwei0618-cmd.github.io/Entry/mission/')},
   {id:'campfire',name:'營火',verb:'坐下',x:FX,z:FZ+1.6,r:3},
   {id:'fireflies',name:'螢火蟲',verb:'看看',x:4,z:GZ+2.5,r:3},
-  {id:'helipad',name:'屋頂停機坪・私人飛機',verb:'起飛',x:hx+14.4,z:hz+7.8,r:3,go:()=>openWorld()}
+  {id:'helipad',name:'屋頂停機坪・私人飛機',verb:'起飛',x:hx+14.6,z:hz+8.2,r:3,go:()=>openWorld()}
 ];
 // 守護者：格柵內側，狼（左・Teresa・給世界）與虎（右・Elva・給自己），約 9 倍人高
 // 巡邏：走向門口時面對面 → 到門口轉身面向外面，站崗看守很久 → 轉身背對背走向牆的盡頭 → 停一下看外面 → 再走回門口
@@ -753,17 +791,18 @@ F.hots=[
   let bow=0;F.butlerUpdate=dt=>{const tgt=Math.atan2(camera.position.x-BX,camera.position.z-BZ);let d=tgt-piv.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));piv.rotation.y+=d*Math.min(1,dt*2);   // 慢慢轉向你
     const near=Math.hypot(P.x-BX,P.z-BZ)<3.2;bow+=((near?.14:0)-bow)*Math.min(1,dt*2.5);body.rotation.x=-bow;};}   // 你走近時微微欠身
 { // 屋頂：鋼梯是斜坡，梯頂之後可以在屋頂上走；屋頂邊緣不會掉下去
-  const y0h=heightAt(hx,hz),RYw=5.9,base=F.floor,stair=(lx,lz)=>lx>13.7&&lx<15&&lz>-2.2&&lz<7.4;
-  F.floor=(x,z)=>{const lx=x-hx,lz=z-hz;if(stair(lx,lz)){const t=clamp((6.9-lz)/8.6,0,1);return y0h+.5+t*(RYw-.5);}
+  const y0h=heightAt(hx,hz),RYw=5.9,base=F.floor,stair=(lx,lz)=>lx>13.6&&lx<15.6&&lz>-2.2&&lz<7.3,
+    stairT=lz=>lz>3.2?(7.0-lz)/3.8*.5:lz>1.8?.5:.5+(1.8-lz)/3.8*.5;   // 0 → 0.5（平台）→ 1
+  F.floor=(x,z)=>{const lx=x-hx,lz=z-hz;if(stair(lx,lz)){const t=clamp(stairT(lz),0,1);return y0h+.5+t*(RYw-.5);}
     if(roofOn&&lx>-13.6&&lx<13.75&&lz>-7&&lz<8.3)return y0h+RYw;
     if(lx>-15&&lx<15&&lz>-7.5&&lz<9.5)return Math.max(base(x,z),y0h+.5);          // 家的基座平台（高 0.5 m），走上去不會陷進去
     if(Math.abs(lx)<1.82&&lz>=9.5&&lz<9.8)return Math.max(base(x,z),y0h+.56);    // 門口的黑石門檻
     return base(x,z);};
   F.post=p=>{const lx=p.x-hx,lz=p.z-hz;if(cur!==F){roofOn=false;return;}
-    if(stair(lx,lz)){roofOn=(6.9-lz)/8.6>.88;return;}
+    if(stair(lx,lz)){roofOn=stairT(lz)>.92;return;}
     if(roofOn){p.x=hx+clamp(lx,-13.4,13.75);p.z=hz+clamp(lz,-6.8,8.1);}};
   F.hots.push({id:'jet',name:'私人飛機',verb:'起飛',x:hx+3.2,z:hz+3.4,r:2.6,go:()=>openWorld()});}
-F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[-8,GZ+2.6,Math.PI,0],guardT:[8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2]};
+F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[-8,GZ+2.6,Math.PI,0],guardT:[8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI,-.1,'first']};
 F.update=(dt,t)=>{sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
   pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);F.doorUpdate&&F.doorUpdate(dt);};
 
@@ -1135,6 +1174,7 @@ const INFO={
   gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',links:[['打開健身房','https://fuwei0618-cmd.github.io/Gym/']]},
   center:{tag:'森林 · 十字中心',title:'光孔日晷',body:'十字的交會點蓋了一座圓形小涼亭，兩道砂岩懸鏈拱從地面升起，四個拱腳讓出四個方向：東西連著金庫和營火（錢與熱情），南北連著家和森林入口（你自己和外面的世界）。兩道拱在頭頂交成十字，交點就是光孔，每天正午，一道光會落在地上那條金色的子午線上。站在這裡的人就是中心；不追趕什麼，只是每天都有一道光來找你。'},
   butler:{tag:'家門口',title:'管家',body:'他什麼都不用說。看到他站在門口，就知道所有的事都會被打理乾淨、好好收尾。你只要安心出門，安心回家。'},
+  garden:{tag:'家 · 屋頂',title:'屋頂花園',body:'停機坪的另一邊。坐在長沙發上，整個園區都在眼前：森林入口的狼與虎、光孔日晷、金庫的噴泉、營火。累了就上來坐一下。'},
   helipad:{tag:'家 · 屋頂',title:'私人飛機',body:'家可以只有一個，但我隨時可以起飛。時間和地點綁不住我：想去哪裡，走上屋頂就出發。'},
   vault:{tag:'家門口 · 金庫',title:'源源不絕',body:'噴水池的水不停往上噴，金幣被你吸引過來、砸在你身上，閃都閃不掉。理財、保險健檢、投資都在這裡。',links:[['富偉・金庫願景','https://fuwei0618-cmd.github.io/Entry/vault/'],['保險手冊','https://fuwei0618-cmd.github.io/Insurance/'],['財富管理','https://fuwei0618-cmd.github.io/Wealth-mgm/'],['投資','https://investment-beige-iota.vercel.app/']]},
   fountain:{tag:'B2 · 前殿',title:'轉運流水盆',body:'粗石盆裡的水一直流，白色花崗岩球在水上慢慢轉。禱告的時候，耳邊一直有流水聲。'},
@@ -1279,7 +1319,7 @@ const fade=$('#fade');
 function goto(id,spawn){closeSheet();fade.classList.add('on');setTimeout(()=>{
   cur.scene.remove(player);if(marker.parent)marker.parent.remove(marker);
   cur=SC[id];cur.scene.add(player);curHot=null;prompt.hidden=true;target=null;
-  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];roofOn=(id==='forest'&&spawn==='roof');P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}
+  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];roofOn=(id==='forest'&&(spawn==='roof'||spawn==='garden'));P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}
   $('#where').textContent=cur.where;camInit=true;setTimeout(()=>fade.classList.remove('on'),60);},280);}
 
 /* ---------- sheets ---------- */

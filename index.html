@@ -456,6 +456,7 @@ let vaultF;
     const fw=5.2,fh=1.95,fx=-4.2,fy=Y+2.3,silver=new R.MeshStandardMaterial({color:0xE4E7EA,metalness:.6,roughness:.2,emissive:0xB8BEC2,emissiveIntensity:.6});   // 窗拉滿這一段，細銀框
     
     mesh(new R.PlaneGeometry(fw,fh),glassS,fx,fy,Z-.33,H,false).rotation.y=Math.PI;
+    mesh(new R.BoxGeometry(fw+.3,.07,.75),trv,fx,fy+fh/2+.18,Z-.68,H);mesh(new R.BoxGeometry(fw+.3,.02,.04),silver,fx,fy+fh/2+.14,Z-1.04,H,false);   // 短雨遮：一片薄薄的石灰華，前緣一道細銀線
     [[0,fh/2,fw,.035],[0,-fh/2,fw,.035],[-fw/2,0,.035,fh],[fw/2,0,.035,fh],[-fw/6,0,.02,fh],[fw/6,0,.02,fh]].forEach(([dx,dy,w,h])=>mesh(new R.BoxGeometry(w,h,.04),silver,fx+dx,fy+dy,Z-.35,H,false));
     // ③ 綠牆＋金邊細縫
     const moss=canvasTex(256,256,(g,w,h)=>{g.fillStyle='#5E7F45';g.fillRect(0,0,w,h);for(let k=0;k<900;k++){g.fillStyle=['#86A866','#6F8F4E','#9AB878','#4E6E3A'][k%4];g.beginPath();g.arc(Math.random()*w,Math.random()*h,2+Math.random()*6,0,7);g.fill();}},[2,3]);
@@ -1100,10 +1101,22 @@ F.hots=[
     const wood=new R.MeshStandardMaterial({color:0xB98E66,roughness:.75}),pts=[[hx+8.2,hz-11.8]];
     for(let i=0;i<P.length-6;i+=3){const a=P[Math.max(0,i-1)],b=P[Math.min(P.length-1,i+1)],dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz)||1,u=STREAM.S[i]/STREAM.L,o=.55+u*.8+2.1;
       const q=[P[i][0]-dz/L*o,P[i][1]+dx/L*o];if(q[1]<hz-12.5)pts.push(q);}
-    const plank=new R.BoxGeometry(1.3,.06,.16);
-    for(let i=0;i<pts.length-1;i++){const[a,b]=pts[i],[c,d]=pts[i+1],L=Math.hypot(c-a,d-b),ry=Math.atan2(c-a,d-b),n=Math.max(1,Math.round(L/.22));
-      for(let k=0;k<n;k++){const t=(k+.5)/n,x=a+(c-a)*t,z=b+(d-b)*t;const m=mesh(plank,wood,x,heightAt(x,z)+.12,z,out,false);m.rotation.y=ry;}
-      [-1,1].forEach(sd=>{const bm=mesh(new R.BoxGeometry(.06,.1,L),new R.MeshStandardMaterial({color:0x8A6A4C,roughness:.8}),(a+c)/2+Math.cos(ry)*sd*.6,heightAt((a+c)/2,(b+d)/2)+.06,(b+d)/2-Math.sin(ry)*sd*.6,out,false);bm.rotation.y=ry;});}}
+    // 平順的路徑：先把點平滑、等距重新取樣，高度取附近地面的最高點再做移動平均，木板一片一片照切線排好，不會翹
+    const sm_=[];for(let i=0;i<pts.length-1;i++){const a=pts[Math.max(0,i-1)],b=pts[i],c=pts[i+1],d=pts[Math.min(pts.length-1,i+2)];
+      for(let j=0;j<10;j++){const t=j/10,t2=t*t,t3=t2*t;sm_.push([0,1].map(k=>.5*(2*b[k]+(-a[k]+c[k])*t+(2*a[k]-5*b[k]+4*c[k]-d[k])*t2+(-a[k]+3*b[k]-3*c[k]+d[k])*t3)));}}sm_.push(pts[pts.length-1]);
+    const cum=[0];for(let i=1;i<sm_.length;i++)cum.push(cum[i-1]+Math.hypot(sm_[i][0]-sm_[i-1][0],sm_[i][1]-sm_[i-1][1]));
+    const TOT=cum[cum.length-1],STEP=.2,N=Math.floor(TOT/STEP),Q=[];
+    for(let k=0;k<=N;k++){const sd=k*STEP;let i=0;while(i<cum.length-2&&cum[i+1]<sd)i++;const t=(sd-cum[i])/((cum[i+1]-cum[i])||1);Q.push([sm_[i][0]+(sm_[i+1][0]-sm_[i][0])*t,sm_[i][1]+(sm_[i+1][1]-sm_[i][1])*t]);}
+    const gh=Q.map(([x,z])=>Math.max(heightAt(x,z),heightAt(x+.5,z),heightAt(x-.5,z),heightAt(x,z+.5),heightAt(x,z-.5)));
+    const HY=gh.map((_,k)=>{let s0=0,n0=0;for(let d=-10;d<=10;d++){const q=gh[Math.min(gh.length-1,Math.max(0,k+d))];s0+=q;n0++;}return Math.max(s0/n0,gh[k])+.16;});
+    const plank=new R.BoxGeometry(1.3,.05,.17),im=new R.InstancedMesh(plank,wood,Q.length),mm=new R.Matrix4(),qq=new R.Quaternion(),ee=new R.Euler();
+    Q.forEach(([x,z],k)=>{const a=Q[Math.max(0,k-1)],b=Q[Math.min(Q.length-1,k+1)],ry=Math.atan2(b[0]-a[0],b[1]-a[1]),pitch=Math.atan2(HY[Math.min(Q.length-1,k+1)]-HY[Math.max(0,k-1)],Math.hypot(b[0]-a[0],b[1]-a[1])||1);
+      ee.set(-pitch,ry,0,'YXZ');qq.setFromEuler(ee);mm.compose(new R.Vector3(x,HY[k],z),qq,new R.Vector3(1,1,1));im.setMatrixAt(k,mm);});
+    im.castShadow=im.receiveShadow=true;out.add(im);
+    const beamM=new R.MeshStandardMaterial({color:0x7A5C44,roughness:.8});
+    [-1,1].forEach(sd=>{const bp=Q.map(([x,z],k)=>{const a=Q[Math.max(0,k-1)],b=Q[Math.min(Q.length-1,k+1)],dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz)||1;return new R.Vector3(x-dz/L*.6*sd,HY[k]-.07,z+dx/L*.6*sd);});
+      const t=new R.Mesh(new R.TubeGeometry(new R.CatmullRomCurve3(bp),Q.length,.05,4),beamM);t.castShadow=true;out.add(t);});
+    for(let k=0;k<Q.length;k+=8){const[x,z]=Q[k];const h=HY[k]-heightAt(x,z);if(h>.25)mesh(new R.BoxGeometry(.08,h,.08),beamM,x,heightAt(x,z)+h/2,z,out);}}
   { // ① 晨光石台：溪邊一塊平坦的石灰華台，早上在這裡伸展、做皮拉提斯。腳往下扎根的地方
     const trv=new R.MeshStandardMaterial({color:0xEAE1CF,roughness:.5}),p=at(.2),w=.55+.2*.8,x=p.x-p.tz*-(w+3.6),z=p.z+p.tx*-(w+3.6),y=heightAt(x,z),ry=Math.atan2(p.tx,p.tz);
     const pl=mesh(new R.BoxGeometry(3.4,.22,2.4),trv,x,y+.11,z,out);pl.rotation.y=ry;
@@ -1161,14 +1174,17 @@ F.hots=[
       A(S,new R.CylinderGeometry(.74,.68,.24,32),lin,0,-2.18,.06);const bk=A(S,new R.BoxGeometry(.9,.66,.18),oat,0,-1.78,-.5);bk.rotation.x=-.2;
       A(S,new R.BoxGeometry(.44,.34,.14),sage,.3,-1.9,-.3).rotation.x=-.3;A(S,new R.BoxGeometry(.4,.32,.13),lin,-.32,-1.92,-.32).rotation.x=-.3;
       A(S,new R.BoxGeometry(.7,.04,.5),oat,0,-2.05,.35);V4.push({G,S});}
-    { // D：漂浮床——躺著的，有頂。四根極細黃銅柱，頂上一片會飄的紗，床低低吊著
-      const G=new R.Group();base.add(G);const P4=[[-1.45,-.95],[1.45,-.95],[-1.45,.95],[1.45,.95]];
-      P4.forEach(([a,c])=>{rod(G,V(a,0,c),V(a,2.55,c),.022,brass);A(G,new R.CylinderGeometry(.09,.09,.03,14),brass,a,.015,c);});
-      [[-.95],[.95]].forEach(([c])=>rod(G,V(-1.45,2.55,c),V(1.45,2.55,c),.02,brass));[-1.45,1.45].forEach(a=>rod(G,V(a,2.55,-.95),V(a,2.55,.95),.02,brass));
-      {const g=new R.PlaneGeometry(3.3,2.3,20,12);g.rotateX(-Math.PI/2);const pp=g.attributes.position;for(let i=0;i<pp.count;i++){const xx=pp.getX(i),zz=pp.getZ(i);pp.setY(i,-.04*xx*xx+.05*Math.sin(xx*3+zz*2));}g.computeVertexNormals();A(G,g,sheer,0,2.58,0);}
-      drape(G,-1.5,0,2.4,.9,Math.PI/2).position.z=-.55;
-      const S=new R.Group();S.position.y=2.55;G.add(S);const b=new R.Group();b.position.y=-2.1;S.add(b);bed(b,2.2,1.15,0);
-      [[-1.05,-.52],[1.05,-.52],[-1.05,.52],[1.05,.52]].forEach(([a,c])=>rod(S,V(a,-2.08,c),V(a*1.38,0,c*1.83),.006,brass));V4.push({G,S});}
+    { // D：漂浮床——躺著的，有頂。四根方正的胡桃木柱＋黃銅柱腳，粗木樑撐起一片繃緊的亞麻頂，床用黃銅鏈吊得低低的，四周垂紗
+      const G=new R.Group();base.add(G);const P4=[[-1.5,-1],[1.5,-1],[-1.5,1],[1.5,1]];
+      A(G,new R.BoxGeometry(3.4,.08,2.4),trv,0,.04,0);                                                                                  // 石灰華底台
+      P4.forEach(([a,c])=>{A(G,new R.BoxGeometry(.12,2.6,.12),walnut,a,1.38,c);A(G,new R.BoxGeometry(.18,.12,.18),brass,a,.14,c);A(G,new R.BoxGeometry(.16,.06,.16),brass,a,2.7,c);});
+      [-1,1].forEach(c=>A(G,new R.BoxGeometry(3.12,.14,.1),walnut,0,2.62,c));[-1.5,1.5].forEach(a=>A(G,new R.BoxGeometry(.1,.14,2.12),walnut,a,2.62,0));
+      {const g=new R.PlaneGeometry(3.1,2.1,20,12);g.rotateX(-Math.PI/2);const pp=g.attributes.position;for(let i=0;i<pp.count;i++){const xx=pp.getX(i);pp.setY(i,-.035*xx*xx+.12);}g.computeVertexNormals();
+       A(G,g,new R.MeshStandardMaterial({color:0xF4EEE3,roughness:1,side:R.DoubleSide}),0,2.62,0);}
+      drape(G,-1.55,-.55,2.35,.9,Math.PI/2);drape(G,1.55,.55,2.35,.9,Math.PI/2);
+      const S=new R.Group();S.position.y=2.55;G.add(S);const b=new R.Group();b.position.y=-2.05;S.add(b);bed(b,2.3,1.25,0);
+      [[-1.1,-.58],[1.1,-.58],[-1.1,.58],[1.1,.58]].forEach(([a,c])=>{const top=V(a*1.33,0,c*1.65),bot=V(a,-2.03,c);for(let k=0;k<14;k++){const t=k/13,l=new R.Mesh(new R.TorusGeometry(.035,.011,5,10),brass);l.position.lerpVectors(top,bot,t);l.rotation.y=k*Math.PI/2;S.add(l);}});
+      V4.push({G,S});}
     const NAMES=['鞦韆沙發（坐）','亞麻吊床（放鬆）','藤編蛋椅（被包住）','漂浮床（躺）'];
     let k=0;try{k=+localStorage.getItem('origina.cradle')||0;}catch(e){}
     let hot=null;const show=()=>{V4.forEach((v,i)=>v.G.visible=i===k);if(hot)hot.name='搖籃・'+NAMES[k];};

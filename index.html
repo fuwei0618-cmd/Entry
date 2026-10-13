@@ -1098,18 +1098,16 @@ F.hots=[
      for(let i=1;i<6;i++){const t=i/6;const po=new R.Mesh(new R.BoxGeometry(.05,.7,.05),wood);po.position.set(-span+2*span*t,.6+Math.sin(Math.PI*t)*.7,sd*.52);B.add(po);}});}
   {const[x,z]=side(.47,2.2);mesh(new R.BoxGeometry(1.5,.42,.5),new R.MeshStandardMaterial({color:0xBDB4A3,roughness:.9}),x,heightAt(x,z)+.21,z,out);}
   { // 木棧道：從木平台下來，沿著溪的右岸一路走到下游。只屬於自己的散步路
-    const wood=new R.MeshStandardMaterial({color:0xB98E66,roughness:.75}),pts=[[hx+8.2,hz-11.8]];
-    for(let i=0;i<P.length-6;i+=3){const a=P[Math.max(0,i-1)],b=P[Math.min(P.length-1,i+1)],dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz)||1,u=STREAM.S[i]/STREAM.L,o=.55+u*.8+2.1;
-      const q=[P[i][0]-dz/L*o,P[i][1]+dx/L*o];if(q[1]<hz-12.5)pts.push(q);}
+    const wood=new R.MeshStandardMaterial({color:0xB98E66,roughness:.75}),pts=[[8.6,-19.9],[8.4,-22.6],[7.6,-25.6],[7.6,-28.6],[7.9,-31.4],[6.7,-34.4],[3.8,-37.4],[-.6,-40.6],[-4,-43.6]];
     // 平順的路徑：先把點平滑、等距重新取樣，高度取附近地面的最高點再做移動平均，木板一片一片照切線排好，不會翹
     const sm_=[];for(let i=0;i<pts.length-1;i++){const a=pts[Math.max(0,i-1)],b=pts[i],c=pts[i+1],d=pts[Math.min(pts.length-1,i+2)];
       for(let j=0;j<10;j++){const t=j/10,t2=t*t,t3=t2*t;sm_.push([0,1].map(k=>.5*(2*b[k]+(-a[k]+c[k])*t+(2*a[k]-5*b[k]+4*c[k]-d[k])*t2+(-a[k]+3*b[k]-3*c[k]+d[k])*t3)));}}sm_.push(pts[pts.length-1]);
     const cum=[0];for(let i=1;i<sm_.length;i++)cum.push(cum[i-1]+Math.hypot(sm_[i][0]-sm_[i-1][0],sm_[i][1]-sm_[i-1][1]));
-    const TOT=cum[cum.length-1],STEP=.2,N=Math.floor(TOT/STEP),Q=[];
+    const TOT=cum[cum.length-1],STEP=.19,N=Math.floor(TOT/STEP),Q=[];
     for(let k=0;k<=N;k++){const sd=k*STEP;let i=0;while(i<cum.length-2&&cum[i+1]<sd)i++;const t=(sd-cum[i])/((cum[i+1]-cum[i])||1);Q.push([sm_[i][0]+(sm_[i+1][0]-sm_[i][0])*t,sm_[i][1]+(sm_[i+1][1]-sm_[i][1])*t]);}
     const gh=Q.map(([x,z])=>Math.max(heightAt(x,z),heightAt(x+.5,z),heightAt(x-.5,z),heightAt(x,z+.5),heightAt(x,z-.5)));
     const HY=gh.map((_,k)=>{let s0=0,n0=0;for(let d=-10;d<=10;d++){const q=gh[Math.min(gh.length-1,Math.max(0,k+d))];s0+=q;n0++;}return Math.max(s0/n0,gh[k])+.16;});
-    const plank=new R.BoxGeometry(1.3,.05,.17),im=new R.InstancedMesh(plank,wood,Q.length),mm=new R.Matrix4(),qq=new R.Quaternion(),ee=new R.Euler();
+    const plank=new R.BoxGeometry(1.2,.05,.16),im=new R.InstancedMesh(plank,wood,Q.length),mm=new R.Matrix4(),qq=new R.Quaternion(),ee=new R.Euler();
     Q.forEach(([x,z],k)=>{const a=Q[Math.max(0,k-1)],b=Q[Math.min(Q.length-1,k+1)],ry=Math.atan2(b[0]-a[0],b[1]-a[1]),pitch=Math.atan2(HY[Math.min(Q.length-1,k+1)]-HY[Math.max(0,k-1)],Math.hypot(b[0]-a[0],b[1]-a[1])||1);
       ee.set(-pitch,ry,0,'YXZ');qq.setFromEuler(ee);mm.compose(new R.Vector3(x,HY[k],z),qq,new R.Vector3(1,1,1));im.setMatrixAt(k,mm);});
     im.castShadow=im.receiveShadow=true;out.add(im);
@@ -1174,16 +1172,15 @@ F.hots=[
       A(S,new R.CylinderGeometry(.74,.68,.24,32),lin,0,-2.18,.06);const bk=A(S,new R.BoxGeometry(.9,.66,.18),oat,0,-1.78,-.5);bk.rotation.x=-.2;
       A(S,new R.BoxGeometry(.44,.34,.14),sage,.3,-1.9,-.3).rotation.x=-.3;A(S,new R.BoxGeometry(.4,.32,.13),lin,-.32,-1.92,-.32).rotation.x=-.3;
       A(S,new R.BoxGeometry(.7,.04,.5),oat,0,-2.05,.35);V4.push({G,S});}
-    { // D：漂浮床——躺著的，有頂。四根方正的胡桃木柱＋黃銅柱腳，粗木樑撐起一片繃緊的亞麻頂，床用黃銅鏈吊得低低的，四周垂紗
-      const G=new R.Group();base.add(G);const P4=[[-1.5,-1],[1.5,-1],[-1.5,1],[1.5,1]];
-      A(G,new R.BoxGeometry(3.4,.08,2.4),trv,0,.04,0);                                                                                  // 石灰華底台
-      P4.forEach(([a,c])=>{A(G,new R.BoxGeometry(.12,2.6,.12),walnut,a,1.38,c);A(G,new R.BoxGeometry(.18,.12,.18),brass,a,.14,c);A(G,new R.BoxGeometry(.16,.06,.16),brass,a,2.7,c);});
-      [-1,1].forEach(c=>A(G,new R.BoxGeometry(3.12,.14,.1),walnut,0,2.62,c));[-1.5,1.5].forEach(a=>A(G,new R.BoxGeometry(.1,.14,2.12),walnut,a,2.62,0));
-      {const g=new R.PlaneGeometry(3.1,2.1,20,12);g.rotateX(-Math.PI/2);const pp=g.attributes.position;for(let i=0;i<pp.count;i++){const xx=pp.getX(i);pp.setY(i,-.035*xx*xx+.12);}g.computeVertexNormals();
-       A(G,g,new R.MeshStandardMaterial({color:0xF4EEE3,roughness:1,side:R.DoubleSide}),0,2.62,0);}
-      drape(G,-1.55,-.55,2.35,.9,Math.PI/2);drape(G,1.55,.55,2.35,.9,Math.PI/2);
-      const S=new R.Group();S.position.y=2.55;G.add(S);const b=new R.Group();b.position.y=-2.05;S.add(b);bed(b,2.3,1.25,0);
-      [[-1.1,-.58],[1.1,-.58],[-1.1,.58],[1.1,.58]].forEach(([a,c])=>{const top=V(a*1.33,0,c*1.65),bot=V(a,-2.03,c);for(let k=0;k<14;k++){const t=k/13,l=new R.Mesh(new R.TorusGeometry(.035,.011,5,10),brass);l.position.lerpVectors(top,bot,t);l.rotation.y=k*Math.PI/2;S.add(l);}});
+    { // D：漂浮床——躺著的，有頂。四根細方胡桃木柱、細樑，頂上一片繃平的亞麻，床用細黃銅鏈吊得低低的。比例：框剛好包住床，不大不粗
+      const G=new R.Group();base.add(G);const PX=1.32,PZ=.82,HT=2.25;
+      A(G,new R.BoxGeometry(2*PX+.5,.05,2*PZ+.5),trv,0,.025,0);
+      [[-PX,-PZ],[PX,-PZ],[-PX,PZ],[PX,PZ]].forEach(([a,c])=>{A(G,new R.BoxGeometry(.07,HT,.07),walnut,a,HT/2+.05,c);A(G,new R.BoxGeometry(.1,.05,.1),brass,a,.075,c);});
+      [-PZ,PZ].forEach(c=>A(G,new R.BoxGeometry(2*PX+.07,.07,.06),walnut,0,HT+.05,c));[-PX,PX].forEach(a=>A(G,new R.BoxGeometry(.06,.07,2*PZ+.07),walnut,a,HT+.05,0));
+      A(G,new R.BoxGeometry(2*PX,.02,2*PZ),new R.MeshStandardMaterial({color:0xF4EEE3,roughness:1}),0,HT+.1,0);
+      drape(G,-PX-.03,-.35,HT-.05,.75,Math.PI/2);drape(G,PX+.03,.35,HT-.05,.75,Math.PI/2);
+      const S=new R.Group();S.position.y=HT+.05;G.add(S);const b=new R.Group();b.position.y=-1.85;S.add(b);bed(b,2.05,1.1,0);
+      [[-.98,-.5],[.98,-.5],[-.98,.5],[.98,.5]].forEach(([a,c])=>{const top=V(a*1.3,0,c*1.6),bot=V(a,-1.83,c);for(let k=0;k<16;k++){const t=k/15,l=new R.Mesh(new R.TorusGeometry(.022,.007,5,10),brass);l.position.lerpVectors(top,bot,t);l.rotation.y=k*Math.PI/2;S.add(l);}});
       V4.push({G,S});}
     const NAMES=['鞦韆沙發（坐）','亞麻吊床（放鬆）','藤編蛋椅（被包住）','漂浮床（躺）'];
     let k=0;try{k=+localStorage.getItem('origina.cradle')||0;}catch(e){}
@@ -1352,18 +1349,18 @@ const dog=new R.Group();{const fur=mat(0xC79B6D),dark=mat(0x6B4A30);
   [[-.12,.2],[.12,.2],[-.12,-.2],[.12,-.2]].forEach(([x,z])=>mesh(new R.BoxGeometry(.08,.2,.08),dark,x,.1,z,dog));
   const tail=mesh(new R.BoxGeometry(.06,.06,.26),fur,0,.45,-.38,dog);tail.rotation.x=-.6;dog.userData.tail=tail;}
 // Lucky：住在家裡，不跟出門。你從大門進來時他跑來迎接、跟你走幾步，再回去自己的窩；點他「帶 Lucky 散步」才跟你出門
-const DOGBED={x:-6.4,z:4.0};
-{const bed=new R.Group();bed.position.set(DOGBED.x,0,DOGBED.z);f1r.scene.add(bed);
+const DOGBED={x:hx+11.2,z:hz-15.2};   // Lucky 的窩：後花園，早餐平台旁的草地上
+{const bed=new R.Group();bed.position.set(DOGBED.x,heightAt(DOGBED.x,DOGBED.z),DOGBED.z);out.add(bed);
   const rim=new R.Mesh(new R.TorusGeometry(.42,.13,10,28),new R.MeshStandardMaterial({color:0xD9CBB2,roughness:1}));rim.rotation.x=Math.PI/2;rim.position.y=.13;rim.castShadow=true;bed.add(rim);
   const pad=new R.Mesh(new R.CylinderGeometry(.4,.4,.08,24),new R.MeshStandardMaterial({color:0xEFE8DB,roughness:1}));pad.position.y=.06;bed.add(pad);}
-dog.position.set(DOGBED.x+.6,0,DOGBED.z-.4);f1r.scene.add(dog);const dogAI={tx:DOGBED.x,tz:DOGBED.z,wait:1,greet:0};
+dog.position.set(DOGBED.x+.6,heightAt(DOGBED.x,DOGBED.z),DOGBED.z-.4);out.add(dog);const dogAI={tx:DOGBED.x,tz:DOGBED.z,wait:1,greet:0};
 let dogMode='home';
 function dogTo(scene){if(dog.parent!==scene){if(dog.parent)dog.parent.remove(dog);scene.add(dog);}}
 function openLucky(){const walking=dogMode==='walk';
-  openSheet(`<div class="tag">家 · Lucky</div><h2>Lucky</h2><p>${walking?'他正跟著你，尾巴搖個不停。':'尾巴搖個不停。他平常待在家裡自己的窩，你回家時會跑來門口接你。'}</p>
+  openSheet(`<div class="tag">家 · Lucky</div><h2>Lucky</h2><p>${walking?'他正跟著你，尾巴搖個不停。':'尾巴搖個不停。他平常待在後花園自己的窩，你走出廚房到早餐平台時，他會跑過來接你。'}</p>
     <div class="row"><button class="btn dark" id="luckyWalk">${walking?'送 Lucky 回家':'帶 Lucky 散步'}</button><button class="btn light" data-app-url="https://fuwei0618-cmd.github.io/Lucky/" data-app-name="Lucky 手冊">打開 Lucky 手冊</button><button class="btn light" data-close>回到場景</button></div>`);
   root.querySelectorAll('[data-app-url]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.appName,b.dataset.appUrl)));
-  $('#luckyWalk').addEventListener('click',()=>{closeSheet();if(walking){dogMode='home';if(cur!==H1S){dogTo(f1r.scene);dog.position.set(DOGBED.x,0,DOGBED.z);}dogAI.greet=0;dogAI.tx=DOGBED.x;dogAI.tz=DOGBED.z;}else{dogMode='walk';dogAI.greet=0;}});}
+  $('#luckyWalk').addEventListener('click',()=>{closeSheet();if(walking){dogMode='home';if(cur!==F){dogTo(out);dog.position.set(DOGBED.x,heightAt(DOGBED.x,DOGBED.z),DOGBED.z);}dogAI.greet=0;dogAI.tx=DOGBED.x;dogAI.tz=DOGBED.z;}else{dogMode='walk';dogAI.greet=0;}});}
 function dogUpdate(dt,t){
   const fl=(x,z)=>cur.floor?cur.floor(x,z):0;let tx,tz,sp=1.6;
   const pd=Math.hypot(P.x-dog.position.x,P.z-dog.position.z);
@@ -1375,7 +1372,7 @@ function dogUpdate(dt,t){
     if(dogMode!=='walk'&&dogAI.greet<=0){dogAI.tx=DOGBED.x;dogAI.tz=DOGBED.z;dogAI.wait=4;}
   }else{                                                   // 在家：窩附近晃晃，偶爾回窩趴著
     const dx=dogAI.tx-dog.position.x,dz=dogAI.tz-dog.position.z;
-    if(Math.hypot(dx,dz)<=.1){dogAI.wait-=dt;if(dogAI.wait<0){const r=rand();dogAI.tx=r<.4?DOGBED.x:DOGBED.x+(rand()-.5)*4.5;dogAI.tz=r<.4?DOGBED.z:clamp(DOGBED.z+(rand()-.5)*3,-2,5);dogAI.wait=2+rand()*4;}}
+    if(Math.hypot(dx,dz)<=.1){dogAI.wait-=dt;if(dogAI.wait<0){const r=rand();dogAI.tx=r<.4?DOGBED.x:DOGBED.x+(rand()-.5)*4.5;dogAI.tz=r<.4?DOGBED.z:DOGBED.z+(rand()-.5)*3;dogAI.wait=2+rand()*4;}}
     tx=dogAI.tx;tz=dogAI.tz;}
   const dx=tx-dog.position.x,dz=tz-dog.position.z,d=Math.hypot(dx,dz);
   if(d>.1){const st=Math.min(d,dt*sp);dog.position.x+=dx/d*st;dog.position.z+=dz/d*st;dog.rotation.y=Math.atan2(dx,dz);}
@@ -1395,7 +1392,7 @@ H1S.hots=[
   {id:'front',name:'回到森林',verb:'出門',x:0,z:D1/2-.9,r:1.4,go:()=>goto('forest','door')}
 ];
 H1S.spawns={front:[0,D1/2-3.8,Math.PI,0],stairs:[-9.4,3,Math.PI/2,-Math.PI/2],stage:[-.6,-D1/2+1.6,0,Math.PI],cal:[-W1/2+2.4,-1.5,-Math.PI/2,Math.PI/2],kitchen:[7.6,1.8,Math.PI,0],closet:[W1/2-2.8,3.6,Math.PI/2,-Math.PI/2],gym:[5.4,1.4,0,Math.PI],back:[8.6,-D1/2+1.6,0,Math.PI]};
-H1S.update=(dt,t)=>{dogUpdate(dt,t);};
+H1S.update=(dt,t)=>{if(dog.parent===f1r.scene)dogUpdate(dt,t);};
 
 /* =========================================================
    3 · B1 臥室（面向下沉庭院）
@@ -1774,7 +1771,7 @@ const BEDROOM='https://fuwei0618-cmd.github.io/Entry/bedroom/';
 function goto(id,spawn){if(id==='f2'){openApp('B1 臥室',BEDROOM);return;}if(id==='attic'){openApp('禱告房',TEMPLE+'front');return;}closeSheet();fade.classList.add('on');setTimeout(()=>{
   cur.scene.remove(player);if(marker.parent)marker.parent.remove(marker);
   cur=SC[id];cur.scene.add(player);curHot=null;prompt.hidden=true;target=null;
-  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];roofOn=(id==='forest'&&(spawn==='roof'||spawn==='garden'));if(dogMode==='walk'&&id!=='forest'&&id!=='f1')dogMode='home';if(dogMode==='walk'){dogTo(cur.scene);}else{dogTo(f1r.scene);if(id==='f1'&&spawn==='front'){dog.position.set(DOGBED.x+1,0,DOGBED.z);dogAI.greet=8;}}P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}
+  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];roofOn=(id==='forest'&&(spawn==='roof'||spawn==='garden'));if(dogMode==='walk'&&id!=='forest'&&id!=='f1')dogMode='home';if(dogMode==='walk'){dogTo(cur.scene);}else{dogTo(out);if(id==='forest'&&spawn==='deck'){dog.position.set(DOGBED.x-1,heightAt(DOGBED.x,DOGBED.z),DOGBED.z+1);dogAI.greet=8;}}P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}
   $('#where').textContent=cur.where;camInit=true;setTimeout(()=>fade.classList.remove('on'),60);},280);}
 
 /* ---------- sheets ---------- */
@@ -1814,9 +1811,9 @@ function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
   ['森林入口',['forest','start'],[0,GZ+RW+6]],['會客亭',['forest','pavilion'],[0,GZ]],['狼',['forest','guardW'],[10,GZI]],['虎',['forest','guardT'],[-10,GZI]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
-  ['營火',['forest','campfire'],[FX,FZ]],['屋後的溪',['forest','stream'],[5.5,-27]],['螢火蟲',['forest','fireflies'],[16,GZ+8]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
+  ['營火',['forest','campfire'],[FX,FZ]],['Lucky',['forest','deck'],[hx+11.2,hz-15.2],['Lucky']],['屋後的溪',['forest','stream'],[5.5,-27]],['螢火蟲',['forest','fireflies'],[16,GZ+8]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
   ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(9,-4.4)],['Beauty',['f1','closet'],W1F(12,3),['正顎手冊'],W1F(16.3,3)],
-  ['健身房',['f1','gym'],W1F(5.4,4.3),['健身房']],['Lucky',['f1','front'],W1F(-6.4,4.3),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
+  ['健身房',['f1','gym'],W1F(5.4,4.3),['健身房']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
   ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];
 const MAP_B=[['B1 臥室',['f2','bed'],[30,30],['床邊']],['B2 禱告房',['attic','ladder'],[68,74]]];
 const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[36,82],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[90,48],['Podcast']]];

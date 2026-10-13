@@ -541,7 +541,7 @@ let vaultF;
         [-1.0,1.0].forEach(x=>sa(B,linen,x,.72,-.46,.98,.36,.24,-.35));                                                    // 往後倒的靠背
         [-1,1].forEach(e=>sa(B,oat,e*1.95,.5,0,.24,.3,.62));                                                               // 圓扶手
         [[-1.4,.8,-.2,0xC9A14A],[-.55,.82,-.25,0xD9CBB2],[.7,.8,-.22,0x9DA88A],[1.45,.78,-.15,0xEDE5D6]].forEach(([x,y,z,c],k)=>{const q=sa(B,new R.MeshStandardMaterial({color:c,roughness:1}),x,y,z,.3,.26,.12,-.4);q.rotation.z=(k%2?-.25:.2);});
-        const th=sa(new R.BoxGeometry(1.1,.03,.9),new R.MeshStandardMaterial({color:0xB8A88E,roughness:1}),1.1,.62,.2,1,1,1);th.rotation.set(0,.35,-.15);   // 隨手搭的毯子
+
         const tw=new R.MeshStandardMaterial({color:0x9A7656,roughness:.7});sa(new R.CylinderGeometry(.34,.34,.06,20),tw,2.6,.42,.1,1,1,1);sa(new R.CylinderGeometry(.22,.28,.4,16),tw,2.6,.2,.1,1,1,1);   // 小木邊几
         sa(new R.CylinderGeometry(.06,.05,.14,12),new R.MeshStandardMaterial({color:0xEFE9DF,roughness:.3}),2.62,.52,.1,1,1,1);}
       // 遮蔭藤架：細木樑＋垂下來的綠藤，罩住整個會客區和前面的沙發
@@ -561,7 +561,7 @@ let vaultF;
           const back=a2(new R.SphereGeometry(1,20,12),linen,-.42,.62,0);back.scale.set(.28,.42,1.3);back.rotation.z=.25;  // 往後靠的椅背
           [-1,1].forEach(e=>{const arm=a2(new R.SphereGeometry(1,16,10),oat,-.05,.42,e*1.18);arm.scale.set(.5,.22,.22);});
           [[-.2,.62,-.6,.3],[-.25,.66,.45,-.2],[.05,.55,.0,.6]].forEach(([px,py,pz,r],k)=>{const c=a2(new R.SphereGeometry(.22,14,10),[oat,new R.MeshStandardMaterial({color:0xC9A14A,roughness:1}),new R.MeshStandardMaterial({color:0x9DA88A,roughness:1})][k],px,py,pz);c.scale.set(.55,1,1);c.rotation.z=r;});
-          const throwB=a2(new R.BoxGeometry(.9,.03,.7),new R.MeshStandardMaterial({color:0xB8A88E,roughness:1}),.18,.47,.6);throwB.rotation.set(0,.3,-.12);};   // 隨手搭著的毯子
+};
         sofa(-8.7,0);sofa(-4.1,Math.PI);
         add(new R.CylinderGeometry(.62,.62,.1,28),tw,-6.4,.42,1.1);add(new R.CylinderGeometry(.4,.48,.24,20),tw,-6.4,.25,1.1);   // 矮圓茶几
         add(new R.CylinderGeometry(.12,.09,.16,14),new R.MeshStandardMaterial({color:0xEFE9DF,roughness:.4}),-6.25,.55,1.0);   // 茶几上一個小花器
@@ -960,15 +960,21 @@ F.hots=[
   {const bulb=new R.MeshBasicMaterial({color:0xFFE3A6});const geo=new R.SphereGeometry(.04,8,6);
    for(let k=0;k<8;k++){const a=k/8*Math.PI*2;for(let i=1;i<10;i++){const t=i/10,r=RP-(RP-1.25)*t,y=HP-.06+.35*t-Math.sin(Math.PI*t)*.5;add(geo,bulb,Math.cos(a)*r,y,Math.sin(a)*r,false);}}
    const pl=new R.PointLight(0xFFD9A0,.25,8);pl.position.set(0,HP-.3,0);G.add(pl);}
-  // 四張吊床鞦韆：深、低、可以整個人窩進去；加厚坐墊、抱枕、一條毯子。中軸兩頭空著：一頭是鐵門，一頭是朋友從森林走進來的路
+  // 面向森林的兩張是吊床鞦韆（久坐、放鬆）；靠家的兩張是好好坐的沙發椅（談正事）。中軸兩頭空著：一頭是鐵門，一頭是朋友走進來的路
   SWA.forEach((a,k)=>{const r=3.15,S=new R.Group();S.position.set(Math.cos(a)*r,0,Math.sin(a)*r);S.rotation.y=-a-Math.PI/2;G.add(S);
     const ad=(geo,m,x,y,z)=>mesh(geo,m,x,y,z,S);
+    if(k>=2){   // 靠家這邊：兩張好好坐的單人沙發椅，談正事用（低矮、厚實、有扶手），中間一張小邊几
+      ad(new R.BoxGeometry(1.15,.22,.95),wal,0,.11,0);ad(new R.BoxGeometry(1.05,.24,.85),linen,0,.34,.04);
+      const bk=ad(new R.BoxGeometry(1.15,.62,.22),linen,0,.6,-.38);bk.rotation.x=-.12;
+      [-1,1].forEach(e=>ad(new R.BoxGeometry(.2,.42,.92),linen,e*.55,.43,0));
+      const pw=ad(new R.BoxGeometry(.42,.34,.12),oat,0,.62,-.22);pw.rotation.x=-.2;
+      ad(new R.CylinderGeometry(.24,.24,.05,20),trav,.95,.5,.25);ad(new R.CylinderGeometry(.04,.06,.48,8),brass,.95,.24,.25);
+      return;}
     ad(new R.BoxGeometry(1.9,.07,.95),wal,0,.48,0);ad(new R.BoxGeometry(1.95,.42,.07),wal,0,.72,-.45);
     [-1,1].forEach(e=>ad(new R.BoxGeometry(.07,.28,.95),wal,e*.95,.62,0));
     const cu=ad(new R.BoxGeometry(1.8,.2,.86),linen,0,.62,.03);
     const bk=ad(new R.CylinderGeometry(.2,.2,1.7,18),linen,0,.86,-.3);bk.rotation.z=Math.PI/2;
     [-.55,.3].forEach((x,q)=>{const pw=ad(new R.BoxGeometry(.44,.38,.14),q?oat:linen,x,.9,-.18);pw.rotation.x=-.25;pw.rotation.z=q?.1:-.12;});
-    const th=ad(new R.BoxGeometry(.7,.05,.9),oat,.55,.74,.06);th.rotation.z=-.05;
     [[-.92,-.42],[.92,-.42],[-.92,.42],[.92,.42]].forEach(([x,z])=>{const top=HP-.05,len=top-.5;const rp=ad(new R.CylinderGeometry(.014,.014,len,5),brass,x*.98,.5+len/2,z*.9);});});
   // 地上的燈籠
   [[-1.6,-1.4],[1.7,-1.2],[-2.2,1.9],[2.3,1.6]].forEach(([x,z])=>{add(new R.CylinderGeometry(.16,.18,.42,10),new R.MeshStandardMaterial({color:0xF6E7C4,emissive:0xFFC873,emissiveIntensity:.45,roughness:.6}),x,.25,z,false);
@@ -997,17 +1003,10 @@ F.hots=[
    [[-.55,0],[.55,0],[0,.75]].forEach(([a,b])=>{const x=p.x-p.tz*a+p.tx*b,z=p.z+p.tx*a+p.tz*b;mesh(new R.CylinderGeometry(.42,.48,.22,12),new R.MeshStandardMaterial({color:0x6F665C,roughness:.85}),x,y+.02,z,out);});}
   for(let i=0;i<40;i++){const u=rand(),p=at(u),w=.55+u*.8,sd=rand()<.5?-1:1,o=w+.25+rand()*.6;const x=p.x-p.tz*sd*o,z=p.z+p.tx*sd*o;
     const r=mesh(new R.DodecahedronGeometry(.14+rand()*.22,0),rock,x,heightAt(x,z)+.05,z,out);r.rotation.set(rand()*3,rand()*3,rand()*3);}
-  // 日式庭園：楓樹、松、苔丘、石燈籠、木拱橋、溪邊一張石凳
-  const maple=(x,z,k,col)=>{const y=heightAt(x,z);mesh(new R.CylinderGeometry(.1*k,.18*k,2*k,6),mat(0x5C4433),x,y+k,z,out);
-    [[0,2.3,0,1.25],[.7,1.9,.3,.85],[-.6,2,-.3,.9],[.2,2.8,-.4,.8]].forEach(([dx,dy,dz,r])=>{const c=mesh(new R.IcosahedronGeometry(r*k,0),mat(col),x+dx*k,y+dy*k,z+dz*k,out);c.scale.y=.75;});};
-  const pine=(x,z,k)=>{const y=heightAt(x,z);mesh(new R.CylinderGeometry(.12*k,.2*k,2.2*k,6),mat(0x4E3A2C),x,y+1.1*k,z,out);
-    [[0,0],[.8,.5],[-.7,.9]].forEach(([dx,dy],i)=>{const c=mesh(new R.CylinderGeometry((1.3-i*.25)*k,(1.45-i*.25)*k,.3*k,9),mat(0x3E5C38),x+dx*k,y+(2+i*.55+dy*.2)*k,z+(i-1)*.3*k,out);});};
+  // 屋後的庭園（之後再重新設計）：先留石燈籠、木拱橋、溪邊一張石凳
   const lantern=(x,z)=>{const y=heightAt(x,z),st=new R.MeshStandardMaterial({color:0xC9C1B1,roughness:.9});mesh(new R.CylinderGeometry(.16,.24,.8,6),st,x,y+.4,z,out);
     mesh(new R.BoxGeometry(.55,.38,.55),new R.MeshStandardMaterial({color:0xE9DFC9,emissive:0xFFC873,emissiveIntensity:.35}),x,y+1,z,out);const c=mesh(new R.ConeGeometry(.55,.36,4),st,x,y+1.37,z,out);c.rotation.y=Math.PI/4;};
   const side=(u,o)=>{const p=at(u),w=.55+u*.8;return[p.x-p.tz*(w+o),p.z+p.tx*(w+o)];};
-  [[.08,-3.4,0xC8643A],[.3,3.6,0xD98A44],[.52,-3.8,0xB8452E],[.7,4.2,0xD27A3C],[.86,-3.6,0xC8643A]].forEach(([u,o,c])=>{const[x,z]=side(u,o);maple(x,z,1+rand()*.25,c);});
-  [[.2,-4.6],[.62,4.8],[.94,4.2]].forEach(([u,o])=>{const[x,z]=side(u,o);pine(x,z,1.1);});
-  for(let i=0;i<14;i++){const u=rand(),o=(rand()<.5?-1:1)*(1.6+rand()*2.4),[x,z]=side(u,o);const m=mesh(new R.SphereGeometry(.7+rand()*.6,10,6),mat(rand()<.5?0x6F8F4E:0x5E7F45),x,heightAt(x,z)-.25,z,out,false);m.scale.y=.35;}
   [[.12,1.4],[.66,-1.6]].forEach(([u,o])=>{const[x,z]=side(u,o);lantern(x,z);});
   {const p=at(.78),w=.55+.78*.8,y=streamY(p.s),B=new R.Group();B.position.set(p.x,y,p.z);B.rotation.y=Math.atan2(p.tx,p.tz)+Math.PI/2;out.add(B);
    const wood=new R.MeshStandardMaterial({color:0x8A6A4E,roughness:.7}),span=w+1.2;

@@ -21,6 +21,7 @@ button,input,textarea{font:inherit;color:inherit}button{cursor:pointer}
 .stepn{font-size:12px;letter-spacing:.22em;color:var(--acc)}
 .decl{font-family:var(--serif);font-size:clamp(18px,4.6vw,22px);line-height:1.85;white-space:pre-line}
 .muted{color:var(--muted)}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.bcard{display:grid;gap:6px;align-content:start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;color:var(--ink);text-decoration:none;min-height:150px}.bcard:active{transform:scale(.98)}.bq{font-family:var(--serif);font-size:16px;line-height:1.6}
 .refr{display:grid;gap:6px}.rf{display:grid;gap:2px;padding:8px 10px;border-radius:10px;background:var(--soft)}.rf s{color:var(--muted);font-size:13px}.rf span{font-size:14.5px}
 .link{color:var(--acc);text-decoration:none;font-size:13px}
 .btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-size:14px}
@@ -85,15 +86,14 @@ function beliefs(){
    {k:"night",name:"睡前",when:"每天晚上",main:B.night,edit:"#night",read:"?read#night"},
    {k:"hh",name:"HH",when:"週三晚上・出發前",main:H.note||"帶著猶豫去也算數。\n今天的目標只有一個：人到教室。\n跳得好不好，是以後的事。",why:H.why,become:H.become,reframes:H.reframes,none:!H.note,edit:BASE+"/Gym/hh/#belief",read:BASE+"/Gym/hh/#belief"},
    {k:"vocal",name:"Vocal",when:"上台・練唱前",main:V.note,why:V.why,at80:V.at80,become:V.become,reframes:V.reframes,none:!V.note&&!V.why,edit:BASE+"/Vocal/#vision",read:BASE+"/Vocal/#vision"}];}
-function allHTML(){return `<div class="top"><h1>我的信念</h1>${segHTML()}</div>
-  <p class="muted" style="margin:-4px 0 0;font-size:13px">四個地方的信念收在一起看。要改，點「去改」回到原本那一頁。</p>
-  ${beliefs().map(b=>`<section class="card"><div class="row" style="justify-content:space-between;align-items:baseline"><div class="stepn">${esc(b.name)}・${esc(b.when)}</div><a class="link" href="${b.edit}" ${b.edit.startsWith("http")?'target="_top"':''}>去改 →</a></div>
-    ${b.main?`<div class="decl" style="font-size:18px">${esc(b.main)}</div>`:`<div class="muted">${b.none?"這台裝置還沒打開過這一頁，先去那裡寫一次。":"還沒寫。"}</div>`}
-    ${b.at80?`<div><div class="muted" style="font-size:12px">80 歲的我</div><div style="white-space:pre-line">${esc(b.at80)}</div></div>`:""}
-    ${b.why?`<div><div class="muted" style="font-size:12px">為什麼</div><div style="white-space:pre-line">${esc(b.why)}</div></div>`:""}
-    ${(b.become||[]).filter(x=>(x||"").trim()).length?`<div><div class="muted" style="font-size:12px">想成為的樣子</div>${b.become.filter(x=>(x||"").trim()).map(x=>`<div>・${esc(x)}</div>`).join("")}</div>`:""}
-    ${(b.reframes||[]).filter(r=>r&&(r.a||"").trim()).length?`<div class="refr"><div class="muted" style="font-size:12px">腦中的那句話 → 我的回應</div>${b.reframes.filter(r=>r&&(r.a||"").trim()).map(r=>`<div class="rf"><s>${esc(r.q)}</s><span>${esc(r.a)}</span></div>`).join("")}</div>`:""}
-    <div class="muted" style="font-size:11.5px;word-break:break-all">鬧鐘捷徑網址：${esc(b.read.startsWith("http")?b.read:BASE+"/Entry/bedside/"+b.read)}</div></section>`).join("")}`;}
+function allHTML(){const first=t=>{const L=String(t||"").split("\n").map(x=>x.trim()).filter(Boolean);return L[0]||"";};
+  const mins=t=>{const n=String(t||"").replace(/\s/g,"").length;return n?Math.max(1,Math.round(n/240)):0;};   // 大約一分鐘唸 240 字
+  return `<div class="top"><h1>我的信念</h1>${segHTML()}</div>
+  <p class="muted" style="margin:-4px 0 0;font-size:13px">點一張卡，打開那一篇全文。</p>
+  <div class="bgrid">${beliefs().map(b=>{const full=[b.main,b.at80,b.why].filter(Boolean).join("\n");return `<a class="bcard" href="${b.k==="morning"||b.k==="night"?"./"+b.edit:b.edit}" ${b.edit.startsWith("http")?'target="_top"':''}>
+    <div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}</div>
+    <div class="bq">${b.main?esc(first(b.main)):`<span class="muted">${b.none?"這台裝置還沒打開過這一頁":"還沒寫"}</span>`}</div>
+    <div class="muted" style="font-size:11.5px">${mins(full)?"約 "+mins(full)+" 分鐘・":""}打開全文 →</div></a>`;}).join("")}</div>`;}
 const segHTML=()=>`<div class="seg"><button data-m="morning" aria-pressed="${mode==="morning"}">起床</button><button data-m="night" aria-pressed="${mode==="night"}">睡前</button><button data-m="all" aria-pressed="${mode==="all"}">全部</button></div>`;
 // 從夢想版讀重點（同一個網站，同一台裝置）
 function focusFor(d){const D=ls("origina.dream.v1");if(!D||!D.todo)return{tasks:[],days:[]};

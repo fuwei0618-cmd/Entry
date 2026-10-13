@@ -1068,6 +1068,25 @@ F.hots=[
   // 地上的燈籠
   [[-1.6,-1.4],[1.7,-1.2],[-2.2,1.9],[2.3,1.6]].forEach(([x,z])=>{add(new R.CylinderGeometry(.16,.18,.42,10),new R.MeshStandardMaterial({color:0xF6E7C4,emissive:0xFFC873,emissiveIntensity:.45,roughness:.6}),x,.25,z,false);
     add(new R.CylinderGeometry(.19,.19,.04,10),brass,x,.48,z,false);});
+  { // 鬆弛奢華的小細節：火邊一圈羊毛地毯、披在扶手上的亞麻毯、邊几上的托盤（兩個陶杯、一支花）、整齊的柴籃、一甕蘆葦
+    const wool=new R.MeshStandardMaterial({color:0xCDB594,roughness:1}),ceram=new R.MeshStandardMaterial({color:0xEFE8DC,roughness:.45}),clay=new R.MeshStandardMaterial({color:0xC7A88A,roughness:.7}),
+      throwM=new R.MeshStandardMaterial({color:0xC9B79A,roughness:1}),logM=new R.MeshStandardMaterial({color:0x8A6748,roughness:.95}),reed=new R.MeshStandardMaterial({color:0xE9DCC0,roughness:1});
+    {const rug=add(new R.RingGeometry(1.3,3.95,72),wool,0,.046,0,false);rug.rotation.x=-Math.PI/2;rug.receiveShadow=true;
+     const edge=add(new R.RingGeometry(3.86,3.9,72),new R.MeshStandardMaterial({color:0x8C7154,roughness:1}),0,.048,0,false);edge.rotation.x=-Math.PI/2;}
+    SWA.forEach((a,k)=>{const r=3.15,S=new R.Group();S.position.set(Math.cos(a)*r,0,Math.sin(a)*r);S.rotation.y=-a-Math.PI/2;G.add(S);const ad=(geo,m,x,y,z)=>mesh(geo,m,x,y,z,S);
+      if(k>=2){const t=ad(new R.BoxGeometry(.5,.035,.3),wal,.95,.545,.25);   // 邊几上的托盤
+        ad(new R.CylinderGeometry(.045,.04,.08,14),ceram,.86,.6,.2);ad(new R.CylinderGeometry(.045,.04,.08,14),clay,1.0,.6,.31);
+        ad(new R.CylinderGeometry(.03,.04,.16,10),ceram,1.1,.64,.18);const st=ad(new R.CylinderGeometry(.006,.006,.3,4),new R.MeshStandardMaterial({color:0x6F8F4E}),1.1,.85,.18);st.rotation.z=.15;
+        ad(new R.SphereGeometry(.035,8,6),new R.MeshStandardMaterial({color:0xF6F1E6}),1.08,1.0,.18);
+        const bl=ad(new R.BoxGeometry(.5,.09,.42),throwM,-.05,.5,.18);bl.rotation.y=.18;   // 疊好的毯子
+      }else{const th=ad(new R.BoxGeometry(.5,.025,.9),throwM,.74,.76,.08);th.rotation.z=-.42;   // 披在扶手上的亞麻毯，垂下來
+        ad(new R.BoxGeometry(.03,.32,.86),throwM,.99,.57,.08);}});
+    {const a=0,r=2.35,x=Math.cos(a)*r,z=Math.sin(a)*r;   // 柴籃：黃銅圈＋整齊的柴
+     const ring=add(new R.TorusGeometry(.32,.025,6,32),brass,x,.36,z);ring.rotation.x=Math.PI/2;const ring2=add(new R.TorusGeometry(.32,.025,6,32),brass,x,.08,z);ring2.rotation.x=Math.PI/2;
+     for(let i=0;i<7;i++){const lg=add(new R.CylinderGeometry(.07,.07,.62,8),logM,x+((i%3)-1)*.15,.12+Math.floor(i/3)*.13,z+((i*7)%3-1)*.05);lg.rotation.x=Math.PI/2;}}
+    {const x=-3.7,z=0;add(new R.CylinderGeometry(.22,.3,.62,18),clay,x,.31,z);   // 一甕蘆葦
+     for(let i=0;i<9;i++){const a2=i/9*Math.PI*2,st=add(new R.CylinderGeometry(.008,.008,1.0,4),reed,x+Math.cos(a2)*.1,1.05,z+Math.sin(a2)*.1,false);st.rotation.z=-Math.cos(a2)*.1;st.rotation.x=Math.sin(a2)*.1;
+       const pl=add(new R.SphereGeometry(.07,8,6),reed,x+Math.cos(a2)*.16,1.62+(i%3)*.06,z+Math.sin(a2)*.16,false);pl.scale.set(.8,2.2,.8);}}}
   F.col.push({x:0,z:GZ,r:1.25});
   SWA.forEach(a=>F.col.push({x:Math.cos(a)*3.15,z:GZ+Math.sin(a)*3.15,r:.7}));
   F.pavUpdate2=(dt,t)=>{fl.forEach((f,i)=>{const k=1+Math.sin(t*(9+i*3))*.15+Math.sin(t*(21+i))*.07,h=f.userData.h;f.scale.set(h*(.75-(k-1)*.4),h*1.2*k,1);f.position.y=f.userData.base+(k-1)*.3;});

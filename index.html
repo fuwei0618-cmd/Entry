@@ -1569,13 +1569,14 @@ function hereMarker(){let p=null;if(cur.id==='forest')p=[P.x,P.z];else if(cur.id
 function openMap(){closeSheet();if(!mapBG)mapBG=buildMapBG();
   const main=MAP_MAIN.map(([n,g,p,a,ap])=>spotHTML(n,g,pct(p[0],p[1]),a,ap&&pct(ap[0],ap[1]))).join('');
   const ins=(title,id,bg,list)=>`<section class="inset"><h3>${title}${list.some(x=>x[1][0]===cur.id)?'<em>● 你在這裡</em>':''}</h3><div class="mapbox">${bg}${list.map(([n,g,p,a])=>spotHTML(n,g,p,a)).join('')}</div></section>`;
-  mapV.innerHTML=`<div class="ovbar"><h2>Origina 地圖</h2><span style="display:flex;gap:8px"><button class="btn light" data-g="forest,garden">↑ 屋頂花園</button><a class="btn light" href="https://claude.ai/artifact/6tKf8aWatDsrMuhC2wVAhm" target="_blank" rel="noopener" style="text-decoration:none">總表 ↗</a><button class="btn light" id="mapClose">✕ 關閉</button></span></div>
+  mapV.innerHTML=`<div class="ovbar"><h2>Origina 地圖</h2><span style="display:flex;gap:8px"><button class="btn light" data-g="forest,garden">↑ 屋頂花園</button><button class="btn light" id="mapDown">↓ 地下・舞台</button><a class="btn light" href="https://claude.ai/artifact/6tKf8aWatDsrMuhC2wVAhm" target="_blank" rel="noopener" style="text-decoration:none">總表 ↗</a><button class="btn light" id="mapClose">✕ 關閉</button></span></div>
   <div class="ovbody"><div class="mwrap"><div class="mnote">點地名走過去 · 點空地直接傳送 · 點圖示打開 App<span class="phone-only"> · 左右滑動看整張地圖</span></div>
   <div class="mapscroll"><div class="mapbox">${mapBG}${main}${hereMarker()}</div></div>
   <div class="insets">${ins('地下 · B1 / B2','b',BSEC,MAP_B)}${ins('家的後門 · 舞台','s',SSEC,MAP_S)}</div></div></div>`;
   mapV.hidden=false;
   {const sc=mapV.querySelector('.mapscroll');if(sc&&sc.scrollWidth>sc.clientWidth)sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)*.5;}
   $('#mapClose').addEventListener('click',closeMap);
+  $('#mapDown').addEventListener('click',()=>{const t=mapV.querySelector('.insets');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});
   mapV.querySelectorAll('[data-g]').forEach(b=>b.addEventListener('click',()=>{const[id,sp]=b.dataset.g.split(',');closeMap();goto(id,sp);}));
   mapV.querySelectorAll('[data-app]').forEach(b=>b.addEventListener('click',()=>{const a=APPMAP[b.dataset.app];openApp(b.dataset.app,a.u);}));
   // 點森林地圖上任何空地：直接傳送到那裡（不用一定是有名字的地點）

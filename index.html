@@ -1454,7 +1454,7 @@ B2.hots=[
   {id:'down',name:'樓梯',verb:'上樓',x:-7.3,z:5.4,r:1.2,go:()=>goto('f1','stairs')}
 ];
 // 一進臥室：站在右下角，同時看得到床、往下的樓梯口、下沉庭院
-B2.spawns={stairs:[8.8,6.0,Math.PI,1.0,-.12,'first'],ladder:[-7.4,-1.0,Math.PI/2,-Math.PI/2],bed:[8.8,6.0,Math.PI,1.0,-.12,'first']};
+B2.spawns={stairs:[8.8,6.0,Math.PI,1.0,-.12,'first'],ladder:[-7.4,-1.0,Math.PI/2,-Math.PI/2],bed:[8.8,6.0,Math.PI,1.0,-.12,'first'],desk:[-3.6,-3.9,0,Math.PI],plant:[-1.4,-4.4,0,Math.PI],up:[-7.3,3.6,Math.PI,0]};
 
 /* =========================================================
    4 · B2 禱告房（最深處，頭頂一道天光）
@@ -1537,7 +1537,7 @@ AT.hots=[
   {id:'downA',name:'樓梯',verb:'上樓',x:WA/2-2.2,z:DA/2-2.6,r:1.3,go:()=>goto('f2','ladder')}
 ];
 // 一進來：第一人稱、站在跪墊正後方，看得到三殿的門和轉運流水盆
-AT.spawns={ladder:[0.8,7.6,Math.PI,.06,-.1,'first'],stairs:[WA/2-2.6,DA/2-3.2,Math.PI,0],halls:[0,-DA/2+2.6,0,Math.PI]};
+AT.spawns={ladder:[0.8,7.6,Math.PI,.06,-.1,'first'],stairs:[WA/2-2.6,DA/2-3.2,Math.PI,0],halls:[0,-DA/2+2.6,0,Math.PI],mazu:[-WA/2+3.2,-5,Math.PI/2,-Math.PI/2],caishen:[WA/2-3.2,-5,-Math.PI/2,Math.PI/2],fountain:[-4.6,4.8,0,Math.PI]};
 AT.update=(dt,t)=>{stoneBall.rotation.y+=dt*.35;stoneBall.rotation.x+=dt*.12;waterDisc.material.opacity=.86+Math.sin(t*1.7)*.05;AT.waterFx&&AT.waterFx(t);const k=.85+Math.sin(t*9)*.08+Math.sin(t*23)*.05;AT.light.intensity=.5*k;flame.scale.set(1,1.7*k,1);};
 
 /* =========================================================
@@ -1768,7 +1768,7 @@ function act(h){if(h.go){h.go();return;}const L=appLinks(h.id);if(L.length===1){
 const fade=$('#fade');
 // 地下（B1 臥室、B2 禱告房）改成擬真照片頁：地面以上是可以走的 3D 世界，地下是靜下來的內在空間
 const BEDROOM='https://fuwei0618-cmd.github.io/Entry/bedroom/';
-function goto(id,spawn){if(id==='f2'){openApp('B1 臥室',BEDROOM);return;}if(id==='attic'){openApp('禱告房',TEMPLE+'front');return;}closeSheet();fade.classList.add('on');setTimeout(()=>{
+function goto(id,spawn){if(id==='f2'){openApp('B1 臥室',BEDROOM);return;}if(id==='attic'){const d={mazu:'mazu',caishen:'caishen',halls:'yuelao'}[spawn]||'front';openApp('禱告房',TEMPLE+d);return;}closeSheet();fade.classList.add('on');setTimeout(()=>{
   cur.scene.remove(player);if(marker.parent)marker.parent.remove(marker);
   cur=SC[id];cur.scene.add(player);curHot=null;prompt.hidden=true;target=null;
   const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];roofOn=(id==='forest'&&(spawn==='roof'||spawn==='garden'));if(dogMode==='walk'&&id!=='forest'&&id!=='f1')dogMode='home';if(dogMode==='walk'){dogTo(cur.scene);}else{dogTo(out);if(id==='forest'&&spawn==='deck'){dog.position.set(DOGBED.x-1,heightAt(DOGBED.x,DOGBED.z),DOGBED.z+1);dogAI.greet=8;}}P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}
@@ -1815,7 +1815,11 @@ const MAP_MAIN=[
   ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(9,-4.4)],['Beauty',['f1','closet'],W1F(12,3),['正顎手冊'],W1F(16.3,3)],
   ['健身房',['f1','gym'],W1F(5.4,4.3),['健身房']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
   ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];
-const MAP_B=[['B1 臥室',['f2','bed'],[30,30],['床邊']],['B2 禱告房',['attic','ladder'],[68,74]]];
+// 地下兩層的平面圖：跟主地圖同一個方向（倒過來看，往屋後在下）
+const PLAN_B1={x0:-11,z0:-13.2,w:22,h:21},PLAN_B2={x0:-12.4,z0:-12.4,w:24.8,h:21.6};
+const ppct=(P,x,z)=>[100-(x-P.x0)/P.w*100,100-(z-P.z0)/P.h*100];
+const MAP_B1=[['床邊',['f2','bed'],ppct(PLAN_B1,0,2.4),['床邊']],['書桌・交屋手冊',['f2','desk'],ppct(PLAN_B1,-3.6,-6.4)],['白水木・下沉庭院',['f2','plant'],ppct(PLAN_B1,-1.4,-9.6)],['往下・禱告房',['f2','ladder'],ppct(PLAN_B1,-9,-2.6)],['上樓・1F',['f2','up'],ppct(PLAN_B1,-8.8,5.4)]];
+const MAP_B2=[['前殿・跪下禱告',['attic','ladder'],ppct(PLAN_B2,0,-1.6)],['轉運流水盆',['attic','fountain'],ppct(PLAN_B2,-4.6,1.6)],['月老殿',['attic','halls'],ppct(PLAN_B2,0,-10.6)],['媽祖殿',['attic','mazu'],ppct(PLAN_B2,-10.2,-5)],['財神殿',['attic','caishen'],ppct(PLAN_B2,10.2,-5)],['上樓・B1',['attic','stairs'],ppct(PLAN_B2,6.6,6.6)]];
 const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[36,82],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[90,48],['Podcast']]];
 const X0=-42,Z0=-48,MW=78,MH=122,pct=(x,z)=>[100-(x-X0)/MW*100,100-(z-Z0)/MH*100];   // 地圖倒過來：家在下、森林入口在上，像站在家裡往外看
 function spotHTML(n,g,lp,apps,ap){const [l,t]=lp;
@@ -1825,7 +1829,7 @@ function spotHTML(n,g,lp,apps,ap){const [l,t]=lp;
   if((n==='日曆牆'||n==='Beauty')&&ap)return `<div class="mspot" style="left:${l}%;top:${t}%"><i class="dot"></i></div><div class="mapps colL" style="left:${ap[0]}%;top:${ap[1]}%">${btns}<button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
   if(['樓梯','Lucky','玄關','健身房'].includes(n))return `<div class="mspot below" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${btns?`<div class="mdown">${btns}</div>`:''}</div>`;
   if(['廚房','舞台門','世界之門'].includes(n))return `<div class="mspot col" style="left:${l}%;top:${t}%">${btns?`<div class="mup">${btns}</div>`:''}<i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button></div>`;
-  return `<div class="mspot${(l>68&&n!=='蘑菇攝影棚')||n==='金庫'?' flip':''}" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${ap?'':btns}</div>${ap&&btns?`<div class="mapps" style="left:${ap[0]}%;top:${ap[1]}%">${btns}</div>`:''}`;}
+  return `<div class="mspot${(l>68&&n!=='蘑菇攝影棚')||n==='金庫'||n==='書桌・交屋手冊'?' flip':''}" style="left:${l}%;top:${t}%"><i class="dot"></i><button class="mlab" data-g="${g.join(',')}">${esc(n)}</button>${ap?'':btns}</div>${ap&&btns?`<div class="mapps" style="left:${ap[0]}%;top:${ap[1]}%">${btns}</div>`:''}`;}
 let mapBG=null;
 function buildMapBG(){
   let r=1;const rnd=()=>{r=(r*16807)%2147483647;return r/2147483647;};
@@ -1857,18 +1861,31 @@ function buildMapBG(){
   <rect x="${X0}" y="${Z0}" width="${MW}" height="20" fill="url(#mfog)"/>
   <text transform="rotate(180 ${hx} ${hz-2.2})" x="${hx}" y="${hz-2.2}" font-size="1.5" text-anchor="middle" fill="#B5ADA1" font-weight="700" letter-spacing=".3">1F</text>
   </g>  </svg>`;}
-const BSEC=`<svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true"><rect width="160" height="90" fill="#E7DCCB"/><rect width="160" height="14" fill="#A8C18D"/><rect x="0" y="14" width="160" height="76" fill="#CDBFA9"/>
-  <rect x="14" y="16" width="64" height="26" fill="#F5F0E7"/><rect x="78" y="10" width="26" height="32" fill="#6E8A62" opacity=".8"/><rect x="88" y="44" width="40" height="34" fill="#E2DCD2"/><rect x="106" y="0" width="3" height="44" fill="#FFF3D6"/><polygon points="107,44 98,78 118,78" fill="#FFF3D6" opacity=".6"/></svg>`;
+const planSVG=(P,inner)=>`<svg viewBox="${P.x0} ${P.z0} ${P.w} ${P.h}" preserveAspectRatio="none" aria-hidden="true"><g transform="rotate(180 ${P.x0+P.w/2} ${P.z0+P.h/2})"><rect x="${P.x0}" y="${P.z0}" width="${P.w}" height="${P.h}" fill="#E7DED0"/>${inner}</g></svg>`;
+const B1SEC=planSVG(PLAN_B1,`<rect x="-10.6" y="-13" width="21.2" height="6.2" fill="#CFCAC1"/><rect x="-10.2" y="-12.6" width="20.4" height="5.6" fill="#8FAE74"/>${Array.from({length:9},(_,i)=>`<circle cx="${-9+i*2.25}" cy="-12" r=".45" fill="#6E9A5B"/>`).join('')}<circle cx="-1.4" cy="-9.6" r="1.6" fill="#7E9F6A" stroke="#5F7F4E" stroke-width=".15"/>
+  <rect x="-10" y="-7" width="20" height="14" fill="#F1E8DA" stroke="#B5ADA1" stroke-width=".25"/><line x1="-10" y1="-7" x2="10" y2="-7" stroke="#8FBCC6" stroke-width=".35"/>${Array.from({length:6},(_,i)=>`<rect x="${-10.06+i*4}" y="-7.12" width=".12" height=".24" fill="#2E2A25"/>`).join('')}
+  <rect x="-1.8" y=".2" width="3.6" height="2.4" fill="#E9DDEB"/><rect x="-1.3" y="3.3" width="2.6" height="3.2" rx=".15" fill="#FFF8EC" stroke="#C9A27A" stroke-width=".2"/><rect x="-1.28" y="3.4" width="2.56" height="1.9" fill="#D9CBB4"/><rect x="-.95" y="5.75" width=".9" height=".5" rx=".1" fill="#fff" stroke="#D8CFC2" stroke-width=".08"/><rect x=".05" y="5.75" width=".9" height=".5" rx=".1" fill="#fff" stroke="#D8CFC2" stroke-width=".08"/><rect x="-1.35" y="6.48" width="2.7" height=".15" fill="#A97C55"/><rect x="1.6" y="6.05" width=".6" height=".5" fill="#C9A27A"/><circle cx="1.9" cy="6.3" r=".16" fill="#FFE6B0"/>
+  <rect x="-4.5" y="-6.8" width="1.8" height=".8" fill="#A97C55"/><rect x="-4.15" y="-6.55" width=".42" height=".3" fill="#F1EADC" stroke="#D2AE5C" stroke-width=".05"/>
+  <rect x="-9.8" y="-3.8" width="1.6" height="2.4" fill="#2A2420"/>${Array.from({length:4},(_,i)=>`<line x1="-9.75" y1="${-1.7-i*.55}" x2="-8.25" y2="${-1.7-i*.55}" stroke="#7A6450" stroke-width=".12"/>`).join('')}
+  <rect x="-9.7" y="4.2" width="1.8" height="2.5" fill="#E2D2BA"/>${Array.from({length:6},(_,i)=>`<line x1="-9.7" y1="${4.2+i*.42}" x2="-7.9" y2="${4.2+i*.42}" stroke="#C9A27A" stroke-width=".1"/>`).join('')}
+  <text transform="rotate(180 6.5 -9.4)" x="6.5" y="-9.4" font-size=".9" fill="#5F7F4E" font-weight="700" text-anchor="middle">下沉庭院</text>`);
+const B2SEC=planSVG(PLAN_B2,`<rect x="-4.6" y="-12.2" width="9.2" height="3.4" fill="#EFE2CC"/><rect x="-12.2" y="-6.6" width="4.4" height="3.2" fill="#EFE2CC"/><rect x="7.8" y="-6.6" width="4.4" height="3.2" fill="#EFE2CC"/>
+  <rect x="-8" y="-9" width="16" height="18" fill="#DCCBB0" stroke="#B9B2A7" stroke-width=".5"/>${Array.from({length:12},(_,i)=>`<line x1="-8" y1="${-9+i*1.5}" x2="8" y2="${-9+i*1.5}" stroke="#C9B497" stroke-width=".05"/>`).join('')}
+  <rect x="-5.5" y="-9.3" width="2.4" height=".6" fill="#EFE2CC"/><rect x="3.1" y="-9.3" width="2.4" height=".6" fill="#EFE2CC"/><rect x="-8.3" y="-6.2" width=".6" height="2.4" fill="#EFE2CC"/><rect x="7.7" y="-6.2" width=".6" height="2.4" fill="#EFE2CC"/>
+  <rect x="-.18" y="-9" width=".36" height="9.9" fill="#FFFFFF" opacity=".75"/><line x1="0" y1="-9.25" x2="0" y2="-8.75" stroke="#FFF8E0" stroke-width=".5"/>
+  <rect x="-.55" y="-.9" width="1.1" height=".7" fill="#A97C55"/><circle cx="0" cy="-.5" r=".12" fill="#FFB15A"/><rect x="-.5" y=".25" width="1" height=".75" rx=".2" fill="#4A3E36"/>
+  <circle cx="-4.6" cy="1.6" r="1.25" fill="#9A938A"/><circle cx="-4.6" cy="1.6" r=".95" fill="#9CC7CF"/><circle cx="-4.6" cy="1.6" r=".35" fill="#F4F1EA"/>
+  <rect x="5.6" y="4.6" width="2.2" height="4.2" fill="#E2D2BA"/>${Array.from({length:8},(_,i)=>`<line x1="5.6" y1="${4.6+i*.52}" x2="7.8" y2="${4.6+i*.52}" stroke="#B9A487" stroke-width=".1"/>`).join('')}`);
 const SSEC=`<svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true"><rect width="160" height="90" fill="#2A2420"/><path d="M30 70 A50 50 0 0 1 130 70 Z" fill="#B8936D"/><rect x="40" y="12" width="80" height="14" fill="#5A4E6A"/>
   ${Array.from({length:20},(_,k)=>`<circle cx="${(10+k*7.5).toFixed(1)}" cy="${82+(k%3)}" r="1.4" fill="${['#FFF1D6','#9FD6E0','#F2A2C0','#FFD68A'][k%4]}"/>`).join('')}</svg>`;
 function hereMarker(){let p=null;if(cur.id==='forest')p=[P.x,P.z];else if(cur.id==='f1')p=W1F(P.x,P.z);if(!p)return '';const[l,t]=pct(p[0],p[1]);if(l<0||l>100||t<0||t>100)return '';return `<i class="here" style="left:${l}%;top:${t}%"></i>`;}
 function openMap(){closeSheet();if(!mapBG)mapBG=buildMapBG();
   const main=MAP_MAIN.map(([n,g,p,a,ap])=>spotHTML(n,g,pct(p[0],p[1]),a,ap&&pct(ap[0],ap[1]))).join('');
-  const ins=(title,id,bg,list)=>`<section class="inset"><h3>${title}${list.some(x=>x[1][0]===cur.id)?'<em>● 你在這裡</em>':''}</h3><div class="mapbox">${bg}${list.map(([n,g,p,a])=>spotHTML(n,g,p,a)).join('')}</div></section>`;
+  const ins=(title,id,bg,list,PL,sid)=>{const here=cur.id===sid&&PL?(()=>{const[l,t]=ppct(PL,P.x,P.z);return `<i class="here" style="left:${l}%;top:${t}%"></i>`;})():'';return `<section class="inset"><h3>${title}${list.some(x=>x[1][0]===cur.id)?'<em>● 你在這裡</em>':''}</h3><div class="mapbox"${PL?` style="aspect-ratio:${PL.w}/${PL.h}"`:''}>${bg}${list.map(([n,g,p,a])=>spotHTML(n,g,p,a)).join('')}${here}</div></section>`;};
   mapV.innerHTML=`<div class="ovbar"><h2>Origina 地圖</h2><span style="display:flex;gap:8px"><button class="btn light" data-g="forest,garden">↑ 屋頂花園</button><button class="btn light" id="mapDown">↓ 地下・舞台</button><a class="btn light" href="https://claude.ai/artifact/6tKf8aWatDsrMuhC2wVAhm" target="_blank" rel="noopener" style="text-decoration:none">總表 ↗</a><button class="btn light" id="mapClose">✕ 關閉</button></span></div>
   <div class="ovbody"><div class="mwrap"><div class="mnote">點地名走過去 · 點空地直接傳送 · 點圖示打開 App<span class="phone-only"> · 左右滑動看整張地圖</span></div>
   <div class="mapscroll"><div class="mapbox">${mapBG}${main}${hereMarker()}</div></div>
-  <div class="insets">${ins('地下 · B1 / B2','b',BSEC,MAP_B)}${ins('家的後門 · 舞台','s',SSEC,MAP_S)}</div></div></div>`;
+  <div class="insets">${ins('B1 · 臥室','b1',B1SEC,MAP_B1,PLAN_B1,'f2')}${ins('B2 · 禱告房・前殿','b2',B2SEC,MAP_B2,PLAN_B2,'attic')}${ins('家的後門 · 舞台','s',SSEC,MAP_S)}</div></div></div>`;
   mapV.hidden=false;
   {const sc=mapV.querySelector('.mapscroll');if(sc&&sc.scrollWidth>sc.clientWidth)sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)*.5;}
   $('#mapClose').addEventListener('click',closeMap);

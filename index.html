@@ -440,8 +440,14 @@ let vaultF;
   mesh(new R.BoxGeometry(27.2,.6,15.3),conc,0,Y+HH+.3,.65,H);               // 屋頂板（前方出挑）
   const sof=mesh(new R.PlaneGeometry(27.2,15.3),woodSof,0,Y+HH-.01,.65,H,false);sof.rotation.x=Math.PI/2;
   mesh(new R.BoxGeometry(.5,HH,13.5),conc,-13.25,Y+HH/2,0,H);               // 左牆
-  mesh(new R.BoxGeometry(.5,HH,13.5),conc,13.25,Y+HH/2,0,H);                // 右牆
+  mesh(new R.BoxGeometry(.5,HH,9.25),conc,13.25,Y+HH/2,2.125,H);mesh(new R.BoxGeometry(.5,.9,4.25),conc,13.25,Y+HH-.45,-4.625,H);   // 右牆：廚房那個角落整個打開（L 形轉角都沒有牆）
   mesh(new R.BoxGeometry(18.1,HH,.5),conc,-4.45,Y+HH/2,-6.75,H);mesh(new R.BoxGeometry(.9,HH,.5),conc,13.05,Y+HH/2,-6.75,H);mesh(new R.BoxGeometry(8,.9,.5),conc,8.6,Y+HH-.45,-6.75,H);   // 後牆：廚房那段整個打開
+  { // 後立面（天井那段）：一道長長的水平窗看進天井，外面一排細柚木直鰭，光影隨時間變化
+    const teak=new R.MeshStandardMaterial({color:0x9A7352,roughness:.6});
+    mesh(new R.PlaneGeometry(10.4,1.9),glassOut,-7.4,Y+2.3,-7.01,H,false).rotation.y=Math.PI;
+    [Y+1.35,Y+3.25].forEach(y=>mesh(new R.BoxGeometry(10.5,.06,.12),frameM,-7.4,y,-7.04,H,false));
+    for(let x=-13;x<=.6;x+=.42)mesh(new R.BoxGeometry(.07,HH-.2,.22),teak,x,Y+HH/2,-7.25,H);
+    mesh(new R.BoxGeometry(14.2,.08,.5),teak,-6.2,Y+HH-.05,-7.25,H);}
   { // 灰空間：廚房對後花園完全打開，沒有玻璃。從早餐桌就看得到裡面的吧台
     const dark=new R.MeshStandardMaterial({color:0xD9CFC0,roughness:.9}),wd=new R.MeshStandardMaterial({map:planksTex([3,2]),roughness:.8}),trv=new R.MeshStandardMaterial({color:0xE8DECB,roughness:.5}),
       walnut=new R.MeshStandardMaterial({color:0x5A4232,roughness:.6}),glow=new R.MeshStandardMaterial({color:0xFFF1D6,emissive:0xFFD49A,emissiveIntensity:.9});
@@ -1085,26 +1091,31 @@ F.hots=[
     for(let i=0;i<pts.length-1;i++){const[a,b]=pts[i],[c,d]=pts[i+1],L=Math.hypot(c-a,d-b),ry=Math.atan2(c-a,d-b),n=Math.max(1,Math.round(L/.22));
       for(let k=0;k<n;k++){const t=(k+.5)/n,x=a+(c-a)*t,z=b+(d-b)*t;const m=mesh(plank,wood,x,heightAt(x,z)+.12,z,out,false);m.rotation.y=ry;}
       [-1,1].forEach(sd=>{const bm=mesh(new R.BoxGeometry(.06,.1,L),new R.MeshStandardMaterial({color:0x8A6A4C,roughness:.8}),(a+c)/2+Math.cos(ry)*sd*.6,heightAt((a+c)/2,(b+d)/2)+.06,(b+d)/2-Math.sin(ry)*sd*.6,out,false);bm.rotation.y=ry;});}}
-  { // 只屬於自己的搖籃：溪邊一道很細的黃銅拱，吊著一張淺淺的鞦韆床，上面披一片半透明的紗。對著水，聽水聲
-    const p=at(.42),w=.55+.42*.8,o=4.6,x=p.x-p.tz*(w+o),z=p.z+p.tx*(w+o),y=heightAt(x,z),G=new R.Group();G.position.set(x,y,z);G.rotation.y=Math.atan2(-p.tz,p.tx)+Math.PI/2;out.add(G);
-    const brass=new R.MeshStandardMaterial({color:0xC9A25E,metalness:.75,roughness:.3}),sheer=new R.MeshStandardMaterial({color:0xFBF7EF,roughness:1,side:R.DoubleSide,transparent:true,opacity:.55,depthWrite:false}),
-      cu=new R.MeshStandardMaterial({color:0xF1EADD,roughness:1}),oak=new R.MeshStandardMaterial({color:0xB98E66,roughness:.6});
-    const arc=new R.TorusGeometry(1.45,.035,8,48,Math.PI);[-.75,.75].forEach(zz=>{const m=new R.Mesh(arc,brass);m.position.set(0,.05,zz);m.castShadow=true;G.add(m);});   // 兩道細拱
-    const top=new R.Mesh(new R.CylinderGeometry(.03,.03,1.5,8),brass);top.rotation.x=Math.PI/2;top.position.set(0,1.5,0);G.add(top);
-    {const g=new R.PlaneGeometry(1.2,1.9,12,10);const pp=g.attributes.position;for(let i=0;i<pp.count;i++){const X=pp.getX(i);pp.setZ(i,-.25*Math.cos(X/.6*Math.PI/2));}   // 披下來的紗
-     g.rotateX(-Math.PI/2);const sh=new R.Mesh(g,sheer);sh.rotation.z=Math.PI/2;sh.position.set(0,1.18,0);G.add(sh);}
-    const SW=new R.Group();SW.position.set(0,1.5,0);G.add(SW);
-    const bed=new R.Mesh(new R.BoxGeometry(1.7,.06,.8),oak);bed.position.set(0,-1.05,0);bed.castShadow=true;SW.add(bed);
-    const mat_=new R.Mesh(new R.BoxGeometry(1.62,.12,.74),cu);mat_.position.set(0,-.96,0);mat_.castShadow=true;SW.add(mat_);
-    const pw=new R.Mesh(new R.BoxGeometry(.42,.12,.5),new R.MeshStandardMaterial({color:0xD9C9AE,roughness:1}));pw.position.set(-.6,-.86,0);SW.add(pw);
-    [[-.8,-.35],[.8,-.35],[-.8,.35],[.8,.35]].forEach(([a,b])=>{const r=new R.Mesh(new R.CylinderGeometry(.008,.008,1.05,5),brass);r.position.set(a*.0,-.52,b*0);const v=new R.Vector3(a,-1.02,b),t0=new R.Vector3(0,0,0),L=v.length();r.scale.y=L/1.05;r.position.copy(v.clone().multiplyScalar(.5));r.quaternion.setFromUnitVectors(new R.Vector3(0,1,0),v.clone().normalize());SW.add(r);});
-    (F.swings||(F.swings=[])).push(SW);F.col.push({x,z,r:1.3});}
+  { // 只屬於自己的搖籃：一道像問號的黃銅彎臂，從上面垂下一張淺淺的圓形吊床，厚厚的亞麻床墊和幾顆抱枕。對著溪，輕輕晃
+    const p=at(.42),w=.55+.42*.8,o=4.6,x=p.x-p.tz*(w+o),z=p.z+p.tx*(w+o),y=heightAt(x,z),G=new R.Group();G.position.set(x,y,z);G.rotation.y=Math.atan2(p.tz,-p.tx);out.add(G);
+    const brass=new R.MeshStandardMaterial({color:0xC9A25E,metalness:.8,roughness:.28}),lin=new R.MeshStandardMaterial({color:0xF3ECDF,roughness:1}),
+      oat=new R.MeshStandardMaterial({color:0xD9C9AE,roughness:1}),rattan=new R.MeshStandardMaterial({color:0xE2CBA4,roughness:.8,emissive:0x2A2010}),trv=new R.MeshStandardMaterial({color:0xE8DECB,roughness:.55});
+    const a=(g,m,X,Y,Z,par=G)=>{const o_=new R.Mesh(g,m);o_.position.set(X,Y,Z);o_.castShadow=true;o_.receiveShadow=true;par.add(o_);return o_;};
+    a(new R.CylinderGeometry(.55,.6,.08,32),trv,-1.25,.04,0);                                                        // 石灰華底座
+    const pts=[];for(let i=0;i<=40;i++){const t=i/40,ang=Math.PI*.95*t;pts.push(new R.Vector3(-1.25+Math.sin(ang)*1.25*Math.min(1,t*1.6)*.0+(-Math.cos(ang)+1)*.62*0,0,0));}
+    const curve=new R.CatmullRomCurve3([new R.Vector3(-1.25,.08,0),new R.Vector3(-1.3,1.4,0),new R.Vector3(-1.1,2.5,0),new R.Vector3(-.5,3.05,0),new R.Vector3(.1,3.0,0),new R.Vector3(.2,2.75,0)]);
+    a(new R.TubeGeometry(curve,48,.045,10),brass,0,0,0);                                                              // 問號般的細彎臂
+    const SW=new R.Group();SW.position.set(.2,2.72,0);G.add(SW);
+    a(new R.CylinderGeometry(.008,.008,1.6,5),brass,0,-.8,0,SW);
+    [[.62,0],[-.62,0],[0,.62],[0,-.62]].forEach(([dx,dz])=>{const v=new R.Vector3(dx,-1.85,dz),r=new R.Mesh(new R.CylinderGeometry(.006,.006,v.length(),4),brass);r.position.copy(v.clone().multiplyScalar(.5)).add(new R.Vector3(0,0,0));r.quaternion.setFromUnitVectors(new R.Vector3(0,1,0),v.clone().normalize());SW.add(r);});
+    const bowl=a(new R.SphereGeometry(.85,32,12,0,Math.PI*2,Math.PI*.62,Math.PI*.38),rattan,0,-1.25,0,SW);bowl.material.side=R.DoubleSide;   // 淺淺的藤編圓吊床
+    a(new R.CylinderGeometry(.74,.7,.16,32),lin,0,-1.98,0,SW);                                                         // 厚亞麻床墊
+    const rim=a(new R.TorusGeometry(.72,.09,10,40),lin,0,-1.88,0,SW);rim.rotation.x=Math.PI/2;
+    [[-.3,.25,oat],[.15,.35,lin],[.38,.05,oat]].forEach(([dx,dz,m])=>{const pw=a(new R.BoxGeometry(.4,.3,.13),m,dx,-1.78,dz-.35,SW);pw.rotation.x=-.4;pw.rotation.y=dx*.6;});
+    a(new R.CylinderGeometry(.2,.2,.04,20),trv,1.15,.5,.4);a(new R.CylinderGeometry(.03,.05,.48,8),brass,1.15,.24,.4);   // 小邊几
+    a(new R.CylinderGeometry(.05,.04,.12,10),new R.MeshStandardMaterial({color:0xF2EDE4}),1.12,.58,.4);
+    (F.swings||(F.swings=[])).push(SW);F.col.push({x,z,r:1.2});}
   F.hots.push({id:'stream',name:'屋後的溪',verb:'看看',x:4.6,z:-20.5,r:2.6});
 }
 F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+RW+5,Math.PI,0],pavilion:[0,GZ-RW-2,0,Math.PI],deck:[hx+8.6,hz-8.6,Math.PI,0],stream:[8.5,-32,-.35,Math.PI-.35],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI+.26,-.24,'first']};
 F.hots.push({id:'lucky',name:'Lucky',verb:'摸摸',dyn:true,r:1.7,go:()=>openLucky()});
 F.update=(dt,t)=>{if(dog.parent===out)dogUpdate(dt,t);sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
-  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.pavUpdate2&&F.pavUpdate2(dt,t);if(F.swings)F.swings.forEach((g,i)=>{g.rotation.x=Math.sin(t*.9+i*1.7)*.035;});F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);if(F.homeLabel)F.homeLabel.visible=!roofOn;   /* 站在屋頂上時，家的字牌收起來，不擋視線 */F.doorUpdate&&F.doorUpdate(dt);};
+  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.pavUpdate2&&F.pavUpdate2(dt,t);if(F.swings)F.swings.forEach((g,i)=>{g.rotation.x=Math.sin(t*.9+i*1.7)*.035;g.rotation.y=Math.sin(t*.37+i)*.12;});F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);if(F.homeLabel)F.homeLabel.visible=!roofOn;   /* 站在屋頂上時，家的字牌收起來，不擋視線 */F.doorUpdate&&F.doorUpdate(dt);};
 
 /* shared materials */
 const portalMat=new R.ShaderMaterial({uniforms:{t:{value:0}},side:R.DoubleSide,
@@ -1145,6 +1156,14 @@ H1S.ceil.material=new R.MeshStandardMaterial({map:planksTex([6,3]),roughness:.85
      g.fillStyle='#9A7352';g.fillRect(380,300,270,14);g.fillRect(400,314,10,60);g.fillRect(620,314,10,60);
      g.strokeStyle='#8FC0C6';g.lineCap='round';g.lineWidth=22;g.beginPath();g.moveTo(80,330);g.bezierCurveTo(120,290,60,270,110,245);g.stroke();
      g.fillStyle='#7F9C66';[[260,250,70],[880,252,90]].forEach(([x,y,r])=>{g.beginPath();g.ellipse(x,y,r,r*.3,0,0,7);g.fill();});});
+   {const cy=canvasTex(1024,200,(g,w,h)=>{g.fillStyle='#E3ECE2';g.fillRect(0,0,w,h);g.fillStyle='#6E8A62';g.fillRect(0,60,w,h);g.fillStyle='#D8D2C8';g.fillRect(0,40,w,26);
+       g.fillStyle='#8FAE74';[[160,120,60],[520,130,90],[860,115,70]].forEach(([x,y,r])=>{g.beginPath();g.ellipse(x,y,r,r*.5,0,0,7);g.fill();});
+       g.fillStyle='rgba(154,115,82,.9)';for(let x=0;x<w;x+=31)g.fillRect(x,0,6,h);});   // 天井＋柚木直鰭
+    const bw=new R.Mesh(new R.PlaneGeometry(10.4,1.9),new R.MeshBasicMaterial({map:cy}));bw.position.set(-7.4,2.3,BZ+.03);f1r.scene.add(bw);
+    [1.35,3.25].forEach(y=>boxIn(H1S,10.5,.06,.08,0x2E2A25,-7.4,y,BZ+.06,false));
+    const side=canvasTex(512,420,(g,w,h)=>{const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#CFE2E6');gr.addColorStop(1,'#A9C08E');g.fillStyle=gr;g.fillRect(0,0,w,h);
+       g.fillStyle='#7F9C66';g.beginPath();g.ellipse(260,250,240,60,0,0,7);g.fill();g.fillStyle='#8FC0C6';g.fillRect(0,330,w,26);g.fillStyle='#C79A6B';g.fillRect(0,360,w,h-360);});
+    const sw=new R.Mesh(new R.PlaneGeometry(4.25,3.9),new R.MeshBasicMaterial({map:side}));sw.position.set(W1/2-.03,1.95,-4.4);sw.rotation.y=-Math.PI/2;f1r.scene.add(sw);}
    const win=new R.Mesh(new R.PlaneGeometry(KX1-KX0,3.9),new R.MeshBasicMaterial({map:view}));win.position.set((KX0+KX1)/2,1.95,BZ+.03);f1r.scene.add(win);
    // 右牆一排檯面（木櫃＋石灰華檯面）、水槽、吊櫃
    boxIn(H1S,.7,.88,4.6,0x6B5442,W1/2-.4,.44,-3.7,true);boxIn(H1S,.76,.06,4.7,0xE8DECB,W1/2-.4,.91,-3.7,false);

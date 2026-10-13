@@ -93,7 +93,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .mwrap{max-width:980px;margin:0 auto;display:grid;gap:14px}
 .mnote{font-size:12px;color:var(--muted);letter-spacing:.06em}
 .mapscroll .mapbox{cursor:crosshair}
-.mapbox{position:relative;width:100%;aspect-ratio:76/80;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(62,46,36,.12)}
+.mapbox{position:relative;width:100%;aspect-ratio:78/122;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(62,46,36,.12)}
 .mapbox>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .mspot{position:absolute;display:flex;align-items:center;gap:4px;transform:translate(-7px,-50%)}
 .mspot.gd{flex-direction:column;gap:2px;transform:translate(-50%,-50%)}.gico{width:min(34px,4.4vw);height:min(34px,4.4vw);border-radius:50%;padding:0;border:2px solid #F6EBDA;box-shadow:0 1px 4px rgba(62,46,36,.3);overflow:hidden;cursor:pointer;background:#ECE8E1}.gico img{width:100%;height:100%;display:block}
@@ -287,29 +287,60 @@ Object.assign(sun.shadow.camera,{left:-38,right:38,top:38,bottom:-38,near:1,far:
 out.add(sun);out.add(sun.target);
 const SUN_OFF=new R.Vector3(28,46,18);
 
-function riverX(z){return -41+4*Math.sin(z*.07)+2*Math.sin(z*.17+1.3);}
-function heightAt(x,z){
+/* 記錄之河：上游照舊沿著西邊流；到了家的高度轉向中軸，在家的後方和屋後的溪匯流，再往後流進霧裡（看不到盡頭） */
+function riverBase(z){return -41+4*Math.sin(z*.07)+2*Math.sin(z*.17+1.3);}
+const RVZ=[12,-4,-18,-30,-41.5,-54,-70,-90],RVX=[riverBase(12),-33,-26,-17,-7.4,-4,-2.5,-1.5];
+function riverX(z){if(z>=RVZ[0])return riverBase(z);if(z<=RVZ[RVZ.length-1])return RVX[RVX.length-1];
+  let i=0;while(z<RVZ[i+1])i++;const t=(RVZ[i]-z)/(RVZ[i]-RVZ[i+1]),p0=RVX[Math.max(0,i-1)],p1=RVX[i],p2=RVX[i+1],p3=RVX[Math.min(RVX.length-1,i+2)];
+  const lead=i===0?(riverBase(RVZ[0])-riverBase(RVZ[0]+1))*(RVZ[0]-RVZ[1]):(p2-p0)/2;   // 接上游時順著原本的方向
+  const m1=lead,m2=(p3-p1)/2,t2=t*t,t3=t2*t;return (2*t3-3*t2+1)*p1+(t3-2*t2+t)*m1+(-2*t3+3*t2)*p2+(t3-t2)*m2;}
+/* 屋後的溪：從家的後面湧出，三段小瀑布一階一階往後落，中途有三塊踏石（足底三腳架），在家的後方匯進記錄之河 */
+const STREAM=(()=>{const K=[[3.5,-16.4],[4.2,-19],[2.6,-22],[3.4,-25.5],[5,-29],[2.5,-33],[-2,-37.5],[-7.4,-41.5]],P=[];
+  for(let i=0;i<K.length-1;i++){const a=K[Math.max(0,i-1)],b=K[i],c=K[i+1],d=K[Math.min(K.length-1,i+2)];
+    for(let j=0;j<12;j++){const t=j/12,t2=t*t,t3=t2*t;P.push([0,1].map(k=>.5*(2*b[k]+(-a[k]+c[k])*t+(2*a[k]-5*b[k]+4*c[k]-d[k])*t2+(-a[k]+3*b[k]-3*c[k]+d[k])*t3)));}}
+  P.push(K[K.length-1]);let L=0;const S=[0];for(let i=1;i<P.length;i++){L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);S.push(L);}return{P,S,L};})();
+const FALLS=[.14,.36,.58];      // 三段小瀑布在溪上的位置（全長的比例）
+function streamY(s){const u=s/STREAM.L;let y=.08-u*.3;FALLS.forEach(f=>{if(u>f)y-=.1;});return Math.max(-.55,y);}
+function streamQ(x,z){if(x<-13||x>11||z>-13||z<-46)return null;let b=1e9,bi=0;const P=STREAM.P;for(let i=0;i<P.length;i++){const d=(x-P[i][0])**2+(z-P[i][1])**2;if(d<b){b=d;bi=i;}}return{d:Math.sqrt(b),s:STREAM.S[bi],u:STREAM.S[bi]/STREAM.L};}
+const GZ=57.5,GW=26,RW=6.9,RC=6.2,GZI=GZ-RW-4.5;   // GZI：守護者巡邏的那一條（鐵門內側）
+   // 圍欄線＝會客亭的中線；圍欄在會客亭這裡彎成半圓（RW），鐵門開在半弧正中間
+function heightRaw(x,z){
   const r=Math.hypot(x,z-18);
   let h=.7*Math.sin(x*.11)*Math.cos(z*.09)+.4*Math.sin(x*.23+z*.17);
   h*=sm(12,28,Math.hypot(x-2,z+4));
-  h+=Math.pow(Math.max(0,r-60),1.35)*.13;
   const d=Math.abs(x-riverX(z));
+  h+=Math.pow(Math.max(0,r-60),1.35)*.13*sm(5,18,d);   // 山在河道這裡讓開一道谷，河才流得進霧裡
   h-=1.15*(1-sm(2.6,5,d));
   return h;
 }
-/* G 雙心橢圓園：家在北、入口在南；金庫（噴水池）與營火是橢圓步道的兩個焦點；蘑菇在家的正西方；入口外一道長格柵，螢火蟲散在格柵外 */
+const PAVY=heightRaw(0,GZ);
+function heightAt(x,z){
+  let h=heightRaw(x,z);
+  const dP=Math.hypot(x,z-GZ);if(dP<12)h=PAVY+(h-PAVY)*sm(8,12,dP);     // 會客亭的地面整平
+  const q=streamQ(x,z);if(q){const w=.55+q.u*.8,bed=streamY(q.s)-.28;h+=(Math.min(h,bed)-h)*(1-sm(w,w+1.6,q.d));}
+  return h;
+}
+/* G 無限符號園：家在北、入口在南；金庫（噴水池）與營火是無限符號兩個圈的圓心；蘑菇在家的正西方；入口外一道長格柵，螢火蟲散在格柵外 */
 const hx=0,hz=-8,mz=-8,mx=-23;
 const EC={cx:0,cz:20,rx:28,rz:14};
 const VX=-15,VZ=EC.cz;
 const FX=15,FZ=EC.cz;
-const GZ=50,GW=26;
-const CCX=28,CCZ=-6,CCR=7.5;   /* 麥田圈：從家裡往外看的左邊（Teresa 那一邊，跟胸口的 Camino 同一邊） */
 /* 躺椅與旁邊的樹：金庫在西側、營火在東側，背對森林、面向各自的焦點 */
-const RESTS=[{x:VX-8,z:VZ+1.2,ry:Math.PI/2,tx:VX-10.5,tz:VZ-2.2},{x:FX+7,z:FZ+1.2,ry:-Math.PI/2,tx:FX+9.5,tz:FZ-2.2}];
-const LANTERNS=[];for(let z=EC.cz+EC.rz+3.5;z<GZ-1;z+=4)LANTERNS.push([-2.6,z],[2.6,z]);
-const PATHS=[[0,-1,0,EC.cz-EC.rz],[0,EC.cz+EC.rz,0,GZ+16],[-15.3,-2,mx+2.4,mz+2.4],[-EC.rx,EC.cz,riverX(EC.cz)+5,EC.cz]];
-for(let i=0;i<40;i++){const a=i/40*Math.PI*2,b=(i+1)/40*Math.PI*2;PATHS.push([EC.cx+Math.cos(a)*EC.rx,EC.cz+Math.sin(a)*EC.rz,EC.cx+Math.cos(b)*EC.rx,EC.cz+Math.sin(b)*EC.rz]);}
-const inEllipse=(x,z)=>((x-EC.cx)/EC.rx)**2+((z-EC.cz)/EC.rz)**2;
+const RESTS=[{x:VX-5.6,z:VZ+1.2,ry:Math.PI/2,tx:VX-7.6,tz:VZ-2.6},{x:FX+5.6,z:FZ+1.2,ry:-Math.PI/2,tx:FX+7.6,tz:FZ-2.6}];
+const LANTERNS=[];for(let z=EC.cz+EC.rz+3.5;z<GZ-RW-1.5;z+=4)LANTERNS.push([-2.6,z],[2.6,z]);
+/* 無限符號步道：兩個圓（營火、金庫為圓心）用兩條柔和的 S 曲線接起來，在光孔日晷的圓形廣場交會 */
+const INF=(()=>{const c=15,r=10.8,ph=138*Math.PI/180,K=4,cz=EC.cz,A=[c+r*Math.cos(ph),r*Math.sin(ph)],d=[-Math.sin(ph),Math.cos(ph)],B=[-A[0],-A[1]],Bp=[B[0],-B[1]],Ap=[A[0],-A[1]],dp=[-d[0],d[1]],a=Math.PI-ph,P=[];
+  const bez=(p0,p1,p2,p3)=>{for(let i=0;i<=24;i++){const t=i/24,u=1-t;P.push([0,1].map(k=>u*u*u*p0[k]+3*u*u*t*p1[k]+3*u*t*t*p2[k]+t*t*t*p3[k]));}};
+  bez(A,[A[0]+d[0]*K,A[1]+d[1]*K],[B[0]-d[0]*K,B[1]-d[1]*K],B);
+  for(let i=1;i<=60;i++){const t=-a-(2*Math.PI-2*a)*i/60;P.push([-c+r*Math.cos(t),r*Math.sin(t)]);}
+  bez(Bp,[Bp[0]+dp[0]*K,Bp[1]+dp[1]*K],[Ap[0]-dp[0]*K,Ap[1]-dp[1]*K],Ap);
+  for(let i=1;i<=60;i++){const t=-ph+2*ph*i/60;P.push([c+r*Math.cos(t),r*Math.sin(t)]);}
+  return P.map(([x,z])=>[x,z+cz]);})();
+const INF_R=10.8,INF_C=15;
+const PATHS=[[0,-1,0,EC.cz-EC.rz],[0,EC.cz+EC.rz,0,GZ-RW],[0,GZ+RW,0,GZ+22],[-15.3,-2,mx+2.4,mz+2.4],[-INF_C-INF_R,EC.cz,riverX(EC.cz)+5,EC.cz]];
+for(let i=0;i<INF.length-1;i++){const[a,b]=INF[i],[c,d]=INF[i+1];if(Math.hypot(a,b-EC.cz)<5.2&&Math.hypot(c,d-EC.cz)<5.2)continue;PATHS.push([a,b,c,d]);}
+/* 園區內部（給種樹和畫地圖用）：在兩個圈裡、或日晷廣場附近，回傳 <1 */
+const inEllipse=(x,z)=>Math.min(Math.hypot(x-INF_C,z-EC.cz),Math.hypot(x+INF_C,z-EC.cz),Math.abs(x)<8&&Math.abs(z-EC.cz)<7?5:99)/INF_R;
 function segD(px,pz,a){const[x1,z1,x2,z2]=a,dx=x2-x1,dz=z2-z1,L=dx*dx+dz*dz;let t=L?((px-x1)*dx+(pz-z1)*dz)/L:0;t=clamp(t,0,1);return Math.hypot(px-(x1+t*dx),pz-(z1+t*dz));}
 const pathD=(x,z)=>Math.min(...PATHS.map(p=>segD(x,z,p)));
 const F=addScene('forest',{scene:out,indoor:false,camDist:7.2,camMin:.12,orbit0:.42,where:'森林',
@@ -366,12 +397,12 @@ const waterMat=new R.ShaderMaterial({transparent:true,depthWrite:false,
     if(Math.hypot(x-FX,z-FZ)<7||Math.hypot(x-VX,z-VZ)<7||Math.hypot(x-mx,z-mz)<6.5)continue;
     {const q=inEllipse(x,z);if(q<1&&(q<.6||rand()>.25))continue;}
     if(Math.abs(z-GZ)<2.2&&Math.abs(x)<GW+1.5)continue;
-    if(Math.abs(z-(GZ-7))<5.5&&Math.abs(x)<19)continue;if(z>GZ&&z<GZ+6&&Math.abs(x)<14)continue;   // 守護者巡邏的那一條、牆外看牠們的位置留空
+    if(Math.abs(z-GZI)<5.5&&Math.abs(x)<19)continue;if(z>GZ&&z<GZ+6&&Math.abs(x)<14)continue;if(Math.hypot(x,z-GZ)<RW+3.2)continue;{const sq=streamQ(x,z);if(sq&&sq.d<6)continue;}   // 守護者巡邏的那一條、牆外看牠們的位置留空
     if(pathD(x,z)<2.4)continue;
     if(spots.some(s=>Math.hypot(s[0]-x,s[1]-z)<2.6))continue;
     spots.push([x,z,d<10?1.35+rand()*.5:.85+rand()*.6,rand()<.42]);
   }
-  {const keep=spots.filter(q=>Math.hypot(q[0]-CCX,q[1]-CCZ)>CCR+2.2);spots.length=0;spots.push(...keep);}   /* 麥田圈周圍不長樹 */
+  {const keep=spots.filter(q=>Math.hypot(q[0],q[1]-GZ)>RW+3.2&&!(()=>{const sq=streamQ(q[0],q[1]);return sq&&sq.d<6;})());spots.length=0;spots.push(...keep);}   /* 會客亭和屋後的溪旁邊不長樹 */
   const broad=spots.filter(s=>!s[3]),conif=spots.filter(s=>s[3]);
   const trunks=new R.InstancedMesh(new R.CylinderGeometry(.18,.3,1,6),mat(0x8C6646),spots.length);
   const canA=new R.InstancedMesh(new R.IcosahedronGeometry(1,0),mat(0xffffff),broad.length);
@@ -629,23 +660,26 @@ let fireUpdate;
   label(out,'螢火蟲',14,heightAt(14,GZ+8)+3.4,GZ+8,'通訊錄');
 }
 {const x=riverX(EC.cz)+5.4,z=EC.cz;label(out,'記錄之河',x-3,heightAt(x,z)+3.6,z,'每天都流進來');}
-const wallZ=x=>GZ+.7*Math.sin(x*.32);
+const wallZ=x=>{const ax=Math.abs(x);return ax<RW?GZ-Math.sqrt(RW*RW-ax*ax):GZ+.7*Math.sin(x*.32)*sm(RW,RW+5,ax);};
+/* 圍欄的每一塊：兩邊是起伏的直線，到了會客亭沿著靠家的那半圈彎成半圓，中間留鐵門 */
+const WALLP=(()=>{const W=[];for(let x=RW+.25;x<GW;x+=.5)[1,-1].forEach(sd=>{const X=sd*x,dz=(wallZ(X+.01)-wallZ(X-.01))/.02;W.push([X,wallZ(X),-Math.atan2(dz,1)]);});
+  const n=Math.round(Math.PI*RW/.5);for(let i=1;i<n;i++){const th=Math.PI*i/n,x=RW*Math.cos(th),z=GZ-RW*Math.sin(th);if(Math.abs(x)<2.95)continue;W.push([x,z,-Math.atan2(-Math.cos(th),-Math.sin(th))]);}
+  return W;})();
 let gateUpdate=()=>{};
 { // 入口的矮牆：高第鄉村風，起伏的砂岩矮牆＋碎磁磚馬賽克牆頂；中間一扇鍛鐵門，只為你打開
   const MOS=[0x2D5DA8,0x3FA7B5,0xE2B04A,0xF3EEE4,0xC8673E,0x6FA35A,0x1F3F7A];
-  const segs=[];for(let x=2.7;x<GW;x+=.5)segs.push(x,-x);
-  const n=segs.length,body=new R.InstancedMesh(new R.BoxGeometry(.56,1,.55),new R.MeshStandardMaterial({color:0xffffff,roughness:.9}),n);
+  const n=WALLP.length,body=new R.InstancedMesh(new R.BoxGeometry(.56,1,.55),new R.MeshStandardMaterial({color:0xffffff,roughness:.9}),n);
   const capM=new R.InstancedMesh(new R.BoxGeometry(.58,.1,.62),new R.MeshStandardMaterial({color:0xffffff,roughness:.35,metalness:.05}),n);
   const tiles=new R.InstancedMesh(new R.BoxGeometry(.16,.05,.16),new R.MeshStandardMaterial({color:0xffffff,roughness:.25,metalness:.1}),n*4);
   const m=new R.Matrix4(),q=new R.Quaternion(),e=new R.Euler(),v=new R.Vector3(),sv=new R.Vector3(),c=new R.Color();
-  segs.forEach((x,i)=>{const z=wallZ(x),y=heightAt(x,z),h=.8+.2*Math.sin(Math.abs(x)*.55+1),tan=Math.atan2(.7*.32*Math.cos(x*.32),1);
-    e.set(0,-tan,0);q.setFromEuler(e);
+  WALLP.forEach(([x,z,ry],i)=>{const y=heightAt(x,z),h=.8+.2*Math.sin(Math.abs(x)*.55+1),tan=-ry;
+    e.set(0,ry,0);q.setFromEuler(e);
     m.compose(v.set(x,y+h/2-.1,z),q,sv.set(1,h+.2,1));body.setMatrixAt(i,m);c.set(rand()<.5?0xD9C3A0:0xCDB48D).offsetHSL(0,0,(rand()-.5)*.06);body.setColorAt(i,c);
     m.compose(v.set(x,y+h+.05,z),q,sv.set(1,1,1));capM.setMatrixAt(i,m);c.set(0xF3EEE4);capM.setColorAt(i,c);
     for(let k=0;k<4;k++){const lx=(rand()-.5)*.4,lz=(rand()-.5)*.44;e.set(0,-tan+rand()*1.2,0);const q2=new R.Quaternion().setFromEuler(e);
       m.compose(v.set(x+lx*Math.cos(tan)+lz*Math.sin(tan),y+h+.12,z+lz*Math.cos(tan)-lx*Math.sin(tan)),q2,sv.set(.7+rand()*.6,1,.7+rand()*.6));tiles.setMatrixAt(i*4+k,m);c.set(MOS[Math.floor(rand()*MOS.length)]);tiles.setColorAt(i*4+k,c);}});
   [body,capM,tiles].forEach(o=>{o.castShadow=true;o.receiveShadow=true;out.add(o);});
-  for(let x=2.7;x<GW;x+=2)[1,-1].forEach(sd=>F.col.push({x0:sd>0?x:-x-2,x1:sd>0?x+2:-x,z0:wallZ(sd*(x+1))-.35,z1:wallZ(sd*(x+1))+.35}));
+  WALLP.forEach(([x,z])=>F.col.push({x,z,r:.4}));
   const stone=new R.MeshStandardMaterial({color:0xD3BB94,roughness:.85});
   [-1,1].forEach(sd=>{const px=sd*2.45,pz=wallZ(px),py=heightAt(px,pz);mesh(new R.CylinderGeometry(.42,.5,1.8,14),stone,px,py+.9,pz,out);
     mesh(new R.CylinderGeometry(.5,.42,.12,14),new R.MeshStandardMaterial({color:0xF3EEE4,roughness:.4}),px,py+1.86,pz,out);
@@ -661,7 +695,7 @@ let gateUpdate=()=>{};
     [[.5,.48],[1.0,.48],[1.5,.48]].forEach(([d,hh])=>{const ring=new R.Mesh(new R.TorusGeometry(.17,.022,6,18),iron);ring.position.set(-sd*d,hh,0);hinge.add(ring);
       const ring2=new R.Mesh(new R.TorusGeometry(.08,.02,6,14),gold);ring2.position.set(-sd*d,hh,0);hinge.add(ring2);});
     leaves.push({g:hinge,sd,a:0});});
-  gateUpdate=dt=>{const near=Math.hypot(P.x,P.z-GZ)<5.5&&cur&&cur.id==='forest';leaves.forEach(l=>{const tgt=near?1.35:0;l.a+=(tgt-l.a)*Math.min(1,dt*3);l.g.rotation.y=l.sd*-l.a;});};
+  gateUpdate=dt=>{const near=Math.hypot(P.x,P.z-(GZ-RW))<5.5&&cur&&cur.id==='forest';leaves.forEach(l=>{const tgt=near?1.35:0;l.a+=(tgt-l.a)*Math.min(1,dt*3);l.g.rotation.y=l.sd*-l.a;});};
 }
 { // 十字中心：東西連著金庫與營火（錢與熱情），南北連著家與森林入口（自己與世界）
   const stone=new R.MeshStandardMaterial({color:0xE6E0D4,roughness:.6}),gold=new R.MeshStandardMaterial({color:0xD9B35A,metalness:.8,roughness:.25});
@@ -796,13 +830,13 @@ F.hots=[
   {id:'studio',name:'蘑菇攝影棚',verb:'進入',x:mx+2.2,z:mz+2.2,r:2.8},
   {id:'center',name:'光孔日晷・使命板',verb:'打開',x:0,z:EC.cz+2.2,r:2.4,go:()=>openApp('使命板','https://fuwei0618-cmd.github.io/Entry/mission/')},
   {id:'campfire',name:'營火',verb:'坐下',x:FX,z:FZ+1.6,r:3},
-  {id:'fireflies',name:'螢火蟲',verb:'看看',x:4,z:GZ+2.5,r:3},
+  {id:'fireflies',name:'螢火蟲',verb:'看看',x:14,z:GZ+6,r:3},
   {id:'helipad',name:'屋頂停機坪・私人飛機',verb:'起飛',x:hx+14.6,z:hz+8.2,r:3,go:()=>openWorld()}
 ];
 // 守護者：格柵內側。以「從家裡往外看」為準（跟刺青一樣）：狼在左（Teresa・給世界）、虎在右（Elva・給自己），約 9 倍人高
 // 巡邏：走向門口時面對面 → 到門口轉身面向外面，站崗看守很久 → 轉身背對背走向牆的盡頭 → 停一下看外面 → 再走回門口
 // 立體：側面、正面各一張圖，用深度圖往前後各鼓起一半（displacement），再用法線圖打光；轉身轉到一半時換成正面那張
-{const tl=new R.TextureLoader(),H=14,GZI=GZ-7,DEP=1.25;const guards=[];
+{const tl=new R.TextureLoader(),H=14,DEP=1.25;const guards=[];
   const ld=(u,flip)=>{const t=tl.load(u);if(flip){t.wrapS=R.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;}return t;};
   const REAR={tiger:1,wolf:1};   // 已經有真正背面圖的守護者
   const statue=(k,v,pw,ph)=>{const w=H*pw/ph,g=new R.Group(),base=`img/guard-${k}-${v}`;
@@ -894,43 +928,77 @@ F.hots=[
     if(stair(lx,lz)){roofOn=stairT(lz)>.92;return;}
     if(roofOn){p.x=hx+clamp(lx,-13.4,13.75);p.z=hz+clamp(lz,-6.8,8.1);}};
   F.hots.push({id:'jet',name:'私人飛機',verb:'起飛',x:hx+3.2,z:hz+3.4,r:2.6,go:()=>openWorld()});}
-{ /* 麥田圈・開心原則：中線（胸口的 Camino＝脊椎）往前衝；底下三個點是足底三腳架；四個 C 是開肩、開髖和背後的翅膀；繞著中線的無限符號 */
-  const S=17,N=1024,k=N/S,P=(x,z)=>[(x+S/2)*k,(z+S/2)*k];
-  const mask=document.createElement('canvas');mask.width=mask.height=N;const g=mask.getContext('2d');
-  g.strokeStyle=g.fillStyle='#fff';g.lineCap=g.lineJoin='round';
-  const line=(pts,w)=>{g.lineWidth=w*1.25*k;g.beginPath();pts.forEach(([x,z],i)=>{const[u,v]=P(x,z);i?g.lineTo(u,v):g.moveTo(u,v);});g.stroke();};
-  const arc=(cx,cz,r,a0,a1,w)=>{const pts=[];for(let i=0;i<=40;i++){const a=a0+(a1-a0)*i/40;pts.push([cx+r*Math.cos(a),cz+r*Math.sin(a)]);}line(pts,w);};
-  const dot=(x,z,r)=>{const[u,v]=P(x,z);g.beginPath();g.arc(u,v,r*k,0,7);g.fill();};
-  arc(0,0,6.9,0,Math.PI*2,.42);                                   // 外圈
-  line([[0,-5.1],[0,6.1]],.55);line([[-1.35,4.7],[0,6.25],[1.35,4.7]],.5);   // 中線＋往前的箭頭（朝世界之門）
-  dot(-1.05,-5.35,.5);dot(1.05,-5.35,.5);dot(0,-6.3,.5);           // 足底三腳架
-  const A=.95;arc(-3.7,0,3.35,-A,A,.42);arc(3.7,0,3.35,Math.PI-A,Math.PI+A,.42);            // 前面兩個 C：開肩、開髖
-  const B=.62;arc(0,-5.6,5.2,Math.PI/2-B,Math.PI/2+B,.38);arc(0,5.6,5.2,-Math.PI/2-B,-Math.PI/2+B,.38);   // 背後兩個 C：翅膀
-  [1,.72,.46].forEach((sc,i)=>{const a=4.9*sc,pts=[];for(let j=0;j<=160;j++){const t=j/160*Math.PI*2,d=1+Math.sin(t)**2;pts.push([a*Math.cos(t)/d,.95*a*Math.sin(t)*Math.cos(t)/d]);}line(pts,i?.26:.36);});   // 無限符號，裡面一圈一圈
-  const md=g.getImageData(0,0,N,N).data,flat=(x,z)=>{const[u,v]=P(x,z);return md[((v|0)*N+(u|0))*4]>110;};
-  const tex=canvasTex(N,N,(c)=>{c.save();c.beginPath();c.arc(N/2,N/2,CCR*k,0,7);c.clip();
-    c.fillStyle='#9C7A35';c.fillRect(0,0,N,N);
-    for(let i=0;i<9000;i++){c.fillStyle=`rgba(${rand()<.5?'70,52,20':'214,180,104'},${.18+rand()*.2})`;c.fillRect(rand()*N,rand()*N,2+rand()*5,2);}
-    const f=document.createElement('canvas');f.width=f.height=N;const fg=f.getContext('2d');fg.fillStyle='#EBD9A6';fg.fillRect(0,0,N,N);
-    fg.strokeStyle='rgba(196,160,88,.55)';fg.lineWidth=1.4;for(let r=6;r<N;r+=7){fg.beginPath();fg.arc(N/2,N/2,r,0,7);fg.stroke();}   // 壓平的麥子順著繞圈倒下
-    fg.globalCompositeOperation='destination-in';fg.drawImage(mask,0,0);c.drawImage(f,0,0);c.restore();});
-  tex.anisotropy=8;
-  const geo=new R.PlaneGeometry(S,S,68,68);geo.rotateX(-Math.PI/2);const gp=geo.attributes.position;
-  for(let i=0;i<gp.count;i++)gp.setY(i,heightAt(CCX+gp.getX(i),CCZ+gp.getZ(i))+.07);geo.computeVertexNormals();
-  const deck=new R.Mesh(geo,new R.MeshStandardMaterial({map:tex,transparent:true,alphaTest:.05,roughness:1,polygonOffset:true,polygonOffsetFactor:-4}));
-  deck.position.set(CCX,0,CCZ);deck.receiveShadow=true;deck.userData.tap='crop';out.add(deck);
-  const pts=[];for(let i=0;i<26000&&pts.length<5600;i++){const r=Math.sqrt(rand())*(CCR-.15),a=rand()*Math.PI*2,x=r*Math.cos(a),z=r*Math.sin(a);if(!flat(x,z))pts.push([x,z]);}
-  const st=new R.InstancedMesh(new R.ConeGeometry(.055,1,4).translate(0,.5,0),new R.MeshStandardMaterial({color:0xffffff,roughness:.85}),pts.length);
-  const m=new R.Matrix4(),q=new R.Quaternion(),e=new R.Euler(),v=new R.Vector3(),sv=new R.Vector3(),c=new R.Color();
-  pts.forEach(([x,z],i)=>{const h=.42+rand()*.18;e.set((rand()-.5)*.25,rand()*3,(rand()-.5)*.25);q.setFromEuler(e);
-    m.compose(v.set(CCX+x,heightAt(CCX+x,CCZ+z)+.04,CCZ+z),q,sv.set(1,h,1));st.setMatrixAt(i,m);
-    st.setColorAt(i,c.setHSL(.11+rand()*.025,.55+rand()*.15,.5+rand()*.12));});
-  st.userData.tap='crop';out.add(st);
-  F.hots.push({id:'crop',name:'麥田圈・開心原則',verb:'看看',x:CCX-CCR-1.2,z:CCZ,r:3});}
-F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI+.26,-.12,'first'],crop:[CCX-CCR-2.6,CCZ,Math.PI/2,-Math.PI/2]};
+{ /* 玄關會客亭：圍欄外的圓形廣場，圓形胡桃木棚架、石灰華火爐、三張吊床鞦韆、串燈。輕量社交：朋友不用進門，在火邊坐一下 */
+  const Y=PAVY,G=new R.Group();G.position.set(0,Y,GZ);out.add(G);
+  const add=(geo,m,x,y,z,cast=true)=>mesh(geo,m,x,y,z,G,cast);
+  const gravel=new R.MeshStandardMaterial({color:0xD9CDB2,roughness:1}),trav=new R.MeshStandardMaterial({color:0xE8DECB,roughness:.55}),
+    wal=new R.MeshStandardMaterial({color:0x4B3628,roughness:.6}),linen=new R.MeshStandardMaterial({color:0xF1EADD,roughness:1}),
+    oat=new R.MeshStandardMaterial({color:0xD9C9AE,roughness:1}),brass=new R.MeshStandardMaterial({color:0xC9A25E,metalness:.7,roughness:.3});
+  {const d=add(new R.CircleGeometry(RC,72),gravel,0,.04,0,false);d.rotation.x=-Math.PI/2;
+   const rim=add(new R.TorusGeometry(RC,.14,8,120),trav,0,.05,0,false);rim.rotation.x=Math.PI/2;rim.scale.z=.45;}
+  // 外半圈的植栽（靠家那半圈是圍欄）
+  for(let a=.12;a<Math.PI-.1;a+=.17){for(const k of[0,1]){const r=RC+.7+k*.55+rand()*.2,x=Math.cos(a)*r,z=Math.sin(a)*r;
+    const t=add(new R.IcosahedronGeometry(.3+rand()*.22,0),mat(rand()<.32?0xB7A3D2:rand()<.5?0x7E9C62:0x9DB27C),x,.22,z);t.scale.y=.8;}}
+  // 火爐：石灰華切成的乾淨圓形
+  add(new R.CylinderGeometry(.98,1.05,.46,48),trav,0,.23,0);
+  add(new R.CylinderGeometry(.74,.74,.04,40),new R.MeshStandardMaterial({color:0x2B2420,roughness:.9}),0,.465,0,false);
+  const fl=[];for(let k=0;k<5;k++){const sp=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:k<2?0xFFD27A:0xFF8A3A,transparent:true,depthWrite:false,blending:R.AdditiveBlending}));
+    sp.position.set((rand()-.5)*.4,.85,(rand()-.5)*.4);sp.userData={h:.7+rand()*.5,base:.8+rand()*.15};G.add(sp);fl.push(sp);}
+  const fireL=new R.PointLight(0xFFA25A,.75,10,1.8);fireL.position.set(0,1.2,0);G.add(fireL);
+  // 圓形棚架：八根細柱撐一圈胡桃木環梁，放射狀細椽收到中間的小環，中間開口讓火的煙出去
+  const RP=4.4,HP=3.25;
+  for(let k=0;k<8;k++){const a=k/8*Math.PI*2+Math.PI/8;add(new R.BoxGeometry(.13,HP,.13),wal,Math.cos(a)*RP,HP/2,Math.sin(a)*RP);}
+  {const ring=add(new R.TorusGeometry(RP,.09,8,96),wal,0,HP,0);ring.rotation.x=Math.PI/2;
+   const ring2=add(new R.TorusGeometry(1.25,.06,8,48),wal,0,HP+.35,0);ring2.rotation.x=Math.PI/2;
+   for(let k=0;k<16;k++){const a=k/16*Math.PI*2,r0=1.25,r1=RP+.35,L=Math.hypot(r1-r0,.35);const rf=add(new R.BoxGeometry(L,.07,.06),wal,Math.cos(a)*(r0+r1)/2,HP+.18,Math.sin(a)*(r0+r1)/2);
+     rf.rotation.y=-a;rf.rotation.z=Math.atan2(-.35,r1-r0)*-1;}}
+  // 串燈：從環梁垂到中間的小環
+  {const bulb=new R.MeshBasicMaterial({color:0xFFE3A6});const geo=new R.SphereGeometry(.04,8,6);
+   for(let k=0;k<8;k++){const a=k/8*Math.PI*2;for(let i=1;i<10;i++){const t=i/10,r=RP-(RP-1.25)*t,y=HP-.06+.35*t-Math.sin(Math.PI*t)*.5;add(geo,bulb,Math.cos(a)*r,y,Math.sin(a)*r,false);}}
+   const pl=new R.PointLight(0xFFD9A0,.25,8);pl.position.set(0,HP-.3,0);G.add(pl);}
+  // 三張吊床鞦韆：深、低、可以整個人窩進去；加厚坐墊、抱枕、一條毯子。靠鐵門那一邊空著當入口
+  [Math.PI/2,Math.PI/2-1.25,Math.PI/2+1.25].forEach((a,k)=>{const r=3.15,S=new R.Group();S.position.set(Math.cos(a)*r,0,Math.sin(a)*r);S.rotation.y=-a-Math.PI/2;G.add(S);
+    const ad=(geo,m,x,y,z)=>mesh(geo,m,x,y,z,S);
+    ad(new R.BoxGeometry(1.9,.07,.95),wal,0,.48,0);ad(new R.BoxGeometry(1.95,.42,.07),wal,0,.72,-.45);
+    [-1,1].forEach(e=>ad(new R.BoxGeometry(.07,.28,.95),wal,e*.95,.62,0));
+    const cu=ad(new R.BoxGeometry(1.8,.2,.86),linen,0,.62,.03);
+    const bk=ad(new R.CylinderGeometry(.2,.2,1.7,18),linen,0,.86,-.3);bk.rotation.z=Math.PI/2;
+    [-.55,.3].forEach((x,q)=>{const pw=ad(new R.BoxGeometry(.44,.38,.14),q?oat:linen,x,.9,-.18);pw.rotation.x=-.25;pw.rotation.z=q?.1:-.12;});
+    const th=ad(new R.BoxGeometry(.7,.05,.9),oat,.55,.74,.06);th.rotation.z=-.05;
+    [[-.92,-.42],[.92,-.42],[-.92,.42],[.92,.42]].forEach(([x,z])=>{const top=HP-.05,len=top-.5;const rp=ad(new R.CylinderGeometry(.014,.014,len,5),brass,x*.98,.5+len/2,z*.9);});});
+  // 地上的燈籠
+  [[-1.6,-1.4],[1.7,-1.2],[-2.2,1.9],[2.3,1.6]].forEach(([x,z])=>{add(new R.CylinderGeometry(.16,.18,.42,10),new R.MeshStandardMaterial({color:0xF6E7C4,emissive:0xFFC873,emissiveIntensity:.45,roughness:.6}),x,.25,z,false);
+    add(new R.CylinderGeometry(.19,.19,.04,10),brass,x,.48,z,false);});
+  F.col.push({x:0,z:GZ,r:1.25});
+  [Math.PI/2,Math.PI/2-1.25,Math.PI/2+1.25].forEach(a=>F.col.push({x:Math.cos(a)*3.15,z:GZ+Math.sin(a)*3.15,r:.7}));
+  F.pavUpdate2=(dt,t)=>{fl.forEach((f,i)=>{const k=1+Math.sin(t*(9+i*3))*.15+Math.sin(t*(21+i))*.07,h=f.userData.h;f.scale.set(h*(.75-(k-1)*.4),h*1.2*k,1);f.position.y=f.userData.base+(k-1)*.3;});
+    fireL.intensity=.72+Math.sin(t*11)*.1+Math.sin(t*27)*.05;};
+  F.hots.push({id:'pavilion',name:'會客亭',verb:'坐一下',x:0,z:GZ-1.8,r:3.2});
+  label(out,'會客亭',0,Y+HP+1.6,GZ,'朋友來了，在火邊坐一下');
+}
+{ /* 屋後的溪：水面、三段小瀑布、三塊踏石 */
+  const P=STREAM.P,pos=[],uv=[],idx=[];
+  for(let i=0;i<P.length;i++){const a=P[Math.max(0,i-1)],b=P[Math.min(P.length-1,i+1)],dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz)||1,nx=-dz/L,nz=dx/L;
+    const u=STREAM.S[i]/STREAM.L,w=(.55+u*.8)*.95,y=streamY(STREAM.S[i])-.06,[x,z]=P[i];
+    pos.push(x-nx*w,y,z-nz*w,x+nx*w,y,z+nz*w);uv.push(0,STREAM.S[i]/6,1,STREAM.S[i]/6);if(i<P.length-1){const q=i*2;idx.push(q,q+1,q+2,q+1,q+3,q+2);}}
+  const g=new R.BufferGeometry();g.setAttribute('position',new R.Float32BufferAttribute(pos,3));g.setAttribute('uv',new R.Float32BufferAttribute(uv,2));g.setIndex(idx);
+  const w=new R.Mesh(g,waterMat);w.renderOrder=2;out.add(w);
+  const rock=new R.MeshStandardMaterial({color:0xB9B2A3,roughness:.9,flatShading:true}),foam=new R.MeshBasicMaterial({color:0xF4F8F6,transparent:true,opacity:.8,side:R.DoubleSide});
+  const at=u=>{const s=u*STREAM.L;let i=0;while(i<STREAM.S.length-1&&STREAM.S[i+1]<s)i++;const a=P[i],b=P[Math.min(P.length-1,i+1)],dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz)||1;return{x:a[0],z:a[1],tx:dx/L,tz:dz/L,s};};
+  FALLS.forEach((f,k)=>{const p=at(f),w=(.55+f*.8),y=streamY(p.s-.01);
+    const lip=mesh(new R.BoxGeometry(w*2.1,.16,.45),rock,p.x,y-.12,p.z,out);lip.rotation.y=Math.atan2(p.tx,p.tz);
+    const fo=mesh(new R.PlaneGeometry(w*1.8,.16),foam,p.x+p.tx*.25,y-.12,p.z+p.tz*.25,out,false);fo.rotation.y=Math.atan2(p.tx,p.tz);
+    [-1,1].forEach(sd=>{const r=mesh(new R.DodecahedronGeometry(.45+rand()*.25,0),rock,p.x-p.tz*sd*(w+.35),heightAt(p.x,p.z)+.15,p.z+p.tx*sd*(w+.35),out);r.scale.y=.7;});});
+  {const p=at(.47),w=(.55+.47*.8),y=streamY(p.s);   // 三塊踏石：足底三腳架
+   [[-.55,0],[.55,0],[0,.75]].forEach(([a,b])=>{const x=p.x-p.tz*a+p.tx*b,z=p.z+p.tx*a+p.tz*b;mesh(new R.CylinderGeometry(.42,.48,.22,12),new R.MeshStandardMaterial({color:0x6F665C,roughness:.85}),x,y+.02,z,out);});}
+  for(let i=0;i<40;i++){const u=rand(),p=at(u),w=.55+u*.8,sd=rand()<.5?-1:1,o=w+.25+rand()*.6;const x=p.x-p.tz*sd*o,z=p.z+p.tx*sd*o;
+    const r=mesh(new R.DodecahedronGeometry(.14+rand()*.22,0),rock,x,heightAt(x,z)+.05,z,out);r.rotation.set(rand()*3,rand()*3,rand()*3);}
+  F.hots.push({id:'stream',name:'屋後的溪',verb:'看看',x:4.6,z:-20.5,r:2.6});
+}
+F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+RW+5,Math.PI,0],pavilion:[0,GZ-RW-2,0,Math.PI],stream:[8.5,-32,-.35,Math.PI-.35],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI+.26,-.12,'first']};
 F.hots.push({id:'lucky',name:'Lucky',verb:'摸摸',dyn:true,r:1.7,go:()=>openLucky()});
 F.update=(dt,t)=>{if(dog.parent===out)dogUpdate(dt,t);sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
-  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);if(F.homeLabel)F.homeLabel.visible=!roofOn;   /* 站在屋頂上時，家的字牌收起來，不擋視線 */F.doorUpdate&&F.doorUpdate(dt);};
+  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.pavUpdate2&&F.pavUpdate2(dt,t);F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);if(F.homeLabel)F.homeLabel.visible=!roofOn;   /* 站在屋頂上時，家的字牌收起來，不擋視線 */F.doorUpdate&&F.doorUpdate(dt);};
 
 /* shared materials */
 const portalMat=new R.ShaderMaterial({uniforms:{t:{value:0}},side:R.DoubleSide,
@@ -1320,7 +1388,8 @@ const INFO={
   guardTiger:{tag:'森林 · 鍛鐵門內',title:'虎・守護者',body:'從家裡往外看，右邊這一尊是虎，跟你右腰的刺青同一邊：女人的力量、允許自己想要的 Elva。像守著金字塔的獅身人面像，她守著你自己的空間。'},
   river:{tag:'森林 · 記錄之河',title:'記錄之河',body:'WonderMedia 的源頭和河流：每天的日記、照片、影音、想法都流進這條河，是所有作品的原料。',list:['源頭：隨手記文字、語音、照片；想拍好看時用拍照教練','河流：所有素材依時間流下來，加標籤、挑選'],links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/'],['拍照教練','https://fuwei0618-cmd.github.io/Entry/coach/']]},
   studio:{tag:'森林 · 蘑菇攝影棚',title:'工作台',body:'WonderMedia 的工作台和出海口：從記錄之河撈起素材，用你的萬用公式（積木）組成作品，再發到各個平台。',links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/']],list:['工作台：企劃、腳本、剪映草稿','出海口：發布排程與成效']},
-  crop:{tag:'森林 · 麥田圈',title:'開心原則',body:'腳底踩穩，頭頂往上提。身體打開，心就打開，聲音就出得去。',list:['中線｜胸口的 Camino，也是脊椎','三個點｜足底三腳架','前面兩個 C｜開肩、開髖','背後兩個 C｜翅膀','無限符號｜一直往前'],note:'卡卡的時候，先踩穩，再找回中線。站上屋頂，才看得見整個圖案。'},
+  pavilion:{tag:'森林 · 鐵門外',title:'會客亭',body:'朋友來了，不用進門，在火邊坐一下就好。圍欄在這裡彎成半圓，像一隻手臂從家這邊輕輕抱著它：你走出來接待他們，聊完再走回自己的空間。',list:['火｜往前、往上燒的力量','吊床鞦韆｜被一條線吊起來，軟 Q 地晃','半弧圍欄｜愛身邊的人，也保留自己的空間'],note:'輕量社交在這裡；想好好相處的人，再請上屋頂花園。'},
+  stream:{tag:'森林 · 家的後面',title:'屋後的溪',body:'水從家的後面湧出來，一階一階往後落，在家的後方匯進記錄之河，再一起流進霧裡，看不到盡頭。',list:['三段小瀑布｜一階一階往下','三塊踏石｜足底三腳架，往下扎根','匯流｜每天在家的生活，自然流進記錄裡'],note:'門外的火往前燒，屋後的水往後流。水火既濟，互相拉住。'},
   campfire:{tag:'森林 · 營火',title:'鐵粉朋友',body:'火是你的熱情。很多人是先看到你的表演、影片或 Podcast 才找過來的，你不一定認識他們，但他們會被火吸引，慢慢圍到火邊，聽懂你在唱什麼、做什麼。',list:['他們從哪裡認識你','回訪與互動','你可以為他們做的事'],soon:true},
   fireflies:{tag:'森林 · 螢火蟲',title:'通訊錄',body:'每一點光，是一個跟你有連結的人。點開就是他的卡片：客觀事實、標籤、相處邊界。',soon:true},
   cal:{tag:'家 · 日曆牆',title:'日曆牆',body:'牆上掛著夢想版：兩顆北極星、到 2031 的季節時間軸、這一季的魚缸和許願池。清單不是承諾，每一季只撈一條魚出來實現。',links:[['打開夢想版','https://fuwei0618-cmd.github.io/Entry/dream/']],list:['夢想版：北極星・時間軸・魚缸・今日三題・許願池','之後：今天只做三件事、番茄鐘、每週固定排程']},
@@ -1496,7 +1565,7 @@ function openInfo(id){const x=INFO[id];if(!x)return;
     <div class="row">${links}<button class="btn light" data-close>回到場景</button></div>`);
   root.querySelectorAll('[data-app-url]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.appName,b.dataset.appUrl)));}
 const PLACES=[
-  ['森林',[['屋頂花園','沙發・停機坪',['forest','garden']],['森林入口','起點',['forest','start']],['光孔日晷','使命板',['forest','center']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉朋友',['forest','campfire']],['麥田圈','開心原則',['forest','crop']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
+  ['森林',[['屋頂花園','沙發・停機坪',['forest','garden']],['森林入口','起點',['forest','start']],['光孔日晷','使命板',['forest','center']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉朋友',['forest','campfire']],['會客亭','火邊坐一下',['forest','pavilion']],['屋後的溪','往後流進霧裡',['forest','stream']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
   ['家 · 1F',[['玄關','1F',['f1','front']],['日曆牆','每日 · 每週',['f1','cal']],['廚房餐廳','飲食',['f1','kitchen']],['Beauty','梳化 · 保養',['f1','closet']],['健身房','身體',['f1','gym']]]],
   ['地下',[['B1 臥室','作息 · 白水木',['f2','bed']],['B2 禱告房','前殿 · 媽祖 · 月老 · 財神',['attic','ladder']]]],
   ['舞台',[['後台入口','從家裡的舞台門進來',['stage','back']],['Vocal','',['stage','mic']],['合唱台','合唱團',['stage','choir']],['Podcast 桌','不專業音樂電台',['stage','podcast']]]]
@@ -1517,14 +1586,14 @@ addEventListener('message',e=>{if(e.origin!=='https://fuwei0618-cmd.github.io'||
 function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(null,'',location.pathname)}catch(e){}canvas.focus({preventScroll:true});}
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
-  ['森林入口',['forest','start'],[0,GZ+6]],['狼',['forest','guardW'],[10,GZ-7]],['虎',['forest','guardT'],[-10,GZ-7]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
-  ['營火',['forest','campfire'],[FX,FZ]],['麥田圈',['forest','crop'],[CCX,CCZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
+  ['森林入口',['forest','start'],[0,GZ+RW+6]],['會客亭',['forest','pavilion'],[0,GZ]],['狼',['forest','guardW'],[10,GZI]],['虎',['forest','guardT'],[-10,GZI]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
+  ['營火',['forest','campfire'],[FX,FZ]],['屋後的溪',['forest','stream'],[5.5,-27]],['螢火蟲',['forest','fireflies'],[16,GZ+8]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
   ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(12,-1.5),['正顎手冊'],W1F(16.3,-1.5)],
   ['健身房',['f1','gym'],W1F(7.5,4.3),['健身房']],['Lucky',['f1','front'],W1F(-6.4,4.3),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
   ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];
 const MAP_B=[['B1 臥室',['f2','bed'],[30,30],['床邊']],['B2 禱告房',['attic','ladder'],[68,74]]];
 const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[36,82],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[90,48],['Podcast']]];
-const X0=-40,Z0=-19,MW=76,MH=80,pct=(x,z)=>[100-(x-X0)/MW*100,100-(z-Z0)/MH*100];   // 地圖倒過來：家在下、森林入口在上，像站在家裡往外看
+const X0=-42,Z0=-48,MW=78,MH=122,pct=(x,z)=>[100-(x-X0)/MW*100,100-(z-Z0)/MH*100];   // 地圖倒過來：家在下、森林入口在上，像站在家裡往外看
 function spotHTML(n,g,lp,apps,ap){const [l,t]=lp;
   if(n==='狼'||n==='虎')return `<div class="mspot gd" style="left:${l}%;top:${t}%"><button class="gico" data-g="${g.join(',')}" aria-label="${n}・守護者"><img src="https://fuwei0618-cmd.github.io/Entry/img/guard-${n==='狼'?'wolf':'tiger'}-face.webp" alt=""></button><button class="mlab" data-g="${g.join(',')}">${n}・守護者</button></div>`;
   const btns=(apps||[]).map(a=>APPMAP[a]?`<button class="mapp" data-app="${esc(a)}" aria-label="打開 ${esc(a)}" title="${esc(a)}">${APPMAP[a].svg}</button>`:'').join('');
@@ -1537,17 +1606,18 @@ let mapBG=null;
 function buildMapBG(){
   let r=1;const rnd=()=>{r=(r*16807)%2147483647;return r/2147483647;};
   let trees='';for(let k=0;k<420;k++){const x=X0+rnd()*MW,z=Z0+rnd()*MH;
-    if(x>-17&&x<17&&z>-22&&z<3)continue;if(Math.hypot(x-VX,z-VZ)<6||Math.hypot(x-FX,z-FZ)<4||Math.hypot(x-mx,z-mz)<4)continue;{const q=inEllipse(x,z);if(q<1.15&&(q<.6||rnd()>.3))continue;}if(Math.abs(z-GZ)<1.5&&Math.abs(x)<GW+1)continue;if(Math.abs(z-(GZ-7))<5.5&&Math.abs(x)<19)continue;if(Math.abs(x)<5&&z>EC.cz+EC.rz&&z<GZ)continue;if(RESTS.some(q=>Math.hypot(x-q.x,z-q.z)<3))continue;if(Math.abs(x-riverX(z))<5.5)continue;if(pathD(x,z)<2)continue;
+    if(x>-17&&x<17&&z>-22&&z<3)continue;if(Math.hypot(x-VX,z-VZ)<6||Math.hypot(x-FX,z-FZ)<4||Math.hypot(x-mx,z-mz)<4)continue;{const q=inEllipse(x,z);if(q<1.15&&(q<.6||rnd()>.3))continue;}if(Math.abs(z-GZ)<1.5&&Math.abs(x)<GW+1)continue;if(Math.abs(z-GZI)<5.5&&Math.abs(x)<19)continue;if(Math.abs(x)<5&&z>EC.cz+EC.rz&&z<GZ)continue;if(Math.hypot(x,z-GZ)<RW+2)continue;{const sq=streamQ(x,z);if(sq&&sq.d<2.6)continue;}if(RESTS.some(q=>Math.hypot(x-q.x,z-q.z)<3))continue;if(Math.abs(x-riverX(z))<5.5)continue;if(pathD(x,z)<2)continue;
     trees+=`<circle cx="${x.toFixed(1)}" cy="${z.toFixed(1)}" r="${(.9+rnd()*.9).toFixed(2)}" fill="${rnd()<.5?'#7F9F66':'#6E8F59'}"/>`;}
   let river='';for(let z=Z0-2;z<=Z0+MH+2;z+=1)river+=(river?' L':'M')+riverX(z).toFixed(2)+' '+z;
   const paths=PATHS.map(([a,b,c,d])=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}"/>`).join('');
-  const ff=Array.from({length:34},()=>`<circle cx="${(X0+1+rnd()*(MW-2)).toFixed(2)}" cy="${(GZ+2+rnd()*(Z0+MH-GZ-3)).toFixed(2)}" r=".3" fill="#F6F2A0" opacity="${(.5+rnd()*.4).toFixed(2)}"/>`).join('');
-  const wl=sd=>{let d='';for(let x=2.7;x<=GW;x+=.5){const X=sd*x;d+=(d?' L':'M')+X.toFixed(2)+' '+wallZ(X).toFixed(2);}return d;};
+  const ff=Array.from({length:34},()=>{let fx,fz;do{fx=X0+1+rnd()*(MW-2);fz=GZ+1+rnd()*(Z0+MH-GZ-2);}while(Math.hypot(fx,fz-GZ)<RC+1.5);return [fx,fz];}).map(([fx,fz])=>`<circle cx="${fx.toFixed(2)}" cy="${fz.toFixed(2)}" r=".3" fill="#F6F2A0" opacity="${(.5+rnd()*.4).toFixed(2)}"/>`).join('');
+  const wl=sd=>{let d='';for(let i=0;i<=40;i++){const th=sd>0?(Math.PI/2-.43)*(1-i/40):Math.PI-(Math.PI/2-.43)*(1-i/40);d+=(d?' L':'M')+(RW*Math.cos(th)).toFixed(2)+' '+(GZ-RW*Math.sin(th)).toFixed(2);}for(let x=RW+.5;x<=GW;x+=.5){const X=sd*x;d+=' L'+X.toFixed(2)+' '+wallZ(X).toFixed(2);}return d;};
   const gate=`<g fill="none" stroke-linecap="round"><path d="${wl(1)}" stroke="#CDB48D" stroke-width="1"/><path d="${wl(-1)}" stroke="#CDB48D" stroke-width="1"/><path d="${wl(1)}" stroke="#3FA7B5" stroke-width=".35" stroke-dasharray=".4 .5"/><path d="${wl(-1)}" stroke="#E2B04A" stroke-width=".35" stroke-dasharray=".4 .5"/></g><circle cx="2.45" cy="${wallZ(2.45)}" r=".6" fill="#2D5DA8"/><circle cx="-2.45" cy="${wallZ(-2.45)}" r=".6" fill="#C8673E"/><line x1="-1.9" y1="${wallZ(0)}" x2="1.9" y2="${wallZ(0)}" stroke="#2E2A26" stroke-width=".35"/>`;
   const cross=`<line x1="0" y1="${EC.cz-EC.rz+1.5}" x2="0" y2="${EC.cz+EC.rz-1.5}" stroke="#C9A55A" stroke-width=".25" stroke-dasharray=".8 .8" opacity=".8"/><circle cx="0" cy="${EC.cz}" r="6" fill="#9CC7CF"/><circle cx="0" cy="${EC.cz}" r="4.75" fill="#EFE9DD" stroke="#C9A55A" stroke-width=".25"/>${Array.from({length:4},(_,k)=>{const a=Math.PI/4+k*Math.PI/2;return `<circle cx="${(Math.cos(a)*4.1).toFixed(2)}" cy="${(EC.cz+Math.sin(a)*4.1).toFixed(2)}" r=".3" fill="#B9AE98"/>`;}).join('')}<line x1="0" y1="${EC.cz-2.9}" x2="0" y2="${EC.cz+2.9}" stroke="#E2B64F" stroke-width=".18"/><line x1="-2.9" y1="${EC.cz-2.9}" x2="2.9" y2="${EC.cz+2.9}" stroke="#D8CFBE" stroke-width=".3"/><line x1="2.9" y1="${EC.cz-2.9}" x2="-2.9" y2="${EC.cz+2.9}" stroke="#D8CFBE" stroke-width=".3"/><circle cx="0" cy="${EC.cz-2.2}" r=".35" fill="#FFE9A8"/>`;
   const focus=`<line x1="${VX}" y1="${VZ}" x2="${FX}" y2="${FZ}" stroke="#C9A55A" stroke-width=".25" stroke-dasharray=".8 .8" opacity=".8"/>`;
   return `<svg viewBox="${X0} ${Z0} ${MW} ${MH}" preserveAspectRatio="none" aria-hidden="true"><g transform="rotate(180 ${X0+MW/2} ${Z0+MH/2})">
   <rect x="${X0}" y="${Z0}" width="${MW}" height="${MH}" fill="#A8C18D"/>${trees}
+  <defs><linearGradient id="mfog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF1EA" stop-opacity=".95"/><stop offset="1" stop-color="#EEF1EA" stop-opacity="0"/></linearGradient></defs>
   <path d="${river}" fill="none" stroke="#86B7C2" stroke-width="7.5" stroke-linecap="round"/><path d="${river}" fill="none" stroke="#B5D7DC" stroke-width="2" stroke-linecap="round" opacity=".7"/>
   <g stroke="#E6D3AA" stroke-width="1.8" stroke-linecap="round">${paths}</g>
   <rect x="${hx-11}" y="${hz-13.5}" width="12" height="6" fill="#6E8A62"/>
@@ -1558,7 +1628,9 @@ function buildMapBG(){
   <rect x="${hx-12.3}" y="${hz+1.3}" width="1.7" height="3.4" fill="#5A4C40" opacity=".55"/>
   <circle cx="${VX}" cy="${VZ}" r="4.4" fill="#E9E3D7" stroke="#C9A55A" stroke-width=".3"/><circle cx="${VX}" cy="${VZ}" r="2.8" fill="#F2EDE3" stroke="#C9A55A" stroke-width=".25"/><circle cx="${VX}" cy="${VZ}" r="1.6" fill="#9CC7CF"/>
   <circle cx="${mx}" cy="${mz}" r="2" fill="#D9583F"/><circle cx="${mx-.6}" cy="${mz-.5}" r=".35" fill="#fff"/><circle cx="${mx+.7}" cy="${mz+.3}" r=".3" fill="#fff"/>
-  ${RESTS.map(q=>`<circle cx="${q.tx}" cy="${q.tz}" r="2.6" fill="#6E8F59"/><rect x="${q.x-1}" y="${q.z-.45}" width="2" height=".9" rx=".3" fill="#F1EBDF" stroke="#9A7653" stroke-width=".2"/>`).join('')}${LANTERNS.map(([x,z])=>`<rect x="${x-.4}" y="${z-.4}" width=".8" height=".8" fill="#FFE2A8" stroke="#B8A98F" stroke-width=".15"/>`).join('')}${focus}${cross}<circle cx="${FX}" cy="${FZ}" r="3.2" fill="#E6D3AA"/><circle cx="${FX}" cy="${FZ}" r="2.2" fill="#F6B25A" opacity=".45"/><circle cx="${FX}" cy="${FZ}" r=".9" fill="#E8742C"/>${gate}${ff}
+  ${RESTS.map(q=>`<circle cx="${q.tx}" cy="${q.tz}" r="2.6" fill="#6E8F59"/><rect x="${q.x-1}" y="${q.z-.45}" width="2" height=".9" rx=".3" fill="#F1EBDF" stroke="#9A7653" stroke-width=".2"/>`).join('')}${LANTERNS.map(([x,z])=>`<rect x="${x-.4}" y="${z-.4}" width=".8" height=".8" fill="#FFE2A8" stroke="#B8A98F" stroke-width=".15"/>`).join('')}${(()=>{let st='';const Pp=STREAM.P;for(let i=0;i<Pp.length-1;i+=2){const u=STREAM.S[i]/STREAM.L,j=Math.min(Pp.length-1,i+2);st+=`<line x1="${Pp[i][0].toFixed(2)}" y1="${Pp[i][1].toFixed(2)}" x2="${Pp[j][0].toFixed(2)}" y2="${Pp[j][1].toFixed(2)}" stroke="#86B7C2" stroke-width="${(1.1+u*1.6).toFixed(2)}" stroke-linecap="round"/>`;}
+    return st+`<circle cx="0" cy="${GZ}" r="${RC+1.2}" fill="#8FAE74"/><circle cx="0" cy="${GZ}" r="${RC}" fill="#EDE3CE" stroke="#D8C9AA" stroke-width=".3"/><circle cx="0" cy="${GZ}" r="4.4" fill="none" stroke="#5A4232" stroke-width=".35"/><circle cx="0" cy="${GZ}" r="1.05" fill="#E8DECB" stroke="#C9B48E" stroke-width=".2"/><circle cx="0" cy="${GZ}" r=".55" fill="#E8742C"/>`+[Math.PI/2,Math.PI/2-1.25,Math.PI/2+1.25].map(a=>`<rect x="-.95" y="-.45" width="1.9" height=".9" rx=".25" fill="#F4EEE2" stroke="#B8A88E" stroke-width=".15" transform="translate(${(Math.cos(a)*3.15).toFixed(2)} ${(GZ+Math.sin(a)*3.15).toFixed(2)}) rotate(${(a*180/Math.PI+90).toFixed(1)})"/>`).join('');})()}${focus}${cross}<circle cx="${FX}" cy="${FZ}" r="3.2" fill="#E6D3AA"/><circle cx="${FX}" cy="${FZ}" r="2.2" fill="#F6B25A" opacity=".45"/><circle cx="${FX}" cy="${FZ}" r=".9" fill="#E8742C"/>${gate}${ff}
+  <rect x="${X0}" y="${Z0}" width="${MW}" height="20" fill="url(#mfog)"/>
   <text transform="rotate(180 ${hx} ${hz-2.2})" x="${hx}" y="${hz-2.2}" font-size="1.5" text-anchor="middle" fill="#B5ADA1" font-weight="700" letter-spacing=".3">1F</text>
   </g>  </svg>`;}
 const BSEC=`<svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true"><rect width="160" height="90" fill="#E7DCCB"/><rect width="160" height="14" fill="#A8C18D"/><rect x="0" y="14" width="160" height="76" fill="#CDBFA9"/>
@@ -1581,7 +1653,7 @@ function openMap(){closeSheet();if(!mapBG)mapBG=buildMapBG();
   mapV.querySelectorAll('[data-app]').forEach(b=>b.addEventListener('click',()=>{const a=APPMAP[b.dataset.app];openApp(b.dataset.app,a.u);}));
   // 點森林地圖上任何空地：直接傳送到那裡（不用一定是有名字的地點）
   {const mb=mapV.querySelector('.mapscroll .mapbox');if(mb)mb.addEventListener('click',e=>{if(e.target.closest('button,a'))return;const r=mb.getBoundingClientRect();
-    const x=X0+(1-(e.clientX-r.left)/r.width)*MW,z=Z0+(1-(e.clientY-r.top)/r.height)*MH;if(Math.hypot(x,z)>57)return;
+    const x=X0+(1-(e.clientX-r.left)/r.width)*MW,z=Z0+(1-(e.clientY-r.top)/r.height)*MH;if(Math.hypot(x,z-12)>72)return;
     const p={x,z};const was=cur;cur=F;resolve(p);cur=was;F.spawns.__free=[p.x,p.z,Math.PI,0];closeMap();goto('forest','__free');});}}
 const ISO_NUM={"AW":"533","AF":"004","AO":"024","AI":"660","AX":"248","AL":"008","AD":"020","AE":"784","AR":"032","AM":"051","AS":"016","AQ":"010","TF":"260","AG":"028","AU":"036","AT":"040","AZ":"031","BI":"108","BE":"056","BJ":"204","BQ":"535","BF":"854","BD":"050","BG":"100","BH":"048","BS":"044","BA":"070","BL":"652","BY":"112","BZ":"084","BM":"060","BO":"068","BR":"076","BB":"052","BN":"096","BT":"064","BV":"074","BW":"072","CF":"140","CA":"124","CC":"166","CH":"756","CL":"152","CN":"156","CI":"384","CM":"120","CD":"180","CG":"178","CK":"184","CO":"170","KM":"174","CV":"132","CR":"188","CU":"192","CW":"531","CX":"162","KY":"136","CY":"196","CZ":"203","DE":"276","DJ":"262","DM":"212","DK":"208","DO":"214","DZ":"012","EC":"218","EG":"818","ER":"232","EH":"732","ES":"724","EE":"233","ET":"231","FI":"246","FJ":"242","FK":"238","FR":"250","FO":"234","FM":"583","GA":"266","GB":"826","GE":"268","GG":"831","GH":"288","GI":"292","GN":"324","GP":"312","GM":"270","GW":"624","GQ":"226","GR":"300","GD":"308","GL":"304","GT":"320","GF":"254","GU":"316","GY":"328","HK":"344","HM":"334","HN":"340","HR":"191","HT":"332","HU":"348","ID":"360","IM":"833","IN":"356","IO":"086","IE":"372","IR":"364","IQ":"368","IS":"352","IL":"376","IT":"380","JM":"388","JE":"832","JO":"400","JP":"392","KZ":"398","KE":"404","KG":"417","KH":"116","KI":"296","KN":"659","KR":"410","KW":"414","LA":"418","LB":"422","LR":"430","LY":"434","LC":"662","LI":"438","LK":"144","LS":"426","LT":"440","LU":"442","LV":"428","MO":"446","MF":"663","MA":"504","MC":"492","MD":"498","MG":"450","MV":"462","MX":"484","MH":"584","MK":"807","ML":"466","MT":"470","MM":"104","ME":"499","MN":"496","MP":"580","MZ":"508","MR":"478","MS":"500","MQ":"474","MU":"480","MW":"454","MY":"458","YT":"175","NA":"516","NC":"540","NE":"562","NF":"574","NG":"566","NI":"558","NU":"570","NL":"528","NO":"578","NP":"524","NR":"520","NZ":"554","OM":"512","PK":"586","PA":"591","PN":"612","PE":"604","PH":"608","PW":"585","PG":"598","PL":"616","PR":"630","KP":"408","PT":"620","PY":"600","PS":"275","PF":"258","QA":"634","RE":"638","RO":"642","RU":"643","RW":"646","SA":"682","SD":"729","SN":"686","SG":"702","GS":"239","SH":"654","SJ":"744","SB":"090","SL":"694","SV":"222","SM":"674","SO":"706","PM":"666","RS":"688","SS":"728","ST":"678","SR":"740","SK":"703","SI":"705","SE":"752","SZ":"748","SX":"534","SC":"690","SY":"760","TC":"796","TD":"148","TG":"768","TH":"764","TJ":"762","TK":"772","TM":"795","TL":"626","TO":"776","TT":"780","TN":"788","TR":"792","TV":"798","TW":"158","TZ":"834","UG":"800","UA":"804","UM":"581","UY":"858","US":"840","UZ":"860","VA":"336","VC":"670","VE":"862","VG":"092","VI":"850","VN":"704","VU":"548","WF":"876","WS":"882","YE":"887","ZA":"710","ZM":"894","ZW":"716","XK":"-99"};
 const worldV=$('#worldView');

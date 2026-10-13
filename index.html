@@ -298,6 +298,7 @@ const EC={cx:0,cz:20,rx:28,rz:14};
 const VX=-15,VZ=EC.cz;
 const FX=15,FZ=EC.cz;
 const GZ=50,GW=26;
+const CCX=28,CCZ=-6,CCR=7.5;   /* 麥田圈：從家裡往外看的左邊（Teresa 那一邊，跟胸口的 Camino 同一邊） */
 /* 躺椅與旁邊的樹：金庫在西側、營火在東側，背對森林、面向各自的焦點 */
 const RESTS=[{x:VX-8,z:VZ+1.2,ry:Math.PI/2,tx:VX-10.5,tz:VZ-2.2},{x:FX+7,z:FZ+1.2,ry:-Math.PI/2,tx:FX+9.5,tz:FZ-2.2}];
 const LANTERNS=[];for(let z=EC.cz+EC.rz+3.5;z<GZ-1;z+=4)LANTERNS.push([-2.6,z],[2.6,z]);
@@ -365,6 +366,7 @@ const waterMat=new R.ShaderMaterial({transparent:true,depthWrite:false,
     if(spots.some(s=>Math.hypot(s[0]-x,s[1]-z)<2.6))continue;
     spots.push([x,z,d<10?1.35+rand()*.5:.85+rand()*.6,rand()<.42]);
   }
+  {const keep=spots.filter(q=>Math.hypot(q[0]-CCX,q[1]-CCZ)>CCR+2.2);spots.length=0;spots.push(...keep);}   /* 麥田圈周圍不長樹 */
   const broad=spots.filter(s=>!s[3]),conif=spots.filter(s=>s[3]);
   const trunks=new R.InstancedMesh(new R.CylinderGeometry(.18,.3,1,6),mat(0x8C6646),spots.length);
   const canA=new R.InstancedMesh(new R.IcosahedronGeometry(1,0),mat(0xffffff),broad.length);
@@ -887,7 +889,40 @@ F.hots=[
     if(stair(lx,lz)){roofOn=stairT(lz)>.92;return;}
     if(roofOn){p.x=hx+clamp(lx,-13.4,13.75);p.z=hz+clamp(lz,-6.8,8.1);}};
   F.hots.push({id:'jet',name:'私人飛機',verb:'起飛',x:hx+3.2,z:hz+3.4,r:2.6,go:()=>openWorld()});}
-F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI+.26,-.12,'first']};
+{ /* 麥田圈・開心原則：中線（胸口的 Camino＝脊椎）往前衝；底下三個點是足底三腳架；四個 C 是開肩、開髖和背後的翅膀；繞著中線的無限符號 */
+  const S=17,N=1024,k=N/S,P=(x,z)=>[(x+S/2)*k,(z+S/2)*k];
+  const mask=document.createElement('canvas');mask.width=mask.height=N;const g=mask.getContext('2d');
+  g.strokeStyle=g.fillStyle='#fff';g.lineCap=g.lineJoin='round';
+  const line=(pts,w)=>{g.lineWidth=w*1.25*k;g.beginPath();pts.forEach(([x,z],i)=>{const[u,v]=P(x,z);i?g.lineTo(u,v):g.moveTo(u,v);});g.stroke();};
+  const arc=(cx,cz,r,a0,a1,w)=>{const pts=[];for(let i=0;i<=40;i++){const a=a0+(a1-a0)*i/40;pts.push([cx+r*Math.cos(a),cz+r*Math.sin(a)]);}line(pts,w);};
+  const dot=(x,z,r)=>{const[u,v]=P(x,z);g.beginPath();g.arc(u,v,r*k,0,7);g.fill();};
+  arc(0,0,6.9,0,Math.PI*2,.42);                                   // 外圈
+  line([[0,-5.1],[0,6.1]],.55);line([[-1.35,4.7],[0,6.25],[1.35,4.7]],.5);   // 中線＋往前的箭頭（朝世界之門）
+  dot(-1.05,-5.35,.5);dot(1.05,-5.35,.5);dot(0,-6.3,.5);           // 足底三腳架
+  const A=.95;arc(-3.7,0,3.35,-A,A,.42);arc(3.7,0,3.35,Math.PI-A,Math.PI+A,.42);            // 前面兩個 C：開肩、開髖
+  const B=.62;arc(0,-5.6,5.2,Math.PI/2-B,Math.PI/2+B,.38);arc(0,5.6,5.2,-Math.PI/2-B,-Math.PI/2+B,.38);   // 背後兩個 C：翅膀
+  [1,.72,.46].forEach((sc,i)=>{const a=4.9*sc,pts=[];for(let j=0;j<=160;j++){const t=j/160*Math.PI*2,d=1+Math.sin(t)**2;pts.push([a*Math.cos(t)/d,.95*a*Math.sin(t)*Math.cos(t)/d]);}line(pts,i?.26:.36);});   // 無限符號，裡面一圈一圈
+  const md=g.getImageData(0,0,N,N).data,flat=(x,z)=>{const[u,v]=P(x,z);return md[((v|0)*N+(u|0))*4]>110;};
+  const tex=canvasTex(N,N,(c)=>{c.save();c.beginPath();c.arc(N/2,N/2,CCR*k,0,7);c.clip();
+    c.fillStyle='#9C7A35';c.fillRect(0,0,N,N);
+    for(let i=0;i<9000;i++){c.fillStyle=`rgba(${rand()<.5?'70,52,20':'214,180,104'},${.18+rand()*.2})`;c.fillRect(rand()*N,rand()*N,2+rand()*5,2);}
+    const f=document.createElement('canvas');f.width=f.height=N;const fg=f.getContext('2d');fg.fillStyle='#EBD9A6';fg.fillRect(0,0,N,N);
+    fg.strokeStyle='rgba(196,160,88,.55)';fg.lineWidth=1.4;for(let r=6;r<N;r+=7){fg.beginPath();fg.arc(N/2,N/2,r,0,7);fg.stroke();}   // 壓平的麥子順著繞圈倒下
+    fg.globalCompositeOperation='destination-in';fg.drawImage(mask,0,0);c.drawImage(f,0,0);c.restore();});
+  tex.anisotropy=8;
+  const geo=new R.PlaneGeometry(S,S,68,68);geo.rotateX(-Math.PI/2);const gp=geo.attributes.position;
+  for(let i=0;i<gp.count;i++)gp.setY(i,heightAt(CCX+gp.getX(i),CCZ+gp.getZ(i))+.07);geo.computeVertexNormals();
+  const deck=new R.Mesh(geo,new R.MeshStandardMaterial({map:tex,transparent:true,alphaTest:.05,roughness:1,polygonOffset:true,polygonOffsetFactor:-4}));
+  deck.position.set(CCX,0,CCZ);deck.receiveShadow=true;deck.userData.tap='crop';out.add(deck);
+  const pts=[];for(let i=0;i<26000&&pts.length<5600;i++){const r=Math.sqrt(rand())*(CCR-.15),a=rand()*Math.PI*2,x=r*Math.cos(a),z=r*Math.sin(a);if(!flat(x,z))pts.push([x,z]);}
+  const st=new R.InstancedMesh(new R.ConeGeometry(.055,1,4).translate(0,.5,0),new R.MeshStandardMaterial({color:0xffffff,roughness:.85}),pts.length);
+  const m=new R.Matrix4(),q=new R.Quaternion(),e=new R.Euler(),v=new R.Vector3(),sv=new R.Vector3(),c=new R.Color();
+  pts.forEach(([x,z],i)=>{const h=.42+rand()*.18;e.set((rand()-.5)*.25,rand()*3,(rand()-.5)*.25);q.setFromEuler(e);
+    m.compose(v.set(CCX+x,heightAt(CCX+x,CCZ+z)+.04,CCZ+z),q,sv.set(1,h,1));st.setMatrixAt(i,m);
+    st.setColorAt(i,c.setHSL(.11+rand()*.025,.55+rand()*.15,.5+rand()*.12));});
+  st.userData.tap='crop';out.add(st);
+  F.hots.push({id:'crop',name:'麥田圈・開心原則',verb:'看看',x:CCX-CCR-1.2,z:CCZ,r:3});}
+F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+6,Math.PI,0],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI+.26,-.12,'first'],crop:[CCX-CCR-2.6,CCZ,Math.PI/2,-Math.PI/2]};
 F.hots.push({id:'lucky',name:'Lucky',verb:'摸摸',dyn:true,r:1.7,go:()=>openLucky()});
 F.update=(dt,t)=>{if(dog.parent===out)dogUpdate(dt,t);sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
   pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);if(F.homeLabel)F.homeLabel.visible=!roofOn;   /* 站在屋頂上時，家的字牌收起來，不擋視線 */F.doorUpdate&&F.doorUpdate(dt);};
@@ -1280,6 +1315,7 @@ const INFO={
   guardTiger:{tag:'森林 · 鍛鐵門內',title:'虎・守護者',body:'從家裡往外看，右邊這一尊是虎，跟你右腰的刺青同一邊：女人的力量、允許自己想要的 Elva。像守著金字塔的獅身人面像，她守著你自己的空間。'},
   river:{tag:'森林 · 記錄之河',title:'記錄之河',body:'WonderMedia 的源頭和河流：每天的日記、照片、影音、想法都流進這條河，是所有作品的原料。',list:['源頭：隨手記文字、語音、照片；想拍好看時用拍照教練','河流：所有素材依時間流下來，加標籤、挑選'],links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/'],['拍照教練','https://fuwei0618-cmd.github.io/Entry/coach/']]},
   studio:{tag:'森林 · 蘑菇攝影棚',title:'工作台',body:'WonderMedia 的工作台和出海口：從記錄之河撈起素材，用你的萬用公式（積木）組成作品，再發到各個平台。',links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/']],list:['工作台：企劃、腳本、剪映草稿','出海口：發布排程與成效']},
+  crop:{tag:'森林 · 麥田圈',title:'開心原則',body:'從家裡往外看，左邊這片麥田壓出了一個圖案，站上屋頂才看得清楚。中間那條往前衝的線，是胸口的 Camino，也是脊椎；底下三個點是足底三腳架；兩個 C 是開肩、開髖，另外兩個 C 是背後的翅膀；繞著中線一圈一圈的，是無限符號。腳底往下踩穩，頭頂往上提，兩頭拉開，脊椎就長出來，胸和髖打開，翅膀張開，心就打開，聲音就出得去。卡卡的時候，先踩穩，再找回中線。'},
   campfire:{tag:'森林 · 營火',title:'鐵粉朋友',body:'火是你的熱情。很多人是先看到你的表演、影片或 Podcast 才找過來的，你不一定認識他們，但他們會被火吸引，慢慢圍到火邊，聽懂你在唱什麼、做什麼。',list:['他們從哪裡認識你','回訪與互動','你可以為他們做的事'],soon:true},
   fireflies:{tag:'森林 · 螢火蟲',title:'通訊錄',body:'每一點光，是一個跟你有連結的人。點開就是他的卡片：客觀事實、標籤、相處邊界。',soon:true},
   cal:{tag:'家 · 日曆牆',title:'日曆牆',body:'牆上掛著夢想版：兩顆北極星、到 2031 的季節時間軸、這一季的魚缸和許願池。清單不是承諾，每一季只撈一條魚出來實現。',links:[['打開夢想版','https://fuwei0618-cmd.github.io/Entry/dream/']],list:['夢想版：北極星・時間軸・魚缸・今日三題・許願池','之後：今天只做三件事、番茄鐘、每週固定排程']},
@@ -1455,7 +1491,7 @@ function openInfo(id){const x=INFO[id];if(!x)return;
     <div class="row">${links}<button class="btn light" data-close>回到場景</button></div>`);
   root.querySelectorAll('[data-app-url]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.appName,b.dataset.appUrl)));}
 const PLACES=[
-  ['森林',[['屋頂花園','沙發・停機坪',['forest','garden']],['森林入口','起點',['forest','start']],['光孔日晷','使命板',['forest','center']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉朋友',['forest','campfire']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
+  ['森林',[['屋頂花園','沙發・停機坪',['forest','garden']],['森林入口','起點',['forest','start']],['光孔日晷','使命板',['forest','center']],['記錄之河','河邊',['forest','river']],['蘑菇攝影棚','自媒體',['forest','studio']],['營火','鐵粉朋友',['forest','campfire']],['麥田圈','開心原則',['forest','crop']],['螢火蟲','通訊錄',['forest','fireflies']],['金庫','理財 · 保險',['forest','vault']]]],
   ['家 · 1F',[['玄關','1F',['f1','front']],['日曆牆','每日 · 每週',['f1','cal']],['廚房餐廳','飲食',['f1','kitchen']],['Beauty','梳化 · 保養',['f1','closet']],['健身房','身體',['f1','gym']]]],
   ['地下',[['B1 臥室','作息 · 白水木',['f2','bed']],['B2 禱告房','前殿 · 媽祖 · 月老 · 財神',['attic','ladder']]]],
   ['舞台',[['後台入口','從家裡的舞台門進來',['stage','back']],['Vocal','',['stage','mic']],['合唱台','合唱團',['stage','choir']],['Podcast 桌','不專業音樂電台',['stage','podcast']]]]
@@ -1477,7 +1513,7 @@ function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
   ['森林入口',['forest','start'],[0,GZ+6]],['狼',['forest','guardW'],[10,GZ-7]],['虎',['forest','guardT'],[-10,GZ-7]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
-  ['營火',['forest','campfire'],[FX,FZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
+  ['營火',['forest','campfire'],[FX,FZ]],['麥田圈',['forest','crop'],[CCX,CCZ]],['螢火蟲',['forest','fireflies'],[14,GZ+7]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
   ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(-7.5,-4.4)],['Beauty',['f1','closet'],W1F(12,-1.5),['正顎手冊'],W1F(16.3,-1.5)],
   ['健身房',['f1','gym'],W1F(7.5,4.3),['健身房']],['Lucky',['f1','front'],W1F(-6.4,4.3),['Lucky']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
   ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];

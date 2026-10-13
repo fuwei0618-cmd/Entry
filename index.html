@@ -812,6 +812,16 @@ let gateUpdate=()=>{};
 { // 躺椅＋旁邊一棵樹：在金庫和營火旁休息
   const frame=mat(0x9A7653),cush=mat(0xF1EBDF),cush2=mat(0xE4D9C6);
   RESTS.forEach(q=>{const G=new R.Group(),y=heightAt(q.x,q.z);G.position.set(q.x,y,q.z);G.rotation.y=q.ry;out.add(G);
+    // 遮陽：單柱懸臂遮陽帆。一根細黃銅斜柱，撐起一片米白亞麻帆，像一片葉子浮在躺椅上方
+    {const brass=new R.MeshStandardMaterial({color:0xC9A25E,metalness:.75,roughness:.3}),linen=new R.MeshStandardMaterial({color:0xF3ECDF,roughness:1,side:R.DoubleSide,transparent:true,opacity:.93});
+     const base=new R.Mesh(new R.CylinderGeometry(.22,.26,.08,20),new R.MeshStandardMaterial({color:0xE8DECB,roughness:.6}));base.position.set(1.15,.04,-.9);G.add(base);
+     const A=new R.Vector3(1.15,.08,-.9),B=new R.Vector3(.35,2.6,-.35),L=A.distanceTo(B);
+     const pole=new R.Mesh(new R.CylinderGeometry(.03,.04,L,10),brass);pole.position.copy(A).add(B).multiplyScalar(.5);pole.quaternion.setFromUnitVectors(new R.Vector3(0,1,0),B.clone().sub(A).normalize());pole.castShadow=true;G.add(pole);
+     const sh=new R.Shape();sh.moveTo(0,-1.35);sh.quadraticCurveTo(1.05,-.4,.85,.95);sh.quadraticCurveTo(0,1.45,-.85,.95);sh.quadraticCurveTo(-1.05,-.4,0,-1.35);
+     const g=new R.ShapeGeometry(sh,24);g.rotateX(-Math.PI/2);const pp=g.attributes.position;for(let i=0;i<pp.count;i++){const x=pp.getX(i),z=pp.getZ(i);pp.setY(i,-.12*(x*x)+.05*z);}g.computeVertexNormals();
+     const sail=new R.Mesh(g,linen);sail.position.set(.1,2.45,.15);sail.scale.set(1.15,1,1.15);sail.rotation.set(-.32,0,.22);sail.castShadow=true;sail.receiveShadow=true;G.add(sail);
+     const tip=new R.Mesh(new R.SphereGeometry(.05,10,8),brass);tip.position.copy(B);G.add(tip);
+     F.col.push({x:q.x+Math.cos(q.ry)*1.15-Math.sin(q.ry)*-.9,z:q.z-Math.sin(q.ry)*1.15+Math.cos(q.ry)*-.9,r:.25});}
     // 高級鬆弛感躺椅：低矮柚木框、加厚圓邊坐墊、往後躺的靠背、搭一條毯子，旁邊一張小木邊几
     {const teak=new R.MeshStandardMaterial({color:0x9A7352,roughness:.6}),cu=new R.MeshStandardMaterial({color:0xEFE8DB,roughness:1}),cu2=new R.MeshStandardMaterial({color:0xDCCDB4,roughness:1});
       const B=new R.SphereGeometry(1,22,12),sm=(geo,m,x,y,z,sx,sy,sz,rx=0)=>{const o=new R.Mesh(geo,m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.rotation.x=rx;o.castShadow=true;o.receiveShadow=true;G.add(o);return o;};
@@ -826,8 +836,6 @@ let gateUpdate=()=>{};
       pad(.95,.6,-.66,.85);                                                                                    // 往後躺的靠背墊
       sm(B,cu2,0,1.06,-.98,.3,.1,.14,-.75);                                                                        // 頭枕
       const tm=new R.MeshStandardMaterial({color:0xB59A78,roughness:1,side:R.DoubleSide});
-      sm(new R.BoxGeometry(.62,.02,.55),tm,.08,.41,.75,1,1,1).rotation.y=.12;                                  // 搭在腳邊的毯子
-      const hang=sm(new R.BoxGeometry(.02,.3,.55),tm,.46,.27,.78,1,1,1);hang.rotation.z=.12;                  // 毯子垂下來的一角
       sm(new R.CylinderGeometry(.24,.24,.04,18),teak,.78,.4,-.4,1,1,1);sm(new R.CylinderGeometry(.16,.2,.38,14),teak,.78,.19,-.4,1,1,1);   // 小木邊几
       sm(new R.CylinderGeometry(.05,.04,.12,10),new R.MeshStandardMaterial({color:0xF2EDE4,roughness:.3}),.8,.48,-.4,1,1,1);}
     F.col.push({x:q.x,z:q.z,r:.9});

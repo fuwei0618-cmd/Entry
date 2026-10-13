@@ -49,6 +49,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .sheet p{margin:0;line-height:1.7;font-size:15px}
 .sheet .quote{font-family:var(--f-hand);font-size:22px;line-height:1.6;padding:6px 0}
 .sheet ul{margin:0;padding-left:20px;line-height:1.8;font-size:14px}
+.sheet ul:has(.kv){padding:0;list-style:none;margin:2px 0 4px;border-top:1px solid rgba(60,48,36,.1)}
+.sheet li.kv{display:flex;gap:14px;padding:7px 0;border-bottom:1px solid rgba(60,48,36,.1);font-size:14px;line-height:1.5}
+.sheet li.kv b{flex:0 0 6.5em;font-weight:600;color:#3A2F26}
+.sheet li.kv span{color:#6A5E52}
+.sheet .note{margin:12px 0 4px;font-size:14px;color:#8A7A68;letter-spacing:.04em}
 .sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:12px;border:0;font-weight:700;font-size:14px;text-decoration:none}
 .btn.dark{background:var(--ink);color:var(--paper)}
@@ -1315,7 +1320,7 @@ const INFO={
   guardTiger:{tag:'森林 · 鍛鐵門內',title:'虎・守護者',body:'從家裡往外看，右邊這一尊是虎，跟你右腰的刺青同一邊：女人的力量、允許自己想要的 Elva。像守著金字塔的獅身人面像，她守著你自己的空間。'},
   river:{tag:'森林 · 記錄之河',title:'記錄之河',body:'WonderMedia 的源頭和河流：每天的日記、照片、影音、想法都流進這條河，是所有作品的原料。',list:['源頭：隨手記文字、語音、照片；想拍好看時用拍照教練','河流：所有素材依時間流下來，加標籤、挑選'],links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/'],['拍照教練','https://fuwei0618-cmd.github.io/Entry/coach/']]},
   studio:{tag:'森林 · 蘑菇攝影棚',title:'工作台',body:'WonderMedia 的工作台和出海口：從記錄之河撈起素材，用你的萬用公式（積木）組成作品，再發到各個平台。',links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/']],list:['工作台：企劃、腳本、剪映草稿','出海口：發布排程與成效']},
-  crop:{tag:'森林 · 麥田圈',title:'開心原則',body:'從家裡往外看，左邊這片麥田壓出了一個圖案，站上屋頂才看得清楚。中間那條往前衝的線，是胸口的 Camino，也是脊椎；底下三個點是足底三腳架；兩個 C 是開肩、開髖，另外兩個 C 是背後的翅膀；繞著中線一圈一圈的，是無限符號。腳底往下踩穩，頭頂往上提，兩頭拉開，脊椎就長出來，胸和髖打開，翅膀張開，心就打開，聲音就出得去。卡卡的時候，先踩穩，再找回中線。'},
+  crop:{tag:'森林 · 麥田圈',title:'開心原則',body:'腳底踩穩，頭頂往上提。身體打開，心就打開，聲音就出得去。',list:['中線｜胸口的 Camino，也是脊椎','三個點｜足底三腳架','前面兩個 C｜開肩、開髖','背後兩個 C｜翅膀','無限符號｜一直往前'],note:'卡卡的時候，先踩穩，再找回中線。站上屋頂，才看得見整個圖案。'},
   campfire:{tag:'森林 · 營火',title:'鐵粉朋友',body:'火是你的熱情。很多人是先看到你的表演、影片或 Podcast 才找過來的，你不一定認識他們，但他們會被火吸引，慢慢圍到火邊，聽懂你在唱什麼、做什麼。',list:['他們從哪裡認識你','回訪與互動','你可以為他們做的事'],soon:true},
   fireflies:{tag:'森林 · 螢火蟲',title:'通訊錄',body:'每一點光，是一個跟你有連結的人。點開就是他的卡片：客觀事實、標籤、相處邊界。',soon:true},
   cal:{tag:'家 · 日曆牆',title:'日曆牆',body:'牆上掛著夢想版：兩顆北極星、到 2031 的季節時間軸、這一季的魚缸和許願池。清單不是承諾，每一季只撈一條魚出來實現。',links:[['打開夢想版','https://fuwei0618-cmd.github.io/Entry/dream/']],list:['夢想版：北極星・時間軸・魚缸・今日三題・許願池','之後：今天只做三件事、番茄鐘、每週固定排程']},
@@ -1486,7 +1491,7 @@ function openSheet(html){root.innerHTML=`<div class="sheet-bg" id="sbg"><div cla
 addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen())closeSheet();});
 function openInfo(id){const x=INFO[id];if(!x)return;
   const links=(x.links||[]).map(([t,u])=>u?`<button class="btn dark" data-app-url="${u}" data-app-name="${esc(t.replace(/^打開/,''))}">${esc(t)}</button>`:`<span class="btn off">${esc(t)}</span>`).join('');
-  openSheet(`<div class="tag">${esc(x.tag)}</div><h2>${esc(x.title)}</h2>${x.quote?`<p class="quote">${esc(todayQuote())}</p>`:''}<p>${esc(x.body)}</p>${x.list?`<ul>${x.list.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:''}
+  openSheet(`<div class="tag">${esc(x.tag)}</div><h2>${esc(x.title)}</h2>${x.quote?`<p class="quote">${esc(todayQuote())}</p>`:''}<p>${esc(x.body)}</p>${x.list?`<ul>${x.list.map(l=>l.includes('｜')?`<li class="kv"><b>${esc(l.split('｜')[0])}</b><span>${esc(l.split('｜')[1])}</span></li>`:`<li>${esc(l)}</li>`).join('')}</ul>`:''}${x.note?`<p class="note">${esc(x.note)}</p>`:''}
     ${x.soon?`<p style="font-size:13px;color:var(--muted)">這個地方的工具會在之後接上。</p>`:''}
     <div class="row">${links}<button class="btn light" data-close>回到場景</button></div>`);
   root.querySelectorAll('[data-app-url]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.appName,b.dataset.appUrl)));}

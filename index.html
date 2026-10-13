@@ -1368,11 +1368,17 @@ function makeMoneyFountain(s,FX0,FZ0,Y0){
     coins.instanceMatrix.needsUpdate=true;q.identity();}};
 }
 const dog=new R.Group();{const fur=mat(0xC79B6D),dark=mat(0x6B4A30);
-  mesh(new R.BoxGeometry(.38,.3,.62),fur,0,.32,0,dog);mesh(new R.BoxGeometry(.34,.32,.32),fur,0,.55,.34,dog);
-  mesh(new R.BoxGeometry(.1,.14,.06),dark,-.13,.74,.3,dog);mesh(new R.BoxGeometry(.1,.14,.06),dark,.13,.74,.3,dog);
-  mesh(new R.SphereGeometry(.04,6,4),mat(0x2A211B),0,.53,.52,dog,false);
-  [[-.12,.2],[.12,.2],[-.12,-.2],[.12,-.2]].forEach(([x,z])=>mesh(new R.BoxGeometry(.08,.2,.08),dark,x,.1,z,dog));
-  const tail=mesh(new R.BoxGeometry(.06,.06,.26),fur,0,.45,-.38,dog);tail.rotation.x=-.6;dog.userData.tail=tail;}
+  // 身體掛在後腿的「髖」上（pose），坐下時整個前身抬起來；四條腿各自從上端轉，才能坐、趴、握手
+  const pose=new R.Group();pose.position.set(0,.2,-.3);dog.add(pose);const pm=(geo,m,x,y,z,c=true)=>mesh(geo,m,x,y-.2,z+.3,pose,c);
+  pm(new R.BoxGeometry(.38,.3,.62),fur,0,.32,0);const head=new R.Group();head.position.set(0,.55-.2,.34+.3);pose.add(head);
+  mesh(new R.BoxGeometry(.34,.32,.32),fur,0,0,0,head);mesh(new R.BoxGeometry(.1,.14,.06),dark,-.13,.19,-.04,head);mesh(new R.BoxGeometry(.1,.14,.06),dark,.13,.19,-.04,head);
+  mesh(new R.SphereGeometry(.04,6,4),mat(0x2A211B),0,-.02,.18,head,false);
+  const tongue=mesh(new R.BoxGeometry(.07,.02,.08),mat(0xE58A8A),0,-.13,.15,head,false);tongue.visible=false;
+  const legs=[[-.12,.2],[.12,.2],[-.12,-.2],[.12,-.2]].map(([x,z])=>{const L=new R.Group();L.position.set(x,.2-.2,z+.3);pose.add(L);mesh(new R.BoxGeometry(.08,.2,.08),dark,0,-.1,0,L);return L;});
+  const tail=pm(new R.BoxGeometry(.06,.06,.26),fur,0,.45,-.38);tail.rotation.x=-.6;
+  const heart=new R.Sprite(new R.SpriteMaterial({map:canvasTex(64,64,g=>{g.fillStyle='#E7697A';g.beginPath();g.moveTo(32,54);g.bezierCurveTo(4,34,8,8,32,22);g.bezierCurveTo(56,8,60,34,32,54);g.fill();}),transparent:true,depthWrite:false}));
+  heart.scale.set(.22,.22,1);heart.visible=false;dog.add(heart);
+  dog.userData={tail,pose,head,legs,tongue,heart};}
 // Lucky：住在家裡，不跟出門。你從大門進來時他跑來迎接、跟你走幾步，再回去自己的窩；點他「帶 Lucky 散步」才跟你出門
 const DOGBED={x:hx+11.2,z:hz-15.2};   // Lucky 的窩：後花園，早餐平台旁的草地上
 {const bed=new R.Group();bed.position.set(DOGBED.x,heightAt(DOGBED.x,DOGBED.z),DOGBED.z);out.add(bed);
@@ -1383,10 +1389,31 @@ let dogMode='home';
 function dogTo(scene){if(dog.parent!==scene){if(dog.parent)dog.parent.remove(dog);scene.add(dog);}}
 function openLucky(){const walking=dogMode==='walk';
   openSheet(`<div class="tag">家 · Lucky</div><h2>Lucky</h2><p>${walking?'他正跟著你，尾巴搖個不停。':'尾巴搖個不停。他平常待在後花園自己的窩，你走出廚房到早餐平台時，他會跑過來接你。'}</p>
-    <div class="row"><button class="btn dark" id="luckyWalk">${walking?'送 Lucky 回家':'帶 Lucky 散步'}</button><button class="btn light" data-app-url="https://fuwei0618-cmd.github.io/Lucky/" data-app-name="Lucky 手冊">打開 Lucky 手冊</button><button class="btn light" data-close>回到場景</button></div>`);
+    <div class="row" style="margin-bottom:8px">${[['sit','坐下'],['paw','握手'],['down','趴下'],['hold','抱起來']].map(([k,n])=>`<button class="btn light" data-trick="${k}">${n}</button>`).join('')}</div><div class="row"><button class="btn dark" id="luckyWalk">${walking?'送 Lucky 回家':'帶 Lucky 散步'}</button><button class="btn light" data-app-url="https://fuwei0618-cmd.github.io/Lucky/" data-app-name="Lucky 手冊">打開 Lucky 手冊</button><button class="btn light" data-close>回到場景</button></div>`);
   root.querySelectorAll('[data-app-url]').forEach(b=>b.addEventListener('click',()=>openApp(b.dataset.appName,b.dataset.appUrl)));
+  root.querySelectorAll('[data-trick]').forEach(b=>b.addEventListener('click',()=>{closeSheet();dogTrick(b.dataset.trick);}));
   $('#luckyWalk').addEventListener('click',()=>{closeSheet();if(walking){dogMode='home';if(cur!==F){dogTo(out);dog.position.set(DOGBED.x,heightAt(DOGBED.x,DOGBED.z),DOGBED.z);}dogAI.greet=0;dogAI.tx=DOGBED.x;dogAI.tz=DOGBED.z;}else{dogMode='walk';dogAI.greet=0;}});}
+// 跟 Lucky 玩：坐下、握手、趴下、抱起來。招式做幾秒；抱起來會一直抱著，走開幾步就放下
+const TRICK_T={sit:5,paw:4.5,down:6,hold:1e9};
+let toastT=0;function toast(m){const h=$('#hint');if(!h)return;h.textContent=m;h.style.opacity='1';clearTimeout(toastT);toastT=setTimeout(()=>{h.style.opacity='0';},2600);}
+function dogTrick(k){if(dog.parent!==cur.scene&&k!=='hold'){dogTo(cur.scene);dog.position.set(P.x+Math.sin(P.face)*1.2,0,P.z+Math.cos(P.face)*1.2);}
+  if(k==='hold'&&dog.parent!==cur.scene)dogTo(cur.scene);
+  dogAI.trick=k;dogAI.tt=0;dogAI.hx=P.x;dogAI.hz=P.z;toast(k==='hold'?'抱起 Lucky 了・走開就會放下':{sit:'Lucky 坐下了，好乖',paw:'Lucky 把手放到你手上',down:'Lucky 趴下了'}[k]);}
+function dogPose(dt,t){const U=dog.userData,k=dogAI.trick,e=1-Math.exp(-dt*9),lp=(o,key,v)=>{o[key]+=(v-o[key])*e;};
+  let pitch=0,py=.2,fl=0,fs=1,rl=0,rs=1,paw=0,hd=0;
+  if(k==='sit'||k==='paw'){pitch=-.55;py=.12;fl=.55;fs=1.9;rl=-.2;rs=.6;hd=.35;if(k==='paw'){paw=Math.min(1,dogAI.tt*2);}}
+  if(k==='down'){py=.08;fl=-1.45;rl=1.45;hd=.15;}
+  if(k==='hold'){pitch=-.35;fl=.3;rl=.3;hd=.4;}
+  lp(U.pose.rotation,'x',pitch);lp(U.pose.position,'y',py);lp(U.head.rotation,'x',-hd*.5);
+  U.legs.forEach((L,i)=>{const front=i<2;let rx=front?fl:rl,sy=front?fs:rs;if(i===1&&paw){rx=fl-1.5*paw+Math.sin(t*6)*.1*paw;sy=1.1;}lp(L.rotation,'x',rx);lp(L.scale,'y',sy);});
+  U.tongue.visible=!!k;U.heart.visible=!!k&&dogAI.tt<2.2;if(U.heart.visible){U.heart.position.set(0,.95+dogAI.tt*.25,.3);U.heart.material.opacity=Math.max(0,1-dogAI.tt/2.2);}}
 function dogUpdate(dt,t){
+  if(dogAI.trick){dogAI.tt+=dt;const k=dogAI.trick;
+    if(k==='hold'){const fx=Math.sin(P.face),fz=Math.cos(P.face);dog.position.set(P.x+fx*.34,P.y+.82,P.z+fz*.34);dog.rotation.y=P.face;
+      if(Math.hypot(P.x-dogAI.hx,P.z-dogAI.hz)>3){dogAI.trick=null;dog.position.set(P.x+fx*.8,(cur.floor?cur.floor(P.x+fx*.8,P.z+fz*.8):0),P.z+fz*.8);}}
+    else{dog.rotation.y=Math.atan2(P.x-dog.position.x,P.z-dog.position.z);if(dogAI.tt>TRICK_T[k])dogAI.trick=null;}
+    dog.userData.tail.rotation.y=Math.sin(t*20)*.7;dogPose(dt,t);return;}
+  dogPose(dt,t);
   const fl=(x,z)=>cur.floor?cur.floor(x,z):0;let tx,tz,sp=1.6;
   const pd=Math.hypot(P.x-dog.position.x,P.z-dog.position.z);
   if(dogMode==='walk'||dogAI.greet>0){                 // 跟著你：在你身後側邊一點點

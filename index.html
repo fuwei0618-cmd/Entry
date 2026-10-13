@@ -451,6 +451,12 @@ let vaultF;
     const bb=canvasTex(512,256,(g,w,h)=>{g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#000';for(let y=0;y<8;y++)for(let x=0;x<16;x++){g.beginPath();g.arc(16+x*32,16+y*32,10,0,7);g.fill();}});
     const scr=new R.Mesh(new R.BoxGeometry(6.2,HH-.3,.18),new R.MeshStandardMaterial({color:0xEDE4D3,roughness:.6,alphaMap:bb,alphaTest:.5}));scr.position.set(-9.9,Y+HH/2,Z-.35);scr.castShadow=true;H.add(scr);
     mesh(new R.BoxGeometry(6.3,.12,.5),trv,-9.9,Y+HH-.08,Z-.3,H);
+    { // 夜燈：傍晚以後，花磚後面亮起暖光，圓洞一顆顆透出來，照在早餐露台上（?eve=1 可以預覽）
+      const eve=()=>{const q=new URLSearchParams(location.search).get('eve');if(q!==null)return q==='1';const h=new Date().getHours();return h>=17||h<6;};
+      const gm=new R.MeshStandardMaterial({color:0xE9C99A,emissive:0xFFAE52,emissiveIntensity:0,roughness:1});
+      const gp=mesh(new R.PlaneGeometry(6,HH-.5),gm,-9.9,Y+HH/2,Z-.2,H,false,false);gp.rotation.y=Math.PI;
+      const gl=new R.PointLight(0xFFC27A,0,7,1.6);gl.position.set(-9.9,Y+.5,Z-3.2);H.add(gl);
+      const set=()=>{const on=eve();gm.emissiveIntensity=on?1.25:.15;gl.intensity=on?.55:0;};set();setInterval(set,300000);}
     // ② 實牆＋出挑框景窗
     mesh(new R.BoxGeometry(5.2,HH,.3),trv,-4.2,Y+HH/2,Z-.15,H);
     const fw=5.2,fh=1.95,fx=-4.2,fy=Y+2.3,silver=new R.MeshStandardMaterial({color:0xE4E7EA,metalness:.6,roughness:.2,emissive:0xB8BEC2,emissiveIntensity:.6});   // 窗拉滿這一段，細銀框

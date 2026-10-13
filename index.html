@@ -442,6 +442,11 @@ let vaultF;
   mesh(new R.BoxGeometry(.5,HH,13.5),conc,-13.25,Y+HH/2,0,H);               // 左牆
   mesh(new R.BoxGeometry(.5,HH,13.5),conc,13.25,Y+HH/2,0,H);                // 右牆
   mesh(new R.BoxGeometry(27,HH,.5),conc,0,Y+HH/2,-6.75,H);                  // 後牆
+  {const KX0=-12.6,KX1=-3.4,y0w=Y+.95,y1w=Y+4.1;   // 後牆的廚房大窗：對著後花園
+   mesh(new R.PlaneGeometry(KX1-KX0,y1w-y0w),glassOut,(KX0+KX1)/2,(y0w+y1w)/2,-7.01,H,false).rotation.y=Math.PI;
+   for(let k=0;k<=4;k++)mesh(new R.BoxGeometry(.08,y1w-y0w,.1),frameM,KX0+(KX1-KX0)*k/4,(y0w+y1w)/2,-7.03,H,false);
+   [y0w,y1w].forEach(y=>mesh(new R.BoxGeometry(KX1-KX0+.08,.08,.1),frameM,(KX0+KX1)/2,y,-7.03,H,false));
+   mesh(new R.BoxGeometry(KX1-KX0+1.2,.14,1.3),conc,(KX0+KX1)/2,y1w+.35,-7.6,H);}   // 窗上薄薄一片遮陽板
   const gp=mesh(new R.PlaneGeometry(26,HH),glassOut,0,Y+HH/2,6.5,H,false);  // 正面玻璃
   for(let i=0;i<=12;i++){const x=-13+i*26/12;mesh(new R.BoxGeometry(.08,HH,.1),frameM,x,Y+HH/2,6.52,H,false);}
   mesh(new R.BoxGeometry(26,.1,.12),frameM,0,Y+HH-.05,6.52,H,false);
@@ -510,6 +515,14 @@ let vaultF;
       const lr=new R.Mesh(new R.BoxGeometry(.05,.05,1.4),st);lr.position.set(SX+SW/2-.03,.5+HALF+1.1,2.5);H.add(lr);
       flight(1.8,-2.0,HALF);                                                 // 第二段
       const top=new R.Mesh(new R.BoxGeometry(SW+.3,.14,2.2),st);top.position.set(SX-.15,RY-.07,-3.1);top.castShadow=true;H.add(top);   // 樓梯頂的平台，直接接到屋頂
+      // 屋頂後側往下的戶外階梯：懸浮的石灰華踏板＋黑鋼側樑，直接落到後花園的溪邊
+      {const trv=new R.MeshStandardMaterial({color:0xE8DECB,roughness:.55}),X2=7.6,W2=2,ZA=-6.9,ZB=-16.3,gB=heightAt(hx+X2,hz+ZB)-heightAt(hx,hz),n=26;
+       for(let k=0;k<n;k++){const t=(k+.5)/n,z=ZA+(ZB-ZA)*t,y=RY+(gB-RY)*t;const tr=new R.Mesh(new R.BoxGeometry(W2,.09,(ZA-ZB)/n+.08),trv);tr.position.set(X2,y,z);tr.castShadow=tr.receiveShadow=true;H.add(tr);}
+       const L=Math.hypot(ZA-ZB,RY-gB),ang=Math.atan2(RY-gB,ZA-ZB);
+       [-1,1].forEach(sd=>{const sg=new R.Mesh(new R.BoxGeometry(.08,.32,L),st);sg.position.set(X2+sd*(W2/2+.04),(RY+gB)/2-.1,(ZA+ZB)/2);sg.rotation.x=-ang;sg.castShadow=true;H.add(sg);
+         const rl=new R.Mesh(new R.BoxGeometry(.04,.04,L),st);rl.position.set(X2+sd*(W2/2+.04),(RY+gB)/2+1,(ZA+ZB)/2);rl.rotation.x=-ang;H.add(rl);
+         for(let k=0;k<=5;k++){const t=k/5,p=new R.Mesh(new R.BoxGeometry(.03,1,.03),st);p.position.set(X2+sd*(W2/2+.04),RY+(gB-RY)*t+.5,ZA+(ZB-ZA)*t);H.add(p);}});
+       const pad=new R.Mesh(new R.BoxGeometry(W2+.6,.1,1.4),trv);pad.position.set(X2,gB+.05,ZB-.6);pad.receiveShadow=true;H.add(pad);}
       {const gl=new R.MeshStandardMaterial({color:0xDDEEF0,transparent:true,opacity:.22,roughness:.05,metalness:.2,depthWrite:false}),
          gd=new R.MeshStandardMaterial({color:0xD2AE5C,metalness:.85,roughness:.22,emissive:0x4A3510,emissiveIntensity:.3});
         [[SX+SW/2-.03,-3.1,2.2,0],[SX-.2,-4.18,SW+.4,Math.PI/2]].forEach(([x,z,l,ry])=>{const g=new R.Mesh(new R.BoxGeometry(.03,1.05,l),gl);g.position.set(x,RY+.52,z);g.rotation.y=ry;H.add(g);
@@ -586,7 +599,7 @@ let vaultF;
         // ③ 停機坪那半邊：30 cm 清水模矮牆＋金色收邊；樓梯上來的地方留一個開口
         const lip=(x0,z0,x1,z1)=>{const L=Math.hypot(x1-x0,z1-z0),cx=(x0+x1)/2,cz=(z0+z1)/2,ry=Math.atan2(x1-x0,z1-z0)+Math.PI/2;
           add(new R.BoxGeometry(L,.3,.25),conc,cx,.15,cz,ry);add(new R.BoxGeometry(L,.03,.27),goldE,cx,.315,cz,ry);};
-        lip(-.2,8.15,13.5,8.15);lip(-.2,-6.85,13.5,-6.85);lip(13.5,-6.85,13.5,-4.3);lip(13.5,-1.9,13.5,8.15);}
+        lip(-.2,8.15,13.5,8.15);lip(-.2,-6.85,6.4,-6.85);lip(8.8,-6.85,13.5,-6.85);lip(13.5,-6.85,13.5,-4.3);lip(13.5,-1.9,13.5,8.15);}
       // 晚上會亮的矮燈
       [[-2.2,6.8],[-10.8,6.8],[-2.2,2.2],[-10.8,2.2]].forEach(([x,z])=>{add(new R.CylinderGeometry(.08,.1,.5,10),blk,x,.38,z);add(new R.SphereGeometry(.09,10,8),new R.MeshBasicMaterial({color:0xFFE2A8}),x,.68,z);});
       const gl=new R.PointLight(0xFFD49A,.5,9);gl.position.set(-6.4,1.6,4.6);G.add(gl);
@@ -922,13 +935,15 @@ F.hots=[
     bub.classList.toggle('on',!!on&&v3.z<1);};}
 { // 屋頂：鋼梯是斜坡，梯頂之後可以在屋頂上走；屋頂邊緣不會掉下去
   const y0h=heightAt(hx,hz),RYw=5.9,base=F.floor,stair=(lx,lz)=>lx>13.4&&lx<15.6&&lz>-4.15&&lz<7.3,
+    stair2=(lx,lz)=>lx>6.6&&lx<8.6&&lz<-6.5&&lz>-16.6,stair2T=lz=>clamp((lz+16.3)/9.4,0,1),
     stairT=lz=>lz>3.2?(7.0-lz)/3.8*.5:lz>1.8?.5:lz>-2?.5+(1.8-lz)/3.8*.5:1;   // 0 → 0.5（平台）→ 1
-  F.floor=(x,z)=>{const lx=x-hx,lz=z-hz;if(stair(lx,lz)){const t=clamp(stairT(lz),0,1);return y0h+.5+t*(RYw-.5);}
+  F.floor=(x,z)=>{const lx=x-hx,lz=z-hz;if(stair2(lx,lz)){const t=stair2T(lz),b=base(x,z);return b+(y0h+RYw-b)*t;}if(stair(lx,lz)){const t=clamp(stairT(lz),0,1);return y0h+.5+t*(RYw-.5);}
     if(roofOn&&lx>-13.6&&lx<13.75&&lz>-7&&lz<8.3)return y0h+RYw;
     if(lx>-15&&lx<15&&lz>-7.5&&lz<9.5)return Math.max(base(x,z),y0h+.5);          // 家的基座平台（高 0.5 m），走上去不會陷進去
     if(Math.abs(lx)<1.82&&lz>=9.5&&lz<9.8)return Math.max(base(x,z),y0h+.56);    // 門口的黑石門檻
     return base(x,z);};
   F.post=p=>{const lx=p.x-hx,lz=p.z-hz;if(cur!==F){roofOn=false;return;}
+    if(stair2(lx,lz)){roofOn=stair2T(lz)>.92;return;}
     if(stair(lx,lz)){roofOn=stairT(lz)>.92;return;}
     if(roofOn){p.x=hx+clamp(lx,-13.4,13.75);p.z=hz+clamp(lz,-6.8,8.1);}};
   F.hots.push({id:'jet',name:'私人飛機',verb:'起飛',x:hx+3.2,z:hz+3.4,r:2.6,go:()=>openWorld()});}
@@ -1051,11 +1066,33 @@ H1S.ceil.material=new R.MeshStandardMaterial({map:planksTex([6,3]),roughness:.85
       if(d%7===3||d%9===1){g.fillStyle=['#7DB7C4','#8DB86C','#D9583F'][d%3];g.beginPath();g.arc(cx+52,cy+44,7,0,7);g.fill();}}})}));
   cal.position.set(-W1/2+.12,2.2,-1.5);cal.rotation.y=Math.PI/2;s.add(cal);
   boxIn(H1S,.12,2.85,3.6,0xA97C55,-W1/2+.04,2.2,-1.5,false);
-  // 廚房餐廳（後牆左側）
-  boxIn(H1S,5.6,1,1,0xE9E4DA,-7.5,.5,-D1/2+.6,true);boxIn(H1S,5.6,.12,1.1,0x8A6A4C,-7.5,1.04,-D1/2+.6,false);boxIn(H1S,.9,.3,.6,0x9FB4BA,-8.8,1.25,-D1/2+.6,false);
-  boxIn(H1S,2.8,.12,1.4,0x8A6A4C,-7,.85,-2.6,false);[[-8.2,-3.1],[-5.8,-3.1],[-8.2,-2.1],[-5.8,-2.1]].forEach(([x,z])=>boxIn(H1S,.1,.8,.1,0x2E2A25,x,.4,z,false));
-  H1S.col.push({x0:-8.5,x1:-5.5,z0:-3.4,z1:-1.8});
-  mesh(new R.CylinderGeometry(.22,.18,.3,10),mat(0xE8E2D6),-7.3,1.06,-2.6,s);
+  // 廚房（後牆左側）：半開放，整面窗對著後花園。窗下是洗手台，前面一座中島兼吧台，靠客廳那邊一道木格柵半隔開
+  {const KX0=-12.6,KX1=-3.4,WY0=.95,WY1=4.1,BZ=-D1/2;
+   const view=canvasTex(1024,360,(g,w,h)=>{const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#CFE2E6');gr.addColorStop(.5,'#E3ECE2');gr.addColorStop(1,'#A9C08E');g.fillStyle=gr;g.fillRect(0,0,w,h);
+     g.fillStyle='#B9CDB0';g.beginPath();g.moveTo(0,170);g.bezierCurveTo(260,90,520,150,760,95);g.lineTo(1024,120);g.lineTo(1024,h);g.lineTo(0,h);g.fill();       // 遠山
+     g.fillStyle='#9DB884';g.fillRect(0,230,w,h-230);
+     g.strokeStyle='#8FC0C6';g.lineCap='round';g.lineWidth=34;g.beginPath();g.moveTo(560,h+20);g.bezierCurveTo(520,300,640,270,600,232);g.stroke();               // 溪
+     g.strokeStyle='#D5EAEC';g.lineWidth=6;g.beginPath();g.moveTo(560,h);g.bezierCurveTo(525,300,632,272,598,236);g.stroke();
+     [[470,300,26],[690,312,30],[640,250,16],[520,248,14],[760,280,18]].forEach(([x,y,r])=>{g.fillStyle='#BDB4A3';g.beginPath();g.ellipse(x,y,r,r*.6,0,0,7);g.fill();});
+     g.fillStyle='#7F9C66';[[200,236,70],[880,240,80],[90,260,60]].forEach(([x,y,r])=>{g.beginPath();g.ellipse(x,y,r,r*.35,0,0,7);g.fill();});
+     g.fillStyle='#CFC6B6';g.fillRect(372,206,16,44);g.fillStyle='#F3E6C6';g.fillRect(364,190,32,20);});
+   const win=new R.Mesh(new R.PlaneGeometry(KX1-KX0,WY1-WY0),new R.MeshBasicMaterial({map:view}));win.position.set((KX0+KX1)/2,(WY0+WY1)/2,BZ+.03);f1r.scene.add(win);
+   const fr=0x2E2A25;for(let k=0;k<=4;k++)boxIn(H1S,.07,WY1-WY0,.08,fr,KX0+(KX1-KX0)*k/4,(WY0+WY1)/2,BZ+.06,false);
+   [WY0,WY1].forEach(y=>boxIn(H1S,KX1-KX0+.07,.07,.08,fr,(KX0+KX1)/2,y,BZ+.06,false));
+   // 窗下的洗手台（石灰華檯面＋木櫃）
+   boxIn(H1S,KX1-KX0-.4,.88,.7,0x6B5442,(KX0+KX1)/2,.44,BZ+.4,true);boxIn(H1S,KX1-KX0-.3,.06,.76,0xE8DECB,(KX0+KX1)/2,.91,BZ+.4,false);
+   boxIn(H1S,.8,.05,.45,0xBFC7C6,-9.6,.95,BZ+.38,false);mesh(new R.CylinderGeometry(.02,.02,.4,8),mat(0xC9A25E,{metalness:.7,roughness:.3,flatShading:false}),-9.6,1.15,BZ+.18,f1r.scene);
+   // 中島兼吧台：四張高腳椅在客廳那一側
+   boxIn(H1S,4.6,.9,1.1,0xE8DECB,-8,.45,-2.9,true);boxIn(H1S,4.8,.06,1.3,0xE8DECB,-8,.93,-2.9,false);
+   [-9.6,-8.5,-7.4,-6.3].forEach(x=>{mesh(new R.CylinderGeometry(.2,.2,.07,16),mat(0x6B5442,{flatShading:false}),x,.72,-1.75,f1r.scene);mesh(new R.CylinderGeometry(.03,.03,.7,6),mat(0x2E2A25),x,.36,-1.75,f1r.scene);});
+   mesh(new R.CylinderGeometry(.24,.18,.28,12),mat(0xEDE7DC,{flatShading:false}),-8.6,1.1,-2.9,f1r.scene);
+   // 中島上方三盞吊燈
+   [-9.4,-8,-6.6].forEach(x=>{mesh(new R.CylinderGeometry(.005,.005,1.4,4),mat(0x2E2A25),x,H1-.7,-2.9,f1r.scene,false);
+     mesh(new R.SphereGeometry(.16,14,10),new R.MeshStandardMaterial({color:0xFFF1D6,emissive:0xFFD49A,emissiveIntensity:.7}),x,H1-1.45,-2.9,f1r.scene,false);});
+   {const pl=new R.PointLight(0xFFD9A0,.35,7);pl.position.set(-8,H1-1.6,-2.9);f1r.scene.add(pl);}
+   // 半開放：靠客廳那邊一道木格柵，只隔一半
+   for(let k=0;k<11;k++)boxIn(H1S,.06,2.6,.06,0x8A6A4C,-3.1,1.3,BZ+.5+k*.32,false);
+   H1S.col.push({x0:-10.4,x1:-5.6,z0:-3.55,z1:-2.25},{x0:KX0,x1:KX1,z0:BZ,z1:BZ+.8},{x0:-3.2,x1:-3,z0:BZ,z1:BZ+3.8});}
   // 衣帽間（右牆）
   boxIn(H1S,1,2.8,4,0xEFE3D0,W1/2-.6,1.4,-2.4,true);
   const cc=[0xD9583F,0x7DB7C4,0xF2C04E,0x8DB86C,0xC98BB0,0xFFF6E8];for(let i=0;i<6;i++)boxIn(H1S,.5,1.2+((i*37)%5)*.12,.42,cc[i],W1/2-1.3,1.7,-4+i*.62,false);
@@ -1177,10 +1214,10 @@ function dogUpdate(dt,t){
   if(d>.1){const st=Math.min(d,dt*sp);dog.position.x+=dx/d*st;dog.position.z+=dz/d*st;dog.rotation.y=Math.atan2(dx,dz);}
   dog.position.y=fl(dog.position.x,dog.position.z);
   dog.userData.tail.rotation.y=Math.sin(t*(dogMode==='walk'||dogAI.greet>0?18:10))*.6;}
-[['日曆牆',-W1/2+1.2,3.6,-1.5],['廚房餐廳',-7.5,2.8,-4.6],['Beauty',W1/2-1.4,3.5,-2.4],['健身房',8,2.4,2.8],['樓梯 · 往下',-11,2.6,3],['舞台門',-.6,3.3,-D1/2+.7],['世界之門',2.6,3.6,-D1/2+.7]].forEach(([t,x,y,z])=>label(f1r.scene,t,x,y,z,null,.62));
+[['日曆牆',-W1/2+1.2,3.6,-1.5],['廚房',-8,3.2,-3.6],['Beauty',W1/2-1.4,3.5,-2.4],['健身房',8,2.4,2.8],['樓梯 · 往下',-11,2.6,3],['舞台門',-.6,3.3,-D1/2+.7],['世界之門',2.6,3.6,-D1/2+.7]].forEach(([t,x,y,z])=>label(f1r.scene,t,x,y,z,null,.62));
 H1S.hots=[
   {id:'cal',name:'日曆牆',verb:'查看',x:-W1/2+1.6,z:-1.5,r:2},
-  {id:'kitchen',name:'廚房餐廳',verb:'查看',x:-7,z:-1.2,r:1.8},
+  {id:'kitchen',name:'廚房',verb:'查看',x:-8,z:-1.2,r:1.9},
   {id:'lucky',name:'Lucky',verb:'摸摸',dyn:true,r:1.7,go:()=>openLucky()},
   {id:'closet',name:'Beauty',verb:'走進',x:W1/2-2.2,z:-2.4,r:2,go:()=>openApp('Beauty','https://fuwei0618-cmd.github.io/Entry/scenes/?s=beauty')},
   {id:'gym',name:'健身房',verb:'走進',x:8,z:2.8,r:1.8,go:()=>openApp('健身房','https://fuwei0618-cmd.github.io/Entry/scenes/?s=gym')},
@@ -1189,7 +1226,7 @@ H1S.hots=[
   {id:'worlddoor',name:'世界之門',verb:'穿過',x:2.6,z:-D1/2+1.3,r:1.4,go:()=>openWorld()},
   {id:'front',name:'回到森林',verb:'出門',x:0,z:D1/2-.9,r:1.4,go:()=>goto('forest','door')}
 ];
-H1S.spawns={front:[0,D1/2-3.8,Math.PI,0],stairs:[-9.4,3,Math.PI/2,-Math.PI/2],stage:[-.6,-D1/2+1.6,0,Math.PI],cal:[-W1/2+2.4,-1.5,-Math.PI/2,Math.PI/2],kitchen:[-7,-.4,Math.PI,0],closet:[W1/2-2.8,-2.4,Math.PI/2,-Math.PI/2],gym:[8,.6,0,Math.PI]};
+H1S.spawns={front:[0,D1/2-3.8,Math.PI,0],stairs:[-9.4,3,Math.PI/2,-Math.PI/2],stage:[-.6,-D1/2+1.6,0,Math.PI],cal:[-W1/2+2.4,-1.5,-Math.PI/2,Math.PI/2],kitchen:[-8,-.2,Math.PI,0],closet:[W1/2-2.8,-2.4,Math.PI/2,-Math.PI/2],gym:[8,.6,0,Math.PI]};
 H1S.update=(dt,t)=>{dogUpdate(dt,t);};
 
 /* =========================================================
@@ -1414,7 +1451,7 @@ const INFO={
   campfire:{tag:'森林 · 營火',title:'鐵粉朋友',body:'火是你的熱情。很多人是先看到你的表演、影片或 Podcast 才找過來的，你不一定認識他們，但他們會被火吸引，慢慢圍到火邊，聽懂你在唱什麼、做什麼。',list:['他們從哪裡認識你','回訪與互動','你可以為他們做的事'],soon:true},
   fireflies:{tag:'森林 · 螢火蟲',title:'通訊錄',body:'每一點光，是一個跟你有連結的人。點開就是他的卡片：客觀事實、標籤、相處邊界。',soon:true},
   cal:{tag:'家 · 日曆牆',title:'日曆牆',body:'牆上掛著夢想版：兩顆北極星、到 2031 的季節時間軸、這一季的魚缸和許願池。清單不是承諾，每一季只撈一條魚出來實現。',links:[['打開夢想版','https://fuwei0618-cmd.github.io/Entry/dream/']],list:['夢想版：北極星・時間軸・魚缸・今日三題・許願池','之後：今天只做三件事、番茄鐘、每週固定排程']},
-  kitchen:{tag:'家 · 廚房餐廳',title:'飲食公式',body:'固定的飲食組合，少做一個決定。',soon:true},
+  kitchen:{tag:'家 · 廚房',title:'飲食公式',body:'半開放的廚房，整面窗對著後花園：做菜的時候看著溪水。固定的飲食組合，少做一個決定。',soon:true},
   lucky:{tag:'家 · Lucky',title:'Lucky',body:'尾巴搖個不停。',links:[['打開 Lucky 手冊','https://fuwei0618-cmd.github.io/Lucky/']]},
   closet:{tag:'家 · Beauty',title:'Beauty',body:'關於「美」的房間，像藝人上工前的梳化間，也是定期進廠保養的地方。裡面有兩扇門：',list:['梳化間：衣櫥、妝髮、美甲，整體造型與穿搭模板（製作中）','保養廠：醫美、半永久、日常保養；正顎手術也在這裡'],links:[['梳化間（製作中）',''],['保養廠 · 正顎手冊','https://fuwei0618-cmd.github.io/OGS/']]},
   gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',links:[['打開健身房','https://fuwei0618-cmd.github.io/Gym/']]},

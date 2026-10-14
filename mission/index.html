@@ -465,7 +465,7 @@ const RE_LAYOUT=[[/Camino|貝殼/,"TEC","god"],[/Getty|心流|建築/,"TEC","god
  [/銀杏/,"TE"],[/罌粟/,"EC"],[/老虎/,"C"],[/星/,"T"],[/狼/,"T"]];
 // 同一部電影兩張卡（自己加的「PK」和預設的「來自星星…」）：留 PK 那張
 function dedupePK(L){if(D.dedupePK||!L)return L;if(L.some(it=>/^PK$/i.test((it.n||"").trim()))){for(let i=L.length-1;i>=0;i--)if(/來自星星/.test(L[i].n||""))L.splice(i,1);}D.dedupePK=1;try{save();}catch(e){}return L;}
-function mediaCenter(L){if(D.media1014||!L)return L;L.forEach(it=>{if(/自媒體/.test(it.n||"")){it.x=VREG.TEC[0]+4;it.y=VREG.TEC[1]+6;it.tags="TEC";}});D.media1014=1;try{save();}catch(e){}return L;}   // 自媒體跟唱歌一樣：為自己、為世界、為錢，放中心
+function mediaCenter(L){if(D.media1014||!L)return L;L.forEach(it=>{if(/自媒體/.test(it.n||"")){it.x=VREG.TEC[0]+3;it.y=VREG.TEC[1]+1;it.tags="TEC";}});D.media1014=1;try{save();}catch(e){}return L;}   // 自媒體跟唱歌一樣：為自己、為世界、為錢，放中心
 function relayout(L){if(D.layout1014||!L)return L;const n={};
   L.forEach(it=>{if(it.k==="plan")it.k="space";const r=RE_LAYOUT.find(([re])=>re.test(it.n||""));if(!r)return;const[,T,k]=r;if(k)it.k=k;const c=VREG[T],j=(n[T]=(n[T]||0)+1)-1;
     it.x=c[0]+((j%3)-1)*4.5;it.y=c[1]+(Math.floor(j/3)%3-1)*4;it.tags=T;});

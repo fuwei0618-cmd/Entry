@@ -463,12 +463,14 @@ const RE_LAYOUT=[[/Camino|貝殼/,"TEC","god"],[/Getty|心流|建築/,"TEC","god
  [/日晷|日曆|臥室|禱告|老宅|^家/,"TEC"],[/皮拉提斯|冥想|瑜/,"TEC","space"],[/街頭|麥克風|唱/,"TEC","space"],[/營火/,"T"],[/自媒體|攝影/,"T"],[/HH|高跟/,"E","space"],[/Lucky|狗/,"E"],[/Beauty|健身/,"E"],[/金庫/,"C"],[/旅行/,"E","space"],
  [/PK|來自星星/,"TEC"],[/About|真愛/i,"TEC"],[/傻瓜|Idiots/i,"T"],
  [/銀杏/,"TE"],[/罌粟/,"EC"],[/老虎/,"C"],[/星/,"T"],[/狼/,"T"]];
+// 同一部電影兩張卡（自己加的「PK」和預設的「來自星星…」）：留 PK 那張
+function dedupePK(L){if(D.dedupePK||!L)return L;if(L.some(it=>/^PK$/i.test((it.n||"").trim()))){for(let i=L.length-1;i>=0;i--)if(/來自星星/.test(L[i].n||""))L.splice(i,1);}D.dedupePK=1;try{save();}catch(e){}return L;}
 function relayout(L){if(D.layout1014||!L)return L;const n={};
   L.forEach(it=>{if(it.k==="plan")it.k="space";const r=RE_LAYOUT.find(([re])=>re.test(it.n||""));if(!r)return;const[,T,k]=r;if(k)it.k=k;const c=VREG[T],j=(n[T]=(n[T]||0)+1)-1;
     it.x=c[0]+((j%3)-1)*4.5;it.y=c[1]+(Math.floor(j/3)%3-1)*4;it.tags=T;});
   D.layout1014=1;try{save();}catch(e){}return L;}
 function addSpaces(L){if(D.addSp1||!L)return L;ADD_SPACES.forEach((a,i)=>{if(!L.some(it=>it.n===a.n))L.push({id:"sp"+i+Date.now().toString(36),k:"space",s:1,ic:"none",...a});});D.addSp1=1;try{save();}catch(e){}return L;}
-const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=relayout(addSpaces(godText(vregMigrate(withGods(D.collection)))));};
+const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection))))));};
 function renderMe(){
   const items=meItems();
   const chip=(it,abs)=>{const ic=it.img||it.emo?null:cIcon(it);return `<button class="citem k-${it.k}${ic||it.img||it.emo?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${it.emo?`<span class="emo">${esc(it.emo)}</span>`:it.img?`<img src="${esc(it.img)}" alt="" referrerpolicy="no-referrer">`:ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};

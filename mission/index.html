@@ -155,7 +155,7 @@ textarea{min-height:76px;resize:vertical}
 .cstage.editing{box-shadow:0 0 0 2px var(--brass)}
 .citem{position:absolute;transform:translate(-50%,-50%);border:1px solid rgba(59,53,46,.12);border-radius:999px;padding:.15em .75em;cursor:pointer;white-space:nowrap;color:var(--ink);line-height:1.5;touch-action:none}
 .cstage:not(.editing) .citem{touch-action:manipulation}
-.cstage.asgrid{aspect-ratio:auto!important;height:auto!important;background:none!important;border:0!important;overflow:visible!important}
+.cstage.asgrid{max-width:880px;aspect-ratio:auto!important;height:auto!important;background:none!important;border:0!important;overflow:visible!important}
 .cgrid{display:grid;gap:10px}.cgrid table{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;background:#FBF9F5;border:1px solid var(--line);border-radius:14px;overflow:hidden;table-layout:fixed}
 .cgrid th,.cgrid td{border-bottom:1px solid var(--line);padding:8px 6px;vertical-align:middle;text-align:center}
 .cgrid thead th{font-family:var(--serif);font-size:14px;font-weight:600;background:#F4F0E9}.cgrid thead th small{display:block;font-family:var(--f);font-weight:400;font-size:10.5px;color:var(--muted);margin-top:1px}
@@ -164,7 +164,9 @@ textarea{min-height:76px;resize:vertical}
 .cgrid td{border-left:1px solid var(--line)}.cgrid td:nth-child(2){background:rgba(201,165,90,.08)}
 .cgrid .citem{position:relative;left:auto!important;top:auto!important;transform:none;margin:2px;display:inline-flex;vertical-align:middle;font-size:11.5px!important}
 .cgrid .citem:not(.ico){white-space:normal;max-width:100%;text-align:center}
-.cgrid .citem.shared{opacity:.6;border-style:dashed}
+.cgwrap{overflow-x:auto;border-radius:14px}.cgwrap table{min-width:640px}
+.cgrid thead th.pair{font-size:11px;font-family:var(--f);font-weight:500;background:#F7F3EC}.cgrid td.pair{background:#FBF8F3}
+.cgrid thead th:first-child,.cgrid tbody th{position:sticky;left:0;z-index:1}
 .cempty{font-size:10.5px;color:#C9BFAF}
 .cprin{display:grid;gap:3px;font-size:12.5px;color:var(--muted);padding:10px 14px;border:1px dashed var(--line);border-radius:12px;background:#FBF9F5}.cprin b{font-family:var(--serif);color:var(--ink);font-weight:600;font-size:13.5px}
 @media (max-width:520px){.cgrid table{font-size:11px}.cgrid thead th:first-child,.cgrid tbody th{width:44px}.cgrid tbody th span{padding:2px 5px;font-size:10.5px}.cgrid th,.cgrid td{padding:6px 2px}}
@@ -412,6 +414,8 @@ function muteLabel(){$("#mute").textContent=muted?"聲音 關":"聲音 開";$("#
 const PERS={T:{n:"Teresa",s:"聲音領路",c:"#C9705A"},E:{n:"Elva",s:"燕尾蝶",c:"#B5546F"},C:{n:"Chiara",s:"富偉",c:"#8C9A6B"}};
 const KINDS={idol:"偶像",tat:"刺青",film:"電影",plan:"計畫",space:"地圖空間",god:"神明"};
 const MPL={"禱告房":[58,36,"attic","ladder"],"舞台":[22,6,"stage","back"],"世界之門":[62,6,"f1","stage"],"家・老宅":[50,22,"f1","front"],"Beauty":[84,18,"f1","closet"],"健身房":[66,50,"f1","gym"],"Lucky":[40,38,"f1","front"],"攝影棚":[8,44,"forest","studio"],"記錄之河":[9,68,"forest","river"],"金庫":[28,70,"forest","vault"],"日晷":[52,62,"forest","center"],"營火":[78,70,"forest","campfire"]};
+const VCIR={T:[35,62],E:[50,36],C:[65,62]},VR=27;
+const posTags=it=>{if(typeof it.x!=="number")return it.tags;const inn=["T","E","C"].filter(k=>Math.hypot(it.x-VCIR[k][0],it.y-VCIR[k][1])<=VR);if(inn.length)return inn.join("");return ["T","E","C"].reduce((a,k)=>Math.hypot(it.x-VCIR[k][0],it.y-VCIR[k][1])<Math.hypot(it.x-VCIR[a][0],it.y-VCIR[a][1])?k:a,"T");};
 const VREG={E:[50,25],T:[20,70],C:[80,70],TE:[34,47],EC:[66,47],TC:[50,78],TEC:[50,57]};   // 三個我：Elva 上、Teresa 左（給世界）、Chiara 右（2026-10 改）
 const VREG_OLD={T:[50,25],E:[80,70],C:[20,70],TE:[66,47],TC:[34,47],EC:[50,78],TEC:[50,57]};
 function vregMigrate(L){if(!L||D.vreg2)return L;L.forEach(it=>{const o=VREG_OLD[it.tags],n=VREG[it.tags];if(o&&n&&typeof it.x==="number"){it.x=n[0]+(it.x-o[0]);it.y=n[1]+(it.y-o[1]);}});D.vreg2=1;try{save()}catch(e){}return L;}
@@ -455,14 +459,15 @@ function renderMe(){
   const venn=`<svg viewBox="0 0 100 100" aria-hidden="true"><g fill-opacity=".12" stroke-width=".5"><circle cx="50" cy="36" r="27" fill="#B5546F" stroke="#B5546F"/><circle cx="35" cy="62" r="27" fill="#C9705A" stroke="#C9705A"/><circle cx="65" cy="62" r="27" fill="#8C9A6B" stroke="#8C9A6B"/></g><g font-family="serif" font-size="4" text-anchor="middle"><text x="50" y="4.5" fill="#B5546F">Elva・燕尾蝶</text><text x="3" y="97" text-anchor="start" fill="#C9705A">Teresa・聲音領路</text><text x="97" y="97" text-anchor="end" fill="#8C9A6B">Chiara・富偉</text></g><path d="M50 46 C54 50 55 53 53 56 C52 58 48 58 47 56 C45 53 47 51 49 49 C49 51 50 52 50 46Z" fill="#E2B85C"/></svg>`;
   const map=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="#DCE6D2"/><path d="M0 40 C6 55 4 75 10 100 L0 100Z" fill="#AFCBD0"/><ellipse cx="50" cy="66" rx="40" ry="24" fill="none" stroke="#E6D6B4" stroke-width="2.4"/><rect x="30" y="6" width="56" height="44" rx="2" fill="#F1ECE2" stroke="#D8CFBE" stroke-width=".8"/><circle cx="50" cy="66" r="5" fill="#9CC7CF"/><circle cx="50" cy="66" r="3.6" fill="#EFE9DD"/></svg>`;
   const at={};items.forEach(it=>{const p=(it.pl||[])[0];if(p)(at[p]=at[p]||[]).push(it);});
-  const COLS=[["TEC","中心","Camino・心流","#C9A55A"],["T","Teresa","聲音領路・狼","#C9705A"],["C","Chiara","富偉・虎","#8C9A6B"],["E","Elva","燕尾蝶・狗","#B5546F"]];
-  const inCol=(it,c)=>c==="TEC"?it.tags==="TEC":it.tags!=="TEC"&&it.tags.includes(c);
-  const grid=`<div class="cgrid"><table><thead><tr><th></th>${COLS.map(([c,n,s2,col])=>`<th style="color:${col}">${n}<small>${s2}</small></th>`).join("")}</tr></thead><tbody>${Object.entries(KINDS).filter(([k])=>meKinds[k]).map(([k,t])=>`<tr><th class="k-${k}"><span>${t}</span></th>${COLS.map(([c])=>{const L=items.filter(it=>it.k===k&&inCol(it,c));return `<td>${L.length?L.map(it=>chip(it,0).replace('class="citem','class="citem'+(c!=="TEC"&&it.tags.length>1?" shared":""))).join(""):'<span class="cempty">還沒長出來</span>'}</td>`;}).join("")}</tr>`).join("")}</tbody></table>
+  // 方位照「三個我」圖上的位置算：在哪幾個圈裡，就屬於哪幾個我（拖曳後表格自動跟著變）；圈外的算最近的那個圈
+  const COLS=[["TEC","中心","Camino・心流","#C9A55A"],["T","Teresa","聲音領路・狼","#C9705A"],["TE","Teresa × Elva","","#BF627A"],["E","Elva","燕尾蝶・狗","#B5546F"],["EC","Elva × Chiara","","#A0776E"],["C","Chiara","富偉・虎","#8C9A6B"],["TC","Chiara × Teresa","","#AB8562"]];
+  const inCol=(it,c)=>posTags(it)===c;
+const grid=`<div class="cgrid"><div class="cgwrap"><table><thead><tr><th></th>${COLS.map(([c,n,s2,col])=>`<th class="${c.length===2?"pair":""}" style="color:${col}">${n}${s2?`<small>${s2}</small>`:""}</th>`).join("")}</tr></thead><tbody>${Object.entries(KINDS).filter(([k])=>meKinds[k]).map(([k,t])=>`<tr><th class="k-${k}"><span>${t}</span></th>${COLS.map(([c])=>{const L=items.filter(it=>it.k===k&&inCol(it,c));return `<td class="${c.length===2?"pair":""}">${L.length?L.map(it=>chip(it,0)).join(""):`<span class="cempty">${c.length===2?"·":"還沒長出來"}</span>`}</td>`;}).join("")}</tr>`).join("")}</tbody></table></div>
     <div class="cprin"><b>三條原則怎麼走這張圖</b><span>第一性原理：回到中心，先問自己真正要什麼。</span><span>無痛・輕量：Elva 流得輕，行李少、路順。</span><span>開心原則：Elva 流得有力，腳踩穩、頭往上、胸口打開。</span></div></div>`;
   const stage=meView==="grid"?grid:meView==="venn"?venn+items.map(it=>chip(it,1)).join(""):map+Object.entries(MPL).map(([p,[x,y]])=>`<div class="cplace" style="left:${x}%;top:${y}%"><button class="cpl${meSelP===p?" on":""}" data-p="${esc(p)}">${esc(p)}</button><div class="cstack">${(at[p]||[]).filter(it=>meKinds[it.k]).map(it=>chip(it,0)).join("")}</div></div>`).join("");
   const sel=items.find(it=>it.id===meSel);
   const miniMap=pl=>`<div class="cmini">${map}${Object.entries(MPL).map(([p,[x,y]])=>`<span class="${(pl||[]).includes(p)?"lit":""}" style="left:${x}%;top:${y}%">${esc(p)}</span>`).join("")}</div>`;
-  let detail=meView==="grid"?`<p class="muted" style="margin:0">每一列是一種東西，每一欄是一個方位。空格是那一邊還沒長出來的地方；虛線的是同時屬於兩邊的。</p>`:`<p class="muted" style="margin:0">點任何一件收藏。中間那把火，是三個我都有的事。</p>`;
+  let detail=meView==="grid"?`<p class="muted" style="margin:0">每一列是一種東西，每一欄是一個方位。中間三欄是兩兩的交會。方位照「三個我」圖上的位置算：到「三個我」按「調整位置和大小」拖過去，這張表就跟著變。</p>`:`<p class="muted" style="margin:0">點任何一件收藏。中間那把火，是三個我都有的事。</p>`;
   if(sel)detail=`<h3 class="cname" style="display:flex;align-items:center;gap:8px">${esc(sel.n)}<small class="k-${sel.k}">${KINDS[sel.k]}</small><button class="btn sm" data-editc="${sel.id}" style="margin-left:auto;font-family:system-ui,-apple-system,sans-serif;font-weight:400;letter-spacing:0">修改這張卡</button></h3><div class="ctags">${sel.tags.split("").map(k=>`<span style="background:${PERS[k].c}">${PERS[k].n}</span>`).join("")}</div><p>${esc(sel.t||"")}</p>${miniMap(sel.pl)}
     <div class="row">${(sel.pl||[])[0]&&MPL[sel.pl[0]]?`<button class="btn pri" data-walk2="${esc(sel.pl[0])}">走去 Origina 的${esc(sel.pl[0])}</button>`:""}</div>`;
   else if(meView==="map"&&meSelP){const L=items.filter(it=>(it.pl||[]).includes(meSelP));detail=`<h3 class="cname">${esc(meSelP)}</h3><p class="muted" style="margin:0;font-size:13px">住在這裡的收藏</p><div class="ctags" style="gap:6px">${L.map(it=>chip(it,0)).join("")||'<span class="muted">還沒有</span>'}</div>${MPL[meSelP]?`<button class="btn pri" data-walk2="${esc(meSelP)}">走去 Origina 的${esc(meSelP)}</button>`:""}`;}
@@ -481,7 +486,7 @@ function renderMe(){
   document.querySelectorAll("[data-editc]").forEach(b=>b.onclick=()=>collectionDialog(items.find(it=>it.id===b.dataset.editc)));
   const ce=$("#cEdit");if(ce)ce.onclick=()=>{meDraft=JSON.parse(JSON.stringify(D.collection||defaultCollection()));meEdit=true;meView="venn";renderMe();};
   const ca=$("#cAdd");if(ca)ca.onclick=()=>collectionDialog(null);
-  const cs=$("#cSave");if(cs)cs.onclick=()=>{D.collection=meDraft;meEdit=false;meDraft=null;save();renderMe();};
+  const cs=$("#cSave");if(cs)cs.onclick=()=>{meDraft.forEach(it=>{it.tags=posTags(it);});D.collection=meDraft;meEdit=false;meDraft=null;save();renderMe();};
   const cc=$("#cCancel");if(cc)cc.onclick=()=>{meEdit=false;meDraft=null;renderMe();};
   const sz=$("#csize");if(sz)sz.oninput=()=>{sel.s=+sz.value;const el=document.querySelector(`#cstage [data-id="${sel.id}"]`);if(el)el.style.fontSize=(11.5*sel.s).toFixed(1)+"px";};
   // 點選／拖曳

@@ -452,7 +452,10 @@ const CICON={
 const CICON_BY_NAME={"銀杏":"ginkgo","Camino":"shell","狼與捕夢網":"wolf","藍色小星星":"star","罌粟花":"poppy","女人與老虎":"tiger","皮拉提斯":"yoga","街頭表演":"guitar","旅行":"plane","Getty 那一天":"flame","老宅Home":"house","金庫":"coins","Lucky":"dog"};
 const cIcon=it=>it.ic==="none"?null:CICON[it.ic||CICON_BY_NAME[it.n]];
 let meView="venn",meSel=null,meSelP=null,meEdit=false,meDraft=null,meKinds={idol:1,tat:1,film:1,plan:1,space:1,god:1};
-const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=godText(vregMigrate(withGods(D.collection)));};
+// 2026-10-14：補上還沒放進來的地圖空間（位置先放大概，之後自己拖）
+const ADD_SPACES=[{n:"日晷",tags:"TEC",x:50,y:52,pl:["日晷"],t:"回到自己的地方：Camino、心流、信仰的交會點"},{n:"自媒體",tags:"T",x:20,y:72,pl:["攝影棚"],t:"把聲音和故事送出去"},{n:"日曆牆",tags:"TEC",x:56,y:62,pl:["家・老宅"],t:"每天、每週、每季：讓三個我都排得進時間"},{n:"Beauty・健身",tags:"E",x:44,y:20,pl:["Beauty","健身房"],t:"身體和美：Elva 的加油站"},{n:"臥室・禱告房",tags:"TEC",x:44,y:62,pl:["禱告房"],t:"自己的空間：休息、禱告、回到中心"}];
+function addSpaces(L){if(D.addSp1||!L)return L;ADD_SPACES.forEach((a,i)=>{if(!L.some(it=>it.n===a.n))L.push({id:"sp"+i+Date.now().toString(36),k:"space",s:1,ic:"none",...a});});D.addSp1=1;try{save();}catch(e){}return L;}
+const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=addSpaces(godText(vregMigrate(withGods(D.collection))));};
 function renderMe(){
   const items=meItems();
   const chip=(it,abs)=>{const ic=it.img||it.emo?null:cIcon(it);return `<button class="citem k-${it.k}${ic||it.img||it.emo?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${it.emo?`<span class="emo">${esc(it.emo)}</span>`:it.img?`<img src="${esc(it.img)}" alt="" referrerpolicy="no-referrer">`:ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};

@@ -29,7 +29,8 @@ button,input,textarea{font:inherit;color:inherit}button{cursor:pointer}
 .bfull textarea{min-height:0;resize:none;overflow:hidden;line-height:1.7;background:transparent;border-color:transparent;padding:6px 8px;margin:0 -8px;width:calc(100% + 16px);font-size:15px}
 .bfull textarea:hover{border-color:var(--line)}.bfull textarea:focus{border-color:var(--acc);background:var(--bg);outline:none}
 .rf{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}.rf span{color:var(--muted)}.rf input{padding:7px 10px;font-size:13px}
-.svd{color:var(--acc);font-weight:700}.bq{font-family:var(--serif);font-size:16px;line-height:1.6}
+.svd{color:var(--acc);font-weight:700}
+.top{flex-wrap:wrap;row-gap:8px}.top h1{white-space:nowrap}@media (max-width:480px){.seg button{padding:6px 10px;font-size:13px}}.bq{font-family:var(--serif);font-size:16px;line-height:1.6}
 .refr{display:grid;gap:6px}.rf{display:grid;gap:2px;padding:8px 10px;border-radius:10px;background:var(--soft)}.rf s{color:var(--muted);font-size:13px}.rf span{font-size:14.5px}
 .link{color:var(--acc);text-decoration:none;font-size:13px}
 .btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-size:14px}
@@ -81,9 +82,9 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;"
 const pad=n=>String(n).padStart(2,"0"),ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const dayOff=n=>{const d=new Date();d.setDate(d.getDate()+n);return d;};
 const weekKeyOf=d=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));return ymd(x);};
-let mode=(()=>{const hs=(location.hash||"").slice(1);if(["morning","night","all"].includes(hs))return hs;const h=new Date().getHours();return h>=4&&h<15?"morning":"night";})();
+let mode=(()=>{const hs=(location.hash||"").slice(1);if(["morning","night","hh","vocal","all"].includes(hs))return hs;const h=new Date().getHours();return h>=4&&h<15?"morning":"night";})();
 const READ=new URLSearchParams(location.search).has("read");   // ?read：只顯示那段話（給鬧鐘捷徑用）
-addEventListener("hashchange",()=>{const hs=location.hash.slice(1);if(["morning","night","all"].includes(hs)){mode=hs;render();}});
+addEventListener("hashchange",()=>{const hs=location.hash.slice(1);if(["morning","night","hh","vocal","all"].includes(hs)){mode=hs;render();}});
 /* 全部信念：在這一頁就能看完、改完。同一個網站、同一台裝置的資料，改了直接寫回原本那一頁（HH、Vocal 打開時看到的就是這裡改的） */
 const BASE="https://fuwei0618-cmd.github.io";
 const HKEY="origina.hh.v1",VKEY="busk-app-v1";
@@ -106,11 +107,11 @@ function putBelief(k,field,val){
   let v;if(k==="hh"){v=d.vision=Object.assign({type:"vision",why:"",become:["","",""],note:HH_NOTE,reframes:[],wins:[]},d.vision||{});}
   else{d.meta=d.meta||{};v=d.meta.vision=d.meta.vision||{};}
   v[field]=val;localStorage.setItem(key,JSON.stringify(d));dirtyFor(k==="hh"?"hh":"vocal");}
-function allHTML(){
+function allHTML(only){
   const mins=b=>{const n=b.f.map(x=>x[3]==="r"?x[2].map(r=>(r.q||"")+(r.a||"")).join(""):String(x[2]||"")).join("").replace(/\s/g,"").length;return n?Math.max(1,Math.round(n/240)):0;};   // 大約一分鐘唸 240 字
   return `<div class="top"><h1>我的信念</h1>${segHTML()}</div>
-  <p class="muted" style="margin:-4px 0 0;font-size:13px">四篇都在這裡，直接點字修改，會自動存回原本那一頁。<span id="svd" class="svd"></span></p>
-  <div class="bgrid all">${beliefs().map(b=>`<section class="card bfull" data-b="${b.k}">
+  <p class="muted" style="margin:-4px 0 0;font-size:13px">${only?"直接點字修改，會自動存好。":"四篇都在這裡，直接點字修改，會自動存回原本那一頁。"}<span id="svd" class="svd"></span></p>
+  <div class="bgrid all">${beliefs().filter(b=>!only||b.k===only).map(b=>`<section class="card bfull" data-b="${b.k}">
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div></div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a></span></div>
     ${b.missing?`<p class="muted" style="margin:0;font-size:13px">這台裝置還沒打開過${esc(b.app)}。先<a class="link" href="${b.open}" target="_top">打開一次</a>，回來就能在這裡改。</p>`:
@@ -124,7 +125,7 @@ function wireAll(){
   const rfs=k=>{const d=rd(k==="hh"?HKEY:VKEY);const v=k==="hh"?(d&&d.vision):(d&&d.meta&&d.meta.vision);return JSON.parse(JSON.stringify((v&&v.reframes)||[]));};
   document.querySelectorAll(".bfull .rf input").forEach(t=>t.oninput=()=>{const k=t.closest("[data-b]").dataset.b,R=rfs(k),i=+(t.dataset.rq??t.dataset.ra);R[i]=R[i]||{q:"",a:""};if(t.dataset.rq!=null)R[i].q=t.value;else R[i].a=t.value;putBelief(k,"reframes",R);said();});
   document.querySelectorAll("[data-rfadd]").forEach(b=>b.onclick=()=>{const k=b.closest("[data-b]").dataset.b,R=rfs(k);R.push({q:"",a:""});putBelief(k,"reframes",R);render();});}
-const segHTML=()=>`<div class="seg"><button data-m="morning" aria-pressed="${mode==="morning"}">起床</button><button data-m="night" aria-pressed="${mode==="night"}">睡前</button><button data-m="all" aria-pressed="${mode==="all"}">全部</button></div>`;
+const segHTML=()=>`<div class="seg"><button data-m="morning" aria-pressed="${mode==="morning"}">起床</button><button data-m="night" aria-pressed="${mode==="night"}">睡前</button><button data-m="hh" aria-pressed="${mode==="hh"}">HH</button><button data-m="vocal" aria-pressed="${mode==="vocal"}">Vocal</button><button data-m="all" aria-pressed="${mode==="all"}">全部</button></div>`;
 // 從夢想版讀重點（同一個網站，同一台裝置）
 function focusFor(d){const D=ls("origina.dream.v1");if(!D||!D.todo)return{tasks:[],days:[]};
   const find=id=>{for(const p of D.todo.projects){const t=p.tasks.find(x=>x.id===id);if(t)return{p,t};}return null;};
@@ -136,7 +137,7 @@ const POSES=[{n:"抱膝",s:"雙手抱膝，輕輕左右搖",svg:'<path d="M8 38h
 let pose=-1,poseLeft=0,poseTimer=null,doneToday=null,breathing=false;
 function render(){
   document.body.classList.toggle("night",mode==="night");
-  if(mode==="all"){$("#app").innerHTML=allHTML();wireAll();document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;history.replaceState(null,"","#"+mode);stopPose();render();});return;}
+  if(mode==="all"||mode==="hh"||mode==="vocal"){$("#app").innerHTML=allHTML(mode==="all"?"":mode);wireAll();document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;history.replaceState(null,"","#"+mode);stopPose();render();});return;}
   if(READ){$("#app").innerHTML=`<div style="min-height:80vh;display:grid;place-items:center;text-align:center;padding:24px"><div><div class="stepn" style="margin-bottom:18px">${mode==="morning"?"早安":"晚安"}</div><div class="decl" style="font-size:clamp(22px,6vw,30px)">${esc(mode==="morning"?B.morning:B.night)}</div><a class="link" style="display:inline-block;margin-top:28px" href="./#${mode}">打開${mode==="morning"?"起床":"睡前"}頁 →</a></div></div>`;return;}
   const M=mode==="morning",f=focusFor(M?new Date():dayOff(1)),first=(f.tasks[0]&&f.tasks[0].t.text)||(f.days[0]&&f.days[0].text)||"";
   const focusHTML=(f.tasks.length||f.days.length)?`<div class="focus">${f.days.map(d=>`<div><i style="background:var(--acc)"></i><b>${esc(d.text)}</b></div>`).join("")}${f.tasks.map(x=>`<div><i style="background:${x.p.color}"></i>${esc(x.t.text)}<span class="muted" style="font-size:12px">・${esc(x.p.name)}</span></div>`).join("")}</div>`:`<p class="muted" style="margin:0;font-size:14px">${M?"今天":"明天"}沒有排重點，就照自己的步調。</p>`;

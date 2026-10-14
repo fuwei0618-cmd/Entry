@@ -167,6 +167,8 @@ textarea{min-height:76px;resize:vertical}
 .cgwrap{overflow-x:auto;border-radius:14px}.cgwrap table{min-width:640px}
 .cgrid thead th.pair{font-size:11px;font-family:var(--f);font-weight:500;background:#F7F3EC}.cgrid td.pair{background:#FBF8F3}
 .cgrid thead th:first-child,.cgrid tbody th{position:sticky;left:0;z-index:1}
+.cgrid tbody th small{display:block;font-size:10px;font-weight:400;color:var(--muted);margin-top:4px;line-height:1.35}.cgrid tbody th em{display:block;font-style:normal;font-size:10px;color:#B08A3E;margin-top:2px;line-height:1.35}
+.cgrid thead th:first-child,.cgrid tbody th{width:96px}
 .cgrid tr.cextra td{text-align:left;font-size:11px;letter-spacing:.2em;color:var(--muted);background:#F4F0E9;padding:4px 10px;border-left:0}
 .cgrid tr.isextra td,.cgrid tr.isextra th{opacity:.85}
 .cempty{font-size:10.5px;color:#C9BFAF}
@@ -414,7 +416,8 @@ function muteLabel(){$("#mute").textContent=muted?"聲音 關":"聲音 開";$("#
 
 /* ---------- 我是誰：收藏放在三個我的交集裡；也可以換成 Origina 地圖看 ---------- */
 const PERS={T:{n:"Teresa",s:"聲音領路",c:"#C9705A"},E:{n:"Elva",s:"燕尾蝶",c:"#B5546F"},C:{n:"Chiara",s:"富偉",c:"#8C9A6B"}};
-const KINDS={god:"信仰",idol:"榜樣",space:"實踐",tat:"印記",film:"啟發"};   // 一條線：相信什麼 → 想成為誰 → 每天怎麼做；印記（刺青）、啟發（電影）是補充   // 2026-10-14：前三種是主要的，刺青、電影是補充；「計畫」併進地圖空間
+const KINDS={god:"使命",idol:"身份",space:"行為",tat:"印記",film:"啟發"};   // 照迪爾茲的層次：使命 → 身份 → 行為；印記（刺青）、啟發（電影）是補充
+const KIND_ASK={god:["為了什麼・我相信的力量","第一性原理"],idol:["我想成為誰","開心原則"],space:["我每天怎麼做","無痛・輕量原則"]};   // 一條線：相信什麼 → 想成為誰 → 每天怎麼做；印記（刺青）、啟發（電影）是補充   // 2026-10-14：前三種是主要的，刺青、電影是補充；「計畫」併進地圖空間
 const KIND_EXTRA={tat:1,film:1};
 const MPL={"禱告房":[58,36,"attic","ladder"],"舞台":[22,6,"stage","back"],"世界之門":[62,6,"f1","stage"],"家・老宅":[50,22,"f1","front"],"Beauty":[84,18,"f1","closet"],"健身房":[66,50,"f1","gym"],"Lucky":[40,38,"f1","front"],"攝影棚":[8,44,"forest","studio"],"記錄之河":[9,68,"forest","river"],"金庫":[28,70,"forest","vault"],"日晷":[52,62,"forest","center"],"營火":[78,70,"forest","campfire"]};
 const VCIR={T:[35,62],E:[50,36],C:[65,62]},VR=27;
@@ -481,8 +484,8 @@ function renderMe(){
   // 方位照「三個我」圖上的位置算：在哪幾個圈裡，就屬於哪幾個我（拖曳後表格自動跟著變）；圈外的算最近的那個圈
   const COLS=[["TEC","中心","Camino・心流","#C9A55A"],["T","Teresa","聲音領路・狼","#C9705A"],["TE","Teresa × Elva","","#BF627A"],["E","Elva","燕尾蝶・狗","#B5546F"],["EC","Elva × Chiara","","#A0776E"],["C","Chiara","富偉・虎","#8C9A6B"],["TC","Chiara × Teresa","","#AB8562"]];
   const inCol=(it,c)=>posTags(it)===c;
-const grid=`<div class="cgrid"><div class="cgwrap"><table><thead><tr><th></th>${COLS.map(([c,n,s2,col])=>`<th class="${c.length===2?"pair":""}" style="color:${col}">${n}${s2?`<small>${s2}</small>`:""}</th>`).join("")}</tr></thead><tbody>${Object.entries(KINDS).filter(([k])=>meKinds[k]).map(([k,t],ri,arr)=>`${KIND_EXTRA[k]&&!(ri&&KIND_EXTRA[arr[ri-1][0]])?`<tr class="cextra"><td colspan="${COLS.length+1}">補充</td></tr>`:""}<tr class="${KIND_EXTRA[k]?"isextra":""}"><th class="k-${k}"><span>${t}</span></th>${COLS.map(([c])=>{const L=items.filter(it=>it.k===k&&inCol(it,c));return `<td class="${c.length===2?"pair":""}">${L.length?L.map(it=>chip(it,0)).join(""):`<span class="cempty">${c.length===2?"·":"還沒長出來"}</span>`}</td>`;}).join("")}</tr>`).join("")}</tbody></table></div>
-    <div class="cprin"><b>三條原則怎麼走這張圖</b><span>第一性原理：回到中心，先問自己真正要什麼。</span><span>無痛・輕量：Elva 流得輕，行李少、路順。</span><span>開心原則：Elva 流得有力，腳踩穩、頭往上、胸口打開。</span></div></div>`;
+const grid=`<div class="cgrid"><div class="cgwrap"><table><thead><tr><th></th>${COLS.map(([c,n,s2,col])=>`<th class="${c.length===2?"pair":""}" style="color:${col}">${n}${s2?`<small>${s2}</small>`:""}</th>`).join("")}</tr></thead><tbody>${Object.entries(KINDS).filter(([k])=>meKinds[k]).map(([k,t],ri,arr)=>`${KIND_EXTRA[k]&&!(ri&&KIND_EXTRA[arr[ri-1][0]])?`<tr class="cextra"><td colspan="${COLS.length+1}">補充</td></tr>`:""}<tr class="${KIND_EXTRA[k]?"isextra":""}"><th class="k-${k}"><span>${t}</span>${KIND_ASK[k]?`<small>${KIND_ASK[k][0]}</small><em>${KIND_ASK[k][1]}</em>`:""}</th>${COLS.map(([c])=>{const L=items.filter(it=>it.k===k&&inCol(it,c));return `<td class="${c.length===2?"pair":""}">${L.length?L.map(it=>chip(it,0)).join(""):`<span class="cempty">${c.length===2?"·":"還沒長出來"}</span>`}</td>`;}).join("")}</tr>`).join("")}</tbody></table></div>
+    <div class="cprin"><b>一條線</b><span>用第一性原理問清楚為了什麼（使命）→ 用開心原則打開自己，走向想成為的人（身份）→ 用無痛・輕量原則讓每一天都做得下去（行為）。</span></div></div>`;
   const stage=meView==="grid"?grid:meView==="venn"?venn+items.map(it=>chip(it,1)).join(""):map+Object.entries(MPL).map(([p,[x,y]])=>`<div class="cplace" style="left:${x}%;top:${y}%"><button class="cpl${meSelP===p?" on":""}" data-p="${esc(p)}">${esc(p)}</button><div class="cstack">${(at[p]||[]).filter(it=>meKinds[it.k]).map(it=>chip(it,0)).join("")}</div></div>`).join("");
   const sel=items.find(it=>it.id===meSel);
   const miniMap=pl=>`<div class="cmini">${map}${Object.entries(MPL).map(([p,[x,y]])=>`<span class="${(pl||[]).includes(p)?"lit":""}" style="left:${x}%;top:${y}%">${esc(p)}</span>`).join("")}</div>`;

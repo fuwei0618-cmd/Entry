@@ -101,12 +101,31 @@ function beliefs(){
     f:[["note","出發前的話",H.note||HH_NOTE,"t"],["why","為什麼想學",H.why,"t"],["become","想成為的樣子（一行一個）",(H.become||[]).filter(Boolean).join("\n"),"l"],["reframes","害怕的時候",H.reframes||[],"r"]]},
    {k:"vocal",name:"Vocal",when:"上台・練唱前",open:BASE+"/Vocal/#vision",missing:!(Vd&&Vd.meta),app:"Vocal 頁",
     f:[["note","上台前的話",V.note,"t"],["at80","80 歲的我",V.at80,"t"],["why","為什麼唱",V.why,"t"],["become","想成為的樣子（一行一個）",(V.become||[]).filter(Boolean).join("\n"),"l"],["reframes","害怕的時候",V.reframes||[],"r"]]}];}
+/* 雲端：HH、Vocal 的信念也直接跟 OneDrive 對齊——打開這頁先抓雲端最新的，改了就直接上傳（跟它們自己那頁用同一個檔案） */
+const OTHER={hh:{key:HKEY,file:"hh/data.json",app:"hh"},vocal:{key:VKEY,file:"Vocal/data.json",app:"vocal"}};
+const pend={hh:{},vocal:{}},upT={};let pulledOnce=false;
+const metaOf=a=>{try{return JSON.parse(localStorage.getItem("origina-sync-meta:"+a)||"{}");}catch(e){return {};}};
+const setMeta=(a,m)=>{try{localStorage.setItem("origina-sync-meta:"+a,JSON.stringify(m));}catch(e){}};
+async function cloudTok(){try{return window.OriginaSync&&await OriginaSync.getToken();}catch(e){return null;}}
+function applyPend(k,d){const P=pend[k];if(!Object.keys(P).length)return d;
+  if(k==="hh"){d.vision=Object.assign({type:"vision",why:"",become:["","",""],note:HH_NOTE,reframes:[],wins:[]},d.vision||{},P);}
+  else{d.meta=d.meta||{};d.meta.vision=Object.assign(d.meta.vision||{},P);}return d;}
+async function pullOthers(){if(!(await cloudTok()))return;let changed=false;
+  for(const k of ["hh","vocal"]){const O=OTHER[k];try{const r=await OriginaSync.api.getJSON(O.file);const m=metaOf(O.app);
+    if(r&&r.data&&r.data[O.key]&&(r.updatedAt||0)>(m.at||0)&&!(m.dirty&&(m.localAt||0)>(r.updatedAt||0))){localStorage.setItem(O.key,r.data[O.key]);setMeta(O.app,{...m,at:r.updatedAt,dirty:false,pushedOnce:true});changed=true;}}catch(e){}}
+  if(changed&&(mode==="all"||mode==="hh"||mode==="vocal")&&!document.activeElement.closest(".bfull"))render();}
+async function pushOther(k){const O=OTHER[k];if(!(await cloudTok()))return;   // 沒登入：留著「待同步」，下次打開那一頁時會補傳
+  try{const r=await OriginaSync.api.getJSON(O.file),m=metaOf(O.app);
+    let d=rd(O.key)||{};if(r&&r.data&&r.data[O.key]&&(r.updatedAt||0)>(m.at||0)){d=applyPend(k,JSON.parse(r.data[O.key]));}   // 雲端有別台裝置的新資料：用雲端那份，再套上這次改的
+    const raw=JSON.stringify(d);localStorage.setItem(O.key,raw);const data=r&&r.data?{...r.data,[O.key]:raw}:{[O.key]:raw};
+    const now=Date.now();await OriginaSync.api.putJSON(O.file,{app:O.app,updatedAt:now,data});setMeta(O.app,{...metaOf(O.app),at:now,dirty:false,pushedOnce:true});pend[k]={};
+    const e=$("#svd");if(e){e.textContent="・已同步到雲端";setTimeout(()=>{if(e.textContent==="・已同步到雲端")e.textContent="";},1800);}}catch(e){}}
 function putBelief(k,field,val){
   if(k==="morning"||k==="night"){B[k]=val;save();return;}
   const key=k==="hh"?HKEY:VKEY,d=rd(key);if(!d)return;
   let v;if(k==="hh"){v=d.vision=Object.assign({type:"vision",why:"",become:["","",""],note:HH_NOTE,reframes:[],wins:[]},d.vision||{});}
   else{d.meta=d.meta||{};v=d.meta.vision=d.meta.vision||{};}
-  v[field]=val;localStorage.setItem(key,JSON.stringify(d));dirtyFor(k==="hh"?"hh":"vocal");}
+  v[field]=val;pend[k][field]=val;localStorage.setItem(key,JSON.stringify(d));dirtyFor(k==="hh"?"hh":"vocal");clearTimeout(upT[k]);upT[k]=setTimeout(()=>pushOther(k),1500);}
 function allHTML(only){
   const mins=b=>{const n=b.f.map(x=>x[3]==="r"?x[2].map(r=>(r.q||"")+(r.a||"")).join(""):String(x[2]||"")).join("").replace(/\s/g,"").length;return n?Math.max(1,Math.round(n/240)):0;};   // 大約一分鐘唸 240 字
   return `<div class="top"><h1>我的信念</h1>${segHTML()}</div>
@@ -114,7 +133,7 @@ function allHTML(only){
   <div class="bgrid all">${beliefs().filter(b=>!only||b.k===only).map(b=>`<section class="card bfull" data-b="${b.k}">
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div></div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a></span></div>
-    ${b.missing?`<p class="muted" style="margin:0;font-size:13px">這台裝置還沒打開過${esc(b.app)}。先<a class="link" href="${b.open}" target="_top">打開一次</a>，回來就能在這裡改。</p>`:
+    ${b.missing?`<p class="muted" style="margin:0;font-size:13px">這台裝置還沒有${esc(b.app)}的資料。登入 OneDrive（右下角雲朵）就會自動抓下來；或先<a class="link" href="${b.open}" target="_top">打開一次</a>。</p>`:
     b.f.map(([fk,label,val,type])=>type==="r"?`<div class="fld"><label>${esc(label)}</label>${val.map((r,i)=>`<div class="rf"><input type="text" data-rq="${i}" data-fk="${fk}" value="${esc(r.q||"")}" placeholder="我怕……"><span>→</span><input type="text" data-ra="${i}" data-fk="${fk}" value="${esc(r.a||"")}" placeholder="我告訴自己……"></div>`).join("")}<button class="link" data-rfadd="${fk}">＋ 再加一個</button></div>`
       :`<div class="fld"><label>${esc(label)}</label><textarea data-fk="${fk}" data-type="${type}" rows="1" placeholder="還沒寫">${esc(val||"")}</textarea></div>`).join("")}
   </section>`).join("")}</div>`;}
@@ -137,7 +156,7 @@ const POSES=[{n:"抱膝",s:"雙手抱膝，輕輕左右搖",svg:'<path d="M8 38h
 let pose=-1,poseLeft=0,poseTimer=null,doneToday=null,breathing=false;
 function render(){
   document.body.classList.toggle("night",mode==="night");
-  if(mode==="all"||mode==="hh"||mode==="vocal"){$("#app").innerHTML=allHTML(mode==="all"?"":mode);wireAll();document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;history.replaceState(null,"","#"+mode);stopPose();render();});return;}
+  if(mode==="all"||mode==="hh"||mode==="vocal"){$("#app").innerHTML=allHTML(mode==="all"?"":mode);wireAll();if(!pulledOnce){pulledOnce=true;setTimeout(pullOthers,800);}document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;history.replaceState(null,"","#"+mode);stopPose();render();});return;}
   if(READ){$("#app").innerHTML=`<div style="min-height:80vh;display:grid;place-items:center;text-align:center;padding:24px"><div><div class="stepn" style="margin-bottom:18px">${mode==="morning"?"早安":"晚安"}</div><div class="decl" style="font-size:clamp(22px,6vw,30px)">${esc(mode==="morning"?B.morning:B.night)}</div><a class="link" style="display:inline-block;margin-top:28px" href="./#${mode}">打開${mode==="morning"?"起床":"睡前"}頁 →</a></div></div>`;return;}
   const M=mode==="morning",f=focusFor(M?new Date():dayOff(1)),first=(f.tasks[0]&&f.tasks[0].t.text)||(f.days[0]&&f.days[0].text)||"";
   const focusHTML=(f.tasks.length||f.days.length)?`<div class="focus">${f.days.map(d=>`<div><i style="background:var(--acc)"></i><b>${esc(d.text)}</b></div>`).join("")}${f.tasks.map(x=>`<div><i style="background:${x.p.color}"></i>${esc(x.t.text)}<span class="muted" style="font-size:12px">・${esc(x.p.name)}</span></div>`).join("")}</div>`:`<p class="muted" style="margin:0;font-size:14px">${M?"今天":"明天"}沒有排重點，就照自己的步調。</p>`;

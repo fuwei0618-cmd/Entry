@@ -918,7 +918,7 @@ F.hots=[
   {id:'kitchenIn',name:'廚房',verb:'進去',x:hx+8.6,z:hz-7.4,r:1.4,go:()=>goto('f1','back')},
   {id:'helipad',name:'屋頂停機坪・私人飛機',verb:'起飛',x:hx+14.6,z:hz+8.2,r:3,go:()=>openWorld()}
 ];
-// 守護者：格柵內側。以「從家裡往外看」為準（跟刺青一樣）：狼在左（Teresa・給世界）、虎在右（Chiara・守住豐盛），約 9 倍人高
+// 守護者：格柵內側。以「從家裡往外看」為準（跟刺青一樣）：狼在左（Shakira・為眾生）、虎在右（Chiara・守住豐盛），約 9 倍人高
 // 巡邏：走向門口時面對面 → 到門口轉身面向外面，站崗看守很久 → 轉身背對背走向牆的盡頭 → 停一下看外面 → 再走回門口
 // 立體：側面、正面各一張圖，用深度圖往前後各鼓起一半（displacement），再用法線圖打光；轉身轉到一半時換成正面那張
 {const tl=new R.TextureLoader(),H=14,DEP=1.25;const guards=[];
@@ -1662,7 +1662,7 @@ ST.update=(dt,t)=>{ST.choirLbl.visible=ST.micLbl.visible=!(P.z<-6.5&&P.y>1.5);fo
 const QUOTES=['先把呼吸放慢，今天要做的事就會排好隊。','我不需要一次做完全部，我只需要把眼前這一件做好。','穩定的節奏比偶爾的爆發更走得遠。','我的時間有限，所以我只把它交給真正重要的事。','紀錄是給未來的自己的禮物，今天也留下一點。','平靜不是什麼都不做，而是知道自己正在做什麼。','先完成，再完美；先出發，再調整。'];
 const todayQuote=()=>QUOTES[Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5)%QUOTES.length];
 const INFO={
-  guardWolf:{tag:'森林 · 鍛鐵門內',title:'狼・守護者',body:'從家裡往外看，左邊這一尊是狼，跟你左手的刺青同一邊：熱血、為眾生、用聲音帶路的 Teresa。像金字塔旁的阿努比斯，她守著 Origina，擋住會傷害你的東西。'},
+  guardWolf:{tag:'森林 · 鍛鐵門內',title:'狼・守護者',body:'從家裡往外看，左邊這一尊是狼，跟你左手的刺青同一邊：熱血、為眾生，把聲音送到世界的 Shakira（她有一首歌就叫〈She Wolf〉）。像金字塔旁的阿努比斯，她守著 Origina，擋住會傷害你的東西。'},
   guardTiger:{tag:'森林 · 鍛鐵門內',title:'虎・守護者',body:'從家裡往外看，右邊這一尊是虎，跟你右腰的刺青同一邊：有錢就是力量，女人有錢就是女性力量，是守住豐盛的 Chiara。像守著金字塔的獅身人面像，她守著你的金庫和這個家。'},
   river:{tag:'森林 · 記錄之河',title:'記錄之河',body:'WonderMedia 的源頭和河流：每天的日記、照片、影音、想法都流進這條河，是所有作品的原料。',list:['源頭：隨手記文字、語音、照片；想拍好看時用拍照教練','河流：所有素材依時間流下來，加標籤、挑選'],links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/'],['拍照教練','https://fuwei0618-cmd.github.io/Entry/coach/']]},
   studio:{tag:'森林 · 蘑菇攝影棚',title:'工作台',body:'WonderMedia 的工作台和出海口：從記錄之河撈起素材，用你的萬用公式（積木）組成作品，再發到各個平台。',links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/']],list:['工作台：企劃、腳本、剪映草稿','出海口：發布排程與成效']},

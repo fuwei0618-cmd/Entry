@@ -65,6 +65,7 @@ textarea{min-height:90px;resize:vertical}
 .dlg h3{margin:0;font-size:17px}
 .field{display:grid;gap:4px;font-size:13px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.orb.in,.orb.out{transition-duration:.01s}}
+.wins{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:14px}.wins .muted{font-size:12px}
 </style>
 <script src="../sync/origina-sync.js" data-app="bedside" data-folder="Bedside" data-keys="origina.bedside.v1,origina.prayer.v1" data-pos="br" data-offset="16"></script>
 </head><body>
@@ -95,12 +96,12 @@ const dirtyFor=app=>{try{const k="origina-sync-meta:"+app,m=JSON.parse(localStor
 function beliefs(){
   const Hd=rd(HKEY),Vd=rd(VKEY),H=(Hd&&Hd.vision)||{},V=(Vd&&Vd.meta&&Vd.meta.vision)||{};
   return [
-   {k:"morning",name:"起床",when:"每天早上",open:"./#morning",listen:"./?read#morning",f:[["main","對自己說的話",B.morning,"t"]]},
-   {k:"night",name:"睡前",when:"每天晚上",open:"./#night",listen:"./?read#night",f:[["main","睡前的話",B.night,"t"]]},
+   {k:"morning",name:"起床",when:"每天早上",open:"./#morning",listen:"./?read#morning",f:[["main","一句話・對自己說的話",B.morning,"t"]]},
+   {k:"night",name:"睡前",when:"每天晚上",open:"./#night",listen:"./?read#night",f:[["main","一句話・睡前的話",B.night,"t"]]},
    {k:"hh",name:"HH",when:"週三晚上・出發前",open:BASE+"/Gym/hh/#belief",missing:!Hd,app:"HH 頁",
-    f:[["note","出發前的話",H.note||HH_NOTE,"t"],["why","為什麼想學",H.why,"t"],["become","想成為的樣子（一行一個）",(H.become||[]).filter(Boolean).join("\n"),"l"],["reframes","害怕的時候",H.reframes||[],"r"]]},
+    f:[["note","一句話・出發前的話",H.note||HH_NOTE,"t"],["why","使命・為什麼想學",H.why,"t"],["become","身份・想成為的樣子（一行一個）",(H.become||[]).filter(Boolean).join("\n"),"l"],["wins","行為・小勝利",H.wins||[],"w"],["reframes","卡住時・害怕的時候",H.reframes||[],"r"]]},
    {k:"vocal",name:"Vocal",when:"上台・練唱前",open:BASE+"/Vocal/#vision",missing:!(Vd&&Vd.meta),app:"Vocal 頁",
-    f:[["note","上台前的話",V.note,"t"],["at80","80 歲的我",V.at80,"t"],["why","為什麼唱",V.why,"t"],["become","想成為的樣子（一行一個）",(V.become||[]).filter(Boolean).join("\n"),"l"],["reframes","害怕的時候",V.reframes||[],"r"]]}];}
+    f:[["note","一句話・上台前的話",V.note,"t"],["why","使命・為什麼唱",V.why,"t"],["at80","身份・80 歲的我",V.at80,"t"],["become","身份・想成為的樣子（一行一個）",(V.become||[]).filter(Boolean).join("\n"),"l"],["wins","行為・小勝利",V.wins||[],"w"],["reframes","卡住時・害怕的時候",V.reframes||[],"r"]]}];}
 /* 雲端：HH、Vocal 的信念也直接跟 OneDrive 對齊——打開這頁先抓雲端最新的，改了就直接上傳（跟它們自己那頁用同一個檔案） */
 const OTHER={hh:{key:HKEY,file:"hh/data.json",app:"hh"},vocal:{key:VKEY,file:"Vocal/data.json",app:"vocal"}};
 const pend={hh:{},vocal:{}},upT={};let pulledOnce=false;
@@ -127,14 +128,14 @@ function putBelief(k,field,val){
   else{d.meta=d.meta||{};v=d.meta.vision=d.meta.vision||{};}
   v[field]=val;pend[k][field]=val;localStorage.setItem(key,JSON.stringify(d));dirtyFor(k==="hh"?"hh":"vocal");clearTimeout(upT[k]);upT[k]=setTimeout(()=>pushOther(k),1500);}
 function allHTML(only){
-  const mins=b=>{const n=b.f.map(x=>x[3]==="r"?x[2].map(r=>(r.q||"")+(r.a||"")).join(""):String(x[2]||"")).join("").replace(/\s/g,"").length;return n?Math.max(1,Math.round(n/240)):0;};   // 大約一分鐘唸 240 字
-  return `<div class="top"><h1>我的信念</h1>${segHTML()}</div>
+  const mins=b=>{const n=b.f.filter(x=>x[3]!=="w").map(x=>x[3]==="r"?x[2].map(r=>(r.q||"")+(r.a||"")).join(""):String(x[2]||"")).join("").replace(/\s/g,"").length;return n?Math.max(1,Math.round(n/240)):0;};   // 大約一分鐘唸 240 字
+  return `<div class="top"><h1>我的信念</h1>${segHTML()}</div>${only?"":`<p style="margin:-2px 0 0;font-size:13px"><a class="link" href="https://fuwei0618-cmd.github.io/Entry/mission/#me" target="_top">迷路時看結構：我是誰 ↗</a>　每一篇都照同樣的順序：一句話 → 使命 → 身份 → 行為 → 卡住時。</p>`}
   <p class="muted" style="margin:-4px 0 0;font-size:13px">${only?"直接點字修改，會自動存好。":"四篇都在這裡，直接點字修改，會自動存回原本那一頁。"}<span id="svd" class="svd"></span></p>
   <div class="bgrid all">${beliefs().filter(b=>!only||b.k===only).map(b=>`<section class="card bfull" data-b="${b.k}">
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div></div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a></span></div>
     ${b.missing?`<p class="muted" style="margin:0;font-size:13px">這台裝置還沒有${esc(b.app)}的資料。登入 OneDrive（右下角雲朵）就會自動抓下來；或先<a class="link" href="${b.open}" target="_top">打開一次</a>。</p>`:
-    b.f.map(([fk,label,val,type])=>type==="r"?`<div class="fld"><label>${esc(label)}</label>${val.map((r,i)=>`<div class="rf"><input type="text" data-rq="${i}" data-fk="${fk}" value="${esc(r.q||"")}" placeholder="我怕……"><span>→</span><input type="text" data-ra="${i}" data-fk="${fk}" value="${esc(r.a||"")}" placeholder="我告訴自己……"></div>`).join("")}<button class="link" data-rfadd="${fk}">＋ 再加一個</button></div>`
+    b.f.map(([fk,label,val,type])=>type==="w"?`<div class="fld"><label>${esc(label)}</label>${val.length?`<ul class="wins">${val.slice(-5).reverse().map(w=>`<li><span class="muted">${esc(w.d||"")}</span> ${esc(w.t||"")}</li>`).join("")}</ul>${val.length>5?`<p class="muted" style="margin:2px 0 0;font-size:12px">共 ${val.length} 個，最近 5 個；在原頁加</p>`:""}`:`<p class="muted" style="margin:0;font-size:13px">還沒有，在原頁加</p>`}</div>`:type==="r"?`<div class="fld"><label>${esc(label)}</label>${val.map((r,i)=>`<div class="rf"><input type="text" data-rq="${i}" data-fk="${fk}" value="${esc(r.q||"")}" placeholder="我怕……"><span>→</span><input type="text" data-ra="${i}" data-fk="${fk}" value="${esc(r.a||"")}" placeholder="我告訴自己……"></div>`).join("")}<button class="link" data-rfadd="${fk}">＋ 再加一個</button></div>`
       :`<div class="fld"><label>${esc(label)}</label><textarea data-fk="${fk}" data-type="${type}" rows="1" placeholder="還沒寫">${esc(val||"")}</textarea></div>`).join("")}
   </section>`).join("")}</div>`;}
 function wireAll(){

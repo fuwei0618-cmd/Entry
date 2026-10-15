@@ -66,7 +66,7 @@ textarea{min-height:90px;resize:vertical}
 .field{display:grid;gap:4px;font-size:13px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.orb.in,.orb.out{transition-duration:.01s}}
 .wins{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:14px}.wins .muted{font-size:12px}
-.layers{margin:-4px 0 2px;font-size:13px;letter-spacing:.06em;color:var(--acc,#B08D57);font-weight:600}.flowln{margin-top:3px;font-size:12px;color:var(--acc,#B08D57)}
+.layers{position:sticky;top:44px;z-index:6;background:var(--bg,#F4EFE6);padding:8px 0 6px;margin:-8px 0 0;font-size:13px;letter-spacing:.06em;color:var(--acc,#B08D57);font-weight:600}.flowln{margin-top:3px;font-size:12px;color:var(--acc,#B08D57)}
 </style>
 <script src="../sync/origina-sync.js" data-app="bedside" data-folder="Bedside" data-keys="origina.bedside.v1,origina.prayer.v1" data-pos="br" data-offset="16"></script>
 </head><body>
@@ -113,9 +113,11 @@ async function cloudTok(){try{return window.OriginaSync&&await OriginaSync.getTo
 function applyPend(k,d){const P=pend[k];if(!Object.keys(P).length)return d;
   if(k==="hh"){d.vision=Object.assign({type:"vision",why:"",become:["","",""],note:HH_NOTE,reframes:[],wins:[]},d.vision||{},P);}
   else{d.meta=d.meta||{};d.meta.vision=Object.assign(d.meta.vision||{},P);}return d;}
+// 本機沒有那一頁的資料時，不管時間戳都直接抓雲端（以前會因為時間戳一樣而跳過，Vocal 才會時有時無）；回到這個分頁時也再抓一次
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&(mode==="all"||mode==="hh"||mode==="vocal"))pullOthers();});
 async function pullOthers(){if(!(await cloudTok()))return;let changed=false;
   for(const k of ["hh","vocal"]){const O=OTHER[k];try{const r=await OriginaSync.api.getJSON(O.file);const m=metaOf(O.app);
-    if(r&&r.data&&r.data[O.key]&&(r.updatedAt||0)>(m.at||0)&&!(m.dirty&&(m.localAt||0)>(r.updatedAt||0))){localStorage.setItem(O.key,r.data[O.key]);setMeta(O.app,{...m,at:r.updatedAt,dirty:false,pushedOnce:true});changed=true;}}catch(e){}}
+    const noLocal=!localStorage.getItem(O.key);if(r&&r.data&&r.data[O.key]&&(noLocal||((r.updatedAt||0)>(m.at||0)&&!(m.dirty&&(m.localAt||0)>(r.updatedAt||0))))){localStorage.setItem(O.key,r.data[O.key]);setMeta(O.app,{...m,at:r.updatedAt,dirty:false,pushedOnce:true});changed=true;}}catch(e){}}
   if(changed&&(mode==="all"||mode==="hh"||mode==="vocal")&&!document.activeElement.closest(".bfull"))render();}
 async function pushOther(k){const O=OTHER[k];if(!(await cloudTok()))return;   // 沒登入：留著「待同步」，下次打開那一頁時會補傳
   try{const r=await OriginaSync.api.getJSON(O.file),m=metaOf(O.app);
@@ -159,7 +161,7 @@ const POSES=[{n:"抱膝",s:"雙手抱膝，輕輕左右搖",svg:'<path d="M8 38h
 let pose=-1,poseLeft=0,poseTimer=null,doneToday=null,breathing=false;
 function render(){
   document.body.classList.toggle("night",mode==="night");
-  if(mode==="all"||mode==="hh"||mode==="vocal"){$("#app").innerHTML=allHTML(mode==="all"?"":mode);wireAll();if(!pulledOnce){pulledOnce=true;setTimeout(pullOthers,800);}document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;history.replaceState(null,"","#"+mode);stopPose();render();});return;}
+  if(mode==="all"||mode==="hh"||mode==="vocal"){$("#app").innerHTML=allHTML(mode==="all"?"":mode);wireAll();if(!pulledOnce){pulledOnce=true;setTimeout(pullOthers,800);setTimeout(pullOthers,3500);}document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;history.replaceState(null,"","#"+mode);stopPose();render();});return;}
   if(READ){$("#app").innerHTML=`<div style="min-height:80vh;display:grid;place-items:center;text-align:center;padding:24px"><div><div class="stepn" style="margin-bottom:18px">${mode==="morning"?"早安":"晚安"}</div><div class="decl" style="font-size:clamp(22px,6vw,30px)">${esc(mode==="morning"?B.morning:B.night)}</div><a class="link" style="display:inline-block;margin-top:28px" href="./#${mode}">打開${mode==="morning"?"起床":"睡前"}頁 →</a></div></div>`;return;}
   const M=mode==="morning",f=focusFor(M?new Date():dayOff(1)),first=(f.tasks[0]&&f.tasks[0].t.text)||(f.days[0]&&f.days[0].text)||"";
   const focusHTML=(f.tasks.length||f.days.length)?`<div class="focus">${f.days.map(d=>`<div><i style="background:var(--acc)"></i><b>${esc(d.text)}</b></div>`).join("")}${f.tasks.map(x=>`<div><i style="background:${x.p.color}"></i>${esc(x.t.text)}<span class="muted" style="font-size:12px">・${esc(x.p.name)}</span></div>`).join("")}</div>`:`<p class="muted" style="margin:0;font-size:14px">${M?"今天":"明天"}沒有排重點，就照自己的步調。</p>`;

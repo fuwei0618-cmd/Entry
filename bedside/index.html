@@ -102,7 +102,7 @@ function beliefs(){
    {k:"night",name:"睡前",when:"每天晚上",flow:FLOW.night,open:"./#night",listen:"./?read#night",f:[["main","一句話・睡前的話",B.night,"t"]]},
    {k:"hh",name:"HH",when:"週三晚上・出發前",open:BASE+"/Gym/hh/#belief",missing:!Hd,app:"HH 頁",
     f:[["note","一句話・出發前的話",H.note||HH_NOTE,"t"],["why","使命・為什麼想學",H.why,"t"],["become","身份・想成為的樣子（一行一個）",(H.become||[]).filter(Boolean).join("\n"),"l"],["wins","行為・小勝利",H.wins||[],"w"],["reframes","卡住時・害怕的時候",H.reframes||[],"r"]]},
-   {k:"vocal",name:"Vocal",when:"上台・練唱前",open:BASE+"/Vocal/#vision",missing:!(Vd&&Vd.meta),app:"Vocal 頁",
+   {k:"vocal",name:"Vocal",when:"上台・練唱前",open:BASE+"/Vocal/#vision",missing:false,fresh:!(Vd&&Vd.meta&&Vd.meta.vision),app:"Vocal 頁",
     f:[["note","一句話・上台前的話",V.note,"t"],["why","使命・為什麼唱",V.why,"t"],["at80","身份・80 歲的我",V.at80,"t"],["become","身份・想成為的樣子（一行一個）",(V.become||[]).filter(Boolean).join("\n"),"l"],["wins","行為・小勝利",V.wins||[],"w"],["reframes","卡住時・害怕的時候",V.reframes||[],"r"]]}];}
 /* 雲端：HH、Vocal 的信念也直接跟 OneDrive 對齊——打開這頁先抓雲端最新的，改了就直接上傳（跟它們自己那頁用同一個檔案） */
 const OTHER={hh:{key:HKEY,file:"hh/data.json",app:"hh"},vocal:{key:VKEY,file:"Vocal/data.json",app:"vocal"}};
@@ -129,7 +129,7 @@ async function pushOther(k){const O=OTHER[k];if(!(await cloudTok()))return;   //
     const e=$("#svd");if(e){e.textContent="・已同步到雲端";setTimeout(()=>{if(e.textContent==="・已同步到雲端")e.textContent="";},1800);}}catch(e){}}
 function putBelief(k,field,val){
   if(k==="morning"||k==="night"){B[k]=val;save();return;}
-  const key=k==="hh"?HKEY:VKEY,d=rd(key);if(!d)return;
+  const key=k==="hh"?HKEY:VKEY,d=rd(key)||(k==="vocal"?{}:null);if(!d)return;
   let v;if(k==="hh"){v=d.vision=Object.assign({type:"vision",why:"",become:["","",""],note:HH_NOTE,reframes:[],wins:[]},d.vision||{});}
   else{d.meta=d.meta||{};v=d.meta.vision=d.meta.vision||{};}
   v[field]=val;pend[k][field]=val;localStorage.setItem(key,JSON.stringify(d));dirtyFor(k==="hh"?"hh":"vocal");clearTimeout(upT[k]);upT[k]=setTimeout(()=>pushOther(k),1500);}
@@ -141,7 +141,7 @@ function allHTML(only){
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div>${b.flow?`<div class="flowln">儀式：${esc(b.flow)}</div>`:""}</div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a></span></div>
     ${b.missing?`<p class="muted" style="margin:0;font-size:13px">${({nolog:`這台裝置還沒登入 OneDrive。按右下角雲朵登入，就會自動抓下來。`,nofile:`OneDrive 裡還沒有${esc(b.app)}的資料。請打開${esc(b.app)}，按它右下角的雲朵登入一次，它會把資料傳上去；之後這裡就讀得到。`,err:`抓雲端資料時出錯了，等一下再回來看看。`})[CS[b.k]]||`正在找${esc(b.app)}的資料……`}　<a class="link" href="${b.open}" target="_top">打開${esc(b.app)}</a></p>`:
-    b.f.map(([fk,label,val,type])=>type==="w"?`<div class="fld"><label>${esc(label)}</label>${val.length?`<ul class="wins">${val.slice(-5).reverse().map(w=>`<li><span class="muted">${esc(w.d||"")}</span> ${esc(w.t||"")}</li>`).join("")}</ul>${val.length>5?`<p class="muted" style="margin:2px 0 0;font-size:12px">共 ${val.length} 個，最近 5 個；在原頁加</p>`:""}`:`<p class="muted" style="margin:0;font-size:13px">還沒有，在原頁加</p>`}</div>`:type==="r"?`<div class="fld"><label>${esc(label)}</label>${val.map((r,i)=>`<div class="rf"><input type="text" data-rq="${i}" data-fk="${fk}" value="${esc(r.q||"")}" placeholder="我怕……"><span>→</span><input type="text" data-ra="${i}" data-fk="${fk}" value="${esc(r.a||"")}" placeholder="我告訴自己……"></div>`).join("")}<button class="link" data-rfadd="${fk}">＋ 再加一個</button></div>`
+    (b.fresh?`<p class="muted" style="margin:0 0 6px;font-size:12.5px">Vocal 頁還沒存過願景，直接在這裡寫，會存回 Vocal 頁。</p>`:"")+b.f.map(([fk,label,val,type])=>type==="w"?`<div class="fld"><label>${esc(label)}</label>${val.length?`<ul class="wins">${val.slice(-5).reverse().map(w=>`<li><span class="muted">${esc(w.d||"")}</span> ${esc(w.t||"")}</li>`).join("")}</ul>${val.length>5?`<p class="muted" style="margin:2px 0 0;font-size:12px">共 ${val.length} 個，最近 5 個；在原頁加</p>`:""}`:`<p class="muted" style="margin:0;font-size:13px">還沒有，在原頁加</p>`}</div>`:type==="r"?`<div class="fld"><label>${esc(label)}</label>${val.map((r,i)=>`<div class="rf"><input type="text" data-rq="${i}" data-fk="${fk}" value="${esc(r.q||"")}" placeholder="我怕……"><span>→</span><input type="text" data-ra="${i}" data-fk="${fk}" value="${esc(r.a||"")}" placeholder="我告訴自己……"></div>`).join("")}<button class="link" data-rfadd="${fk}">＋ 再加一個</button></div>`
       :`<div class="fld"><label>${esc(label)}</label><textarea data-fk="${fk}" data-type="${type}" rows="1" placeholder="還沒寫">${esc(val||"")}</textarea></div>`).join("")}
   </section>`).join("")}</div>`;}
 function wireAll(){

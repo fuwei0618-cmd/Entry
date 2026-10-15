@@ -918,7 +918,7 @@ F.hots=[
   {id:'kitchenIn',name:'廚房',verb:'進去',x:hx+8.6,z:hz-7.4,r:1.4,go:()=>goto('f1','back')},
   {id:'helipad',name:'屋頂停機坪・私人飛機',verb:'起飛',x:hx+14.6,z:hz+8.2,r:3,go:()=>openWorld()}
 ];
-// 守護者：格柵內側。以「從家裡往外看」為準（跟刺青一樣）：狼在左（Teresa・給世界）、虎在右（Elva・給自己），約 9 倍人高
+// 守護者：格柵內側。以「從家裡往外看」為準（跟刺青一樣）：狼在左（Teresa・給世界）、虎在右（Chiara・守住豐盛），約 9 倍人高
 // 巡邏：走向門口時面對面 → 到門口轉身面向外面，站崗看守很久 → 轉身背對背走向牆的盡頭 → 停一下看外面 → 再走回門口
 // 立體：側面、正面各一張圖，用深度圖往前後各鼓起一半（displacement），再用法線圖打光；轉身轉到一半時換成正面那張
 {const tl=new R.TextureLoader(),H=14,DEP=1.25;const guards=[];
@@ -1663,7 +1663,7 @@ const QUOTES=['先把呼吸放慢，今天要做的事就會排好隊。','我�
 const todayQuote=()=>QUOTES[Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5)%QUOTES.length];
 const INFO={
   guardWolf:{tag:'森林 · 鍛鐵門內',title:'狼・守護者',body:'從家裡往外看，左邊這一尊是狼，跟你左手的刺青同一邊：熱血、為眾生、用聲音帶路的 Teresa。像金字塔旁的阿努比斯，她守著 Origina，擋住會傷害你的東西。'},
-  guardTiger:{tag:'森林 · 鍛鐵門內',title:'虎・守護者',body:'從家裡往外看，右邊這一尊是虎，跟你右腰的刺青同一邊：女人的力量、允許自己想要的 Elva。像守著金字塔的獅身人面像，她守著你自己的空間。'},
+  guardTiger:{tag:'森林 · 鍛鐵門內',title:'虎・守護者',body:'從家裡往外看，右邊這一尊是虎，跟你右腰的刺青同一邊：有錢就是力量，女人有錢就是女性力量，是守住豐盛的 Chiara。像守著金字塔的獅身人面像，她守著你的金庫和這個家。'},
   river:{tag:'森林 · 記錄之河',title:'記錄之河',body:'WonderMedia 的源頭和河流：每天的日記、照片、影音、想法都流進這條河，是所有作品的原料。',list:['源頭：隨手記文字、語音、照片；想拍好看時用拍照教練','河流：所有素材依時間流下來，加標籤、挑選'],links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/'],['拍照教練','https://fuwei0618-cmd.github.io/Entry/coach/']]},
   studio:{tag:'森林 · 蘑菇攝影棚',title:'工作台',body:'WonderMedia 的工作台和出海口：從記錄之河撈起素材，用你的萬用公式（積木）組成作品，再發到各個平台。',links:[['打開 WonderMedia','https://fuwei0618-cmd.github.io/WonderMedia/']],list:['工作台：企劃、腳本、剪映草稿','出海口：發布排程與成效']},
   pavilion:{tag:'森林 · 鐵門外',title:'會客亭',body:'朋友來了，不用進門，在火邊坐一下就好。圍欄在這裡彎成半圓，像一隻手臂從家這邊輕輕抱著它：你走出來接待他們，聊完再走回自己的空間。',list:['火｜往前、往上燒的力量','吊床鞦韆｜被一條線吊起來，軟 Q 地晃','半弧圍欄｜愛身邊的人，也保留自己的空間'],note:'輕量社交在這裡；想好好相處的人，再請上屋頂花園。'},

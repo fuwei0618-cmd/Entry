@@ -149,7 +149,7 @@ textarea{min-height:76px;resize:vertical}
 .fmap.mini .pin.lit span{background:var(--ink);color:#FBF9F5}
 .cseg{display:flex;justify-content:center;gap:6px}.cseg button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:13.5px}.cseg button[aria-pressed="true"]{background:var(--ink);color:#FBF9F5;border-color:var(--ink)}
 .ckinds{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}.ckinds button{border:1px solid rgba(59,53,46,.12);border-radius:999px;padding:3px 11px;font-size:12.5px}.ckinds button[aria-pressed="false"]{opacity:.35}.ckinds .kall{background:none;border:1px dashed rgba(59,53,46,.35);color:var(--muted)}
-.k-idol{background:#F6D9CF}.k-tat{background:#E4E0F2}.k-film{background:#D8E7EE}.k-plan{background:#DDEBD6}.k-space{background:#F3E6C8}.k-god{background:#F1E7D2;border-color:rgba(176,140,70,.45)!important}
+.k-idol{background:#F6D9CF}.k-tat{background:#E4E0F2}.k-film{background:#D8E7EE}.k-plan{background:#DDEBD6}.k-space{background:#F3E6C8}.k-env{background:#E8E2D4}.k-god{background:#F1E7D2;border-color:rgba(176,140,70,.45)!important}
 .cstage{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:1/1;border-radius:18px;background:var(--card);border:1px solid var(--line);overflow:hidden}
 .cstage svg{position:absolute;inset:0;width:100%;height:100%}
 .cstage.editing{box-shadow:0 0 0 2px var(--brass)}
@@ -419,8 +419,9 @@ function muteLabel(){$("#mute").textContent=muted?"聲音 關":"聲音 開";$("#
 
 /* ---------- 我是誰：收藏放在三個我的交集裡；也可以換成 Origina 地圖看 ---------- */
 const PERS={T:{n:"Teresa",s:"聲音領路",c:"#C9705A"},E:{n:"Elva",s:"燕尾蝶",c:"#B5546F"},C:{n:"Chiara",s:"富偉",c:"#8C9A6B"}};
-const KINDS={god:"使命",idol:"身份",space:"行為",tat:"印記",film:"啟發"};   // 照迪爾茲的層次：使命 → 身份 → 行為；印記（刺青）、啟發（電影）是補充
-const KIND_ASK={god:["我相信什麼","第一性原理","先問我真正要什麼，再拆開來做。"],idol:["我想成為誰","開心原則","腳踩穩、頭往上、胸口打開，長成想成為的樣子。"],space:["我每天怎麼做","無痛・輕量原則","先拿掉能拿掉的，再把剩下的順到無痛，每天才做得下去。"]};   // 一條線：相信什麼 → 想成為誰 → 每天怎麼做；印記（刺青）、啟發（電影）是補充   // 2026-10-14：前三種是主要的，刺青、電影是補充；「計畫」併進地圖空間
+const KINDS={god:"使命",idol:"身份",space:"行為",env:"環境",tat:"印記",film:"啟發"};   // 2026-10-15 加「環境」：每天回去的地方（日晷、日曆牆、臥室・禱告房）和陪著的家（老宅、Lucky）
+   // 照迪爾茲的層次：使命 → 身份 → 行為；印記（刺青）、啟發（電影）是補充
+const KIND_ASK={god:["我相信什麼","第一性原理","先問我真正要什麼，再拆開來做。"],idol:["我想成為誰","開心原則","腳踩穩、頭往上、胸口打開，長成想成為的樣子。"],space:["我每天怎麼做","無痛・輕量原則","先拿掉能拿掉的，再把剩下的順到無痛，每天才做得下去。"],env:["我在哪裡做","同一條：無痛・輕量原則","把每天要回去的地方擺好，打開就能開始。"]};   // 一條線：相信什麼 → 想成為誰 → 每天怎麼做；印記（刺青）、啟發（電影）是補充   // 2026-10-14：前三種是主要的，刺青、電影是補充；「計畫」併進地圖空間
 const KIND_EXTRA={tat:1,film:1};
 const MPL={"禱告房":[58,36,"attic","ladder"],"舞台":[22,6,"stage","back"],"世界之門":[62,6,"f1","stage"],"家・老宅":[50,22,"f1","front"],"Beauty":[84,18,"f1","closet"],"健身房":[66,50,"f1","gym"],"Lucky":[40,38,"f1","front"],"攝影棚":[8,44,"forest","studio"],"記錄之河":[9,68,"forest","river"],"金庫":[28,70,"forest","vault"],"日晷":[52,62,"forest","center"],"營火":[78,70,"forest","campfire"]};
 const VCIR={T:[35,62],E:[50,36],C:[65,62]},VR=27;
@@ -458,9 +459,9 @@ const CICON={
  house:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10M10 20v-5h4v5"/>',
  coins:'<ellipse cx="12" cy="6" rx="6" ry="2.5"/><path d="M6 6v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V6M6 10v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4M6 14v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4"/>',
  dog:'<path d="M5 9 4 5l4 2h5l4-2-1 4c2 1 3 3 3 6v4h-3v-3H8v3H5v-4c0-2 0-4 0-6Z"/><circle cx="10" cy="11" r=".6"/><circle cx="14" cy="11" r=".6"/>'};
-const CICON_BY_NAME={"銀杏":"ginkgo","Camino":"shell","狼與捕夢網":"wolf","藍色小星星":"star","罌粟花":"poppy","女人與老虎":"tiger","皮拉提斯":"yoga","街頭表演":"guitar","旅行":"plane","Getty 那一天":"flame","老宅Home":"house","金庫":"coins","Lucky":"dog"};
+const CICON_BY_NAME={"銀杏":"ginkgo","Camino":"shell","狼與捕夢網":"wolf","藍色小星星":"star","罌粟花":"poppy","女人與老虎":"tiger","皮拉提斯":"yoga","瑜伽":"yoga","街頭表演":"guitar","旅行":"plane","Getty 那一天":"flame","老宅Home":"house","金庫":"coins","Lucky":"dog"};
 const cIcon=it=>it.ic==="none"?null:CICON[it.ic||CICON_BY_NAME[it.n]];
-let meView="venn",meSel=null,meSelP=null,meEdit=false,meDraft=null,meKinds={god:1,idol:1,space:1,tat:1,film:1};
+let meView="venn",meSel=null,meSelP=null,meEdit=false,meDraft=null,meKinds={god:1,idol:1,space:1,env:1,tat:1,film:1};
 // 2026-10-14：補上還沒放進來的地圖空間（位置先放大概，之後自己拖）
 const ADD_SPACES=[{n:"日晷",tags:"TEC",x:50,y:52,pl:["日晷"],t:"回到自己的地方：Camino、心流、信仰的交會點"},{n:"自媒體",tags:"T",x:20,y:72,pl:["攝影棚"],t:"把聲音和故事送出去"},{n:"日曆牆",tags:"TEC",x:56,y:62,pl:["家・老宅"],t:"每天、每週、每季：讓三個我都排得進時間"},{n:"Beauty・健身",tags:"E",x:44,y:20,pl:["Beauty","健身房"],t:"身體和美：Elva 的加油站"},{n:"臥室・禱告房",tags:"TEC",x:44,y:62,pl:["禱告房"],t:"自己的空間：休息、禱告、回到中心"}];
 // 2026-10-14 照她畫好的對照表一次排好：每一件放到對的方位，計畫類改成地圖空間
@@ -471,13 +472,14 @@ const RE_LAYOUT=[[/Camino|貝殼/,"TEC","god"],[/Getty|心流|建築/,"TEC","god
  [/銀杏/,"TE"],[/罌粟/,"EC"],[/老虎/,"C"],[/星/,"T"],[/狼/,"T"]];
 // 同一部電影兩張卡（自己加的「PK」和預設的「來自星星…」）：留 PK 那張
 function dedupePK(L){if(D.dedupePK||!L)return L;if(L.some(it=>/^PK$/i.test((it.n||"").trim()))){for(let i=L.length-1;i>=0;i--)if(/來自星星/.test(L[i].n||""))L.splice(i,1);}D.dedupePK=1;try{save();}catch(e){}return L;}
+function envSplit(L){if(D.env1015||!L)return L;L.forEach(it=>{const n=it.n||"";if(/日晷|日曆牆|臥室|禱告|老宅|^Lucky$/.test(n)&&it.k!=="god")it.k="env";if(/^皮拉提斯$/.test(n.trim())){it.n="瑜伽";it.t="想堅持到老的一件事：身體是聲音的家。現在先上瑜伽，開始上皮拉提斯再補上。";}});D.env1015=1;try{save();}catch(e){}return L;}
 function mediaCenter(L){if(D.media1014||!L)return L;L.forEach(it=>{if(/自媒體/.test(it.n||"")){it.x=VREG.TEC[0]+3;it.y=VREG.TEC[1]+1;it.tags="TEC";}});D.media1014=1;try{save();}catch(e){}return L;}   // 自媒體跟唱歌一樣：為自己、為世界、為錢，放中心
 function relayout(L){if(D.layout1014||!L)return L;const n={};
   L.forEach(it=>{if(it.k==="plan")it.k="space";const r=RE_LAYOUT.find(([re])=>re.test(it.n||""));if(!r)return;const[,T,k]=r;if(k)it.k=k;const c=VREG[T],j=(n[T]=(n[T]||0)+1)-1;
     it.x=c[0]+((j%3)-1)*4.5;it.y=c[1]+(Math.floor(j/3)%3-1)*4;it.tags=T;});
   D.layout1014=1;try{save();}catch(e){}return L;}
 function addSpaces(L){if(D.addSp1||!L)return L;ADD_SPACES.forEach((a,i)=>{if(!L.some(it=>it.n===a.n))L.push({id:"sp"+i+Date.now().toString(36),k:"space",s:1,ic:"none",...a});});D.addSp1=1;try{save();}catch(e){}return L;}
-const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection)))))));};
+const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection))))))));};
 function renderMe(){
   const items=meItems();
   const chip=(it,abs)=>{const ic=it.img||it.emo?null:cIcon(it);return `<button class="citem k-${it.k}${ic||it.img||it.emo?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${it.emo?`<span class="emo">${esc(it.emo)}</span>`:it.img?`<img src="${esc(it.img)}" alt="" referrerpolicy="no-referrer">`:ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};
@@ -488,7 +490,7 @@ function renderMe(){
   const COLS=[["TEC","中心","Camino・心流","#C9A55A"],["T","Teresa","聲音領路・狼","#C9705A"],["TE","Teresa × Elva","","#BF627A"],["E","Elva","燕尾蝶・狗","#B5546F"],["EC","Elva × Chiara","","#A0776E"],["C","Chiara","富偉・虎","#8C9A6B"],["TC","Chiara × Teresa","","#AB8562"]];
   const inCol=(it,c)=>posTags(it)===c;
 const grid=`<div class="cgrid"><div class="cgwrap"><table><thead><tr><th class="cask">問的是<br>對應的原則</th><th></th>${COLS.map(([c,n,s2,col])=>`<th class="${c.length===2?"pair":""}" style="color:${col}">${n}${s2?`<small>${s2}</small>`:""}</th>`).join("")}</tr></thead><tbody>${Object.entries(KINDS).filter(([k])=>meKinds[k]).map(([k,t],ri,arr)=>`${KIND_EXTRA[k]&&!(ri&&KIND_EXTRA[arr[ri-1][0]])?`<tr class="cextra"><td colspan="${COLS.length+2}">補充</td></tr>`:""}<tr class="${KIND_EXTRA[k]?"isextra":""}"><td class="cask">${KIND_ASK[k]?`<span>${KIND_ASK[k][0]}</span><b>${KIND_ASK[k][1]}</b><small>${KIND_ASK[k][2]}</small>`:""}</td><th class="k-${k}"><span>${t}</span></th>${COLS.map(([c])=>{const L=items.filter(it=>it.k===k&&inCol(it,c));return `<td class="${c.length===2?"pair":""}">${L.length?L.map(it=>chip(it,0)).join(""):`<span class="cempty">${c.length===2?"·":"還沒長出來"}</span>`}</td>`;}).join("")}</tr>`).join("")}</tbody></table></div>
-    <div class="cprin"><b>一條線</b><span>用第一性原理問清楚為了什麼（使命）→ 用開心原則打開自己，走向想成為的人（身份）→ 用無痛・輕量原則讓每一天都做得下去（行為）。</span></div></div>`;
+    <div class="cprin"><b>一條線</b><span>用第一性原理問清楚為了什麼（使命）→ 用開心原則打開自己，走向想成為的人（身份）→ 用無痛・輕量原則讓每一天都做得下去（行為），也把每天回去的地方擺好（環境）。</span></div></div>`;
   const stage=meView==="grid"?grid:meView==="venn"?venn+items.map(it=>chip(it,1)).join(""):map+Object.entries(MPL).map(([p,[x,y]])=>`<div class="cplace" style="left:${x}%;top:${y}%"><button class="cpl${meSelP===p?" on":""}" data-p="${esc(p)}">${esc(p)}</button><div class="cstack">${(at[p]||[]).filter(it=>meKinds[it.k]).map(it=>chip(it,0)).join("")}</div></div>`).join("");
   const sel=items.find(it=>it.id===meSel);
   const miniMap=pl=>`<div class="cmini">${map}${Object.entries(MPL).map(([p,[x,y]])=>`<span class="${(pl||[]).includes(p)?"lit":""}" style="left:${x}%;top:${y}%">${esc(p)}</span>`).join("")}</div>`;

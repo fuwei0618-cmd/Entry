@@ -487,7 +487,7 @@ function shakira(L){if(D.shk1015||!L)return L;const at=(r,dx,dy)=>({x:VREG[r][0]
     if(it.k==="god"&&/Camino/.test(n)){it.k="tat";Object.assign(it,at("TEC",8,1));it.t="胸口的朝聖之路：一切從這裡出發。";}
     if(/狼/.test(n)&&it.k==="tat")it.t="左手：為很多女性站出來的熱血。門口那尊狼也是她。";});
   add("Shakira","idol","T",0,-4,ONE.T+"她有一首〈She Wolf〉，接上左手的狼；她辦基金會幫孩子上學，是真的在為眾生。",["舞台"]);
-  add("王菲","idol","C",0,-4,ONE.C+"空靈的聲音像水；她唱的〈但願人長久〉就是《水調歌頭》，接回中心的鄧麗君。",["金庫"]);
+  add("Faye","idol","C",0,-4,ONE.C+"空靈的聲音像水；她唱的〈但願人長久〉就是《水調歌頭》，接回中心的鄧麗君。",["金庫"]);
   add("大鞦韆","tat","E",0,6,"Elva 的力量：從中心盪出去，盪到哪一邊都會回來。沒刺在身上，但每天都在。",["Lucky"]);
   add("合唱團","space","T",-5,4,"跟別人一起唱。現在正在上，還不知道什麼時候結束。",["舞台"]);
   add("Podcast（暫停）","space","T",5,4,"說給別人聽。先暫停，之後再回來；可能比合唱團走得更久。",["攝影棚"]);
@@ -495,13 +495,14 @@ function shakira(L){if(D.shk1015||!L)return L;const at=(r,dx,dy)=>({x:VREG[r][0]
   add("噴水池","env","C",0,9,"水：右邊的元素。錢像水，會流動，也會累積。",["金庫"]);
   if(D.personas){const t=D.personas.find(p=>p.id==="teresa");if(t){t.formula="共鳴・為眾生";t.tattoos=(t.tattoos||[]).filter(x=>!/Camino/.test(x));t.place="營火";}}
   D.shk1015=1;try{save();}catch(e){}return L;}
+function fayeName(L){if(D.faye1015||!L)return L;L.forEach(it=>{if((it.n||"").trim()==="王菲")it.n="Faye";});D.faye1015=1;try{save();}catch(e){}return L;}
 function mediaCenter(L){if(D.media1014||!L)return L;L.forEach(it=>{if(/自媒體/.test(it.n||"")){it.x=VREG.TEC[0]+3;it.y=VREG.TEC[1]+1;it.tags="TEC";}});D.media1014=1;try{save();}catch(e){}return L;}   // 自媒體跟唱歌一樣：為自己、為世界、為錢，放中心
 function relayout(L){if(D.layout1014||!L)return L;const n={};
   L.forEach(it=>{if(it.k==="plan")it.k="space";const r=RE_LAYOUT.find(([re])=>re.test(it.n||""));if(!r)return;const[,T,k]=r;if(k)it.k=k;const c=VREG[T],j=(n[T]=(n[T]||0)+1)-1;
     it.x=c[0]+((j%3)-1)*4.5;it.y=c[1]+(Math.floor(j/3)%3-1)*4;it.tags=T;});
   D.layout1014=1;try{save();}catch(e){}return L;}
 function addSpaces(L){if(D.addSp1||!L)return L;ADD_SPACES.forEach((a,i)=>{if(!L.some(it=>it.n===a.n))L.push({id:"sp"+i+Date.now().toString(36),k:"space",s:1,ic:"none",...a});});D.addSp1=1;try{save();}catch(e){}return L;}
-const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection)))))))));};
+const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=fayeName(shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection))))))))));};
 function renderMe(){
   const items=meItems();
   const chip=(it,abs)=>{const ic=it.img||it.emo?null:cIcon(it);return `<button class="citem k-${it.k}${ic||it.img||it.emo?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${it.emo?`<span class="emo">${esc(it.emo)}</span>`:it.img?`<img src="${esc(it.img)}" alt="" referrerpolicy="no-referrer">`:ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};
@@ -512,7 +513,7 @@ function renderMe(){
   const COLS=[["TEC","中心","Camino・Teresa","#C9A55A"],["T","Shakira","為眾生・火・狼","#C9705A"],["TE","Shakira × Elva","","#BF627A"],["E","Elva","燕尾蝶・風・狗","#B5546F"],["EC","Elva × Chiara","","#A0776E"],["C","Chiara","富偉・水・虎","#8C9A6B"],["TC","Chiara × Shakira","","#AB8562"]];
   const inCol=(it,c)=>posTags(it)===c;
 const grid=`<div class="cgrid"><div class="cgwrap"><table><thead><tr><th class="cask">問的是<br>對應的原則</th><th></th>${COLS.map(([c,n,s2,col])=>`<th class="${c.length===2?"pair":""}" style="color:${col}">${n}${s2?`<small>${s2}</small>`:""}</th>`).join("")}</tr></thead><tbody>${Object.entries(KINDS).filter(([k])=>meKinds[k]).map(([k,t],ri,arr)=>`${KIND_EXTRA[k]&&!(ri&&KIND_EXTRA[arr[ri-1][0]])?`<tr class="cextra"><td colspan="${COLS.length+2}">補充</td></tr>`:""}<tr class="${KIND_EXTRA[k]?"isextra":""}"><td class="cask">${KIND_ASK[k]?`<span>${KIND_ASK[k][0]}</span><b>${KIND_ASK[k][1]}</b><small>${KIND_ASK[k][2]}</small>`:""}</td><th class="k-${k}"><span>${t}</span></th>${COLS.map(([c])=>{const L=items.filter(it=>it.k===k&&inCol(it,c));return `<td class="${c.length===2?"pair":""}">${L.length?L.map(it=>chip(it,0)).join(""):`<span class="cempty">${c.length===2?"·":"還沒長出來"}</span>`}</td>`;}).join("")}</tr>`).join("")}</tbody></table></div>
-    <div class="cprin"><b>聲音從中心出發</b><span>Teresa（中心）找回聲音 → Shakira（左・火）把聲音送出去 → Elva（上・風）讓聲音去愛 → 王菲（右・水）讓聲音換來自由。</span></div><div class="cprin"><b>一條線</b><span>用第一性原理問清楚為了什麼（使命）→ 用開心原則打開自己，走向想成為的人（身份）→ 用無痛・輕量原則讓每一天都做得下去（行為），也把每天回去的地方擺好（環境）。</span></div></div>`;
+    <div class="cprin"><b>聲音從中心出發</b><span>Teresa（中心）找回聲音 → Shakira（左・火）把聲音送出去 → Elva（上・風）讓聲音去愛 → Faye（右・水）讓聲音換來自由。</span></div><div class="cprin"><b>一條線</b><span>用第一性原理問清楚為了什麼（使命）→ 用開心原則打開自己，走向想成為的人（身份）→ 用無痛・輕量原則讓每一天都做得下去（行為），也把每天回去的地方擺好（環境）。</span></div></div>`;
   const stage=meView==="grid"?grid:meView==="venn"?venn+items.map(it=>chip(it,1)).join(""):map+Object.entries(MPL).map(([p,[x,y]])=>`<div class="cplace" style="left:${x}%;top:${y}%"><button class="cpl${meSelP===p?" on":""}" data-p="${esc(p)}">${esc(p)}</button><div class="cstack">${(at[p]||[]).filter(it=>meKinds[it.k]).map(it=>chip(it,0)).join("")}</div></div>`).join("");
   const sel=items.find(it=>it.id===meSel);
   const miniMap=pl=>`<div class="cmini">${map}${Object.entries(MPL).map(([p,[x,y]])=>`<span class="${(pl||[]).includes(p)?"lit":""}" style="left:${x}%;top:${y}%">${esc(p)}</span>`).join("")}</div>`;

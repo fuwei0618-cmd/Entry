@@ -115,9 +115,11 @@ function applyPend(k,d){const P=pend[k];if(!Object.keys(P).length)return d;
   else{d.meta=d.meta||{};d.meta.vision=Object.assign(d.meta.vision||{},P);}return d;}
 // 本機沒有那一頁的資料時，不管時間戳都直接抓雲端（以前會因為時間戳一樣而跳過，Vocal 才會時有時無）；回到這個分頁時也再抓一次
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&(mode==="all"||mode==="hh"||mode==="vocal"))pullOthers();});
-async function pullOthers(){if(!(await cloudTok()))return;let changed=false;
-  for(const k of ["hh","vocal"]){const O=OTHER[k];try{const r=await OriginaSync.api.getJSON(O.file);const m=metaOf(O.app);
-    const noLocal=!localStorage.getItem(O.key);if(r&&r.data&&r.data[O.key]&&(noLocal||((r.updatedAt||0)>(m.at||0)&&!(m.dirty&&(m.localAt||0)>(r.updatedAt||0))))){localStorage.setItem(O.key,r.data[O.key]);setMeta(O.app,{...m,at:r.updatedAt,dirty:false,pushedOnce:true});changed=true;}}catch(e){}}
+const CS={};
+async function pullOthers(){if(!(await cloudTok())){CS.hh=CS.vocal="nolog";if((mode==="all"||mode==="hh"||mode==="vocal")&&!(document.activeElement&&document.activeElement.closest(".bfull")))render();return;}let changed=false;
+  for(const k of ["hh","vocal"]){const O=OTHER[k];try{const r=await OriginaSync.api.getJSON(O.file);const m=metaOf(O.app);CS[k]=(r&&r.data&&r.data[O.key])?"ok":"nofile";
+    const noLocal=!localStorage.getItem(O.key);if(r&&r.data&&r.data[O.key]&&(noLocal||((r.updatedAt||0)>(m.at||0)&&!(m.dirty&&(m.localAt||0)>(r.updatedAt||0))))){localStorage.setItem(O.key,r.data[O.key]);setMeta(O.app,{...m,at:r.updatedAt,dirty:false,pushedOnce:true});changed=true;}}catch(e){CS[k]="err";}}
+  if(!changed&&(mode==="all"||mode==="hh"||mode==="vocal")&&!document.activeElement.closest(".bfull"))render();
   if(changed&&(mode==="all"||mode==="hh"||mode==="vocal")&&!document.activeElement.closest(".bfull"))render();}
 async function pushOther(k){const O=OTHER[k];if(!(await cloudTok()))return;   // 沒登入：留著「待同步」，下次打開那一頁時會補傳
   try{const r=await OriginaSync.api.getJSON(O.file),m=metaOf(O.app);
@@ -138,7 +140,7 @@ function allHTML(only){
   <div class="bgrid all">${beliefs().filter(b=>!only||b.k===only).map(b=>`<section class="card bfull" data-b="${b.k}">
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div>${b.flow?`<div class="flowln">儀式：${esc(b.flow)}</div>`:""}</div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a></span></div>
-    ${b.missing?`<p class="muted" style="margin:0;font-size:13px">這台裝置還沒有${esc(b.app)}的資料。登入 OneDrive（右下角雲朵）就會自動抓下來；或先<a class="link" href="${b.open}" target="_top">打開一次</a>。</p>`:
+    ${b.missing?`<p class="muted" style="margin:0;font-size:13px">${({nolog:`這台裝置還沒登入 OneDrive。按右下角雲朵登入，就會自動抓下來。`,nofile:`OneDrive 裡還沒有${esc(b.app)}的資料。請打開${esc(b.app)}，按它右下角的雲朵登入一次，它會把資料傳上去；之後這裡就讀得到。`,err:`抓雲端資料時出錯了，等一下再回來看看。`})[CS[b.k]]||`正在找${esc(b.app)}的資料……`}　<a class="link" href="${b.open}" target="_top">打開${esc(b.app)}</a></p>`:
     b.f.map(([fk,label,val,type])=>type==="w"?`<div class="fld"><label>${esc(label)}</label>${val.length?`<ul class="wins">${val.slice(-5).reverse().map(w=>`<li><span class="muted">${esc(w.d||"")}</span> ${esc(w.t||"")}</li>`).join("")}</ul>${val.length>5?`<p class="muted" style="margin:2px 0 0;font-size:12px">共 ${val.length} 個，最近 5 個；在原頁加</p>`:""}`:`<p class="muted" style="margin:0;font-size:13px">還沒有，在原頁加</p>`}</div>`:type==="r"?`<div class="fld"><label>${esc(label)}</label>${val.map((r,i)=>`<div class="rf"><input type="text" data-rq="${i}" data-fk="${fk}" value="${esc(r.q||"")}" placeholder="我怕……"><span>→</span><input type="text" data-ra="${i}" data-fk="${fk}" value="${esc(r.a||"")}" placeholder="我告訴自己……"></div>`).join("")}<button class="link" data-rfadd="${fk}">＋ 再加一個</button></div>`
       :`<div class="fld"><label>${esc(label)}</label><textarea data-fk="${fk}" data-type="${type}" rows="1" placeholder="還沒寫">${esc(val||"")}</textarea></div>`).join("")}
   </section>`).join("")}</div>`;}

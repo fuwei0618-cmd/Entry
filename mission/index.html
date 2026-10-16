@@ -497,9 +497,9 @@ function shakira(L){if(D.shk1015||!L)return L;const at=(r,dx,dy)=>({x:VREG[r][0]
   if(D.personas){const t=D.personas.find(p=>p.id==="teresa");if(t){t.formula="共鳴・為眾生";t.tattoos=(t.tattoos||[]).filter(x=>!/Camino/.test(x));t.place="營火";}}
   D.shk1015=1;try{save();}catch(e){}return L;}
 // 2026-10-16：中心補「玩聲音」兩張補充卡（像 Elva 下面的 G.E.M.、Faye 下面的 Chiara）
-function playVoice(L){if(D.play1016||!L)return L;const has=n=>L.some(it=>(it.n||"").trim()===n);
-  [["葉柄桓",-6],["李芷婷",6]].forEach(([n,dx])=>{if(!has(n))L.push({id:"pv"+Math.random().toString(36).slice(2,8),n,k:"idol",tags:"TEC",t:"玩聲音：技巧很硬，但年輕、好玩、敢改歌。Teresa 是聲音為什麼存在，他們是聲音怎麼玩、怎麼練。",pl:["舞台"],s:1,x:VREG.TEC[0]+dx,y:VREG.TEC[1]+6});});
-  D.play1016=1;try{save();}catch(e){}return L;}
+function playVoice(L){if((D.play1016&&D.play1016b)||!L)return L;const has=n=>L.some(it=>(it.n||"").trim()===n);
+  [["葉柄桓",41],["李芷婷",59]].forEach(([n,x])=>{const it=L.find(it=>(it.n||"").trim()===n);if(!it)L.push({id:"pv"+Math.random().toString(36).slice(2,8),n,k:"idol",tags:"TEC",t:"玩聲音：技巧很硬，但年輕、好玩、敢改歌。Teresa 是聲音為什麼存在，他們是聲音怎麼玩、怎麼練。",pl:["舞台"],s:1,x,y:60});else if(!D.play1016b){it.x=x;it.y=60;it.tags="TEC";}});
+  D.play1016=1;D.play1016b=1;try{save();}catch(e){}return L;}
 const envOrd=it=>{const n=it.n||"";return it.k!=="env"?0:/臥室/.test(n)?1:/日曆/.test(n)?2:/日晷/.test(n)?3:9;};
 function envLabel(L){if(D.envlbl1015||!L)return L;const M=[[/^臥室・禱告房$/,"臥室・禱告房（日）"],[/^日曆牆$/,"日曆牆（週）"],[/^日晷$/,"日晷（生）"]];L.forEach(it=>{if(it.k!=="env")return;const n=(it.n||"").trim();const m=M.find(([re])=>re.test(n));if(m)it.n=m[1];});D.envlbl1015=1;try{save();}catch(e){}return L;}
 function timeText(L){if(D.time1015||!L)return L;const T={"日晷":"一輩子：找方向。迷路時回來看。","日曆牆":"每週看：一週、一季排時間，讓三個我都排得進去。","臥室・禱告房":"臥室每天去：開關每一天。禱告房是鬆弛感：放不下的交給守護神。"};L.forEach(it=>{const n=(it.n||"").trim();if(T[n]&&it.k==="env")it.t=T[n];});D.time1015=1;try{save();}catch(e){}return L;}

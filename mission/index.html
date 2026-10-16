@@ -496,6 +496,10 @@ function shakira(L){if(D.shk1015||!L)return L;const at=(r,dx,dy)=>({x:VREG[r][0]
   add("噴水池","env","C",0,9,"水：右邊的元素。錢像水，會流動，也會累積。",["金庫"]);
   if(D.personas){const t=D.personas.find(p=>p.id==="teresa");if(t){t.formula="共鳴・為眾生";t.tattoos=(t.tattoos||[]).filter(x=>!/Camino/.test(x));t.place="營火";}}
   D.shk1015=1;try{save();}catch(e){}return L;}
+// 2026-10-16：中心補「玩聲音」兩張補充卡（像 Elva 下面的 G.E.M.、Faye 下面的 Chiara）
+function playVoice(L){if(D.play1016||!L)return L;const has=n=>L.some(it=>(it.n||"").trim()===n);
+  [["葉柄桓",-6],["李芷婷",6]].forEach(([n,dx])=>{if(!has(n))L.push({id:"pv"+Math.random().toString(36).slice(2,8),n,k:"idol",tags:"TEC",t:"玩聲音：技巧很硬，但年輕、好玩、敢改歌。Teresa 是聲音為什麼存在，他們是聲音怎麼玩、怎麼練。",pl:["舞台"],s:1,x:VREG.TEC[0]+dx,y:VREG.TEC[1]+6});});
+  D.play1016=1;try{save();}catch(e){}return L;}
 const envOrd=it=>{const n=it.n||"";return it.k!=="env"?0:/臥室/.test(n)?1:/日曆/.test(n)?2:/日晷/.test(n)?3:9;};
 function envLabel(L){if(D.envlbl1015||!L)return L;const M=[[/^臥室・禱告房$/,"臥室・禱告房（日）"],[/^日曆牆$/,"日曆牆（週）"],[/^日晷$/,"日晷（生）"]];L.forEach(it=>{if(it.k!=="env")return;const n=(it.n||"").trim();const m=M.find(([re])=>re.test(n));if(m)it.n=m[1];});D.envlbl1015=1;try{save();}catch(e){}return L;}
 function timeText(L){if(D.time1015||!L)return L;const T={"日晷":"一輩子：找方向。迷路時回來看。","日曆牆":"每週看：一週、一季排時間，讓三個我都排得進去。","臥室・禱告房":"臥室每天去：開關每一天。禱告房是鬆弛感：放不下的交給守護神。"};L.forEach(it=>{const n=(it.n||"").trim();if(T[n]&&it.k==="env")it.t=T[n];});D.time1015=1;try{save();}catch(e){}return L;}
@@ -507,7 +511,7 @@ function relayout(L){if(D.layout1014||!L)return L;const n={};
     it.x=c[0]+((j%3)-1)*4.5;it.y=c[1]+(Math.floor(j/3)%3-1)*4;it.tags=T;});
   D.layout1014=1;try{save();}catch(e){}return L;}
 function addSpaces(L){if(D.addSp1||!L)return L;ADD_SPACES.forEach((a,i)=>{if(!L.some(it=>it.n===a.n))L.push({id:"sp"+i+Date.now().toString(36),k:"space",s:1,ic:"none",...a});});D.addSp1=1;try{save();}catch(e){}return L;}
-const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=pkText(envLabel(timeText(fayeName(shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection)))))))))))));};
+const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=playVoice(pkText(envLabel(timeText(fayeName(shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection))))))))))))));};
 function renderMe(){
   const items=meItems();
   const chip=(it,abs)=>{const ic=it.img||it.emo?null:cIcon(it);return `<button class="citem k-${it.k}${ic||it.img||it.emo?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${it.emo?`<span class="emo">${esc(it.emo)}</span>`:it.img?`<img src="${esc(it.img)}" alt="" referrerpolicy="no-referrer">`:ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};

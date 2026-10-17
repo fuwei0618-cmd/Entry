@@ -87,6 +87,13 @@ const SCR=k=>((B.script||{})[k]||"");
 const audioText=k=>[String(B.whoami||"").trim(),SCR(k).trim()].filter(Boolean).join("\n\n");
 const aMins=k=>{const n=audioText(k).replace(/\s/g,"").length;return n?Math.max(1,Math.round(n/240)):0;};
 function setScript(k,v){B.script=B.script||{};B.script[k]=v;save();}
+const YOGA="shortcuts://run-shortcut?name="+encodeURIComponent("開瑜珈");
+const topHTML=k=>`<details class="whoami"><summary>我是誰（每頁共用，點開看）${B.whoami?"":"・還沒寫"}</summary>${B.whoami?`<div class="decl">${esc(B.whoami)}</div>`:""}<a class="link" href="#me">到「我是誰」修改 →</a></details>
+    <div class="scene">情境圖（之後放）</div>
+    <div class="fld"><div class="scriptbar"><label>正念文案・接在我是誰後面${aMins(k)?"（整段音檔約 "+aMins(k)+" 分鐘）":""}</label><button class="btn sm" data-copy="${k}">複製音檔稿</button></div><textarea data-script="${k}" rows="1" placeholder="這一頁專屬的話，會接在我是誰後面一起唸">${esc(SCR(k))}</textarea></div>`;
+function wireTop(said){const grow=t=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};
+  document.querySelectorAll("[data-script]").forEach(t=>{grow(t);t.oninput=()=>{grow(t);setScript(t.dataset.script,t.value);said&&said();};});
+  document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copyText(audioText(b.dataset.copy),b));}
 async function copyText(t,btn){let ok=false;try{await navigator.clipboard.writeText(t);ok=true;}catch(e){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{ok=document.execCommand("copy");}catch(_){}a.remove();}
   if(btn){const o=btn.textContent;btn.textContent=ok?"已複製 ✓":"複製失敗，請手動選取";setTimeout(()=>{btn.textContent=o;},1600);}}
 const $=s=>document.querySelector(s);
@@ -154,9 +161,7 @@ function allHTML(only){
   <div class="bgrid all">${beliefs().filter(b=>!only||b.k===only).map(b=>`<section class="card bfull" data-b="${b.k}">
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div>${b.flow?`<div class="flowln">儀式：${esc(b.flow)}</div>`:""}</div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a></span></div>
-    <details class="whoami"><summary>我是誰（每頁共用，點開看）${B.whoami?"":"・還沒寫"}</summary>${B.whoami?`<div class="decl">${esc(B.whoami)}</div>`:""}<a class="link" href="#me">到「我是誰」修改 →</a></details>
-    <div class="scene">情境圖（之後放）</div>
-    <div class="fld"><div class="scriptbar"><label>正念文案・接在我是誰後面${aMins(b.k)?"（整段音檔約 "+aMins(b.k)+" 分鐘）":""}</label><button class="btn sm" data-copy="${b.k}">複製音檔稿</button></div><textarea data-script="${b.k}" rows="1" placeholder="這一頁專屬的話，會接在我是誰後面一起唸">${esc(SCR(b.k))}</textarea></div>
+    ${topHTML(b.k)}
     <p class="layers" style="position:static;margin:4px 0 0">一句話 → 使命 → 身份 → 行為 → 卡住時</p>
     ${b.missing?`<p class="muted" style="margin:0;font-size:13px">${({nolog:`這台裝置還沒登入 OneDrive。按右下角雲朵登入，就會自動抓下來。`,nofile:`OneDrive 裡還沒有${esc(b.app)}的資料。請打開${esc(b.app)}，按它右下角的雲朵登入一次，它會把資料傳上去；之後這裡就讀得到。`,err:`抓雲端資料時出錯了，等一下再回來看看。`})[CS[b.k]]||`正在找${esc(b.app)}的資料……`}　<a class="link" href="${b.open}" target="_top">打開${esc(b.app)}</a></p>`:
     b.f.map(([fk,label,val,type])=>type==="w"?`<div class="fld"><label>${esc(label)}</label>${val.length?`<ul class="wins">${val.slice(-5).reverse().map(w=>`<li><span class="muted">${esc(w.d||"")}</span> ${esc(w.t||"")}</li>`).join("")}</ul>${val.length>5?`<p class="muted" style="margin:2px 0 0;font-size:12px">共 ${val.length} 個，最近 5 個；在原頁加</p>`:""}`:`<p class="muted" style="margin:0;font-size:13px">還沒有，在原頁加</p>`}</div>`:type==="r"?`<div class="fld"><label>${esc(label)}</label>${val.map((r,i)=>`<div class="rf"><input type="text" data-rq="${i}" data-fk="${fk}" value="${esc(r.q||"")}" placeholder="我怕……"><span>→</span><input type="text" data-ra="${i}" data-fk="${fk}" value="${esc(r.a||"")}" placeholder="我告訴自己……"></div>`).join("")}<button class="link" data-rfadd="${fk}">＋ 再加一個</button></div>`
@@ -165,8 +170,7 @@ function allHTML(only){
 function wireAll(){
   const grow=t=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};
   let tm=0;const said=()=>{const e=$("#svd");if(!e)return;e.textContent="・已存";clearTimeout(tm);tm=setTimeout(()=>{e.textContent="";},1400);};
-  document.querySelectorAll("[data-script]").forEach(t=>{grow(t);t.oninput=()=>{grow(t);setScript(t.dataset.script,t.value);said();};});
-  document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copyText(audioText(b.dataset.copy),b));
+  wireTop(said);
   document.querySelectorAll(".bfull textarea:not([data-script])").forEach(t=>{grow(t);t.oninput=()=>{grow(t);const k=t.closest("[data-b]").dataset.b;putBelief(k,t.dataset.fk,t.dataset.type==="l"?t.value.split("\n").map(x=>x.trim()).filter(Boolean):t.value);said();};});
   const rfs=k=>{const d=rd(k==="hh"?HKEY:VKEY);const v=k==="hh"?(d&&d.vision):(d&&d.meta&&d.meta.vision);return JSON.parse(JSON.stringify((v&&v.reframes)||[]));};
   document.querySelectorAll(".bfull .rf input").forEach(t=>t.oninput=()=>{const k=t.closest("[data-b]").dataset.b,R=rfs(k),i=+(t.dataset.rq??t.dataset.ra);R[i]=R[i]||{q:"",a:""};if(t.dataset.rq!=null)R[i].q=t.value;else R[i].a=t.value;putBelief(k,"reframes",R);said();});
@@ -183,7 +187,7 @@ const POSES=[{n:"抱膝",s:"雙手抱膝，輕輕左右搖",svg:'<path d="M8 38h
 let pose=-1,poseLeft=0,poseTimer=null,doneToday=null,breathing=false;
 function render(){
   document.body.classList.toggle("night",mode==="night");
-  if(READ&&(mode==="me"||SCR(mode))){const t=mode==="me"?String(B.whoami||""):audioText(mode);$("#app").innerHTML=`<div style="padding:24px 8px"><div class="decl">${esc(t)}</div></div>`;return;}
+  if(READ&&(mode==="me"||SCR(mode))){const t=mode==="me"?String(B.whoami||""):audioText(mode);$("#app").innerHTML=`<div style="padding:24px 8px"><div class="decl">${esc(t)}</div>${mode==="morning"||mode==="night"?`<div class="row" style="justify-content:center;margin-top:28px"><a class="btn pri" style="text-decoration:none" href="${YOGA}">開始瑜伽 →</a></div>`:""}</div>`;return;}
   if(mode==="me"){$("#app").innerHTML=`<div class="top"><h1>我是誰</h1>${segHTML()}</div><p class="muted" style="margin:-4px 0 0;font-size:13px">每一頁的音檔都從這段開始。改這裡，起床、睡前、HH、Vocal 的音檔稿一起變。<span id="svd" class="svd"></span></p>
     <section class="card bfull"><textarea id="whoami" rows="1" placeholder="寫下你的我是誰宣言">${esc(B.whoami||"")}</textarea><div class="row"><button class="btn sm" id="cpme">複製</button></div></section>`;
     const t=$("#whoami"),grow=()=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};grow();let tm=0;
@@ -196,6 +200,7 @@ function render(){
   const focusHTML=(f.tasks.length||f.days.length)?`<div class="focus">${f.days.map(d=>`<div><i style="background:var(--acc)"></i><b>${esc(d.text)}</b></div>`).join("")}${f.tasks.map(x=>`<div><i style="background:${x.p.color}"></i>${esc(x.t.text)}<span class="muted" style="font-size:12px">・${esc(x.p.name)}</span></div>`).join("")}</div>`:`<p class="muted" style="margin:0;font-size:14px">${M?"今天":"明天"}沒有排重點，就照自己的步調。</p>`;
   const tonight=(B.log||[]).find(l=>l.date===ymd(new Date())&&l.type===(M?"morning":"night"));
   $("#app").innerHTML=`<div class="top"><h1>${M?"早安":"晚安"}</h1>${segHTML()}</div><p class="layers">${M?FLOW.morning:FLOW.night}</p>
+  <section class="card bfull" data-b="${mode}">${topHTML(mode)}<div class="row" style="justify-content:center"><a class="btn pri" style="text-decoration:none" href="${YOGA}">聽完了，開始瑜伽 →</a></div></section>
   ${M?`
   <section class="card"><div class="stepn">一・對自己說</div><div class="bellbox"><button id="ring" aria-label="敲一下鈴"><img src="../mission/img/bell-body.webp" alt=""></button><span class="muted">${M?"先敲一下鈴，再對自己說":"敲一下鈴，把今天收起來"}</span></div><div class="decl">${esc(B.morning)}</div></section>
   <section class="card"><div class="stepn">二・今天的重點</div>${focusHTML}</section>
@@ -220,6 +225,7 @@ function render(){
   const br=$("#breathe");if(br)br.onclick=breathe;
   $("#finish").onclick=()=>{B.log=(B.log||[]).filter(l=>!(l.date===ymd(new Date())&&l.type===mode));B.log.push({date:ymd(new Date()),type:mode,did:mode==="night"?(doneToday||""):undefined,at:new Date().toTimeString().slice(0,5)});B.log=B.log.slice(-400);save();
     $("#app").innerHTML=`<div class="done-msg">${mode==="morning"?"去過好今天吧 ☀︎":"晚安，今天辛苦了 ☾"}</div><div class="row" style="justify-content:center"><button class="btn" id="back">回到${mode==="morning"?"起床":"睡前"}頁</button></div>`;$("#back").onclick=render;};
+  wireTop();
   $("#ring").onclick=ring;
   $("#pray").onclick=prayDialog;$("#editDecl").onclick=declDialog;}
 let actx=null,abuf=null;

@@ -90,10 +90,10 @@ function setScript(k,v){B.script=B.script||{};B.script[k]=v;save();}
 const YOGA="shortcuts://run-shortcut?name="+encodeURIComponent("開瑜珈");
 const topHTML=k=>`<details class="whoami"><summary>我是誰（每頁共用，點開看）${B.whoami?"":"・還沒寫"}</summary>${B.whoami?`<div class="decl">${esc(B.whoami)}</div>`:""}<a class="link" href="#me">到「我是誰」修改 →</a></details>
     <div class="scene">情境圖（之後放）</div>
-    <div class="fld"><div class="scriptbar"><label>正念文案・接在我是誰後面${aMins(k)?"（整段音檔約 "+aMins(k)+" 分鐘）":""}</label><button class="btn sm" data-copy="${k}">複製音檔稿</button></div><textarea data-script="${k}" rows="1" placeholder="這一頁專屬的話，會接在我是誰後面一起唸">${esc(SCR(k))}</textarea></div>`;
+    <div class="fld"><div class="scriptbar"><label>正念文案・接在我是誰後面${aMins(k)?"（整段音檔約 "+aMins(k)+" 分鐘）":""}</label><button class="btn sm" data-copy="${k}">複製正念文案</button></div><textarea data-script="${k}" rows="1" placeholder="這一頁專屬的話，會接在我是誰後面一起唸">${esc(SCR(k))}</textarea></div>`;
 function wireTop(said){const grow=t=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};
   document.querySelectorAll("[data-script]").forEach(t=>{grow(t);t.oninput=()=>{grow(t);setScript(t.dataset.script,t.value);said&&said();};});
-  document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copyText(audioText(b.dataset.copy),b));}
+  document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copyText(SCR(b.dataset.copy),b));}
 async function copyText(t,btn){let ok=false;try{await navigator.clipboard.writeText(t);ok=true;}catch(e){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{ok=document.execCommand("copy");}catch(_){}a.remove();}
   if(btn){const o=btn.textContent;btn.textContent=ok?"已複製 ✓":"複製失敗，請手動選取";setTimeout(()=>{btn.textContent=o;},1600);}}
 const $=s=>document.querySelector(s);

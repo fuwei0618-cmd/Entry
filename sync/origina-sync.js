@@ -116,7 +116,7 @@
   let badge, txt, hideT;
   function ui(pos, offset) {
     const css = document.createElement("style");
-    css.textContent = `.osync{position:fixed;z-index:2147483000;display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border:0;border-radius:999px;background:rgba(43,39,36,.82);color:#F4EFE7;font:600 12px/1 -apple-system,"PingFang TC","Noto Sans TC",sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.18);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .3s}
+    css.textContent = `.osync{position:fixed;z-index:15;display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border:0;border-radius:999px;background:rgba(43,39,36,.82);color:#F4EFE7;font:600 12px/1 -apple-system,"PingFang TC","Noto Sans TC",sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.18);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .3s}
 .osync svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}.osync i{width:7px;height:7px;border-radius:50%;background:#9AA59A}.osync[data-s=ok] i{background:#8FD18F}.osync[data-s=busy] i{background:#F2C14E}.osync[data-s=err] i,.osync[data-s=out] i{background:#E8806B}.osync.quiet span{display:none}.osync.quiet{padding:0 8px;opacity:.75}`;
     document.head.appendChild(css);
     badge = document.createElement("button"); badge.type = "button"; badge.className = "osync"; badge.setAttribute("aria-label", "OneDrive 同步");

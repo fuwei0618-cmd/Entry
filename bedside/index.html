@@ -168,6 +168,8 @@ const WHY={"vocal": {"line": "音樂是我和世界之間最短的路：不用�
 // 根本原因：一句話＋一張「關鍵字｜比的是什麼」的表（跟 Vocal 願景、WonderMedia「我」同一份內容）
 const whyHTML=k=>{const W=WHY[k];if(!W)return "";return `<div class="whybox"><div class="fld"><label>${k==="media"?"為什麼做自媒體":"根本原因・為什麼是音樂"}</label><div class="decl" style="font-size:18px">${esc(W.line)}</div></div>
   <details class="whyroot" ${k==="media"?"open":""}><summary>根本原因的表 ▾</summary><div class="whytbl"><table><thead><tr><th>關鍵字<br><small>比的是：${esc(W.cmp)}</small></th>${W.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${W.rows.map(r=>`<tr><td><b>${esc(r[0])}</b><br><small>${esc(r[1])}</small></td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td><b>${esc(r[4])}</b></td></tr>`).join("")}</tbody></table></div><p class="muted" style="margin:6px 0 0;font-size:12.5px">${esc(W.note)}</p></details></div>`;};
+const MEDIA_RF=[{"q": "我沒有固定主題，不知道要拍什麼", "a": "我的主題就是我的生活。記錄本來就在做，先丟進源頭再說。"}, {"q": "拍了也沒人看", "a": "自媒體會一直在。今天沒人看，不代表以後沒人找到；鐵粉是慢慢找上門的。"}, {"q": "我剪得不夠好、不夠專業", "a": "我以前剪的有可愛感，那是我的味道。不用跟別人一樣專業，要像我。"}, {"q": "我又虎頭蛇尾，更新不下去", "a": "節奏我自己定。停了不是失敗，隨時可以再丟一支。"}, {"q": "我不夠好看、不夠有趣，憑什麼被看", "a": "會找到我的人，就是喜歡我這個樣子的人。我不用討好所有人。"}, {"q": "我好沒自信", "a": "自信是做出來的，不是想出來的。今天只要丟一則到源頭就好。"}];
+function mediaB(){if(!B.media){B.media={reframes:JSON.parse(JSON.stringify(MEDIA_RF))};save();}return B.media;}
 function beliefs(){
   const Hd=rd(HKEY),Vd=rd(VKEY),H=(Hd&&Hd.vision)||{},V=(Vd&&Vd.meta&&Vd.meta.vision)||{};
   return [
@@ -179,7 +181,7 @@ function beliefs(){
     f:[["note","一句話・上台前的話",V.note,"t"],["why","使命・為什麼唱",V.why,"t"],["at80","身份・80 歲的我",V.at80,"t"],["become","身份・想成為的樣子（一行一個）",(V.become||[]).filter(Boolean).join("\n"),"l"],["wins","行為・小勝利",V.wins||[],"w"],["reframes","卡住時・害怕的時候",V.reframes||[],"r"]]},
    (()=>{const C=cathay();return {k:"cathay",name:"Cathay",when:"上班前・卡住時",open:"./#cathay",
     f:[["note","一句話・出門前的話",C.note,"t"],["why","使命・為什麼現在在國泰",C.why,"t"],["become","身份・想成為的樣子（一行一個）",(C.become||[]).filter(Boolean).join("\n"),"l"],["doing","行為・我怎麼做（一行一個）",(C.doing||[]).filter(Boolean).join("\n"),"l"],["reframes","卡住時・念頭與轉念",C.reframes||[],"r"],["exit","出口・離開國泰的路",C.exit,"t"],["ask","還沒回答的問題",C.ask,"t"]]};})(),
-   {k:"media",name:"自媒體",when:"想放棄更新、懷疑要不要做的時候",open:BASE+"/WonderMedia/#me",static:true,f:[]}];}
+   {k:"media",name:"WonderMedia",when:"想放棄更新、懷疑要不要做的時候",open:BASE+"/WonderMedia/#me",static:true,f:[["reframes","卡住時・念頭與轉念",mediaB().reframes||[],"r"]]}];}
 /* 雲端：HH、Vocal 的信念也直接跟 OneDrive 對齊——打開這頁先抓雲端最新的，改了就直接上傳（跟它們自己那頁用同一個檔案） */
 const OTHER={hh:{key:HKEY,file:"hh/data.json",app:"hh"},vocal:{key:VKEY,file:"Vocal/data.json",app:"vocal"}};
 const pend={hh:{},vocal:{}},upT={};let pulledOnce=false;
@@ -206,6 +208,7 @@ async function pushOther(k){const O=OTHER[k];if(!(await cloudTok()))return;   //
 function putBelief(k,field,val){
   if(k==="morning"||k==="night"){B[k]=val;save();return;}
   if(k==="cathay"){cathay()[field]=val;save();return;}
+  if(k==="media"){mediaB()[field]=val;save();return;}
   const key=k==="hh"?HKEY:VKEY,d=rd(key)||(k==="vocal"?{}:null);if(!d)return;
   let v;if(k==="hh"){v=d.vision=Object.assign({type:"vision",why:"",become:["","",""],note:HH_NOTE,reframes:[],wins:[]},d.vision||{});}
   else{d.meta=d.meta||{};v=d.meta.vision=d.meta.vision||{};}
@@ -231,10 +234,10 @@ function wireAll(){
   let tm=0;const said=()=>{const e=$("#svd");if(!e)return;e.textContent="・已存";clearTimeout(tm);tm=setTimeout(()=>{e.textContent="";},1400);};
   wireTop(said);wireScenes(said);
   document.querySelectorAll(".bfull textarea:not([data-script]):not([data-scf])").forEach(t=>{grow(t);t.oninput=()=>{grow(t);const k=t.closest("[data-b]").dataset.b;putBelief(k,t.dataset.fk,t.dataset.type==="l"?t.value.split("\n").map(x=>x.trim()).filter(Boolean):t.value);said();};});
-  const rfs=k=>{if(k==="cathay")return JSON.parse(JSON.stringify(cathay().reframes||[]));const d=rd(k==="hh"?HKEY:VKEY);const v=k==="hh"?(d&&d.vision):(d&&d.meta&&d.meta.vision);return JSON.parse(JSON.stringify((v&&v.reframes)||[]));};
+  const rfs=k=>{if(k==="cathay")return JSON.parse(JSON.stringify(cathay().reframes||[]));if(k==="media")return JSON.parse(JSON.stringify(mediaB().reframes||[]));const d=rd(k==="hh"?HKEY:VKEY);const v=k==="hh"?(d&&d.vision):(d&&d.meta&&d.meta.vision);return JSON.parse(JSON.stringify((v&&v.reframes)||[]));};
   document.querySelectorAll(".bfull .rf input").forEach(t=>t.oninput=()=>{const k=t.closest("[data-b]").dataset.b,R=rfs(k),i=+(t.dataset.rq??t.dataset.ra);R[i]=R[i]||{q:"",a:""};if(t.dataset.rq!=null)R[i].q=t.value;else R[i].a=t.value;putBelief(k,"reframes",R);said();});
   document.querySelectorAll("[data-rfadd]").forEach(b=>b.onclick=()=>{const k=b.closest("[data-b]").dataset.b,R=rfs(k);R.push({q:"",a:""});putBelief(k,"reframes",R);render();});}
-const segHTML=()=>`<div class="seg"><button data-m="me" aria-pressed="${mode==="me"}">我是誰</button><button data-m="morning" aria-pressed="${mode==="morning"}">起床</button><button data-m="night" aria-pressed="${mode==="night"}">睡前</button><button data-m="hh" aria-pressed="${mode==="hh"}">HH</button><button data-m="vocal" aria-pressed="${mode==="vocal"}">Vocal</button><button data-m="cathay" aria-pressed="${mode==="cathay"}">Cathay</button><button data-m="media" aria-pressed="${mode==="media"}">自媒體</button><button data-m="all" aria-pressed="${mode==="all"}">全部</button></div>`;
+const segHTML=()=>`<div class="seg"><button data-m="me" aria-pressed="${mode==="me"}">我是誰</button><button data-m="morning" aria-pressed="${mode==="morning"}">起床</button><button data-m="night" aria-pressed="${mode==="night"}">睡前</button><button data-m="hh" aria-pressed="${mode==="hh"}">HH</button><button data-m="vocal" aria-pressed="${mode==="vocal"}">Vocal</button><button data-m="cathay" aria-pressed="${mode==="cathay"}">Cathay</button><button data-m="media" aria-pressed="${mode==="media"}">WonderMedia</button><button data-m="all" aria-pressed="${mode==="all"}">全部</button></div>`;
 // 從夢想版讀重點（同一個網站，同一台裝置）
 function focusFor(d){const D=ls("origina.dream.v1");if(!D||!D.todo)return{tasks:[],days:[]};
   const find=id=>{for(const p of D.todo.projects){const t=p.tasks.find(x=>x.id===id);if(t)return{p,t};}return null;};

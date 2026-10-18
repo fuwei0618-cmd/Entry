@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>床邊</title>
+<title>Addiction</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1"><link rel="icon" href="icons/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="信念"><meta name="theme-color" content="#F5F0E6">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&display=swap">
@@ -190,7 +190,7 @@ function beliefs(){
     f:[["note","一句話・出發前的話",H.note||HH_NOTE,"t"],["why","使命・為什麼想學",H.why,"t"],["become","身份・想成為的樣子（一行一個）",(H.become||[]).filter(Boolean).join("\n"),"l"],["wins","行為・小勝利",H.wins||[],"w"],["reframes","卡住時・害怕的時候",H.reframes||[],"r"]]},
    {k:"vocal",name:"Vocal",when:"上台・練唱前",open:BASE+"/Vocal/#vision",missing:false,fresh:!(Vd&&Vd.meta&&Vd.meta.vision),app:"Vocal 頁",
     f:[["note","一句話・上台前的話",V.note,"t"],["why","使命・為什麼唱",V.why,"t"],["at80","身份・80 歲的我",V.at80,"t"],["become","身份・想成為的樣子（一行一個）",(V.become||[]).filter(Boolean).join("\n"),"l"],["wins","行為・小勝利",V.wins||[],"w"],["reframes","卡住時・害怕的時候",V.reframes||[],"r"]]},
-   (()=>{const C=cathay();return {k:"cathay",name:"Cathay",when:"上班前・卡住時",open:"./#cathay",
+   (()=>{const C=cathay();return {k:"cathay",name:"Cathay",when:"上班前・卡住時",open:"",
     f:[["note","一句話・出門前的話",C.note,"t"],["why","使命・為什麼現在在國泰",C.why,"t"],["become","身份・想成為的樣子（一行一個）",(C.become||[]).filter(Boolean).join("\n"),"l"],["doing","行為・我怎麼做（一行一個）",(C.doing||[]).filter(Boolean).join("\n"),"l"],["reframes","卡住時・念頭與轉念",C.reframes||[],"r"],["exit","出口・離開國泰的路",C.exit,"t"],["ask","還沒回答的問題",C.ask,"t"]]};})(),
    {k:"media",name:"WonderMedia",when:"想放棄更新、懷疑要不要做的時候",open:BASE+"/WonderMedia/#me",static:true,f:[["reframes","卡住時・念頭與轉念",mediaB().reframes||[],"r"]]}];}
 /* 雲端：HH、Vocal 的信念也直接跟 OneDrive 對齊——打開這頁先抓雲端最新的，改了就直接上傳（跟它們自己那頁用同一個檔案） */
@@ -258,13 +258,13 @@ function allHTML(only){
   <p class="muted" style="margin:-4px 0 0;font-size:13px">${only?"直接點字修改，會自動存好。":"每一篇都在這裡，直接點字修改，會自動存回原本那一頁。"}<span id="svd" class="svd"></span></p>
   <div class="bgrid all">${beliefs().filter(b=>!only||b.k===only).map(b=>`<section class="card bfull" data-b="${b.k}">
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div>${b.flow?`<div class="flowln">儀式：${esc(b.flow)}</div>`:""}</div>
-      <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a></span></div>
-    ${b.k==="cathay"?sceneHTML():""}
+      <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}${b.open?`<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a>`:""}</span></div>
+    ${b.k==="cathay"?b.f.filter(x=>x[0]==="note").map(([fk,label,val,type])=>`<div class="fld"><label>${esc(label)}</label><textarea data-fk="${fk}" data-type="${type}" rows="1" placeholder="還沒寫">${esc(val||"")}</textarea></div>`).join("")+sceneHTML():""}
     ${b.k==="vocal"?whyHTML("vocal"):""}
     ${b.static?"":topHTML(b.k)}
     ${b.static?whyHTML(b.k):`<p class="layers" style="position:static;margin:4px 0 0">一句話 → 使命 → 身份 → 行為 → 卡住時</p>`}
     ${b.missing?`<p class="muted" style="margin:0;font-size:13px">${({nolog:`這台裝置還沒登入 OneDrive。按右下角雲朵登入，就會自動抓下來。`,nofile:`OneDrive 裡還沒有${esc(b.app)}的資料。請打開${esc(b.app)}，按它右下角的雲朵登入一次，它會把資料傳上去；之後這裡就讀得到。`,err:`抓雲端資料時出錯了，等一下再回來看看。`})[CS[b.k]]||`正在找${esc(b.app)}的資料……`}　<a class="link" href="${b.open}" target="_top">打開${esc(b.app)}</a></p>`:
-    b.f.map(([fk,label,val,type])=>type==="w"?`<div class="fld"><label>${esc(label)}</label>${val.length?`<ul class="wins">${val.slice(-5).reverse().map(w=>`<li><span class="muted">${esc(w.d||"")}</span> ${esc(w.t||"")}</li>`).join("")}</ul>${val.length>5?`<p class="muted" style="margin:2px 0 0;font-size:12px">共 ${val.length} 個，最近 5 個；在原頁加</p>`:""}`:`<p class="muted" style="margin:0;font-size:13px">還沒有，在原頁加</p>`}</div>`:type==="r"?`<div class="fld"><label>${esc(label)}</label>${val.map((r,i)=>`<div class="rf"><input type="text" data-rq="${i}" data-fk="${fk}" value="${esc(r.q||"")}" placeholder="我怕……"><span>→</span><input type="text" data-ra="${i}" data-fk="${fk}" value="${esc(r.a||"")}" placeholder="我告訴自己……"></div>${rtagHTML(r.q)}`).join("")}<button class="link" data-rfadd="${fk}">＋ 再加一個</button></div>`
+    b.f.filter(x=>!(b.k==="cathay"&&x[0]==="note")).map(([fk,label,val,type])=>type==="w"?`<div class="fld"><label>${esc(label)}</label>${val.length?`<ul class="wins">${val.slice(-5).reverse().map(w=>`<li><span class="muted">${esc(w.d||"")}</span> ${esc(w.t||"")}</li>`).join("")}</ul>${val.length>5?`<p class="muted" style="margin:2px 0 0;font-size:12px">共 ${val.length} 個，最近 5 個；在原頁加</p>`:""}`:`<p class="muted" style="margin:0;font-size:13px">還沒有，在原頁加</p>`}</div>`:type==="r"?`<div class="fld"><label>${esc(label)}</label>${val.map((r,i)=>`<div class="rf"><input type="text" data-rq="${i}" data-fk="${fk}" value="${esc(r.q||"")}" placeholder="我怕……"><span>→</span><input type="text" data-ra="${i}" data-fk="${fk}" value="${esc(r.a||"")}" placeholder="我告訴自己……"></div>${rtagHTML(r.q)}`).join("")}<button class="link" data-rfadd="${fk}">＋ 再加一個</button></div>`
       :`<div class="fld"><label>${esc(label)}</label><textarea data-fk="${fk}" data-type="${type}" rows="1" placeholder="還沒寫">${esc(val||"")}</textarea></div>`).join("")}
   </section>`).join("")}</div>`;}
 function wireAll(){

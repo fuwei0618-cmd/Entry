@@ -2129,8 +2129,8 @@ function setMode(m,save){const M=MODES[m];MODE=m;sky.material.uniforms.top.value
 setMode(MODE);
 document.getElementById("modeBtn").onclick=()=>setMode(MODE==="add"?"ori":"add",true);
 /* 緊急救援（10/19）：按一下，狼（左）虎（右）換作戰狀態站到你前面，管家在你正前方舉槍。天色轉成暗紅，火燒旺。按解除就回到原本的樣子 */
-{const LINES={wolf:["你說的不是她。她沒說過的話，不准塞進她嘴裡。","她不用解釋。該道歉的不是她。","把話說清楚：這是你的情緒，不是她的錯。","她的聲音很清楚，你聽不懂是你的事。","再說一次試試看。這次她會回嘴。"],
-    tiger:["對她動手、對她吼，都不行。","再往前一步試試看。","她的底線就在這裡，你踩不過去。","她不欠你，也不用讓你高興。","她有力量，她不怕你。"],
+{const LINES={wolf:["她的底線就在這裡，你踩不過去。","她不欠你，也不用讓你高興。"],
+    tiger:["對她動手、對她吼，都不行。","再往前一步試試看。","她有力量，她不怕你。"],
     butler:["我在。沒有人能再靠近妳一步。","別人的情緒，不是妳要扛的。放下來，交給我。","妳已經做得夠多了。現在只要站著，慢慢吐氣。","這裡是妳的城堡，門只為妳開。","等妳想走的時候，我帶妳回家。"]};
   const box=document.getElementById("rescue"),btn=document.getElementById("rescueBtn"),IX={};
   const show=(el,k)=>{el.style.opacity=0;setTimeout(()=>{el.textContent=LINES[k][IX[k]%LINES[k].length];el.style.opacity=1;},180);};

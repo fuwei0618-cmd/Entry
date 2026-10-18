@@ -2051,11 +2051,14 @@ P.y=cur.floor(P.x,P.z);
   const koi=[];{const VY=heightAt(VX,VZ)+.5,km=new R.MeshStandardMaterial({color:0xC8261E,roughness:.4}),kw=new R.MeshStandardMaterial({color:0xF4EFE6,roughness:.4});
     for(let i=0;i<6;i++){const g=new R.Group();const b=new R.Mesh(new R.SphereGeometry(.16,10,6),i%3?km:kw);b.scale.set(1.9,.55,.75);g.add(b);const tl=new R.Mesh(new R.ConeGeometry(.1,.22,6),km);tl.rotation.z=Math.PI/2;tl.position.x=-.36;g.add(tl);g.position.y=VY+.2;out.add(g);koi.push({g,a:i*1.05,r:1.5+(i%3)*.32,s:.35+i*.06});}
     const kl=new R.PointLight(0xFF3A2A,.4,7);kl.position.set(VX,VY+.6,VZ);out.add(kl);RG.push({o:kl,key:'intensity',on:1.2,off:.15});}
-  // 5 營火旁：六盞紅紙燈籠
-  {const lm=emi(0xC8261E,.55),pole=new R.MeshStandardMaterial({color:0x3A2A22});const fy=heightAt(FX,FZ);
-    for(let i=0;i<6;i++){const a=i/6*6.283+.3,x=FX+Math.cos(a)*3.6,z=FZ+Math.sin(a)*3.6,y=heightAt(x,z);mesh(new R.CylinderGeometry(.03,.03,2.2,5),pole,x,y+1.1,z,out);
-      const l=mesh(new R.SphereGeometry(.26,12,8),lm,x,y+2.05,z,out,false);l.scale.y=1.25;mesh(new R.CylinderGeometry(.12,.12,.06,8),pole,x,y+2.4,z,out,false);}
-    const ll=new R.PointLight(0xFF3020,.5,9);ll.position.set(FX,fy+2.2,FZ);out.add(ll);RG.push({o:ll,key:'intensity',on:1.1,off:.15});}
+  // 5 營火旁：六支黑鐵火炬，火盆裡燒紅火
+  {const iron=new R.MeshStandardMaterial({color:0x1C1714,roughness:.5,metalness:.5});const fy=heightAt(FX,FZ);
+    for(let i=0;i<6;i++){const a=i/6*6.283+.3,x=FX+Math.cos(a)*3.8,z=FZ+Math.sin(a)*3.8,y=heightAt(x,z);
+      mesh(new R.CylinderGeometry(.045,.07,2.4,6),iron,x,y+1.2,z,out);
+      const bowl=mesh(new R.CylinderGeometry(.26,.1,.28,8,1,true),iron,x,y+2.5,z,out);bowl.material.side=R.DoubleSide;
+      [0,1,2].forEach(k=>{const sp=new R.Sprite(new R.SpriteMaterial({map:flameTex,color:k?0xE0301C:0xFF8A3A,transparent:true,depthWrite:false,blending:R.AdditiveBlending}));sp.position.set(x,y+2.85+k*.05,z);sp.scale.set(.45-k*.08,.9-k*.15,1);out.add(sp);RG.push({o:sp.material,on:1,off:.35});});
+      F.col.push({x,z,r:.2});}
+    const ll=new R.PointLight(0xFF3020,.5,9);ll.position.set(FX,fy+2.6,FZ);out.add(ll);RG.push({o:ll,key:'intensity',on:1.1,off:.15});}
   // 6 光孔日晷：紅玻璃，地上落一個紅色光點
   {const cy=heightAt(EC.cx,EC.cz),dot=new R.Mesh(new R.CircleGeometry(.55,32),new R.MeshBasicMaterial({color:0xE0202A,transparent:true,opacity:.75,depthWrite:false}));dot.rotation.x=-Math.PI/2;dot.position.set(EC.cx+.6,cy+.06,EC.cz-.4);out.add(dot);RG.push({o:dot.material,on:.85,off:.3});
     const sp=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xE0202A,transparent:true,opacity:.5,depthWrite:false,blending:R.AdditiveBlending}));sp.position.set(EC.cx+.6,cy+.4,EC.cz-.4);sp.scale.set(2.4,1.2,1);out.add(sp);RG.push({o:sp.material,on:.7,off:.1});}
@@ -2066,7 +2069,7 @@ P.y=cur.floor(P.x,P.z);
       const geo=new R.PlaneGeometry(1.25,6.5,1,16);geo.translate(0,-3.25,0);const f=new R.Mesh(geo,fm);f.position.set(x,y+H-.4,z+.06);f.castShadow=true;out.add(f);
       flags.push({f,base:geo.attributes.position.array.slice(),p:i*.9});F.col.push({x,z,r:.25});});}
   // 8 瞭望台：入口東側，細長的黑塔，頂上一團紅火
-  {const TX=GW-9,TZ=GZ-RW-3,ty=heightAt(TX,TZ),dk=new R.MeshStandardMaterial({color:0x1C1714,roughness:.7,metalness:.2}),H=11,G=new R.Group();G.position.set(TX,ty,TZ);out.add(G);
+  [-1,1].forEach(sd=>{const TX=sd*(GW-3.5),TZ=GZ-RW-2.5,ty=heightAt(TX,TZ),dk=new R.MeshStandardMaterial({color:0x1C1714,roughness:.7,metalness:.2}),H=11,G=new R.Group();G.position.set(TX,ty,TZ);out.add(G);
     [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([a,b])=>{const l=new R.Mesh(new R.CylinderGeometry(.09,.14,H,6),dk);l.position.set(a*1,H/2,b*1);l.rotation.set(b*-.07,0,a*.07);l.castShadow=true;G.add(l);});
     for(let k=1;k<4;k++){const yy=k*H/4,w=2-(k*.12);[[0,1],[0,-1],[1,0],[-1,0]].forEach(([a,b])=>{const bar=new R.Mesh(new R.BoxGeometry(a?.06:w*1.05,.06,b?.06:w*1.05),dk);bar.position.set(a*w*.5,yy,b*w*.5);G.add(bar);});}
     const pf=new R.Mesh(new R.BoxGeometry(2.4,.2,2.4),dk);pf.position.y=H;pf.castShadow=true;G.add(pf);
@@ -2077,7 +2080,7 @@ P.y=cur.floor(P.x,P.z);
     const tl=new R.PointLight(0xFF3A1E,.4,16);tl.position.y=H+1;G.add(tl);RG.push({o:tl,key:'intensity',on:1.4,off:.15});
     const pn=new R.Mesh(new R.PlaneGeometry(.9,2.4,1,8).translate(0,-1.2,0),new R.MeshStandardMaterial({color:0x5A101C,roughness:.7,side:R.DoubleSide}));pn.position.set(0,H+4.1,0);G.add(pn);
     flags.push({f:pn,base:pn.geometry.attributes.position.array.slice(),p:3.3});
-    F.col.push({x:TX,z:TZ,r:1.4});label(out,'瞭望台',TX,ty+H+4.6,TZ,'看守我的領地');}
+    F.col.push({x:TX,z:TZ,r:1.4});label(out,'瞭望台',TX,ty+H+4.6,TZ,'看守我的領地');});
   window.redUpdate=(dt,t)=>{ribbons.forEach(r=>{r.g.rotation.x=Math.sin(t*2.2+r.p)*.35;r.g.rotation.y=Math.sin(t*1.3+r.p)*.4;});
     flags.forEach(fl=>{const a=fl.f.geometry.attributes.position.array,b=fl.base;for(let q=0;q<a.length;q+=3){const d=-b[q+1];a[q+2]=b[q+2]+Math.sin(t*2+fl.p+d*.9)*.12*d;a[q]=b[q]+Math.sin(t*1.3+fl.p+d*.6)*.05*d;}fl.f.geometry.attributes.position.needsUpdate=true;});
     koi.forEach(k=>{k.a+=dt*k.s;k.g.position.x=VX+Math.cos(k.a)*k.r;k.g.position.z=VZ+Math.sin(k.a)*k.r;k.g.rotation.y=-k.a-Math.PI/2;});};

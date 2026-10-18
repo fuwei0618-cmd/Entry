@@ -67,6 +67,11 @@ textarea{min-height:90px;resize:vertical}
 @media (prefers-reduced-motion:reduce){.orb.in,.orb.out{transition-duration:.01s}}
 .wins{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:14px}.wins .muted{font-size:12px}
 .whoami{display:grid;gap:6px;background:var(--soft);border-radius:12px;padding:8px 12px}.whoami summary{cursor:pointer;font-size:13px;color:var(--muted);list-style:none}.whoami summary::-webkit-details-marker{display:none}.whoami .decl{font-size:15px;line-height:1.8}
+.office{position:relative;border-radius:14px;overflow:hidden;line-height:0}.office img{width:100%;height:auto;display:block}
+.opin{position:absolute;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;border:2px solid #fff;background:rgba(59,52,44,.72);color:#fff;font:600 14px/1 var(--f);display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35);padding:0}
+.opin::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(255,255,255,.7);animation:opp 2.4s ease-out infinite}
+.opin.on{background:var(--acc)}.opin.on::after{display:none}
+@keyframes opp{0%{transform:scale(.8);opacity:1}100%{transform:scale(1.5);opacity:0}}
 .scchips{display:flex;flex-wrap:wrap;gap:6px}.scchip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;color:inherit;cursor:pointer}.scchip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#fff}.scchip.add{border-style:dashed;opacity:.75}
 .scard{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px;margin-top:6px}
 .scsit{font:inherit;font-weight:700;font-size:16px;border:0;background:transparent;color:inherit;padding:0;width:100%}
@@ -98,6 +103,8 @@ const CATHAY_SCRIPT="國泰是一座橋。我走在橋上，知道對岸在哪�
 // Cathay 信念頁：沒有自己的 App，資料存在床邊自己這裡（跟著 OneDrive 同步）；第一次打開先放一份草稿，之後直接改
 const CATHAY_SCENES=[{"s": "早會看到白板", "t": "好嫉妒，同齡的都年收兩百萬。我幹嘛不在這裡努力就好？", "a": "白板上的數字，是他們用整個人生換來的。我不換。\n我羨慕的是錢，不是那條路。", "do": "腳掌踩穩地板（足底三腳架），吸一口氣，在心裡說：我不是在國泰贏，我是在我的人生贏。"}, {"s": "早會切斷我的早上", "t": "我的時間又被拿走了。", "a": "早會是過橋的過路費，我只付規定的那一份：人到、準時走。", "do": "早會一結束，先做 10 分鐘自己的事，再開始國泰的工作。"}, {"s": "課程、聽別人講業績和增員", "t": "乾我屁事，我幹嘛要聽？", "a": "不是我的事，我可以人在心不在。", "do": "打開自己的筆記，寫下今天想做的一件自己的事。"}, {"s": "同事約吃飯、旅行", "t": "連休息都還在聊國泰，我真的不行。", "a": "我的生活是我的，我可以說不。唱歌我才去。", "do": "回一句：「這次我先不去，下次唱歌找我！」"}, {"s": "這個月還沒業績", "t": "最低考核撐不過去怎麼辦，我不敢想。", "a": "我只守一條線：每月 8P。\n不用想全部，只想下一個人。", "do": "寫下一個這週可以聯絡的人，就好。"}, {"s": "想到收入要靠國泰", "t": "我好抗拒，怎麼又是國泰。", "a": "國泰是橋，不是終點。國泰以外的收入連續 3～6 個月超過 20 萬，我就走。", "do": "打開金庫配置表，看一眼離開國泰的進度條。"}, {"s": "怕虎頭蛇尾、對不起客人", "t": "我走了，客人怎麼辦？", "a": "客人要的是那張保單對，不是我一輩子。只賣需要的、好好交接，就是有始有終。", "do": "把這位客人的紀錄補完整，隨時可以交接。"}];
 let scIdx=0;
+// 辦公室圖上的圓點：[左%, 上%, 字]，依序對應前七個情境
+const OFFICE_PINS=[[8,30,"板"],[23,24,"時"],[41,31,"課"],[62,63,"飯"],[41,77,"業"],[85,37,"橋"],[89,62,"客"]];
 const CATHAY_P2={note:"我給國泰說好的時間，它給我錢；其他的，都是我的。\n我只守一條線：過最低考核（每月 8P），留在 Teresa 的舞台上。多出來的，都是驚喜。",rf:[{"q": "早會切斷我的時間", "a": "早會是過橋的過路費，我只付規定的那一份：人到、準時走。我的時間、我的生活、我的注意力，是我的。"}, {"q": "看到白板很嫉妒，想說幹嘛不在這裡努力就好", "a": "白板上的數字，是他們用整個人生換來的。我不換。我羨慕的是錢，不是那條路；錢，我會從自己的路上拿到。國泰給我底線，我的時間給我自己。我不是在國泰贏，我是在我的人生贏。"}]};
 function cathay(){if(!B.cathay){B.cathay=JSON.parse(JSON.stringify(CATHAY_TPL));B.script=B.script||{};if(!B.script.cathay)B.script.cathay=CATHAY_SCRIPT;save();}
   const C=B.cathay;if(!C.p2){   // 10/18 補：一句話換成底線版、卡住時加兩組；自己改過的「一句話」不蓋掉，改接在後面
@@ -106,7 +113,11 @@ function cathay(){if(!B.cathay){B.cathay=JSON.parse(JSON.stringify(CATHAY_TPL));
   if(!C.scenes){C.scenes=JSON.parse(JSON.stringify(CATHAY_SCENES));save();}   // 10/18：情境卡，發生的時候點對應的那張
   return C;}
 function sceneHTML(){const S=cathay().scenes;const i=Math.max(0,Math.min(scIdx,S.length-1)),x=S[i]||{};
-  return `<div class="fld"><label>發生什麼事？點一下對應的情境</label><div class="scchips">${S.map((y,j)=>`<button class="scchip" data-sc="${j}" aria-pressed="${j===i}">${esc(y.s||"（未命名）")}</button>`).join("")}<button class="scchip add" data-scadd>＋ 情境</button></div></div>
+  const extra=S.map((y,j)=>[y,j]).filter(([y,j])=>j>=OFFICE_PINS.length);
+  return `<div class="fld"><label>發生什麼事？點辦公室裡對應的東西</label>
+    <div class="office"><img src="../img/cathay-office.jpg" alt="辦公室：白板、時鐘、投影幕、便當和行李箱、我的座位、窗外的橋、客戶資料夾" width="1400" height="787">
+      ${OFFICE_PINS.map(([x,y,t],j)=>S[j]?`<button class="opin${j===i?" on":""}" data-sc="${j}" style="left:${x}%;top:${y}%" aria-label="${esc(S[j].s)}"><span>${t}</span></button>`:"").join("")}</div>
+    <div class="scchips" style="margin-top:8px">${extra.map(([y,j])=>`<button class="scchip" data-sc="${j}" aria-pressed="${j===i}">${esc(y.s||"（未命名）")}</button>`).join("")}<button class="scchip add" data-scadd>＋ 情境</button></div></div>
     ${S.length?`<div class="scard" data-i="${i}">
       <input class="scsit" data-scf="s" value="${esc(x.s||"")}" placeholder="情境">
       <div class="scrow"><span>腦中冒出來的話</span><textarea data-scf="t" rows="1" placeholder="那時候我會想……">${esc(x.t||"")}</textarea></div>
@@ -120,7 +131,7 @@ function wireScenes(said){const grow=t=>{t.style.height="auto";t.style.height=(t
   document.querySelectorAll(".scard [data-scf]").forEach(t=>{if(t.tagName==="TEXTAREA")grow(t);t.oninput=()=>{if(t.tagName==="TEXTAREA")grow(t);const S=cathay().scenes,i=+t.closest(".scard").dataset.i;S[i][t.dataset.scf]=t.value;save();if(t.dataset.scf==="s"){const c=document.querySelector(`[data-sc="${i}"]`);if(c)c.textContent=t.value||"（未命名）";}said&&said();};});}
 const YOGA="shortcuts://run-shortcut?name="+encodeURIComponent("開瑜珈");
 const topHTML=k=>`<details class="whoami"><summary>我是誰（每頁共用，點開看）${B.whoami?"":"・還沒寫"}</summary>${B.whoami?`<div class="decl">${esc(B.whoami)}</div>`:""}<a class="link" href="#me">到「我是誰」修改 →</a></details>
-    <div class="scene">情境圖（之後放）</div>
+    ${k==="cathay"?"":`<div class="scene">情境圖（之後放）</div>`}
     <div class="fld"><div class="scriptbar"><label>正念文案・接在我是誰後面${aMins(k)?"（整段音檔約 "+aMins(k)+" 分鐘）":""}</label><button class="btn sm" data-copy="${k}">複製正念文案</button></div><textarea data-script="${k}" rows="1" placeholder="這一頁專屬的話，會接在我是誰後面一起唸">${esc(SCR(k))}</textarea></div>`;
 function wireTop(said){const grow=t=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};
   document.querySelectorAll("[data-script]").forEach(t=>{grow(t);t.oninput=()=>{grow(t);setScript(t.dataset.script,t.value);said&&said();};});

@@ -22,7 +22,7 @@ button,input,textarea{font:inherit;color:inherit}button{cursor:pointer}
 .decl{font-family:var(--serif);font-size:clamp(18px,4.6vw,22px);line-height:1.85;white-space:pre-line}
 .muted{color:var(--muted)}
 .bgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.bcard{display:grid;gap:6px;align-content:start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;color:var(--ink);text-decoration:none;min-height:150px}.bcard:active{transform:scale(.98)}
-.bgrid.all{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));align-items:start}
+.bgrid.all{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));align-items:start}.bgrid>*{min-width:0}.wrap>*{min-width:0}
 .bhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .blinks{display:flex;gap:12px;font-size:13px;white-space:nowrap}
 .fld{display:grid;gap:4px}.fld label{font-size:12px;color:var(--muted)}
@@ -72,7 +72,7 @@ textarea{min-height:90px;resize:vertical}
 .opin::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(255,255,255,.7);animation:opp 2.4s ease-out infinite}
 .opin.on{background:var(--acc)}.opin.on::after{display:none}
 @keyframes opp{0%{transform:scale(.8);opacity:1}100%{transform:scale(1.5);opacity:0}}
-.whybox{border-top:1px solid var(--line);padding-top:12px;margin-top:6px;display:grid;gap:8px}
+.whybox{border-bottom:1px solid var(--line);padding-bottom:12px;margin:6px 0 4px;display:grid;gap:8px}.whybox,.whybox>*,.whyroot,.whytbl{min-width:0}.bfull>*{min-width:0}
 .whyroot summary{cursor:pointer;font-size:13px;color:var(--muted);list-style:none}.whyroot summary::-webkit-details-marker{display:none}
 .whytbl{overflow-x:auto;margin-top:6px}.whytbl table{width:100%;border-collapse:collapse;font-size:12.5px}.whytbl th,.whytbl td{padding:7px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}.whytbl th{font-weight:500;color:var(--muted);border-top:0}.whytbl small{color:var(--muted);font-size:11.5px}
 .scchips{display:flex;flex-wrap:wrap;gap:6px}.scchip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;color:inherit;cursor:pointer}.scchip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#fff}.scchip.add{border-style:dashed;opacity:.75}
@@ -225,12 +225,12 @@ function allHTML(only){
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div>${b.flow?`<div class="flowln">儀式：${esc(b.flow)}</div>`:""}</div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a></span></div>
     ${b.k==="cathay"?sceneHTML():""}
+    ${b.k==="vocal"?whyHTML("vocal"):""}
     ${b.static?"":topHTML(b.k)}
     ${b.static?whyHTML(b.k):`<p class="layers" style="position:static;margin:4px 0 0">一句話 → 使命 → 身份 → 行為 → 卡住時</p>`}
     ${b.missing?`<p class="muted" style="margin:0;font-size:13px">${({nolog:`這台裝置還沒登入 OneDrive。按右下角雲朵登入，就會自動抓下來。`,nofile:`OneDrive 裡還沒有${esc(b.app)}的資料。請打開${esc(b.app)}，按它右下角的雲朵登入一次，它會把資料傳上去；之後這裡就讀得到。`,err:`抓雲端資料時出錯了，等一下再回來看看。`})[CS[b.k]]||`正在找${esc(b.app)}的資料……`}　<a class="link" href="${b.open}" target="_top">打開${esc(b.app)}</a></p>`:
     b.f.map(([fk,label,val,type])=>type==="w"?`<div class="fld"><label>${esc(label)}</label>${val.length?`<ul class="wins">${val.slice(-5).reverse().map(w=>`<li><span class="muted">${esc(w.d||"")}</span> ${esc(w.t||"")}</li>`).join("")}</ul>${val.length>5?`<p class="muted" style="margin:2px 0 0;font-size:12px">共 ${val.length} 個，最近 5 個；在原頁加</p>`:""}`:`<p class="muted" style="margin:0;font-size:13px">還沒有，在原頁加</p>`}</div>`:type==="r"?`<div class="fld"><label>${esc(label)}</label>${val.map((r,i)=>`<div class="rf"><input type="text" data-rq="${i}" data-fk="${fk}" value="${esc(r.q||"")}" placeholder="我怕……"><span>→</span><input type="text" data-ra="${i}" data-fk="${fk}" value="${esc(r.a||"")}" placeholder="我告訴自己……"></div>`).join("")}<button class="link" data-rfadd="${fk}">＋ 再加一個</button></div>`
       :`<div class="fld"><label>${esc(label)}</label><textarea data-fk="${fk}" data-type="${type}" rows="1" placeholder="還沒寫">${esc(val||"")}</textarea></div>`).join("")}
-    ${b.k==="vocal"?whyHTML("vocal"):""}
   </section>`).join("")}</div>`;}
 function wireAll(){
   const grow=t=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};

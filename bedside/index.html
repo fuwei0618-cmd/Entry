@@ -87,6 +87,10 @@ const SCR=k=>((B.script||{})[k]||"");
 const audioText=k=>[String(B.whoami||"").trim(),SCR(k).trim()].filter(Boolean).join("\n\n");
 const aMins=k=>{const n=audioText(k).replace(/\s/g,"").length;return n?Math.max(1,Math.round(n/240)):0;};
 function setScript(k,v){B.script=B.script||{};B.script[k]=v;save();}
+const CATHAY_TPL={"note": "國泰是橋，不是終點。\n今天只服務真正需要的人。", "why": "我現在還在國泰，是因為它幫我撐住金庫，Teresa 的舞台也還在這裡。\n我不是要在這裡待一輩子，而是在走向下一條路之前，把這一段走得乾淨、對得起每一位客人。", "become": ["只賣客人真正需要的東西的人", "承諾範圍小、但每一個都守得住的人", "離開時把每位客人好好交接、有始有終的人"], "doing": ["先不增員", "只賣客人真正需要的", "每位客人都留好紀錄，隨時可以交接", "每個月看一次國泰以外的收入進度"], "reframes": [{"q": "收入要靠國泰，我好抗拒", "a": "國泰是過渡期的橋，不是終點。國泰以外的月收入連續 3～6 個月超過 20 萬，我就離開。"}, {"q": "保險是做人的事業，我說服不了自己", "a": "客人要的不是我一輩子，是那張保單對。保單是跟國泰簽的，我離開後公司會轉給其他業務服務，保障不會消失。我要負責的是：賣給他的東西是他真的需要的。"}, {"q": "我怕虎頭蛇尾，客人和被我增員的人能接受嗎", "a": "先不增員，只服務客人，承諾範圍小、守得住。從第一天就知道會走，照「不增員、只賣需要的、離開前好好交接」做，就不叫虎頭蛇尾，叫有始有終。"}], "exit": "出口條件：國泰以外的月收入連續 3～6 個月超過 20 萬，就離開國泰。\n路線：晏任行銷＋自媒體，有機會到每月 10 萬；再來一到兩個業主（或談到更高價），國泰以外就能到 20 萬。\n晏任是最好的作品：把成果整理成案例，拿去談下一個業主。\n幫別人做的同時經營自己的，作品和名聲一起疊上去，就是我的複利。\n進度看「富偉金庫配置表」的收入來源分頁和離開國泰進度條：https://claude.ai/artifact/NGdhdiLxVad3QuibdfhRXA", "ask": "我抗拒的比較像哪一個？工作內容本身／被綁住沒自由／那裡的人或氣氛／跟想走的路不一樣、怕走偏。\n「我先做一年，這一年只服務真正需要的人。如果要離開，我會把每位客人好好交接。」像不像我會說的話？我的版本："};
+const CATHAY_SCRIPT="國泰是一座橋。我走在橋上，知道對岸在哪裡。\n我不用說服自己愛上這份工作，我只要對眼前這位客人誠實：他真的需要，我才賣。\n我不帶別人的人生跟著我轉。我的承諾小小的，但每一個都守得住。\n有一天我會走。走的時候，我會把每一位客人好好交到下一個人手上。\n這不是虎頭蛇尾，這是有始有終。";
+// Cathay 信念頁：沒有自己的 App，資料存在床邊自己這裡（跟著 OneDrive 同步）；第一次打開先放一份草稿，之後直接改
+function cathay(){if(!B.cathay){B.cathay=JSON.parse(JSON.stringify(CATHAY_TPL));B.script=B.script||{};if(!B.script.cathay)B.script.cathay=CATHAY_SCRIPT;save();}return B.cathay;}
 const YOGA="shortcuts://run-shortcut?name="+encodeURIComponent("開瑜珈");
 const topHTML=k=>`<details class="whoami"><summary>我是誰（每頁共用，點開看）${B.whoami?"":"・還沒寫"}</summary>${B.whoami?`<div class="decl">${esc(B.whoami)}</div>`:""}<a class="link" href="#me">到「我是誰」修改 →</a></details>
     <div class="scene">情境圖（之後放）</div>
@@ -101,9 +105,9 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;"
 const pad=n=>String(n).padStart(2,"0"),ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const dayOff=n=>{const d=new Date();d.setDate(d.getDate()+n);return d;};
 const weekKeyOf=d=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));return ymd(x);};
-let mode=(()=>{const hs=(location.hash||"").slice(1);if(["me","morning","night","hh","vocal","all"].includes(hs))return hs;const h=new Date().getHours();return h>=4&&h<15?"morning":"night";})();
+let mode=(()=>{const hs=(location.hash||"").slice(1);if(["me","morning","night","hh","vocal","cathay","all"].includes(hs))return hs;const h=new Date().getHours();return h>=4&&h<15?"morning":"night";})();
 const READ=new URLSearchParams(location.search).has("read");   // ?read：只顯示那段話（給鬧鐘捷徑用）
-addEventListener("hashchange",()=>{const hs=location.hash.slice(1);if(["me","morning","night","hh","vocal","all"].includes(hs)){mode=hs;render();}});
+addEventListener("hashchange",()=>{const hs=location.hash.slice(1);if(["me","morning","night","hh","vocal","cathay","all"].includes(hs)){mode=hs;render();}});
 /* 全部信念：在這一頁就能看完、改完。同一個網站、同一台裝置的資料，改了直接寫回原本那一頁（HH、Vocal 打開時看到的就是這裡改的） */
 const BASE="https://fuwei0618-cmd.github.io";
 const HKEY="origina.hh.v1",VKEY="busk-app-v1";
@@ -123,7 +127,9 @@ function beliefs(){
    {k:"hh",name:"HH",when:"週三晚上・出發前",open:BASE+"/Gym/hh/#belief",missing:!Hd,app:"HH 頁",
     f:[["note","一句話・出發前的話",H.note||HH_NOTE,"t"],["why","使命・為什麼想學",H.why,"t"],["become","身份・想成為的樣子（一行一個）",(H.become||[]).filter(Boolean).join("\n"),"l"],["wins","行為・小勝利",H.wins||[],"w"],["reframes","卡住時・害怕的時候",H.reframes||[],"r"]]},
    {k:"vocal",name:"Vocal",when:"上台・練唱前",open:BASE+"/Vocal/#vision",missing:false,fresh:!(Vd&&Vd.meta&&Vd.meta.vision),app:"Vocal 頁",
-    f:[["note","一句話・上台前的話",V.note,"t"],["why","使命・為什麼唱",V.why,"t"],["at80","身份・80 歲的我",V.at80,"t"],["become","身份・想成為的樣子（一行一個）",(V.become||[]).filter(Boolean).join("\n"),"l"],["wins","行為・小勝利",V.wins||[],"w"],["reframes","卡住時・害怕的時候",V.reframes||[],"r"]]}];}
+    f:[["note","一句話・上台前的話",V.note,"t"],["why","使命・為什麼唱",V.why,"t"],["at80","身份・80 歲的我",V.at80,"t"],["become","身份・想成為的樣子（一行一個）",(V.become||[]).filter(Boolean).join("\n"),"l"],["wins","行為・小勝利",V.wins||[],"w"],["reframes","卡住時・害怕的時候",V.reframes||[],"r"]]},
+   (()=>{const C=cathay();return {k:"cathay",name:"Cathay",when:"上班前・卡住時",open:"./#cathay",
+    f:[["note","一句話・出門前的話",C.note,"t"],["why","使命・為什麼現在在國泰",C.why,"t"],["become","身份・想成為的樣子（一行一個）",(C.become||[]).filter(Boolean).join("\n"),"l"],["doing","行為・我怎麼做（一行一個）",(C.doing||[]).filter(Boolean).join("\n"),"l"],["reframes","卡住時・念頭與轉念",C.reframes||[],"r"],["exit","出口・離開國泰的路",C.exit,"t"],["ask","還沒回答的問題",C.ask,"t"]]};})()];}
 /* 雲端：HH、Vocal 的信念也直接跟 OneDrive 對齊——打開這頁先抓雲端最新的，改了就直接上傳（跟它們自己那頁用同一個檔案） */
 const OTHER={hh:{key:HKEY,file:"hh/data.json",app:"hh"},vocal:{key:VKEY,file:"Vocal/data.json",app:"vocal"}};
 const pend={hh:{},vocal:{}},upT={};let pulledOnce=false;
@@ -149,6 +155,7 @@ async function pushOther(k){const O=OTHER[k];if(!(await cloudTok()))return;   //
     const e=$("#svd");if(e){e.textContent="・已同步到雲端";setTimeout(()=>{if(e.textContent==="・已同步到雲端")e.textContent="";},1800);}}catch(e){}}
 function putBelief(k,field,val){
   if(k==="morning"||k==="night"){B[k]=val;save();return;}
+  if(k==="cathay"){cathay()[field]=val;save();return;}
   const key=k==="hh"?HKEY:VKEY,d=rd(key)||(k==="vocal"?{}:null);if(!d)return;
   let v;if(k==="hh"){v=d.vision=Object.assign({type:"vision",why:"",become:["","",""],note:HH_NOTE,reframes:[],wins:[]},d.vision||{});}
   else{d.meta=d.meta||{};v=d.meta.vision=d.meta.vision||{};}
@@ -157,7 +164,7 @@ function allHTML(only){
   if(!only||only==="vocal"){const Vd0=rd(VKEY);if(!(Vd0&&Vd0.meta&&Vd0.meta.vision&&String(Vd0.meta.vision.why||"").trim())&&CS.vocal&&CS.vocal!=="err")vocalSeed();}
   const mins=b=>{const n=b.f.filter(x=>x[3]!=="w").map(x=>x[3]==="r"?x[2].map(r=>(r.q||"")+(r.a||"")).join(""):String(x[2]||"")).join("").replace(/\s/g,"").length;return n?Math.max(1,Math.round(n/240)):0;};   // 大約一分鐘唸 240 字
   return `<div class="top"><h1>我的信念</h1>${segHTML()}</div>${only?"":`<p style="margin:-4px 0 0;font-size:13px"><a class="link" href="https://fuwei0618-cmd.github.io/Entry/mission/#me" target="_top">迷路時看結構：我是誰 ↗</a></p>`}
-  <p class="muted" style="margin:-4px 0 0;font-size:13px">${only?"直接點字修改，會自動存好。":"四篇都在這裡，直接點字修改，會自動存回原本那一頁。"}<span id="svd" class="svd"></span></p>
+  <p class="muted" style="margin:-4px 0 0;font-size:13px">${only?"直接點字修改，會自動存好。":"每一篇都在這裡，直接點字修改，會自動存回原本那一頁。"}<span id="svd" class="svd"></span></p>
   <div class="bgrid all">${beliefs().filter(b=>!only||b.k===only).map(b=>`<section class="card bfull" data-b="${b.k}">
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div>${b.flow?`<div class="flowln">儀式：${esc(b.flow)}</div>`:""}</div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a></span></div>
@@ -172,10 +179,10 @@ function wireAll(){
   let tm=0;const said=()=>{const e=$("#svd");if(!e)return;e.textContent="・已存";clearTimeout(tm);tm=setTimeout(()=>{e.textContent="";},1400);};
   wireTop(said);
   document.querySelectorAll(".bfull textarea:not([data-script])").forEach(t=>{grow(t);t.oninput=()=>{grow(t);const k=t.closest("[data-b]").dataset.b;putBelief(k,t.dataset.fk,t.dataset.type==="l"?t.value.split("\n").map(x=>x.trim()).filter(Boolean):t.value);said();};});
-  const rfs=k=>{const d=rd(k==="hh"?HKEY:VKEY);const v=k==="hh"?(d&&d.vision):(d&&d.meta&&d.meta.vision);return JSON.parse(JSON.stringify((v&&v.reframes)||[]));};
+  const rfs=k=>{if(k==="cathay")return JSON.parse(JSON.stringify(cathay().reframes||[]));const d=rd(k==="hh"?HKEY:VKEY);const v=k==="hh"?(d&&d.vision):(d&&d.meta&&d.meta.vision);return JSON.parse(JSON.stringify((v&&v.reframes)||[]));};
   document.querySelectorAll(".bfull .rf input").forEach(t=>t.oninput=()=>{const k=t.closest("[data-b]").dataset.b,R=rfs(k),i=+(t.dataset.rq??t.dataset.ra);R[i]=R[i]||{q:"",a:""};if(t.dataset.rq!=null)R[i].q=t.value;else R[i].a=t.value;putBelief(k,"reframes",R);said();});
   document.querySelectorAll("[data-rfadd]").forEach(b=>b.onclick=()=>{const k=b.closest("[data-b]").dataset.b,R=rfs(k);R.push({q:"",a:""});putBelief(k,"reframes",R);render();});}
-const segHTML=()=>`<div class="seg"><button data-m="me" aria-pressed="${mode==="me"}">我是誰</button><button data-m="morning" aria-pressed="${mode==="morning"}">起床</button><button data-m="night" aria-pressed="${mode==="night"}">睡前</button><button data-m="hh" aria-pressed="${mode==="hh"}">HH</button><button data-m="vocal" aria-pressed="${mode==="vocal"}">Vocal</button><button data-m="all" aria-pressed="${mode==="all"}">全部</button></div>`;
+const segHTML=()=>`<div class="seg"><button data-m="me" aria-pressed="${mode==="me"}">我是誰</button><button data-m="morning" aria-pressed="${mode==="morning"}">起床</button><button data-m="night" aria-pressed="${mode==="night"}">睡前</button><button data-m="hh" aria-pressed="${mode==="hh"}">HH</button><button data-m="vocal" aria-pressed="${mode==="vocal"}">Vocal</button><button data-m="cathay" aria-pressed="${mode==="cathay"}">Cathay</button><button data-m="all" aria-pressed="${mode==="all"}">全部</button></div>`;
 // 從夢想版讀重點（同一個網站，同一台裝置）
 function focusFor(d){const D=ls("origina.dream.v1");if(!D||!D.todo)return{tasks:[],days:[]};
   const find=id=>{for(const p of D.todo.projects){const t=p.tasks.find(x=>x.id===id);if(t)return{p,t};}return null;};
@@ -188,13 +195,13 @@ let pose=-1,poseLeft=0,poseTimer=null,doneToday=null,breathing=false;
 function render(){
   document.body.classList.toggle("night",mode==="night");
   if(READ&&(mode==="me"||SCR(mode))){const t=mode==="me"?String(B.whoami||""):audioText(mode);$("#app").innerHTML=`<div style="padding:24px 8px"><div class="decl">${esc(t)}</div>${mode==="morning"||mode==="night"?`<div class="row" style="justify-content:center;margin-top:28px"><a class="btn pri" style="text-decoration:none" href="${YOGA}">開始瑜伽 →</a></div>`:""}</div>`;return;}
-  if(mode==="me"){$("#app").innerHTML=`<div class="top"><h1>我是誰</h1>${segHTML()}</div><p class="muted" style="margin:-4px 0 0;font-size:13px">每一頁的音檔都從這段開始。改這裡，起床、睡前、HH、Vocal 的音檔稿一起變。<span id="svd" class="svd"></span></p>
+  if(mode==="me"){$("#app").innerHTML=`<div class="top"><h1>我是誰</h1>${segHTML()}</div><p class="muted" style="margin:-4px 0 0;font-size:13px">每一頁的音檔都從這段開始。改這裡，起床、睡前、HH、Vocal、Cathay 的音檔稿一起變。<span id="svd" class="svd"></span></p>
     <section class="card bfull"><textarea id="whoami" rows="1" placeholder="寫下你的我是誰宣言">${esc(B.whoami||"")}</textarea><div class="row"><button class="btn sm" id="cpme">複製</button></div></section>`;
     const t=$("#whoami"),grow=()=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};grow();let tm=0;
     t.oninput=()=>{grow();B.whoami=t.value;save();const e=$("#svd");if(e){e.textContent="・已存";clearTimeout(tm);tm=setTimeout(()=>{e.textContent="";},1400);}};
     $("#cpme").onclick=e=>copyText(String(B.whoami||""),e.target);
     document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;history.replaceState(null,"","#"+mode);stopPose();render();});return;}
-  if(mode==="all"||mode==="hh"||mode==="vocal"){$("#app").innerHTML=allHTML(mode==="all"?"":mode);wireAll();if(!pulledOnce){pulledOnce=true;setTimeout(pullOthers,800);setTimeout(pullOthers,3500);}document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;history.replaceState(null,"","#"+mode);stopPose();render();});return;}
+  if(mode==="all"||mode==="hh"||mode==="vocal"||mode==="cathay"){$("#app").innerHTML=allHTML(mode==="all"?"":mode);wireAll();if(!pulledOnce){pulledOnce=true;setTimeout(pullOthers,800);setTimeout(pullOthers,3500);}document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;history.replaceState(null,"","#"+mode);stopPose();render();});return;}
   if(READ){$("#app").innerHTML=`<div style="min-height:80vh;display:grid;place-items:center;text-align:center;padding:24px"><div><div class="stepn" style="margin-bottom:18px">${mode==="morning"?"早安":"晚安"}</div><div class="decl" style="font-size:clamp(22px,6vw,30px)">${esc(mode==="morning"?B.morning:B.night)}</div><a class="link" style="display:inline-block;margin-top:28px" href="./#${mode}">打開${mode==="morning"?"起床":"睡前"}頁 →</a></div></div>`;return;}
   const M=mode==="morning",f=focusFor(M?new Date():dayOff(1)),first=(f.tasks[0]&&f.tasks[0].t.text)||(f.days[0]&&f.days[0].text)||"";
   const focusHTML=(f.tasks.length||f.days.length)?`<div class="focus">${f.days.map(d=>`<div><i style="background:var(--acc)"></i><b>${esc(d.text)}</b></div>`).join("")}${f.tasks.map(x=>`<div><i style="background:${x.p.color}"></i>${esc(x.t.text)}<span class="muted" style="font-size:12px">・${esc(x.p.name)}</span></div>`).join("")}</div>`:`<p class="muted" style="margin:0;font-size:14px">${M?"今天":"明天"}沒有排重點，就照自己的步調。</p>`;

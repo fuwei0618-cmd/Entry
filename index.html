@@ -34,6 +34,13 @@ button{font:inherit;color:inherit;cursor:pointer}
 .hud-tl span{font-size:13px;color:var(--muted)}
 .hud-tr{position:fixed;right:16px;top:calc(14px + env(safe-area-inset-top,0px));display:flex;gap:8px}
 .hud-tr button{min-height:44px;font-weight:700;font-size:14px}
+#rescueBtn{position:fixed;right:16px;top:calc(68px + env(safe-area-inset-top,0px));z-index:4;width:52px;height:52px;border-radius:50%;border:2px solid #E8C9A0;background:#5A101C;color:#F6E7D2;font:700 14px/1 "Noto Sans TC",system-ui,sans-serif;letter-spacing:.06em;box-shadow:0 4px 16px rgba(90,16,28,.45);cursor:pointer}
+#rescueBtn.on{background:#E0202A;animation:rsP 1.6s ease-in-out infinite}@keyframes rsP{50%{box-shadow:0 0 0 10px rgba(224,32,42,.18)}}
+#rescue{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:7;width:min(440px,calc(100vw - 24px))}
+.rs-card{background:rgba(20,8,10,.86);color:#F6E7D2;border:1px solid rgba(232,160,140,.35);border-radius:18px;padding:14px 16px;display:grid;gap:8px;backdrop-filter:blur(6px);font-family:"Noto Sans TC",system-ui,sans-serif}
+.rs-t{font-size:12px;letter-spacing:.2em;color:#F08A7A}.rs-l b{font-size:12px;color:#E8B08A;font-weight:600}.rs-l p{margin:2px 0 0;font-size:15px;line-height:1.6;outline:none;border-radius:6px}.rs-l p:focus{background:rgba(255,255,255,.08)}
+.rs-f{font-size:13px;color:#D8C7B4}.rs-f .muted{font-size:11.5px;opacity:.6}.rs-b{display:flex;gap:8px;justify-content:flex-end}.rs-b button{border:1px solid rgba(246,231,210,.4);background:transparent;color:#F6E7D2;border-radius:999px;padding:7px 16px;font-size:13.5px;cursor:pointer}#rsOff{background:#F6E7D2;color:#3A0E14}
+#rescue.min .rs-l,#rescue.min .rs-f{display:none}
 .prompt{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);min-height:52px;padding:12px 22px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:14px;box-shadow:var(--shadow);border:0;white-space:nowrap}
 .prompt small{font-weight:500;opacity:.75;font-size:13px}
 .hint{position:fixed;left:50%;top:calc(76px + env(safe-area-inset-top,0px));transform:translateX(-50%);font-size:13px;color:var(--muted);transition:opacity .6s;text-align:center;max-width:calc(100% - 32px);pointer-events:none}
@@ -133,6 +140,13 @@ button{font:inherit;color:inherit;cursor:pointer}
   <button class="chip" id="viewBtn" aria-label="切換視角">第三人稱</button>
   <button class="chip" id="menuBtn" aria-label="打開地圖">地圖</button>
 </div>
+<button id="rescueBtn" aria-label="緊急救援">救援</button>
+<div id="rescue" hidden><div class="rs-card"><div class="rs-t">他們都到你身邊了</div>
+  <div class="rs-l"><b>狼・左前方</b><p contenteditable="true" data-rs="wolf"></p></div>
+  <div class="rs-l"><b>虎・右前方</b><p contenteditable="true" data-rs="tiger"></p></div>
+  <div class="rs-l"><b>管家・你正前方</b><p contenteditable="true" data-rs="butler"></p></div>
+  <div class="rs-f">你只要站著，腳掌踩穩。<span class="muted">（點字可以改成你的話）</span></div>
+  <div class="rs-b"><button id="rsMin">收起</button><button id="rsOff">解除</button></div></div></div>
 <div class="hint chip" id="hint">點地面走過去 · 拖曳轉動視角 · 電腦可用 WASD 或方向鍵</div>
 <button class="prompt" id="prompt" hidden></button>
 <div class="joy" id="joy" hidden><i id="knob"></i></div>
@@ -954,7 +968,15 @@ F.hots=[
     guards.push({root,side,front,glow,halo,pg,N,col,hot,sd,cl,x:x0,x0,x1,faceGate,faceEnd,ry:Math.PI/2,st:'watch',tm:20+i*6,ph:i*1.7,step:0});});
   const OUT=Math.PI/2;
   F.guardUpdate=(dt,t)=>{const h=new Date().getHours(),eve=h>=17||h<6;
-    guards.forEach(g=>{
+    guards.forEach((g,gi)=>{
+      const RS=window.RESCUE;
+      if(RS){const s=gi===0?-1:1,L=RS.lat,gx=RS.x+RS.fx*6+RS.rx*s*L,gz=RS.z+RS.fz*6+RS.rz*s*L,k=.62+.025*Math.sin(t*3+g.ph);   // 狼左、虎右，站到前面，作戰狀態
+        g.x=gx;g.root.position.set(gx,heightAt(gx,gz)+.08+Math.abs(Math.sin(t*2.4+g.ph))*.12,gz);g.root.rotation.y=RS.a;g.root.scale.setScalar(k);
+        g.front.visible=true;g.side.visible=false;g.front.rotation.y=0;g.cl.rotation.y=0;g.cl.children[0].rotation.x=.18+.12*Math.sin(t*5+g.ph);g.front.rotation.x=.06;
+        g.glow.position.set(-g.front.userData.w*.45,H*.97,0);g.glow.material.opacity=1;g.halo.material.opacity=.35+.15*Math.sin(t*4+g.ph);g.halo.material.color.setHex(0xFF2A1A);
+        const a=g.pg.attributes.position.array;for(let q=0;q<g.N;q++){a[q*3+1]+=dt*(1.6+(q%5)*.3);if(a[q*3+1]>H)a[q*3+1]=0;}g.pg.attributes.position.needsUpdate=true;
+        g.col.x=gx;g.col.z=gz;g.hot.x=gx;g.hot.z=gz-3;g.was=1;return;}
+      if(g.was){g.was=0;g.root.rotation.y=0;g.root.scale.setScalar(1);g.front.rotation.x=0;g.halo.material.color.setHex(0xFFE7B0);g.col.z=GZI;g.hot.z=GZI-3;}
       const near=Math.hypot(P.x-g.x,P.z-GZI)<9;
       let tgt=g.ry,mv=0;
       if(g.st==='walkIn'||g.st==='walkOut'){const to=g.st==='walkIn'?g.x0:g.x1;tgt=g.st==='walkIn'?g.faceGate:g.faceEnd;
@@ -985,8 +1007,15 @@ F.hots=[
       const m=new R.Mesh(g,new R.MeshStandardMaterial({map,normalMap:L(base+'-normal.webp'),displacementMap:L(base+'-depth.webp'),displacementScale:.3,alphaTest:.5,roughness:.6,emissive:0xFFFFFF,emissiveMap:map,emissiveIntensity:.35}));
       m.castShadow=true;m.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map,alphaTest:.5});if(flip)m.rotation.y=Math.PI;m.userData.tap='butler';body.add(m);});};
   dress();
+  // 救援時：站到你正前方，背對你、面向外面，右手一把槍，紅色瞄準線往前
+  const gun=new R.Group();{const gm=new R.MeshStandardMaterial({color:0x111111,roughness:.35,metalness:.8});
+    const sl=new R.Mesh(new R.BoxGeometry(.05,.07,.26),gm);sl.position.z=.13;gun.add(sl);const gp=new R.Mesh(new R.BoxGeometry(.045,.13,.06),gm);gp.position.set(0,-.08,.02);gp.rotation.x=-.25;gun.add(gp);
+    const arm=new R.Mesh(new R.CylinderGeometry(.045,.05,.5,8),new R.MeshStandardMaterial({color:0xF2EEE6,roughness:.8}));arm.rotation.x=Math.PI/2;arm.position.set(0,-.01,-.22);gun.add(arm);
+    const las=new R.Mesh(new R.CylinderGeometry(.022,.022,30,6),new R.MeshBasicMaterial({color:0xFF1A1A,transparent:true,opacity:.55,depthWrite:false,blending:R.AdditiveBlending}));las.rotation.x=Math.PI/2;las.position.z=15.26;gun.add(las);
+    const dot=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xFF2020,transparent:true,opacity:.9,depthWrite:false,blending:R.AdditiveBlending}));dot.position.z=.27;dot.scale.set(.25,.25,1);gun.add(dot);}
+  gun.position.set(-.46,bh*.6,.42);gun.visible=false;
   let BX=hx+2.6,BZ=hz+9.6;const GROUND=[hx+2.6,hz+9.6,heightAt(hx,hz)+.5],ROOF=[hx+11.6,hz+6.4,heightAt(hx,hz)+5.9];   // 平常在門口；你上屋頂時到屋頂左上角（地圖上）
-  const piv=new R.Group();piv.position.set(BX,GROUND[2],BZ);piv.add(body);out.add(piv);
+  const piv=new R.Group();piv.position.set(BX,GROUND[2],BZ);piv.add(body);piv.add(gun);out.add(piv);
   const bcol={x:BX,z:BZ,r:.4};F.col.push(bcol);let onRoof=false;
   const bh_={id:'butler',name:'管家',verb:'換一套',x:BX,z:BZ+1.4,r:4.5,go:()=>{oi=(oi+1)%OUTFITS.length;localStorage.setItem('origina.butler',OUTFITS[oi].k);dress();say('換好了，'+OUTFITS[oi].n+'。');}};F.hots.push(bh_);
   // 他會開口：走近時說一句。外表交給圖，聰明交給他說的話
@@ -997,7 +1026,11 @@ F.hots=[
     return [`<b>${hm}・週${wd}</b>　${greet}`,'金庫這個月的帳我對過了，沒有漏掉的。','你想出發的時候，飛機隨時可以起飛。','明天要帶的東西，我已經放在門口了。','今天先做一件事就好，其他的我幫你記著。','流程我順過了，你只要照著走就好。','卡住的地方我記下來了，下次會更順。'];};
   let li=0,shown=false,sayT=0,sayTxt='';const say=t=>{sayTxt=t;sayT=3.5;};
   const v3=new R.Vector3();let bow=0;
-  F.butlerUpdate=dt=>{if(roofOn!==onRoof){onRoof=roofOn;const Q=onRoof?ROOF:GROUND;BX=Q[0];BZ=Q[1];piv.position.set(BX,Q[2],BZ);bcol.x=BX;bcol.z=BZ;bh_.x=BX;bh_.z=BZ+1.4;shown=false;}
+  let rsWas=false;
+  F.butlerUpdate=dt=>{const RS=window.RESCUE;
+    if(RS){const x=RS.x+RS.fx*1.9,z=RS.z+RS.fz*1.9;piv.position.set(x,RS.y,z);piv.rotation.y=RS.a;body.rotation.x=0;gun.visible=true;bcol.x=x;bcol.z=z;bub.classList.remove('on');rsWas=true;return;}
+    if(rsWas){rsWas=false;gun.visible=false;const Q=onRoof?ROOF:GROUND;BX=Q[0];BZ=Q[1];piv.position.set(BX,Q[2],BZ);bcol.x=BX;bcol.z=BZ;}
+    if(roofOn!==onRoof){onRoof=roofOn;const Q=onRoof?ROOF:GROUND;BX=Q[0];BZ=Q[1];piv.position.set(BX,Q[2],BZ);bcol.x=BX;bcol.z=BZ;bh_.x=BX;bh_.z=BZ+1.4;shown=false;}
     const tgt=Math.atan2(camera.position.x-BX,camera.position.z-BZ);let d=tgt-piv.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));piv.rotation.y+=d*Math.min(1,dt*2);
     const dist=Math.hypot(P.x-BX,P.z-BZ),near=dist<3.2&&cur===F;bow+=((near?.14:0)-bow)*Math.min(1,dt*2.5);body.rotation.x=-bow;
     const talk=dist<5&&cur===F&&!overlayOpen();
@@ -1811,7 +1844,7 @@ function updateCamera(dt){
   if(!cur.indoor)want.y=Math.max(want.y,heightAt(want.x,want.z)+.8);
   if(cur.indoor&&cur.bounds){const b=cur.bounds;want.x=clamp(want.x,b[0]-.2,b[1]+.2);want.z=clamp(want.z,b[2]-.2,b[3]+.2);}
   if(camInit){camPos.copy(want);camInit=false;}else camPos.lerp(want,Math.min(1,dt*7));
-  camera.position.copy(camPos);look.set(P.x,P.y+1.25,P.z);camera.lookAt(look);
+  camera.position.copy(camPos);look.set(P.x,P.y+1.25+(window.RESCUE?2.6:0),P.z);camera.lookAt(look);
 }
 
 /* ---------- hotspots ---------- */
@@ -2013,7 +2046,7 @@ const clock=new R.Clock();
 function frame(){
   const dt=Math.min(.05,clock.getDelta()),t=clock.elapsedTime;
   if(overlayOpen()){requestAnimationFrame(frame);return;}
-  if(!sheetOpen())step(dt);
+  if(!sheetOpen()&&!window.RESCUE)step(dt);
   updateCamera(dt);checkHot();
   waterMat.uniforms.t.value=t;portalMat.uniforms.t.value=t;
   if(cur.update)cur.update(dt,t);
@@ -2095,6 +2128,24 @@ function setMode(m,save){const M=MODES[m];MODE=m;sky.material.uniforms.top.value
   if(save){try{localStorage.setItem("origina.mode",JSON.stringify({m,d:new Date().toDateString()}));}catch(e){}}}
 setMode(MODE);
 document.getElementById("modeBtn").onclick=()=>setMode(MODE==="add"?"ori":"add",true);
+/* 緊急救援（10/19）：按一下，狼（左）虎（右）換作戰狀態站到你前面，管家在你正前方舉槍。天色轉成暗紅，火燒旺。按解除就回到原本的樣子 */
+{const RSK="origina.rescue",DEF={wolf:"她沒有護誰。這是兩件事，不准把她沒說的話塞進她嘴裡。",tiger:"對她舉手，不行。再往前一步試試看。",butler:"我在。沒有人能再靠近妳一步。電話、孩子、別人的情緒，都不是妳要扛的。"};
+  let TX={};try{TX=JSON.parse(localStorage.getItem(RSK)||"{}");}catch(e){}
+  const box=document.getElementById("rescue"),btn=document.getElementById("rescueBtn");
+  box.querySelectorAll("[data-rs]").forEach(el=>{const k=el.dataset.rs;el.textContent=TX[k]||DEF[k];el.oninput=()=>{TX[k]=el.textContent.trim();try{localStorage.setItem(RSK,JSON.stringify(TX));}catch(e){}};
+    ["keydown","keyup","pointerdown"].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation()));});
+  const RED={top:0x24080D,bot:0x6A1A18,fog:0x2C0C10,fn:16,ff:80,sunC:0xFF6A4A,sunI:.45,hs:0xC06050,hg:0x2A0A0A,hI:.42,fire:2.4};
+  const on=()=>{if(cur!==F||roofOn){goto('forest','center');setTimeout(()=>{P.yaw=0;on2();},420);}else on2();};
+  const on2=()=>{const a=P.yaw+Math.PI,fx=Math.sin(a),fz=Math.cos(a);   // 往前＝鏡頭看出去的方向
+    window.RESCUE={x:P.x,z:P.z,y:P.y,a,fx,fz,rx:-fz,rz:fx,lat:innerWidth<innerHeight?3:4.6,cd:F.camDist};F.camDist=10;P.face=a;player.position.set(P.x,P.y,P.z);player.rotation.y=a;if(view==='first'){toggleView();window.RESCUE.fv=1;}
+    sky.material.uniforms.top.value.setHex(RED.top);sky.material.uniforms.bot.value.setHex(RED.bot);out.fog.color.setHex(RED.fog);out.fog.near=RED.fn;out.fog.far=RED.ff;
+    sun.color.setHex(RED.sunC);sun.intensity=RED.sunI;hemi.color.setHex(RED.hs);hemi.groundColor.setHex(RED.hg);hemi.intensity=RED.hI;window.FIRE_K=RED.fire;
+    (window.RED_GLOW||[]).forEach(g=>{if(g.key)g.o[g.key]=g.on*1.2;else g.o.opacity=Math.min(1,g.on*1.1);});
+    P.orbit=.3;box.hidden=false;box.classList.remove("min");btn.classList.add("on");btn.textContent="解除";navigator.vibrate&&navigator.vibrate([40,60,40]);};
+  const off=()=>{const fv=window.RESCUE&&window.RESCUE.fv;if(window.RESCUE)F.camDist=window.RESCUE.cd;window.RESCUE=null;if(fv&&view==='third')toggleView();box.hidden=true;btn.classList.remove("on");btn.textContent="救援";setMode(MODE);};
+  btn.onclick=()=>window.RESCUE?off():on();document.getElementById("rsOff").onclick=off;
+  document.getElementById("rsMin").onclick=e=>{box.classList.toggle("min");e.target.textContent=box.classList.contains("min")?"展開":"收起";};
+  if(new URLSearchParams(location.search).has("rescue"))setTimeout(on,900);}
 requestAnimationFrame(frame);
 })();
 </script>

@@ -90,7 +90,12 @@ function setScript(k,v){B.script=B.script||{};B.script[k]=v;save();}
 const CATHAY_TPL={"note": "國泰是橋，不是終點。\n今天只服務真正需要的人。", "why": "我現在還在國泰，是因為它幫我撐住金庫，Teresa 的舞台也還在這裡。\n我不是要在這裡待一輩子，而是在走向下一條路之前，把這一段走得乾淨、對得起每一位客人。", "become": ["只賣客人真正需要的東西的人", "承諾範圍小、但每一個都守得住的人", "離開時把每位客人好好交接、有始有終的人"], "doing": ["先不增員", "只賣客人真正需要的", "每位客人都留好紀錄，隨時可以交接", "每個月看一次國泰以外的收入進度"], "reframes": [{"q": "收入要靠國泰，我好抗拒", "a": "國泰是過渡期的橋，不是終點。國泰以外的月收入連續 3～6 個月超過 20 萬，我就離開。"}, {"q": "保險是做人的事業，我說服不了自己", "a": "客人要的不是我一輩子，是那張保單對。保單是跟國泰簽的，我離開後公司會轉給其他業務服務，保障不會消失。我要負責的是：賣給他的東西是他真的需要的。"}, {"q": "我怕虎頭蛇尾，客人和被我增員的人能接受嗎", "a": "先不增員，只服務客人，承諾範圍小、守得住。從第一天就知道會走，照「不增員、只賣需要的、離開前好好交接」做，就不叫虎頭蛇尾，叫有始有終。"}], "exit": "出口條件：國泰以外的月收入連續 3～6 個月超過 20 萬，就離開國泰。\n路線：晏任行銷＋自媒體，有機會到每月 10 萬；再來一到兩個業主（或談到更高價），國泰以外就能到 20 萬。\n晏任是最好的作品：把成果整理成案例，拿去談下一個業主。\n幫別人做的同時經營自己的，作品和名聲一起疊上去，就是我的複利。\n進度看「富偉金庫配置表」的收入來源分頁和離開國泰進度條：https://claude.ai/artifact/NGdhdiLxVad3QuibdfhRXA", "ask": "我抗拒的比較像哪一個？工作內容本身／被綁住沒自由／那裡的人或氣氛／跟想走的路不一樣、怕走偏。\n「我先做一年，這一年只服務真正需要的人。如果要離開，我會把每位客人好好交接。」像不像我會說的話？我的版本："};
 const CATHAY_SCRIPT="國泰是一座橋。我走在橋上，知道對岸在哪裡。\n我不用說服自己愛上這份工作，我只要對眼前這位客人誠實：他真的需要，我才賣。\n我不帶別人的人生跟著我轉。我的承諾小小的，但每一個都守得住。\n有一天我會走。走的時候，我會把每一位客人好好交到下一個人手上。\n這不是虎頭蛇尾，這是有始有終。";
 // Cathay 信念頁：沒有自己的 App，資料存在床邊自己這裡（跟著 OneDrive 同步）；第一次打開先放一份草稿，之後直接改
-function cathay(){if(!B.cathay){B.cathay=JSON.parse(JSON.stringify(CATHAY_TPL));B.script=B.script||{};if(!B.script.cathay)B.script.cathay=CATHAY_SCRIPT;save();}return B.cathay;}
+const CATHAY_P2={note:"我給國泰說好的時間，它給我錢；其他的，都是我的。\n我只守一條線：過最低考核（每月 8P），留在 Teresa 的舞台上。多出來的，都是驚喜。",rf:[{"q": "早會切斷我的時間", "a": "早會是過橋的過路費，我只付規定的那一份：人到、準時走。我的時間、我的生活、我的注意力，是我的。"}, {"q": "看到白板很嫉妒，想說幹嘛不在這裡努力就好", "a": "白板上的數字，是他們用整個人生換來的。我不換。我羨慕的是錢，不是那條路；錢，我會從自己的路上拿到。國泰給我底線，我的時間給我自己。我不是在國泰贏，我是在我的人生贏。"}]};
+function cathay(){if(!B.cathay){B.cathay=JSON.parse(JSON.stringify(CATHAY_TPL));B.script=B.script||{};if(!B.script.cathay)B.script.cathay=CATHAY_SCRIPT;save();}
+  const C=B.cathay;if(!C.p2){   // 10/18 補：一句話換成底線版、卡住時加兩組；自己改過的「一句話」不蓋掉，改接在後面
+    const old0=CATHAY_TPL.note;C.note=(!C.note||C.note===old0)?CATHAY_P2.note:(C.note.includes("其他的，都是我的")?C.note:C.note+"\n\n"+CATHAY_P2.note);
+    C.reframes=C.reframes||[];CATHAY_P2.rf.forEach(r=>{if(!C.reframes.some(x=>x.q===r.q))C.reframes.push(JSON.parse(JSON.stringify(r)));});C.p2=1;save();}
+  return C;}
 const YOGA="shortcuts://run-shortcut?name="+encodeURIComponent("開瑜珈");
 const topHTML=k=>`<details class="whoami"><summary>我是誰（每頁共用，點開看）${B.whoami?"":"・還沒寫"}</summary>${B.whoami?`<div class="decl">${esc(B.whoami)}</div>`:""}<a class="link" href="#me">到「我是誰」修改 →</a></details>
     <div class="scene">情境圖（之後放）</div>

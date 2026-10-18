@@ -626,7 +626,7 @@ let vaultF;
         for(let k=0;k<70;k++){const x=X0+.3+((k*37)%97)/97*(X1-X0-.6),z=Z0+((k*61)%89)/89*(Z1-Z0),r=.3+((k*13)%7)*.06;add(new R.IcosahedronGeometry(r,0),k%3?leaf:leaf2,x,PH+.45+((k*7)%3)*.08,z);}
         for(let k=0;k<14;k++){const x=k%2?X0:X1,z=Z0+(k>>1)*(Z1-Z0)/6,L=.8+((k*17)%5)*.25;for(let j=0;j<4;j++)add(new R.IcosahedronGeometry(.16,0),j%2?leaf:leaf2,x+(k%2?.12:-.12),PH+.2-j*L/4,z+((j*7)%3-1)*.08);}}
       // 客人的沙發：兩組對坐的低矮懶骨頭沙發＋矮茶几＋地毯，鬆鬆的
-      {const linen=new R.MeshStandardMaterial({color:0xE9E1D2,roughness:1}),oat=new R.MeshStandardMaterial({color:0xD6C7AE,roughness:1}),rug=new R.MeshStandardMaterial({color:0xCDBFA6,roughness:1}),tw=new R.MeshStandardMaterial({color:0x9A7656,roughness:.7});
+      {const linen=new R.MeshStandardMaterial({color:0x5C1220,roughness:.55}),oat=new R.MeshStandardMaterial({color:0x7A1C2A,roughness:.6}),rug=new R.MeshStandardMaterial({color:0xCDBFA6,roughness:1}),tw=new R.MeshStandardMaterial({color:0x9A7656,roughness:.7});
         add(new R.BoxGeometry(4.6,.02,3.2),rug,-6.4,.17,1.1);
         const sofa=(x,ry)=>{const g=new R.Group();g.position.set(x,.16,1.1);g.rotation.y=ry;G.add(g);
           const a2=(geo,m,px,py,pz,rx=0,rz=0)=>{const o=new R.Mesh(geo,m);o.position.set(px,py,pz);o.rotation.set(rx,0,rz);o.castShadow=true;g.add(o);return o;};
@@ -687,7 +687,7 @@ let vaultF;
 { // 蘑菇攝影棚
   const G=new R.Group(),y0=heightAt(mx,mz);G.position.set(mx,y0,mz);G.rotation.y=Math.PI/4;out.add(G);
   mesh(new R.CylinderGeometry(1.35,1.7,3.3,12),mat(0xFFF6E8),0,1.65,0,G);
-  const cap=mesh(new R.SphereGeometry(3.3,18,10,0,Math.PI*2,0,Math.PI/2),mat(0xD9583F),0,3.0,0,G);cap.scale.y=.78;
+  const cap=mesh(new R.SphereGeometry(3.3,18,10,0,Math.PI*2,0,Math.PI/2),mat(0xA8121C),0,3.0,0,G);cap.scale.y=.78;
   const dm=mat(0xFFFFFF);for(let i=0;i<14;i++){const a=rand()*Math.PI*2,b=.25+rand()*1.05,r=3.3;
     const d=mesh(new R.SphereGeometry(.22+rand()*.25,8,6),dm,Math.cos(a)*Math.sin(b)*r,3.0+Math.cos(b)*r*.78,Math.sin(a)*Math.sin(b)*r,G,false);d.scale.y=.5;d.lookAt(0,3,0);}
   mesh(new R.BoxGeometry(.9,1.7,.2),mat(0x8C6646),0,.9,1.55,G);
@@ -948,6 +948,7 @@ F.hots=[
     const hot={id:i?'guardTiger':'guardWolf',name:i?'虎・守護者':'狼・守護者',verb:'抬頭看',x:x0,z:GZI-3,r:3.5};F.hots.push(hot);
     // 側面圖的臉朝 -x：ry=0 面向 -x、ry=π 面向 +x、ry=π/2 面向外面（+z）
     const faceGate=sd<0?Math.PI:0,faceEnd=sd<0?0:Math.PI;
+    {const rg=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xC0101C,transparent:true,opacity:.5,depthWrite:false,blending:R.AdditiveBlending}));rg.position.y=H*.84;rg.scale.set(3.2,2,1);root.add(rg);(window.RED_GLOW=window.RED_GLOW||[]).push({o:rg.material,on:.95,off:.12});}
     guards.push({root,side,front,glow,halo,pg,N,col,hot,sd,x:x0,x0,x1,faceGate,faceEnd,ry:Math.PI/2,st:'watch',tm:20+i*6,ph:i*1.7,step:0});});
   const OUT=Math.PI/2;
   F.guardUpdate=(dt,t)=>{const h=new Date().getHours(),eve=h>=17||h<6;
@@ -1219,7 +1220,7 @@ F.hots=[
 F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+RW+5,Math.PI,0],pavilion:[0,GZ-RW-2,0,Math.PI],deck:[hx+8.6,hz-8.6,Math.PI,0],stream:[8.5,-32,-.35,Math.PI-.35],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI+.26,-.24,'first']};
 F.hots.push({id:'lucky',name:'Lucky',verb:'摸摸',dyn:true,r:3.6,go:()=>openLucky()});
 F.update=(dt,t)=>{if(dog.parent===out)dogUpdate(dt,t);sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
-  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.pavUpdate2&&F.pavUpdate2(dt,t);if(F.swings)F.swings.forEach((g,i)=>{g.rotation.x=Math.sin(t*.9+i*1.7)*.035;g.rotation.y=Math.sin(t*.37+i)*.12;});F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);if(F.homeLabel)F.homeLabel.visible=!roofOn;   /* 站在屋頂上時，家的字牌收起來，不擋視線 */F.doorUpdate&&F.doorUpdate(dt);};
+  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);window.redUpdate&&window.redUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.pavUpdate2&&F.pavUpdate2(dt,t);if(F.swings)F.swings.forEach((g,i)=>{g.rotation.x=Math.sin(t*.9+i*1.7)*.035;g.rotation.y=Math.sin(t*.37+i)*.12;});F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);if(F.homeLabel)F.homeLabel.visible=!roofOn;   /* 站在屋頂上時，家的字牌收起來，不擋視線 */F.doorUpdate&&F.doorUpdate(dt);};
 
 /* shared materials */
 const portalMat=new R.ShaderMaterial({uniforms:{t:{value:0}},side:R.DoubleSide,
@@ -1301,6 +1302,7 @@ H1S.ceil.material=new R.MeshStandardMaterial({map:planksTex([6,3]),roughness:.85
   boxIn(H1S,3.2,.7,1,0xD9CBB4,-3.6,.35,3.4,true);boxIn(H1S,3.2,.7,.3,0xCBBCA3,-3.6,.9,3.8,false);
   // 後牆：舞台門、世界之門
   boxIn(H1S,1.5,2.6,.15,0xB8402F,-.6,1.3,-D1/2+.08,false);
+  {const vel=new R.MeshStandardMaterial({color:0x5A101C,roughness:.7});[-1,1].forEach(sd=>{for(let k=0;k<4;k++)mesh(new R.CylinderGeometry(.09,.11,3.1,10),vel,-.6+sd*(.95+k*.13),1.55,-D1/2+.22+(k%2)*.05,s);});mesh(new R.BoxGeometry(2.8,.45,.2),vel,-.6,3.05,-D1/2+.24,s);}   // 舞台門：深紅絲絨布幕
   const sh=new R.Shape();sh.moveTo(-.75,0);sh.lineTo(.75,0);sh.lineTo(.75,1.9);sh.absarc(0,1.9,.75,0,Math.PI,false);sh.lineTo(-.75,0);
   mesh(new R.ShapeGeometry(sh,20),portalMat,2.6,0,-D1/2+.06,s,false,false);
   boxIn(H1S,.22,2.8,.25,0xE9D8BF,1.75,1.4,-D1/2+.12,false);boxIn(H1S,.22,2.8,.25,0xE9D8BF,3.45,1.4,-D1/2+.12,false);
@@ -1466,6 +1468,7 @@ B2.ceil=ceiling(f2r.scene,W2,D2,H2);B2.ceilH=H2;B2.ceil.material=new R.MeshStand
   for(let i=0;i<=5;i++)mesh(new R.BoxGeometry(.07,H2,.09),mat(0x2E2A25,{metalness:.4}),-W2/2+i*W2/5,H2/2,-D2/2,s,false);
   mesh(new R.BoxGeometry(W2,.08,.1),mat(0x2E2A25,{metalness:.4}),0,H2-.04,-D2/2,s,false);
   B2.col.push({x0:-W2/2,x1:W2/2,z0:-D2/2-.3,z1:-D2/2+.1});
+  {const vel=new R.MeshStandardMaterial({color:0x5A101C,roughness:.7});[-1,1].forEach(sd=>{for(let k=0;k<7;k++){const f=new R.Mesh(new R.CylinderGeometry(.11,.13,H2-.2,10),vel);f.position.set(sd*(W2/2-.35-k*.17),H2/2-.05,-D2/2+.28+(k%2)*.07);f.castShadow=true;s.add(f);}});}   // 酒紅絲絨窗簾，收在落地窗兩側
   const cy=new R.Mesh(new R.PlaneGeometry(W2+.4,5.5),new R.MeshStandardMaterial({color:0x8FAE74,roughness:1}));cy.rotation.x=-Math.PI/2;cy.position.set(0,.005,-D2/2-2.75);cy.receiveShadow=true;s.add(cy);
   const cw=new R.MeshStandardMaterial({color:0xCFCAC1,roughness:.95});
   mesh(new R.BoxGeometry(W2+.8,6.4,.4),cw,0,3.2,-D2/2-5.7,s);mesh(new R.BoxGeometry(.4,6.4,5.8),cw,-W2/2-.2,3.2,-D2/2-2.9,s);mesh(new R.BoxGeometry(.4,6.4,5.8),cw,W2/2+.2,3.2,-D2/2-2.9,s);
@@ -2022,12 +2025,47 @@ function frame(){
 }
 P.y=cur.floor(P.x,P.z);
 {const qs=new URLSearchParams(location.search),g=qs.get('go'),ap=qs.get('app');if(g){const[id,sp]=g.split(',');if(SC[id])goto(id,sp);}else goto('forest','garden');/* 一打開：坐在屋頂花園的沙發上，望向整個園區 */if(ap&&APPMAP[ap])openApp(ap,APPMAP[ap].u);else if(qs.has('map'))openMap();}
+
+/* 紅色軟裝（10/18）：酒紅、朱紅和會發光的紅，帶一點邪氣。起床 Addiction 時紅光全亮，睡前 Origina 時暗下去 */
+{const RG=window.RED_GLOW=window.RED_GLOW||[];const ox=0x5A101C,zhu=0xC8261E;
+  const emi=(c,k)=>{const m=new R.MeshStandardMaterial({color:c,roughness:.55,emissive:c,emissiveIntensity:k});RG.push({o:m,key:'emissiveIntensity',on:k*2.6,off:k*.25});return m;};
+  // 1 入口：鍛鐵門兩側掛紅緞帶，隨風飄
+  const ribbons=[];{const rm=new R.MeshStandardMaterial({color:zhu,roughness:.5,side:R.DoubleSide}),rm2=new R.MeshStandardMaterial({color:ox,roughness:.5,side:R.DoubleSide});
+    WALLP.filter(([x])=>Math.abs(x)<9&&Math.abs(x)>1.4).forEach(([x,z],i)=>{if(i%2)return;const y=heightAt(x,z)+1.05;const g=new R.Mesh(new R.PlaneGeometry(.12,1.1,1,6).translate(0,-.55,0),i%4?rm:rm2);g.position.set(x,y,z+.3);out.add(g);ribbons.push({g,p:i*.7});});}
+  // 2 罌粟花田：散在步道邊，起床時花會發光
+  {const pm=emi(0xB3121E,.18),cm=new R.MeshStandardMaterial({color:0x1A1414});
+    const PATCH=[[-9,33,2.6],[9,33,2.6],[-26,31,2.4],[26,31,2.4],[-7,9,2.2],[7,9,2.2],[-30,12,2.2],[30,12,2.2],[-4,40,1.6],[4,40,1.6]];
+    const N=PATCH.length*46,pet=new R.InstancedMesh(new R.SphereGeometry(.16,8,5),pm,N),ctr=new R.InstancedMesh(new R.SphereGeometry(.05,6,4),cm,N);
+    const m=new R.Matrix4(),q=new R.Quaternion(),v=new R.Vector3(),sc=new R.Vector3();let n=0;
+    PATCH.forEach(([cx,cz,rr])=>{for(let k=0;k<46;k++){const a=rand()*6.283,d=Math.sqrt(rand())*rr,x=cx+Math.cos(a)*d,z=cz+Math.sin(a)*d,y=heightAt(x,z)+.35+rand()*.25;
+      m.compose(v.set(x,y,z),q,sc.set(1,.45,1));pet.setMatrixAt(n,m);m.compose(v.set(x,y+.07,z),q,sc.set(1,1,1));ctr.setMatrixAt(n,m);n++;}});
+    pet.castShadow=true;out.add(pet,ctr);}
+  // 3 月老紅線：在園區四周的樹梢之間纏繞（垂成弧線）
+  {const lm=new R.LineBasicMaterial({color:0xC81E28});const A=[[-34,4],[-36,30],[-20,44],[20,44],[36,30],[34,4],[22,-20],[-22,-20]];
+    A.forEach((a,i)=>{const b=A[(i+1)%A.length];const pts=[];for(let t=0;t<=20;t++){const u=t/20,x=a[0]+(b[0]-a[0])*u,z=a[1]+(b[1]-a[1])*u;pts.push(new R.Vector3(x,heightAt(x,z)+5.2-Math.sin(u*Math.PI)*1.6,z));}
+      out.add(new R.Line(new R.BufferGeometry().setFromPoints(pts),lm));
+      [a,b].forEach(([x,z])=>{for(let k=0;k<5;k++){const y=heightAt(x,z)+4.4+k*.22;const ring=new R.Mesh(new R.TorusGeometry(.32,.025,4,16),new R.MeshBasicMaterial({color:0xC81E28}));ring.rotation.x=Math.PI/2;ring.position.set(x,y,z);out.add(ring);}});});}
+  // 4 金庫噴水池：紅色錦鯉在池裡游，池底泛紅金光
+  const koi=[];{const VY=heightAt(VX,VZ)+.5,km=new R.MeshStandardMaterial({color:0xC8261E,roughness:.4}),kw=new R.MeshStandardMaterial({color:0xF4EFE6,roughness:.4});
+    for(let i=0;i<6;i++){const g=new R.Group();const b=new R.Mesh(new R.SphereGeometry(.16,10,6),i%3?km:kw);b.scale.set(1.9,.55,.75);g.add(b);const tl=new R.Mesh(new R.ConeGeometry(.1,.22,6),km);tl.rotation.z=Math.PI/2;tl.position.x=-.36;g.add(tl);g.position.y=VY+.2;out.add(g);koi.push({g,a:i*1.05,r:1.5+(i%3)*.32,s:.35+i*.06});}
+    const kl=new R.PointLight(0xFF3A2A,.4,7);kl.position.set(VX,VY+.6,VZ);out.add(kl);RG.push({o:kl,key:'intensity',on:1.2,off:.15});}
+  // 5 營火旁：六盞紅紙燈籠
+  {const lm=emi(0xC8261E,.55),pole=new R.MeshStandardMaterial({color:0x3A2A22});const fy=heightAt(FX,FZ);
+    for(let i=0;i<6;i++){const a=i/6*6.283+.3,x=FX+Math.cos(a)*3.6,z=FZ+Math.sin(a)*3.6,y=heightAt(x,z);mesh(new R.CylinderGeometry(.03,.03,2.2,5),pole,x,y+1.1,z,out);
+      const l=mesh(new R.SphereGeometry(.26,12,8),lm,x,y+2.05,z,out,false);l.scale.y=1.25;mesh(new R.CylinderGeometry(.12,.12,.06,8),pole,x,y+2.4,z,out,false);}
+    const ll=new R.PointLight(0xFF3020,.5,9);ll.position.set(FX,fy+2.2,FZ);out.add(ll);RG.push({o:ll,key:'intensity',on:1.1,off:.15});}
+  // 6 光孔日晷：紅玻璃，地上落一個紅色光點
+  {const cy=heightAt(EC.cx,EC.cz),dot=new R.Mesh(new R.CircleGeometry(.55,32),new R.MeshBasicMaterial({color:0xE0202A,transparent:true,opacity:.75,depthWrite:false}));dot.rotation.x=-Math.PI/2;dot.position.set(EC.cx+.6,cy+.06,EC.cz-.4);out.add(dot);RG.push({o:dot.material,on:.85,off:.3});
+    const sp=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xE0202A,transparent:true,opacity:.5,depthWrite:false,blending:R.AdditiveBlending}));sp.position.set(EC.cx+.6,cy+.4,EC.cz-.4);sp.scale.set(2.4,1.2,1);out.add(sp);RG.push({o:sp.material,on:.7,off:.1});}
+  window.redUpdate=(dt,t)=>{ribbons.forEach(r=>{r.g.rotation.x=Math.sin(t*2.2+r.p)*.35;r.g.rotation.y=Math.sin(t*1.3+r.p)*.4;});
+    koi.forEach(k=>{k.a+=dt*k.s;k.g.position.x=VX+Math.cos(k.a)*k.r;k.g.position.z=VZ+Math.sin(k.a)*k.r;k.g.rotation.y=-k.a-Math.PI/2;});};
+}
 /* 兩種模式（10/18）：起床是 Addiction（日出、營火燒旺），睡前是 Origina（月光、營火變小）。只改森林的天色、光和火，不動任何資料 */
 const MODES={add:{top:0xF2A66C,bot:0xFCE3C2,fog:0xF4D8BC,fn:30,ff:110,sunC:0xFFC488,sunI:1.0,hs:0xFFE6C8,hg:0x6B5A3A,hI:.62,fire:1.7,label:"☀ Addiction"},
   ori:{top:0x141C33,bot:0x434C68,fog:0x262D44,fn:18,ff:85,sunC:0xA8BBE6,sunI:.22,hs:0x7D8BB4,hg:0x1C2318,hI:.34,fire:.6,label:"☾ Origina"}};
 let MODE=(()=>{try{const v=JSON.parse(localStorage.getItem("origina.mode")||"null");if(v&&v.d===new Date().toDateString()&&MODES[v.m])return v.m;}catch(e){}const h=new Date().getHours();return h>=4&&h<16?"add":"ori";})();
 function setMode(m,save){const M=MODES[m];MODE=m;sky.material.uniforms.top.value.setHex(M.top);sky.material.uniforms.bot.value.setHex(M.bot);
-  out.fog.color.setHex(M.fog);out.fog.near=M.fn;out.fog.far=M.ff;sun.color.setHex(M.sunC);sun.intensity=M.sunI;hemi.color.setHex(M.hs);hemi.groundColor.setHex(M.hg);hemi.intensity=M.hI;window.FIRE_K=M.fire;
+  out.fog.color.setHex(M.fog);out.fog.near=M.fn;out.fog.far=M.ff;sun.color.setHex(M.sunC);sun.intensity=M.sunI;hemi.color.setHex(M.hs);hemi.groundColor.setHex(M.hg);hemi.intensity=M.hI;window.FIRE_K=M.fire;(window.RED_GLOW||[]).forEach(g=>{const v=m==="add"?g.on:g.off;if(g.key)g.o[g.key]=v;else g.o.opacity=v;});
   const b=document.getElementById("modeBtn");if(b){b.textContent=M.label;b.setAttribute("aria-pressed",m==="add");}
   if(save){try{localStorage.setItem("origina.mode",JSON.stringify({m,d:new Date().toDateString()}));}catch(e){}}}
 setMode(MODE);

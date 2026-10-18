@@ -67,6 +67,12 @@ textarea{min-height:90px;resize:vertical}
 @media (prefers-reduced-motion:reduce){.orb.in,.orb.out{transition-duration:.01s}}
 .wins{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:14px}.wins .muted{font-size:12px}
 .whoami{display:grid;gap:6px;background:var(--soft);border-radius:12px;padding:8px 12px}.whoami summary{cursor:pointer;font-size:13px;color:var(--muted);list-style:none}.whoami summary::-webkit-details-marker{display:none}.whoami .decl{font-size:15px;line-height:1.8}
+.scchips{display:flex;flex-wrap:wrap;gap:6px}.scchip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;color:inherit;cursor:pointer}.scchip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#fff}.scchip.add{border-style:dashed;opacity:.75}
+.scard{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px;margin-top:6px}
+.scsit{font:inherit;font-weight:700;font-size:16px;border:0;background:transparent;color:inherit;padding:0;width:100%}
+.scrow{display:grid;gap:4px}.scrow span{font-size:12px;opacity:.65}.scrow textarea{font:inherit;border:0;background:transparent;color:inherit;resize:none;padding:0;width:100%;line-height:1.7}
+.scrow.big textarea{font-family:var(--serif);font-size:19px;line-height:1.7}
+.scdel{justify-self:end;font-size:12px}
 .scene{border:1px dashed var(--line);border-radius:12px;padding:14px;text-align:center;font-size:13px;color:var(--muted)}
 .scriptbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .layers{position:sticky;top:44px;z-index:6;background:var(--bg,#F4EFE6);padding:8px 0 6px;margin:-8px 0 0;font-size:13px;letter-spacing:.06em;color:var(--acc,#B08D57);font-weight:600}.flowln{margin-top:3px;font-size:12px;color:var(--acc,#B08D57)}
@@ -90,12 +96,28 @@ function setScript(k,v){B.script=B.script||{};B.script[k]=v;save();}
 const CATHAY_TPL={"note": "國泰是橋，不是終點。\n今天只服務真正需要的人。", "why": "我現在還在國泰，是因為它幫我撐住金庫，Teresa 的舞台也還在這裡。\n我不是要在這裡待一輩子，而是在走向下一條路之前，把這一段走得乾淨、對得起每一位客人。", "become": ["只賣客人真正需要的東西的人", "承諾範圍小、但每一個都守得住的人", "離開時把每位客人好好交接、有始有終的人"], "doing": ["先不增員", "只賣客人真正需要的", "每位客人都留好紀錄，隨時可以交接", "每個月看一次國泰以外的收入進度"], "reframes": [{"q": "收入要靠國泰，我好抗拒", "a": "國泰是過渡期的橋，不是終點。國泰以外的月收入連續 3～6 個月超過 20 萬，我就離開。"}, {"q": "保險是做人的事業，我說服不了自己", "a": "客人要的不是我一輩子，是那張保單對。保單是跟國泰簽的，我離開後公司會轉給其他業務服務，保障不會消失。我要負責的是：賣給他的東西是他真的需要的。"}, {"q": "我怕虎頭蛇尾，客人和被我增員的人能接受嗎", "a": "先不增員，只服務客人，承諾範圍小、守得住。從第一天就知道會走，照「不增員、只賣需要的、離開前好好交接」做，就不叫虎頭蛇尾，叫有始有終。"}], "exit": "出口條件：國泰以外的月收入連續 3～6 個月超過 20 萬，就離開國泰。\n路線：晏任行銷＋自媒體，有機會到每月 10 萬；再來一到兩個業主（或談到更高價），國泰以外就能到 20 萬。\n晏任是最好的作品：把成果整理成案例，拿去談下一個業主。\n幫別人做的同時經營自己的，作品和名聲一起疊上去，就是我的複利。\n進度看「富偉金庫配置表」的收入來源分頁和離開國泰進度條：https://claude.ai/artifact/NGdhdiLxVad3QuibdfhRXA", "ask": "我抗拒的比較像哪一個？工作內容本身／被綁住沒自由／那裡的人或氣氛／跟想走的路不一樣、怕走偏。\n「我先做一年，這一年只服務真正需要的人。如果要離開，我會把每位客人好好交接。」像不像我會說的話？我的版本："};
 const CATHAY_SCRIPT="國泰是一座橋。我走在橋上，知道對岸在哪裡。\n我不用說服自己愛上這份工作，我只要對眼前這位客人誠實：他真的需要，我才賣。\n我不帶別人的人生跟著我轉。我的承諾小小的，但每一個都守得住。\n有一天我會走。走的時候，我會把每一位客人好好交到下一個人手上。\n這不是虎頭蛇尾，這是有始有終。";
 // Cathay 信念頁：沒有自己的 App，資料存在床邊自己這裡（跟著 OneDrive 同步）；第一次打開先放一份草稿，之後直接改
+const CATHAY_SCENES=[{"s": "早會看到白板", "t": "好嫉妒，同齡的都年收兩百萬。我幹嘛不在這裡努力就好？", "a": "白板上的數字，是他們用整個人生換來的。我不換。\n我羨慕的是錢，不是那條路。", "do": "腳掌踩穩地板（足底三腳架），吸一口氣，在心裡說：我不是在國泰贏，我是在我的人生贏。"}, {"s": "早會切斷我的早上", "t": "我的時間又被拿走了。", "a": "早會是過橋的過路費，我只付規定的那一份：人到、準時走。", "do": "早會一結束，先做 10 分鐘自己的事，再開始國泰的工作。"}, {"s": "課程、聽別人講業績和增員", "t": "乾我屁事，我幹嘛要聽？", "a": "不是我的事，我可以人在心不在。", "do": "打開自己的筆記，寫下今天想做的一件自己的事。"}, {"s": "同事約吃飯、旅行", "t": "連休息都還在聊國泰，我真的不行。", "a": "我的生活是我的，我可以說不。唱歌我才去。", "do": "回一句：「這次我先不去，下次唱歌找我！」"}, {"s": "這個月還沒業績", "t": "最低考核撐不過去怎麼辦，我不敢想。", "a": "我只守一條線：每月 8P。\n不用想全部，只想下一個人。", "do": "寫下一個這週可以聯絡的人，就好。"}, {"s": "想到收入要靠國泰", "t": "我好抗拒，怎麼又是國泰。", "a": "國泰是橋，不是終點。國泰以外的收入連續 3～6 個月超過 20 萬，我就走。", "do": "打開金庫配置表，看一眼離開國泰的進度條。"}, {"s": "怕虎頭蛇尾、對不起客人", "t": "我走了，客人怎麼辦？", "a": "客人要的是那張保單對，不是我一輩子。只賣需要的、好好交接，就是有始有終。", "do": "把這位客人的紀錄補完整，隨時可以交接。"}];
+let scIdx=0;
 const CATHAY_P2={note:"我給國泰說好的時間，它給我錢；其他的，都是我的。\n我只守一條線：過最低考核（每月 8P），留在 Teresa 的舞台上。多出來的，都是驚喜。",rf:[{"q": "早會切斷我的時間", "a": "早會是過橋的過路費，我只付規定的那一份：人到、準時走。我的時間、我的生活、我的注意力，是我的。"}, {"q": "看到白板很嫉妒，想說幹嘛不在這裡努力就好", "a": "白板上的數字，是他們用整個人生換來的。我不換。我羨慕的是錢，不是那條路；錢，我會從自己的路上拿到。國泰給我底線，我的時間給我自己。我不是在國泰贏，我是在我的人生贏。"}]};
 function cathay(){if(!B.cathay){B.cathay=JSON.parse(JSON.stringify(CATHAY_TPL));B.script=B.script||{};if(!B.script.cathay)B.script.cathay=CATHAY_SCRIPT;save();}
   const C=B.cathay;if(!C.p2){   // 10/18 補：一句話換成底線版、卡住時加兩組；自己改過的「一句話」不蓋掉，改接在後面
     const old0=CATHAY_TPL.note;C.note=(!C.note||C.note===old0)?CATHAY_P2.note:(C.note.includes("其他的，都是我的")?C.note:C.note+"\n\n"+CATHAY_P2.note);
     C.reframes=C.reframes||[];CATHAY_P2.rf.forEach(r=>{if(!C.reframes.some(x=>x.q===r.q))C.reframes.push(JSON.parse(JSON.stringify(r)));});C.p2=1;save();}
+  if(!C.scenes){C.scenes=JSON.parse(JSON.stringify(CATHAY_SCENES));save();}   // 10/18：情境卡，發生的時候點對應的那張
   return C;}
+function sceneHTML(){const S=cathay().scenes;const i=Math.max(0,Math.min(scIdx,S.length-1)),x=S[i]||{};
+  return `<div class="fld"><label>發生什麼事？點一下對應的情境</label><div class="scchips">${S.map((y,j)=>`<button class="scchip" data-sc="${j}" aria-pressed="${j===i}">${esc(y.s||"（未命名）")}</button>`).join("")}<button class="scchip add" data-scadd>＋ 情境</button></div></div>
+    ${S.length?`<div class="scard" data-i="${i}">
+      <input class="scsit" data-scf="s" value="${esc(x.s||"")}" placeholder="情境">
+      <div class="scrow"><span>腦中冒出來的話</span><textarea data-scf="t" rows="1" placeholder="那時候我會想……">${esc(x.t||"")}</textarea></div>
+      <div class="scrow big"><span>穩住我的話</span><textarea data-scf="a" rows="1" placeholder="對自己說……">${esc(x.a||"")}</textarea></div>
+      <div class="scrow"><span>一個動作</span><textarea data-scf="do" rows="1" placeholder="馬上可以做的一件小事">${esc(x.do||"")}</textarea></div>
+      <button class="link scdel" data-scdel>刪掉這個情境</button></div>`:""}`;}
+function wireScenes(said){const grow=t=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};
+  document.querySelectorAll("[data-sc]").forEach(b=>b.onclick=()=>{scIdx=+b.dataset.sc;render();});
+  const add=$("[data-scadd]");if(add)add.onclick=()=>{const S=cathay().scenes;S.push({s:"",t:"",a:"",do:""});scIdx=S.length-1;save();render();const e=$(".scsit");if(e)e.focus();};
+  const del=$("[data-scdel]");if(del)del.onclick=()=>{if(del.dataset.ok!=="1"){del.dataset.ok="1";del.textContent="再按一次確定刪除";return;}const S=cathay().scenes;S.splice(scIdx,1);scIdx=0;save();render();};
+  document.querySelectorAll(".scard [data-scf]").forEach(t=>{if(t.tagName==="TEXTAREA")grow(t);t.oninput=()=>{if(t.tagName==="TEXTAREA")grow(t);const S=cathay().scenes,i=+t.closest(".scard").dataset.i;S[i][t.dataset.scf]=t.value;save();if(t.dataset.scf==="s"){const c=document.querySelector(`[data-sc="${i}"]`);if(c)c.textContent=t.value||"（未命名）";}said&&said();};});}
 const YOGA="shortcuts://run-shortcut?name="+encodeURIComponent("開瑜珈");
 const topHTML=k=>`<details class="whoami"><summary>我是誰（每頁共用，點開看）${B.whoami?"":"・還沒寫"}</summary>${B.whoami?`<div class="decl">${esc(B.whoami)}</div>`:""}<a class="link" href="#me">到「我是誰」修改 →</a></details>
     <div class="scene">情境圖（之後放）</div>
@@ -173,6 +195,7 @@ function allHTML(only){
   <div class="bgrid all">${beliefs().filter(b=>!only||b.k===only).map(b=>`<section class="card bfull" data-b="${b.k}">
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div>${b.flow?`<div class="flowln">儀式：${esc(b.flow)}</div>`:""}</div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a></span></div>
+    ${b.k==="cathay"?sceneHTML():""}
     ${topHTML(b.k)}
     <p class="layers" style="position:static;margin:4px 0 0">一句話 → 使命 → 身份 → 行為 → 卡住時</p>
     ${b.missing?`<p class="muted" style="margin:0;font-size:13px">${({nolog:`這台裝置還沒登入 OneDrive。按右下角雲朵登入，就會自動抓下來。`,nofile:`OneDrive 裡還沒有${esc(b.app)}的資料。請打開${esc(b.app)}，按它右下角的雲朵登入一次，它會把資料傳上去；之後這裡就讀得到。`,err:`抓雲端資料時出錯了，等一下再回來看看。`})[CS[b.k]]||`正在找${esc(b.app)}的資料……`}　<a class="link" href="${b.open}" target="_top">打開${esc(b.app)}</a></p>`:
@@ -182,8 +205,8 @@ function allHTML(only){
 function wireAll(){
   const grow=t=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};
   let tm=0;const said=()=>{const e=$("#svd");if(!e)return;e.textContent="・已存";clearTimeout(tm);tm=setTimeout(()=>{e.textContent="";},1400);};
-  wireTop(said);
-  document.querySelectorAll(".bfull textarea:not([data-script])").forEach(t=>{grow(t);t.oninput=()=>{grow(t);const k=t.closest("[data-b]").dataset.b;putBelief(k,t.dataset.fk,t.dataset.type==="l"?t.value.split("\n").map(x=>x.trim()).filter(Boolean):t.value);said();};});
+  wireTop(said);wireScenes(said);
+  document.querySelectorAll(".bfull textarea:not([data-script]):not([data-scf])").forEach(t=>{grow(t);t.oninput=()=>{grow(t);const k=t.closest("[data-b]").dataset.b;putBelief(k,t.dataset.fk,t.dataset.type==="l"?t.value.split("\n").map(x=>x.trim()).filter(Boolean):t.value);said();};});
   const rfs=k=>{if(k==="cathay")return JSON.parse(JSON.stringify(cathay().reframes||[]));const d=rd(k==="hh"?HKEY:VKEY);const v=k==="hh"?(d&&d.vision):(d&&d.meta&&d.meta.vision);return JSON.parse(JSON.stringify((v&&v.reframes)||[]));};
   document.querySelectorAll(".bfull .rf input").forEach(t=>t.oninput=()=>{const k=t.closest("[data-b]").dataset.b,R=rfs(k),i=+(t.dataset.rq??t.dataset.ra);R[i]=R[i]||{q:"",a:""};if(t.dataset.rq!=null)R[i].q=t.value;else R[i].a=t.value;putBelief(k,"reframes",R);said();});
   document.querySelectorAll("[data-rfadd]").forEach(b=>b.onclick=()=>{const k=b.closest("[data-b]").dataset.b,R=rfs(k);R.push({q:"",a:""});putBelief(k,"reframes",R);render();});}

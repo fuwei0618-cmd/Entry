@@ -38,7 +38,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 #rescueBtn.on{background:#E0202A;animation:rsP 1.6s ease-in-out infinite}@keyframes rsP{50%{box-shadow:0 0 0 10px rgba(224,32,42,.18)}}
 #rescue{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:7;width:min(440px,calc(100vw - 24px))}
 .rs-card{background:rgba(20,8,10,.86);color:#F6E7D2;border:1px solid rgba(232,160,140,.35);border-radius:18px;padding:14px 16px;display:grid;gap:8px;backdrop-filter:blur(6px);font-family:"Noto Sans TC",system-ui,sans-serif}
-.rs-t{font-size:12px;letter-spacing:.2em;color:#F08A7A}.rs-l b{font-size:12px;color:#E8B08A;font-weight:600}.rs-l p{margin:2px 0 0;font-size:15px;line-height:1.6;outline:none;border-radius:6px}.rs-l p:focus{background:rgba(255,255,255,.08)}
+.rs-t{font-size:12px;letter-spacing:.2em;color:#F08A7A}.rs-l b{font-size:12px;color:#E8B08A;font-weight:600}.rs-l p{margin:2px 0 0;font-size:15px;line-height:1.6;border-radius:6px;cursor:pointer;transition:opacity .2s}.rs-l p:active{background:rgba(255,255,255,.08)}
 .rs-f{font-size:13px;color:#D8C7B4}.rs-f .muted{font-size:11.5px;opacity:.6}.rs-b{display:flex;gap:8px;justify-content:flex-end}.rs-b button{border:1px solid rgba(246,231,210,.4);background:transparent;color:#F6E7D2;border-radius:999px;padding:7px 16px;font-size:13.5px;cursor:pointer}#rsOff{background:#F6E7D2;color:#3A0E14}
 #rescue.min .rs-l,#rescue.min .rs-f{display:none}
 .prompt{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);min-height:52px;padding:12px 22px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:14px;box-shadow:var(--shadow);border:0;white-space:nowrap}
@@ -142,10 +142,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 </div>
 <button id="rescueBtn" aria-label="緊急救援">救援</button>
 <div id="rescue" hidden><div class="rs-card"><div class="rs-t">他們都到你身邊了</div>
-  <div class="rs-l"><b>狼・左前方</b><p contenteditable="true" data-rs="wolf"></p></div>
-  <div class="rs-l"><b>虎・右前方</b><p contenteditable="true" data-rs="tiger"></p></div>
-  <div class="rs-l"><b>管家・你正前方</b><p contenteditable="true" data-rs="butler"></p></div>
-  <div class="rs-f">你只要站著，腳掌踩穩。<span class="muted">（點字可以改成你的話）</span></div>
+  <div class="rs-l"><b>狼・左前方</b><p data-rs="wolf"></p></div>
+  <div class="rs-l"><b>虎・右前方</b><p data-rs="tiger"></p></div>
+  <div class="rs-l"><b>管家・你正前方</b><p data-rs="butler"></p></div>
+  <div class="rs-f">你只要站著，腳掌踩穩。<span class="muted">（點一句換下一句）</span></div>
   <div class="rs-b"><button id="rsMin">收起</button><button id="rsOff">解除</button></div></div></div>
 <div class="hint chip" id="hint">點地面走過去 · 拖曳轉動視角 · 電腦可用 WASD 或方向鍵</div>
 <button class="prompt" id="prompt" hidden></button>
@@ -1004,7 +1004,7 @@ F.hots=[
   const dress=()=>{while(body.children.length)body.remove(body.children[0]);const o=OUTFITS[oi],bw=bh*o.w/1024,base='img/butler-'+o.k;
     const g=new R.PlaneGeometry(bw,bh,72,256);g.translate(0,bh/2,0);
     [false,true].forEach(flip=>{const L=flip?FL:T,map=L(base+(flip?'-back.webp':'.webp'));
-      const m=new R.Mesh(g,new R.MeshStandardMaterial({map,normalMap:L(base+'-normal.webp'),displacementMap:L(base+'-depth.webp'),displacementScale:.3,alphaTest:.5,roughness:.6,emissive:0xFFFFFF,emissiveMap:map,emissiveIntensity:.35}));
+      const m=new R.Mesh(g,new R.MeshStandardMaterial({map,normalMap:L(base+(flip?'-back-normal.webp':'-normal.webp')),displacementMap:L(base+(flip?'-back-depth.webp':'-depth.webp')),displacementScale:.3,alphaTest:.5,roughness:.6,emissive:0xFFFFFF,emissiveMap:map,emissiveIntensity:.35}));
       m.castShadow=true;m.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map,alphaTest:.5});if(flip)m.rotation.y=Math.PI;m.userData.tap='butler';body.add(m);});};
   dress();
   // 救援時：站到你正前方，背對你、面向外面，右手一把槍，紅色瞄準線往前
@@ -2129,11 +2129,13 @@ function setMode(m,save){const M=MODES[m];MODE=m;sky.material.uniforms.top.value
 setMode(MODE);
 document.getElementById("modeBtn").onclick=()=>setMode(MODE==="add"?"ori":"add",true);
 /* 緊急救援（10/19）：按一下，狼（左）虎（右）換作戰狀態站到你前面，管家在你正前方舉槍。天色轉成暗紅，火燒旺。按解除就回到原本的樣子 */
-{const RSK="origina.rescue",DEF={wolf:"她沒有護誰。這是兩件事，不准把她沒說的話塞進她嘴裡。",tiger:"對她舉手，不行。再往前一步試試看。",butler:"我在。沒有人能再靠近妳一步。電話、孩子、別人的情緒，都不是妳要扛的。"};
-  let TX={};try{TX=JSON.parse(localStorage.getItem(RSK)||"{}");}catch(e){}
-  const box=document.getElementById("rescue"),btn=document.getElementById("rescueBtn");
-  box.querySelectorAll("[data-rs]").forEach(el=>{const k=el.dataset.rs;el.textContent=TX[k]||DEF[k];el.oninput=()=>{TX[k]=el.textContent.trim();try{localStorage.setItem(RSK,JSON.stringify(TX));}catch(e){}};
-    ["keydown","keyup","pointerdown"].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation()));});
+{const LINES={wolf:["你說的不是她。她沒說過的話，不准塞進她嘴裡。","她不用解釋。該道歉的不是她。","把話說清楚：這是你的情緒，不是她的錯。","她的聲音很清楚，你聽不懂是你的事。","再說一次試試看。這次她會回嘴。"],
+    tiger:["對她動手、對她吼，都不行。","再往前一步試試看。","她的底線就在這裡，你踩不過去。","她不欠你，也不用讓你高興。","她有力量，她不怕你。"],
+    butler:["我在。沒有人能再靠近妳一步。","別人的情緒，不是妳要扛的。放下來，交給我。","妳已經做得夠多了。現在只要站著，慢慢吐氣。","這裡是妳的城堡，門只為妳開。","等妳想走的時候，我帶妳回家。"]};
+  const box=document.getElementById("rescue"),btn=document.getElementById("rescueBtn"),IX={};
+  const show=(el,k)=>{el.style.opacity=0;setTimeout(()=>{el.textContent=LINES[k][IX[k]%LINES[k].length];el.style.opacity=1;},180);};
+  const deal=()=>box.querySelectorAll("[data-rs]").forEach(el=>{const k=el.dataset.rs;IX[k]=Math.floor(Math.random()*LINES[k].length);show(el,k);});   // 每次救援隨機抽一句
+  box.querySelectorAll("[data-rs]").forEach(el=>{const k=el.dataset.rs;el.onclick=e=>{e.stopPropagation();IX[k]=(IX[k]||0)+1;show(el,k);};});
   const RED={top:0x24080D,bot:0x6A1A18,fog:0x2C0C10,fn:16,ff:80,sunC:0xFF6A4A,sunI:.45,hs:0xC06050,hg:0x2A0A0A,hI:.42,fire:2.4};
   const on=()=>{if(cur!==F||roofOn){goto('forest','center');setTimeout(()=>{P.yaw=0;on2();},420);}else on2();};
   const on2=()=>{const a=P.yaw+Math.PI,fx=Math.sin(a),fz=Math.cos(a);   // 往前＝鏡頭看出去的方向
@@ -2141,7 +2143,7 @@ document.getElementById("modeBtn").onclick=()=>setMode(MODE==="add"?"ori":"add",
     sky.material.uniforms.top.value.setHex(RED.top);sky.material.uniforms.bot.value.setHex(RED.bot);out.fog.color.setHex(RED.fog);out.fog.near=RED.fn;out.fog.far=RED.ff;
     sun.color.setHex(RED.sunC);sun.intensity=RED.sunI;hemi.color.setHex(RED.hs);hemi.groundColor.setHex(RED.hg);hemi.intensity=RED.hI;window.FIRE_K=RED.fire;
     (window.RED_GLOW||[]).forEach(g=>{if(g.key)g.o[g.key]=g.on*1.2;else g.o.opacity=Math.min(1,g.on*1.1);});
-    P.orbit=.3;box.hidden=false;box.classList.remove("min");btn.classList.add("on");btn.textContent="解除";navigator.vibrate&&navigator.vibrate([40,60,40]);};
+    P.orbit=.3;deal();box.hidden=false;box.classList.remove("min");btn.classList.add("on");btn.textContent="解除";navigator.vibrate&&navigator.vibrate([40,60,40]);};
   const off=()=>{const fv=window.RESCUE&&window.RESCUE.fv;if(window.RESCUE)F.camDist=window.RESCUE.cd;window.RESCUE=null;if(fv&&view==='third')toggleView();box.hidden=true;btn.classList.remove("on");btn.textContent="救援";setMode(MODE);};
   btn.onclick=()=>window.RESCUE?off():on();document.getElementById("rsOff").onclick=off;
   document.getElementById("rsMin").onclick=e=>{box.classList.toggle("min");e.target.textContent=box.classList.contains("min")?"展開":"收起";};

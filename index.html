@@ -948,8 +948,10 @@ F.hots=[
     const hot={id:i?'guardTiger':'guardWolf',name:i?'虎・守護者':'狼・守護者',verb:'抬頭看',x:x0,z:GZI-3,r:3.5};F.hots.push(hot);
     // 側面圖的臉朝 -x：ry=0 面向 -x、ry=π 面向 +x、ry=π/2 面向外面（+z）
     const faceGate=sd<0?Math.PI:0,faceEnd=sd<0?0:Math.PI;
+    {const fw=front.userData.w,cs=new R.Shape();cs.moveTo(-fw*.15,H*.74);cs.lineTo(fw*.15,H*.74);cs.lineTo(fw*.33,H*.06);cs.lineTo(-fw*.33,H*.06);cs.lineTo(-fw*.15,H*.74);
+      var cl=new R.Group();const cm=new R.Mesh(new R.ShapeGeometry(cs),new R.MeshStandardMaterial({color:0x5A101C,roughness:.75,side:R.DoubleSide}));cm.position.z=-.35;cm.castShadow=true;cl.add(cm);root.add(cl);}   // 酒紅披肩
     {const rg=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xC0101C,transparent:true,opacity:.5,depthWrite:false,blending:R.AdditiveBlending}));rg.position.y=H*.84;rg.scale.set(3.2,2,1);root.add(rg);(window.RED_GLOW=window.RED_GLOW||[]).push({o:rg.material,on:.95,off:.12});}
-    guards.push({root,side,front,glow,halo,pg,N,col,hot,sd,x:x0,x0,x1,faceGate,faceEnd,ry:Math.PI/2,st:'watch',tm:20+i*6,ph:i*1.7,step:0});});
+    guards.push({root,side,front,glow,halo,pg,N,col,hot,sd,cl,x:x0,x0,x1,faceGate,faceEnd,ry:Math.PI/2,st:'watch',tm:20+i*6,ph:i*1.7,step:0});});
   const OUT=Math.PI/2;
   F.guardUpdate=(dt,t)=>{const h=new Date().getHours(),eve=h>=17||h<6;
     guards.forEach(g=>{
@@ -961,7 +963,7 @@ F.hots=[
       else{tgt=OUT;if(Math.abs(tgt-g.ry)<.05){g.tm-=dt;if(g.tm<=0)g.st=g.st==='watch'?'walkOut':'walkIn';}}   // 門口站崗很久；盡頭只停一下
       g.ry+=(tgt-g.ry)*Math.min(1,dt*1.1);
       const isFront=Math.abs(g.ry-OUT)<Math.PI/4;g.front.visible=isFront;g.side.visible=!isFront;
-      g.side.rotation.y=g.ry;g.front.rotation.y=g.ry-OUT;
+      g.side.rotation.y=g.ry;g.front.rotation.y=g.ry-OUT;g.cl.rotation.y=isFront?g.ry-OUT:g.ry;g.cl.children[0].rotation.x=.05*Math.sin(t*1.4+g.ph);
       if(mv)g.step+=dt*1.7;
       const y=heightAt(g.x,GZI),bob=mv?Math.abs(Math.sin(g.step*Math.PI))*.14:0;
       g.root.position.set(g.x,y+.08+bob,GZI);
@@ -2057,7 +2059,27 @@ P.y=cur.floor(P.x,P.z);
   // 6 光孔日晷：紅玻璃，地上落一個紅色光點
   {const cy=heightAt(EC.cx,EC.cz),dot=new R.Mesh(new R.CircleGeometry(.55,32),new R.MeshBasicMaterial({color:0xE0202A,transparent:true,opacity:.75,depthWrite:false}));dot.rotation.x=-Math.PI/2;dot.position.set(EC.cx+.6,cy+.06,EC.cz-.4);out.add(dot);RG.push({o:dot.material,on:.85,off:.3});
     const sp=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xE0202A,transparent:true,opacity:.5,depthWrite:false,blending:R.AdditiveBlending}));sp.position.set(EC.cx+.6,cy+.4,EC.cz-.4);sp.scale.set(2.4,1.2,1);out.add(sp);RG.push({o:sp.material,on:.7,off:.1});}
+  // 7 高旗：入口長軸兩旁，黑色高柱掛又長又窄的酒紅旗，遠遠就看得到
+  const flags=[];{const pole=new R.MeshStandardMaterial({color:0x1C1714,roughness:.6,metalness:.3}),fm=new R.MeshStandardMaterial({color:0x5A101C,roughness:.7,side:R.DoubleSide}),gm=new R.MeshStandardMaterial({color:0xB08A3E,metalness:.7,roughness:.3});
+    [[-4.4,EC.cz+EC.rz+2.2],[4.4,EC.cz+EC.rz+2.2],[-4.4,GZ-RW-2.2],[4.4,GZ-RW-2.2]].forEach(([x,z],i)=>{const y=heightAt(x,z),H=13;
+      mesh(new R.CylinderGeometry(.09,.13,H,8),pole,x,y+H/2,z,out);mesh(new R.ConeGeometry(.16,.6,6),gm,x,y+H+.3,z,out);mesh(new R.BoxGeometry(1.5,.07,.07),pole,x,y+H-.35,z,out);
+      const geo=new R.PlaneGeometry(1.25,6.5,1,16);geo.translate(0,-3.25,0);const f=new R.Mesh(geo,fm);f.position.set(x,y+H-.4,z+.06);f.castShadow=true;out.add(f);
+      flags.push({f,base:geo.attributes.position.array.slice(),p:i*.9});F.col.push({x,z,r:.25});});}
+  // 8 瞭望台：入口東側，細長的黑塔，頂上一團紅火
+  {const TX=GW-9,TZ=GZ-RW-3,ty=heightAt(TX,TZ),dk=new R.MeshStandardMaterial({color:0x1C1714,roughness:.7,metalness:.2}),H=11,G=new R.Group();G.position.set(TX,ty,TZ);out.add(G);
+    [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([a,b])=>{const l=new R.Mesh(new R.CylinderGeometry(.09,.14,H,6),dk);l.position.set(a*1,H/2,b*1);l.rotation.set(b*-.07,0,a*.07);l.castShadow=true;G.add(l);});
+    for(let k=1;k<4;k++){const yy=k*H/4,w=2-(k*.12);[[0,1],[0,-1],[1,0],[-1,0]].forEach(([a,b])=>{const bar=new R.Mesh(new R.BoxGeometry(a?.06:w*1.05,.06,b?.06:w*1.05),dk);bar.position.set(a*w*.5,yy,b*w*.5);G.add(bar);});}
+    const pf=new R.Mesh(new R.BoxGeometry(2.4,.2,2.4),dk);pf.position.y=H;pf.castShadow=true;G.add(pf);
+    [[0,1.2],[0,-1.2],[1.2,0],[-1.2,0]].forEach(([a,b])=>{const rail=new R.Mesh(new R.BoxGeometry(a?.08:2.4,.6,b?.08:2.4),dk);rail.position.set(a,H+.4,b);G.add(rail);});
+    const roof=new R.Mesh(new R.ConeGeometry(1.9,2.6,4),dk);roof.position.y=H+2.9;roof.rotation.y=Math.PI/4;roof.castShadow=true;G.add(roof);
+    [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([a,b])=>{const pp=new R.Mesh(new R.CylinderGeometry(.05,.05,1.6,5),dk);pp.position.set(a*1.05,H+.8,b*1.05);G.add(pp);});
+    const fire=new R.Sprite(new R.SpriteMaterial({map:glowTex,color:0xE02A1A,transparent:true,opacity:.8,depthWrite:false,blending:R.AdditiveBlending}));fire.position.y=H+1.3;fire.scale.set(4.2,4.2,1);G.add(fire);RG.push({o:fire.material,on:1,off:.25});
+    const tl=new R.PointLight(0xFF3A1E,.4,16);tl.position.y=H+1;G.add(tl);RG.push({o:tl,key:'intensity',on:1.4,off:.15});
+    const pn=new R.Mesh(new R.PlaneGeometry(.9,2.4,1,8).translate(0,-1.2,0),new R.MeshStandardMaterial({color:0x5A101C,roughness:.7,side:R.DoubleSide}));pn.position.set(0,H+4.1,0);G.add(pn);
+    flags.push({f:pn,base:pn.geometry.attributes.position.array.slice(),p:3.3});
+    F.col.push({x:TX,z:TZ,r:1.4});label(out,'瞭望台',TX,ty+H+4.6,TZ,'看守我的領地');}
   window.redUpdate=(dt,t)=>{ribbons.forEach(r=>{r.g.rotation.x=Math.sin(t*2.2+r.p)*.35;r.g.rotation.y=Math.sin(t*1.3+r.p)*.4;});
+    flags.forEach(fl=>{const a=fl.f.geometry.attributes.position.array,b=fl.base;for(let q=0;q<a.length;q+=3){const d=-b[q+1];a[q+2]=b[q+2]+Math.sin(t*2+fl.p+d*.9)*.12*d;a[q]=b[q]+Math.sin(t*1.3+fl.p+d*.6)*.05*d;}fl.f.geometry.attributes.position.needsUpdate=true;});
     koi.forEach(k=>{k.a+=dt*k.s;k.g.position.x=VX+Math.cos(k.a)*k.r;k.g.position.z=VZ+Math.sin(k.a)*k.r;k.g.rotation.y=-k.a-Math.PI/2;});};
 }
 /* 兩種模式（10/18）：起床是 Addiction（日出、營火燒旺），睡前是 Origina（月光、營火變小）。只改森林的天色、光和火，不動任何資料 */

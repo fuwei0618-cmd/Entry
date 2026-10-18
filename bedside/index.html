@@ -169,7 +169,10 @@ const WHY={"vocal": {"line": "音樂是我和世界之間最短的路：不用�
 const whyHTML=k=>{const W=WHY[k];if(!W)return "";return `<div class="whybox"><div class="fld"><label>${k==="media"?"為什麼做自媒體":"根本原因・為什麼是音樂"}</label><div class="decl" style="font-size:18px">${esc(W.line)}</div></div>
   <details class="whyroot" ${k==="media"?"open":""}><summary>根本原因的表 ▾</summary><div class="whytbl"><table><thead><tr><th>關鍵字<br><small>比的是：${esc(W.cmp)}</small></th>${W.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${W.rows.map(r=>`<tr><td><b>${esc(r[0])}</b><br><small>${esc(r[1])}</small></td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td><b>${esc(r[4])}</b></td></tr>`).join("")}</tbody></table></div><p class="muted" style="margin:6px 0 0;font-size:12.5px">${esc(W.note)}</p></details></div>`;};
 const MEDIA_RF=[{"q": "我沒有固定主題，不知道要拍什麼", "a": "我的主題就是我的生活。記錄本來就在做，先丟進源頭再說。"}, {"q": "拍了也沒人看", "a": "自媒體會一直在。今天沒人看，不代表以後沒人找到；鐵粉是慢慢找上門的。"}, {"q": "我剪得不夠好、不夠專業", "a": "我以前剪的有可愛感，那是我的味道。不用跟別人一樣專業，要像我。"}, {"q": "我又虎頭蛇尾，更新不下去", "a": "節奏我自己定。停了不是失敗，隨時可以再丟一支。"}, {"q": "我不夠好看、不夠有趣，憑什麼被看", "a": "會找到我的人，就是喜歡我這個樣子的人。我不用討好所有人。"}, {"q": "我好沒自信", "a": "自信是做出來的，不是想出來的。今天只要丟一則到源頭就好。"}];
-function mediaB(){if(!B.media){B.media={reframes:JSON.parse(JSON.stringify(MEDIA_RF))};save();}return B.media;}
+const MEDIA_RF2=[{"q": "我怕酸民", "a": "酸民罵的是他滑過的那幾秒，不是我。會留下來的是鐵粉，不是路人。"}, {"q": "真的被罵了怎麼辦", "a": "先不回，隔天再看。刪留言、封鎖都可以，我不用跟每個人解釋，也不用讓每個人喜歡。"}];
+function mediaB(){if(!B.media){B.media={reframes:JSON.parse(JSON.stringify(MEDIA_RF))};save();}
+  if(!B.media.p2){MEDIA_RF2.forEach(r=>{if(!B.media.reframes.some(x=>x.q===r.q))B.media.reframes.push(JSON.parse(JSON.stringify(r)));});B.media.p2=1;save();}   // 10/18 補：酸民
+  return B.media;}
 function beliefs(){
   const Hd=rd(HKEY),Vd=rd(VKEY),H=(Hd&&Hd.vision)||{},V=(Vd&&Vd.meta&&Vd.meta.vision)||{};
   return [

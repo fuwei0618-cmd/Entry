@@ -124,7 +124,8 @@ function cathay(){if(!B.cathay){B.cathay=JSON.parse(JSON.stringify(CATHAY_TPL));
   if(!C.p3){   // 10/18 補：借火（不只早會，很多時候都有）
     const sc=(C.scenes||[]).find(x=>x.s==="早會看到白板");if(sc&&!(sc.a||"").includes("借火"))sc.a=(sc.a?sc.a+"\n":"")+"大家狂熱起來的時候（早會、課程、活動都會有），那是免費的柴火。我借火，不借方向。";
     if(sc&&!(sc.do||"").includes("熱"))sc.do=(sc.do?sc.do+"\n":"")+"大家很嗨的時候，深呼吸，把那股熱接過來，想一件今天要為自己燒的事。";
-    C.reframes=C.reframes||[];if(!C.reframes.some(x=>x.q==="大家很狂熱的時候（早會、課程、活動）"))C.reframes.push({"q": "大家很狂熱的時候（早會、課程、活動）", "a": "借火：他們在喊、在拍手、在衝，那股熱度是真的。我把它當成演唱會台下的歡呼，接過來，點在自己身上。　不借方向：他們燒的是國泰的業績，我燒的是自己的東西：唱歌、晏任、自媒體。熱度拿走，目標留給他們。　不多花時間：我守的是時間、生活和注意力。借火不用多留一分鐘，只是坐在那裡的時候，把聽到的能量換個去處。"});C.p3=1;save();}   // 10/18：情境卡，發生的時候點對應的那張
+    C.reframes=C.reframes||[];if(!C.reframes.some(x=>x.q==="大家很狂熱的時候（早會、課程、活動）"))C.reframes.push({"q": "大家很狂熱的時候（早會、課程、活動）", "a": "借火：他們在喊、在拍手、在衝，那股熱度是真的。我把它當成演唱會台下的歡呼，接過來，點在自己身上。　不借方向：他們燒的是國泰的業績，我燒的是自己的東西：唱歌、晏任、自媒體。熱度拿走，目標留給他們。　不多花時間：我守的是時間、生活和注意力。借火不用多留一分鐘，只是坐在那裡的時候，把聽到的能量換個去處。"});C.p3=1;save();}
+    if(!C.p4){const L="生命會給我無限的資源，讓我享受生活、音樂。\n國泰是讓我休息，不是讓我努力的地方。";if(!String(C.note||"").includes("讓我休息"))C.note=L+(C.note?"\n\n"+C.note:"");C.p4=1;save();}   // 10/18 晚：主體在前，國泰在後   // 10/18：情境卡，發生的時候點對應的那張
   return C;}
 function sceneHTML(){const S=cathay().scenes;const i=Math.max(0,Math.min(scIdx,S.length-1)),x=S[i]||{};
   const extra=S.map((y,j)=>[y,j]).filter(([y,j])=>j>=OFFICE_PINS.length);

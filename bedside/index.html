@@ -185,7 +185,8 @@ const MONEY_P2={become:["讓錢替我工作，我去唱歌、去生活的人","�
  reframes:[{"q":"賺了一點就想全部出場","a":"賣不賣看理由，不看心情。理由還在，就讓它繼續長；真的要落袋，也是照我事先寫好的目標。"},{"q":"錯過一波大漲，好後悔","a":"市場每天都開門，機會不會只有一次。錯過的那一波不是我的錢，接下來照紀律走的才是。"},{"q":"虧了好丟臉，不想跟人說","a":"虧損是學費，不是人格。把它記下來、寫一句學到什麼，就變成我的經驗值。"},{"q":"我是理財顧問，自己卻賠錢","a":"顧問也是在市場裡練出來的。我親身走過的每一步，之後都能更真心地陪客人走。"},{"q":"新聞好恐怖，好像要崩盤了","a":"新聞是賣緊張的。先看實戰頁的燈號和我的持股警報，沒有亮紅燈，就不用跟著新聞跑。"}],
  flow:["打開實戰頁，先看今天的一句話和燈號","燈號沒變、持股沒有警報 → 今天不用動，關掉就好","有警報 → 打開那一檔，看當初寫的理由還在不在","想買：先寫理由、想買的價格、停損點、要放多少；隔一天再看一次","下單只用閒錢，單一檔不超過我自己定的上限","下單後在羅盤記一筆：為什麼買、為什麼賣","每個月固定一天：先存再投，看一次資產配置","每一季回顧：賺的、賠的，各寫一句學到什麼"]};
 function moneyB(){if(!B.money){B.money=JSON.parse(JSON.stringify(MONEY_TPL));save();}
-  if(!B.money.p2){const M=B.money;M.become=M.become||[];MONEY_P2.become.forEach(x=>{if(!M.become.includes(x))M.become.push(x);});M.reframes=M.reframes||[];MONEY_P2.reframes.forEach(r=>{if(!M.reframes.some(x=>x.q===r.q))M.reframes.push(JSON.parse(JSON.stringify(r)));});if(!(M.flow||[]).length)M.flow=MONEY_P2.flow.slice();M.p2=1;save();}   // 10/19 補：更多信念＋操作流程if(String(B.money.why||"").includes("聲音才唱得出去")){B.money.why=B.money.why.replace("聲音才唱得出去","聲音才出得去");save();}return B.money;}
+  if(!B.money.p2){const M=B.money;M.become=M.become||[];MONEY_P2.become.forEach(x=>{if(!M.become.includes(x))M.become.push(x);});M.reframes=M.reframes||[];MONEY_P2.reframes.forEach(r=>{if(!M.reframes.some(x=>x.q===r.q))M.reframes.push(JSON.parse(JSON.stringify(r)));});if(!(M.flow||[]).length)M.flow=MONEY_P2.flow.slice();M.p2=1;save();}   // 10/19 補：更多信念＋操作流程
+  if(String(B.money.why||"").includes("聲音才唱得出去")){B.money.why=B.money.why.replace("聲音才唱得出去","聲音才出得去");save();}return B.money;}
 function mediaB(){if(!B.media){B.media={reframes:JSON.parse(JSON.stringify(MEDIA_RF))};save();}
   if(!B.media.p2){MEDIA_RF2.forEach(r=>{if(!B.media.reframes.some(x=>x.q===r.q))B.media.reframes.push(JSON.parse(JSON.stringify(r)));});B.media.p2=1;save();}   // 10/18 補：酸民
   return B.media;}

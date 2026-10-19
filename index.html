@@ -997,14 +997,15 @@ F.hots=[
       const a=g.pg.attributes.position.array;for(let q=0;q<g.N;q++){a[q*3+1]+=dt*(.4+(q%5)*.1);if(a[q*3+1]>H)a[q*3+1]=0;}g.pg.attributes.position.needsUpdate=true;});};}
 { // 超級管家：站在家門口右側。看到他就知道一切都會被打理好、收好尾
   // 好幾套穿法：點他「換一套」，記住最後選的。立體：深度圖鼓起前後兩半＋法線打光
-  const OUTFITS=[{k:'shirt-ipad',n:'白襯衫',w:344},{k:'suit-ipad',n:'西裝',w:340},{k:'bare-ipad',n:'不穿上衣',w:330},{k:'shirt',n:'白襯衫・雙手交握',w:306},{k:'suit',n:'西裝・雙手交握',w:292}];
+  const OUTFITS=[{k:'shirt-ipad',n:'白襯衫',w:344,bk:330},{k:'suit-ipad',n:'西裝',w:340},{k:'bare-ipad',n:'不穿上衣',w:330,bk:321},{k:'shirt',n:'白襯衫・雙手交握',w:306,bk:330},{k:'suit',n:'西裝・雙手交握',w:292}];   // bk：背面圖自己的寬度（10/19 重生的真背面）
   let oi=Math.max(0,OUTFITS.findIndex(o=>o.k===(localStorage.getItem('origina.butler')||'shirt-ipad')));
   const bh=2.55,tl=new R.TextureLoader(),T=u=>tl.load(u),FL=u=>{const t=tl.load(u);t.wrapS=R.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;return t;};
   const body=new R.Group();
   const dress=()=>{while(body.children.length)body.remove(body.children[0]);const o=OUTFITS[oi],bw=bh*o.w/1024,base='img/butler-'+o.k;
     const g=new R.PlaneGeometry(bw,bh,72,256);g.translate(0,bh/2,0);
+    const g2=o.bk?new R.PlaneGeometry(bh*o.bk/1024,bh,72,256).translate(0,bh/2,0):g;
     [false,true].forEach(flip=>{const L=flip?FL:T,map=L(base+(flip?'-back.webp':'.webp'));
-      const m=new R.Mesh(g,new R.MeshStandardMaterial({map,normalMap:L(base+(flip?'-back-normal.webp':'-normal.webp')),displacementMap:L(base+(flip?'-back-depth.webp':'-depth.webp')),displacementScale:.3,alphaTest:.5,roughness:.6,emissive:0xFFFFFF,emissiveMap:map,emissiveIntensity:.35}));
+      const m=new R.Mesh(flip?g2:g,new R.MeshStandardMaterial({map,normalMap:L(base+(flip?'-back-normal.webp':'-normal.webp')),displacementMap:L(base+(flip?'-back-depth.webp':'-depth.webp')),displacementScale:.3,alphaTest:.5,roughness:.6,emissive:0xFFFFFF,emissiveMap:map,emissiveIntensity:.35}));
       m.castShadow=true;m.customDepthMaterial=new R.MeshDepthMaterial({depthPacking:R.RGBADepthPacking,map,alphaTest:.5});if(flip)m.rotation.y=Math.PI;m.userData.tap='butler';body.add(m);});};
   dress();
   // 救援時：站到你正前方，背對你、面向外面，右手一把槍，紅色瞄準線往前

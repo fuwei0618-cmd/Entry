@@ -2074,11 +2074,23 @@ P.y=cur.floor(P.x,P.z);
   // 2 罌粟花田：散在步道邊，起床時花會發光
   {const pm=emi(0xB3121E,.18),cm=new R.MeshStandardMaterial({color:0x1A1414});
     const PATCH=[[-9,33,2.6],[9,33,2.6],[-26,31,2.4],[26,31,2.4],[-7,9,2.2],[7,9,2.2],[-30,12,2.2],[30,12,2.2],[-4,40,1.6],[4,40,1.6]];
-    const N=PATCH.length*46,pet=new R.InstancedMesh(new R.SphereGeometry(.16,8,5),pm,N),ctr=new R.InstancedMesh(new R.SphereGeometry(.05,6,4),cm,N);
-    const m=new R.Matrix4(),q=new R.Quaternion(),v=new R.Vector3(),sc=new R.Vector3();let n=0;
-    PATCH.forEach(([cx,cz,rr])=>{for(let k=0;k<46;k++){const a=rand()*6.283,d=Math.sqrt(rand())*rr,x=cx+Math.cos(a)*d,z=cz+Math.sin(a)*d,y=heightAt(x,z)+.35+rand()*.25;
-      m.compose(v.set(x,y,z),q,sc.set(1,.45,1));pet.setMatrixAt(n,m);m.compose(v.set(x,y+.07,z),q,sc.set(1,1,1));ctr.setMatrixAt(n,m);n++;}});
-    pet.castShadow=true;out.add(pet,ctr);}
+    // 10/20 改成真的像罌粟：四片微皺的花瓣圍成淺杯、黑色花心＋一圈花蕊、細細的綠莖，每朵微微歪向不同方向
+    const merge=gs=>{let P=[],Nn=[],I=[],o=0;gs.forEach(g=>{g=g.index?g:g;const p=g.attributes.position.array,nn=g.attributes.normal.array,ix=g.index.array;P.push(...p);Nn.push(...nn);for(let i=0;i<ix.length;i++)I.push(ix[i]+o);o+=p.length/3;});
+      const r=new R.BufferGeometry();r.setAttribute('position',new R.Float32BufferAttribute(P,3));r.setAttribute('normal',new R.Float32BufferAttribute(Nn,3));r.setIndex(I);return r;};
+    const petals=[];for(let i=0;i<4;i++){const g=new R.SphereGeometry(.2,10,6,i*Math.PI/2+.08,Math.PI/2-.16,Math.PI*.52,Math.PI*.36);   // 球的下半圈切四瓣＝一個淺杯
+      const p=g.attributes.position;for(let j=0;j<p.count;j++){const x=p.getX(j),y=p.getY(j),z=p.getZ(j),a=Math.atan2(z,x);p.setY(j,y+Math.sin(a*9+i)*.012);p.setX(j,x*1.15);p.setZ(j,z*1.15);}   // 邊緣微皺、往外張
+      g.computeVertexNormals();g.translate(0,.17,0);petals.push(g);}
+    const petG=merge(petals),stemG=new R.CylinderGeometry(.012,.016,1,5).translate(0,.5,0);
+    const ringG=new R.TorusGeometry(.045,.012,4,10).rotateX(Math.PI/2);
+    const N=PATCH.length*46,pet=new R.InstancedMesh(petG,pm,N);pm.side=R.DoubleSide;
+    const ctr=new R.InstancedMesh(new R.SphereGeometry(.035,8,6),cm,N),ring=new R.InstancedMesh(ringG,cm,N),stem=new R.InstancedMesh(stemG,new R.MeshStandardMaterial({color:0x4E6B3A,roughness:.8}),N);
+    const m=new R.Matrix4(),q=new R.Quaternion(),e=new R.Euler(),v=new R.Vector3(),sc=new R.Vector3(),up=new R.Vector3();let n=0;
+    PATCH.forEach(([cx,cz,rr])=>{for(let k=0;k<46;k++){const a=rand()*6.283,d=Math.sqrt(rand())*rr,x=cx+Math.cos(a)*d,z=cz+Math.sin(a)*d,y0=heightAt(x,z),hgt=.32+rand()*.28,s=.8+rand()*.45;
+      e.set((rand()-.5)*.35,rand()*6.283,(rand()-.5)*.35);q.setFromEuler(e);up.set(0,hgt,0).applyQuaternion(q);
+      m.compose(v.set(x,y0,z),q,sc.set(1,hgt,1));stem.setMatrixAt(n,m);
+      m.compose(v.set(x+up.x,y0+up.y,z+up.z),q,sc.set(s,s*(.85+rand()*.3),s));pet.setMatrixAt(n,m);
+      m.compose(v.set(x+up.x,y0+up.y+.06*s,z+up.z),q,sc.set(s,s,s));ctr.setMatrixAt(n,m);ring.setMatrixAt(n,m);n++;}});
+    pet.castShadow=true;out.add(stem,pet,ctr,ring);}
   // 3 月老紅線：在園區四周的樹梢之間纏繞（垂成弧線）
   {const lm=new R.LineBasicMaterial({color:0xC81E28});const A=[[-34,4],[-36,30],[-20,44],[20,44],[36,30],[34,4],[22,-20],[-22,-20]];
     A.forEach((a,i)=>{const b=A[(i+1)%A.length];const pts=[];for(let t=0;t<=20;t++){const u=t/20,x=a[0]+(b[0]-a[0])*u,z=a[1]+(b[1]-a[1])*u;pts.push(new R.Vector3(x,heightAt(x,z)+5.2-Math.sin(u*Math.PI)*1.6,z));}

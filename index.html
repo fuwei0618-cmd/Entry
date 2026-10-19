@@ -406,7 +406,7 @@ const waterMat=new R.ShaderMaterial({transparent:true,depthWrite:false,
   for(let i=0;i<n;i++){const z=-70+rand()*140,side=rand()<.5?-1:1,off=rand()<.3?rand()*2.5:3+rand()*2.6,x=riverX(z)+side*off,s=.25+rand()*.9;
     e.set(rand()*3,rand()*3,rand()*3);q.setFromEuler(e);m.compose(new R.Vector3(x,heightAt(x,z)+s*.25,z),q,new R.Vector3(s*1.3,s*.75,s));im.setMatrixAt(i,m);
     c.set(rand()<.45?0x7E9A62:0xB8B6A8).offsetHSL(0,0,(rand()-.5)*.08);im.setColorAt(i,c);}
-  im.castShadow=true;im.receiveShadow=true;out.add(im);
+  im.castShadow=true;im.receiveShadow=true;out.add(im);(window.SNOW_TINT=window.SNOW_TINT||[]).push([im,.7]);
 }
 { // trees
   const spots=[];let tries=0;
@@ -440,6 +440,7 @@ const waterMat=new R.ShaderMaterial({transparent:true,depthWrite:false,
     m.compose(v.set(x,y+3.7*k,z),q.identity(),sv.set(1.7*k,3.2*k,1.7*k));cones.setMatrixAt(i*2,m);c.set(0x4F7E4E).offsetHSL(0,0,(rand()-.5)*.06);cones.setColorAt(i*2,c);
     m.compose(v.set(x,y+5.4*k,z),q.identity(),sv.set(1.2*k,2.4*k,1.2*k));cones.setMatrixAt(i*2+1,m);c.set(0x5E8F57).offsetHSL(0,0,(rand()-.5)*.06);cones.setColorAt(i*2+1,c);});
   [trunks,canA,canB,cones].forEach(o=>{o.castShadow=true;o.receiveShadow=true;out.add(o);});
+  (window.SNOW_TINT=window.SNOW_TINT||[]).push([canA,.62],[canB,.66],[cones,.5]);   // 雪山模式：樹梢積雪
 }
 let vaultF;
 { // 家（外觀）：B 極簡一字型長屋，臥室與禱告房在地下。室內 26 × 13 × 4.8 m，與 1F 場景同尺寸
@@ -1258,7 +1259,7 @@ F.hots=[
 F.spawns={center:[0,EC.cz+8,Math.PI,0],home:[-24,40,2.3,2.3+Math.PI],start:[0,GZ+RW+5,Math.PI,0],pavilion:[0,GZ-RW-2,0,Math.PI],deck:[hx+8.6,hz-8.6,Math.PI,0],stream:[8.5,-32,-.35,Math.PI-.35],door:[hx,hz+10,0,0],vault:[VX,VZ+6.5,Math.PI,0],river:[riverX(EC.cz)+5.6,EC.cz,-Math.PI/2,Math.PI/2],studio:[mx+4.2,mz+4.2,-3*Math.PI/4,Math.PI/4],campfire:[FX,FZ+4.5,Math.PI,0],fireflies:[0,GZ+3,0,0],guardW:[8,GZ+2.6,Math.PI,0],guardT:[-8,GZ+2.6,Math.PI,0],roof:[hx+11,hz+4,Math.PI/2,Math.PI/2],garden:[hx-6.4,hz+5.3,0,Math.PI+.26,-.24,'first']};
 F.hots.push({id:'lucky',name:'Lucky',verb:'摸摸',dyn:true,r:3.6,go:()=>openLucky()});
 F.update=(dt,t)=>{if(dog.parent===out)dogUpdate(dt,t);sky.position.copy(camera.position);sun.position.set(P.x+SUN_OFF.x,SUN_OFF.y,P.z+SUN_OFF.z);sun.target.position.set(P.x,0,P.z);
-  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);window.redUpdate&&window.redUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);window.rescueUpdate&&window.rescueUpdate(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.pavUpdate2&&F.pavUpdate2(dt,t);if(F.swings)F.swings.forEach((g,i)=>{g.rotation.x=Math.sin(t*.9+i*1.7)*.035;g.rotation.y=Math.sin(t*.37+i)*.12;});F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);if(F.homeLabel)F.homeLabel.visible=!roofOn;   /* 站在屋頂上時，家的字牌收起來，不擋視線 */F.doorUpdate&&F.doorUpdate(dt);};
+  pollen.position.set(P.x*.6,0,P.z*.6);pollen.rotation.y=t*.01;fireUpdate(dt,t);window.redUpdate&&window.redUpdate(dt,t);gateUpdate(dt);F.guardUpdate&&F.guardUpdate(dt,t);window.rescueUpdate&&window.rescueUpdate(dt,t);window.snowTick&&window.snowTick(dt,t);vaultF.update(dt,t);F.pavUpdate&&F.pavUpdate(dt,t);F.pavUpdate2&&F.pavUpdate2(dt,t);if(F.swings)F.swings.forEach((g,i)=>{g.rotation.x=Math.sin(t*.9+i*1.7)*.035;g.rotation.y=Math.sin(t*.37+i)*.12;});F.padUpdate&&F.padUpdate(dt,t);F.butlerUpdate&&F.butlerUpdate(dt);if(F.homeLabel)F.homeLabel.visible=!roofOn;   /* 站在屋頂上時，家的字牌收起來，不擋視線 */F.doorUpdate&&F.doorUpdate(dt);};
 
 /* shared materials */
 const portalMat=new R.ShaderMaterial({uniforms:{t:{value:0}},side:R.DoubleSide,
@@ -2124,13 +2125,43 @@ P.y=cur.floor(P.x,P.z);
 /* 兩種模式（10/18）：起床是 Addiction（日出、營火燒旺），睡前是 Origina（月光、營火變小）。只改森林的天色、光和火，不動任何資料 */
 const MODES={add:{top:0xF2A66C,bot:0xFCE3C2,fog:0xF4D8BC,fn:30,ff:110,sunC:0xFFC488,sunI:1.0,hs:0xFFE6C8,hg:0x6B5A3A,hI:.62,fire:1.7,label:"☀ Addiction"},
   ori:{top:0x141C33,bot:0x434C68,fog:0x262D44,fn:18,ff:85,sunC:0xA8BBE6,sunI:.22,hs:0x7D8BB4,hg:0x1C2318,hI:.34,fire:.6,label:"☾ Origina"}};
+/* 雪山（10/19）：讓自己冷靜下來的模式。阿爾卑斯那樣的雪山圍在遠方，地上積雪、樹梢結霜、河結冰、細雪慢慢落，營火壓到最小，紅色都熄掉 */
+MODES.snow={top:0x6F9CCF,bot:0xEAF1F7,fog:0xE3EBF2,fn:40,ff:260,sunC:0xFFFFFF,sunI:.95,hs:0xEEF4FF,hg:0xAFBCCB,hI:.78,fire:.3,label:"❄ 雪山"};
+const SNOW=(()=>{const G=new R.Group();G.visible=false;out.add(G);
+  // 遠方的雪山：一圈山峰，山腰是岩石，上半部是雪
+  const rock=new R.Color(0x6F7A88),rock2=new R.Color(0x8A93A0),snowc=new R.Color(0xF7FAFD),tmp=new R.Color();
+  const peak=(x,z,r,h,seed)=>{const g=new R.ConeGeometry(r,h,11,7,true);const p=g.attributes.position,cols=[];
+    for(let i=0;i<p.count;i++){const vx=p.getX(i),vy=p.getY(i),vz=p.getZ(i),t=(vy+h/2)/h,a=Math.atan2(vz,vx);
+      const n=Math.sin(a*3+seed)*.12+Math.sin(a*7+seed*2)*.07+Math.sin(vy*.08+seed)*.06,k=1+n*(1-t*.6);p.setX(i,vx*k);p.setZ(i,vz*k);p.setY(i,vy+Math.sin(a*5+seed)*h*.03*(1-t));
+      const line=.52+Math.sin(a*4+seed)*.08;tmp.copy(t>line?snowc:(t>line-.08?rock2:rock));if(t>line-.08&&t<=line)tmp.lerp(snowc,.5);cols.push(tmp.r,tmp.g,tmp.b);}
+    g.setAttribute('color',new R.Float32BufferAttribute(cols,3));g.computeVertexNormals();
+    const m=new R.Mesh(g,new R.MeshStandardMaterial({vertexColors:true,flatShading:true,roughness:.9,fog:true}));m.position.set(x,h/2-6,z);m.rotation.y=seed;G.add(m);};
+  let sd=1;for(let i=0;i<22;i++){const a=i/22*Math.PI*2+Math.sin(i*1.7)*.12,R_=175+((i*37)%5)*16,h=55+((i*53)%7)*12;peak(Math.cos(a)*R_,Math.sin(a)*R_+10,h*.62,h,sd+=1.3);}
+  peak(-30,-215,62,150,4.2);   // 一座特別高、像金字塔的主峰，在家後面
+  peak(140,-150,50,110,7.7);
+  // 細雪：跟著你，慢慢落
+  const N=1600,pos=new Float32Array(N*3),spd=new Float32Array(N);for(let i=0;i<N;i++){pos[i*3]=(Math.random()-.5)*70;pos[i*3+1]=Math.random()*30;pos[i*3+2]=(Math.random()-.5)*70;spd[i]=.6+Math.random()*.9;}
+  const pg=new R.BufferGeometry();pg.setAttribute('position',new R.BufferAttribute(pos,3));
+  const flakes=new R.Points(pg,new R.PointsMaterial({color:0xffffff,size:.16,transparent:true,opacity:.9,depthWrite:false}));flakes.frustumCulled=false;G.add(flakes);
+  let orig=null,wOrig=null;const ground=out.userData.ground,gc=ground.geometry.attributes.color;
+  const set=on=>{G.visible=on;
+    if(!orig){orig=gc.array.slice();wOrig={deep:waterMat.uniforms.deep.value.clone(),shallow:waterMat.uniforms.shallow.value.clone(),skyc:waterMat.uniforms.skyc.value.clone(),fogc:waterMat.uniforms.fogc.value.clone()};
+      (window.SNOW_TINT||[]).forEach(e=>{if(e[0].instanceColor)e.o=e[0].instanceColor.array.slice();});}
+    const A=gc.array;for(let i=0;i<A.length;i+=3){if(on){const w=.86+((i*7919)%13)/130;A[i]=orig[i]+(.95-orig[i])*w;A[i+1]=orig[i+1]+(.97-orig[i+1])*w;A[i+2]=orig[i+2]+(1-orig[i+2])*w;}else{A[i]=orig[i];A[i+1]=orig[i+1];A[i+2]=orig[i+2];}}gc.needsUpdate=true;
+    (window.SNOW_TINT||[]).forEach(e=>{const ic=e[0].instanceColor;if(!ic||!e.o)return;const a=ic.array,k=e[1];for(let i=0;i<a.length;i+=3){a[i]=on?e.o[i]+(.93-e.o[i])*k:e.o[i];a[i+1]=on?e.o[i+1]+(.96-e.o[i+1])*k:e.o[i+1];a[i+2]=on?e.o[i+2]+(1-e.o[i+2])*k:e.o[i+2];}ic.needsUpdate=true;});
+    const U=waterMat.uniforms;if(on){U.deep.value.setHex(0xA9C6D6);U.shallow.value.setHex(0xDCEBF3);U.skyc.value.setHex(0xF2F8FC);U.fogc.value.setHex(0xE3EBF2);}else{U.deep.value.copy(wOrig.deep);U.shallow.value.copy(wOrig.shallow);U.skyc.value.copy(wOrig.skyc);U.fogc.value.copy(wOrig.fogc);}};
+  const tick=(dt,t)=>{if(!G.visible)return;flakes.position.set(P.x,P.y-4,P.z);const a=pg.attributes.position.array;
+    for(let i=0;i<N;i++){a[i*3+1]-=spd[i]*dt;a[i*3]+=Math.sin(t*.6+i)*.12*dt;if(a[i*3+1]<0)a[i*3+1]+=30;}pg.attributes.position.needsUpdate=true;};
+  return {set,tick};})();
+window.snowTick=SNOW.tick;
 let MODE=(()=>{try{const v=JSON.parse(localStorage.getItem("origina.mode")||"null");if(v&&v.d===new Date().toDateString()&&MODES[v.m])return v.m;}catch(e){}const h=new Date().getHours();return h>=4&&h<16?"add":"ori";})();
 function setMode(m,save){const M=MODES[m];MODE=m;sky.material.uniforms.top.value.setHex(M.top);sky.material.uniforms.bot.value.setHex(M.bot);
   out.fog.color.setHex(M.fog);out.fog.near=M.fn;out.fog.far=M.ff;sun.color.setHex(M.sunC);sun.intensity=M.sunI;hemi.color.setHex(M.hs);hemi.groundColor.setHex(M.hg);hemi.intensity=M.hI;window.FIRE_K=M.fire;(window.RED_GLOW||[]).forEach(g=>{const v=m==="add"?g.on:g.off;if(g.key)g.o[g.key]=v;else g.o.opacity=v;});
+  SNOW.set(m==="snow");if(m==="snow")(window.RED_GLOW||[]).forEach(g=>{if(g.key)g.o[g.key]=0;else g.o.opacity=0;});
   const b=document.getElementById("modeBtn");if(b){b.textContent=M.label;b.setAttribute("aria-pressed",m==="add");}
   if(save){try{localStorage.setItem("origina.mode",JSON.stringify({m,d:new Date().toDateString()}));}catch(e){}}}
 setMode(MODE);
-document.getElementById("modeBtn").onclick=()=>setMode(MODE==="add"?"ori":"add",true);
+document.getElementById("modeBtn").onclick=()=>setMode(MODE==="add"?"ori":MODE==="ori"?"snow":"add",true);   // ☀ → ☾ → ❄ → ☀
 /* 緊急救援（10/19）：按一下，狼（左）虎（右）換作戰狀態站到你前面，管家在你正前方舉槍。天色轉成暗紅，火燒旺。按解除就回到原本的樣子 */
 {const LINES={wolf:["她的底線就在這裡，你踩不過去。","她不欠你，也不用讓你高興。"],
     tiger:["對她動手、對她吼，都不行。","再往前一步試試看。","她有力量，她不怕你。"],

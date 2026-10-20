@@ -27,8 +27,9 @@ html,body{margin:0;height:100%;background:#1c1b19;color:var(--ink);font-family:"
 #bg{transform-origin:50% 88%;transition:opacity .7s,transform 1.8s ease,filter 1.8s ease}
 .kneel #bg{transform:scale(1.12);filter:brightness(.62)}
 .kneel #hz,.kneel footer,.kneel header,.kneel #book{opacity:0;pointer-events:none}
-#kneelv{position:fixed;inset:0;z-index:8;display:flex;align-items:safe center;justify-content:center;padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-#kneelv>*{max-width:100%;margin:auto 0}
+#kneelv{position:fixed;inset:0;z-index:8;display:block;padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#kneelv>*{max-width:100%;margin:0 auto;min-height:100%;display:flex;flex-direction:column;justify-content:center}
+@media (max-width:600px){.kc .w{font-size:17px;line-height:1.9}}
 #kneelv[hidden]{display:none}
 .kc{width:min(520px,100%);text-align:center;animation:rise 1.6s ease both}
 @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}

@@ -208,7 +208,7 @@ const KQ=new URLSearchParams(location.search).get("kneel");   // ?kneel=morning|
 const YOGA="shortcuts://run-shortcut?name="+encodeURIComponent("開瑜珈");
 function kneel(){const hr=new Date().getHours(),M=KQ==="morning"?true:KQ==="night"?false:hr>=4&&hr<15,B=ls("origina.bedside.v1")||{},SC=String(((B.script||{})[M?"morning":"night"])||"").trim();
   document.body.classList.add("kneel");navigator.vibrate&&navigator.vibrate(15);
-  setTimeout(()=>{bell();const who=String(B.whoami||"").trim();$("#kc").innerHTML=`${who?`<h3>我是誰</h3><div class="w" style="margin-bottom:18px">${esc(who)}</div>`:""}<h3>${M?"起床的話":"睡前的話"}</h3><div class="w">${esc(SC||(M?(B.morning||DEF_M):(B.night||DEF_N)))}</div>
+  setTimeout(()=>{bell();const who=String(B.whoami||"").trim();$("#kc").innerHTML=`<h3>我是誰</h3>${who?`<div class="w">${esc(who)}</div>`:""}<div style="text-align:center;margin:${who?"8px":"0"} 0 18px"><a href="../mission/?from=temple#me" style="color:inherit;opacity:.75;font-size:14px;letter-spacing:.1em;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px">看三個我 →</a></div><h3>${M?"起床的話":"睡前的話"}</h3><div class="w">${esc(SC||(M?(B.morning||DEF_M):(B.night||DEF_N)))}</div>
     <div class="row"><button class="btn" id="kb">再敲一下鈴</button><button class="btn" id="kw">記一筆禱告</button><button class="btn pri" id="ku">起身</button></div>${KQ?`<div class="row" style="justify-content:center;margin-top:14px"><a class="btn pri" style="text-decoration:none" href="${YOGA}">聽完了，開始瑜伽 →</a></div>`:""}`;
     $("#kneelv").hidden=false;$("#kb").onclick=bell;$("#ku").onclick=rise;
     $("#kw").onclick=()=>{const H=HALLS.front;H.ask="為了什麼禱告？";wishForm();};},1500);}

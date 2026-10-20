@@ -471,7 +471,7 @@ const ADD_SPACES=[{n:"日晷",tags:"TEC",x:50,y:52,pl:["日晷"],t:"回到自己
 // 2026-10-14 照她畫好的對照表一次排好：每一件放到對的方位，計畫類改成地圖空間
 const RE_LAYOUT=[[/Camino|貝殼/,"TEC","god"],[/Getty|心流|建築/,"TEC","god"],[/西藏|Tibet/i,"TEC","god"],[/媽祖/,"T"],[/月老/,"E"],[/財神/,"C"],
  [/Teresa|鄧麗君/,"T"],[/G\.?E\.?M|鄧紫棋/,"E"],[/Elva|蕭亞軒/,"E"],[/Chiara/,"C"],
- [/日晷|日曆|臥室|禱告|老宅|^家/,"TEC"],[/皮拉提斯|冥想|瑜/,"TEC","space"],[/街頭|麥克風|唱/,"TEC","space"],[/營火/,"T"],[/自媒體|攝影/,"T"],[/HH|高跟/,"E","space"],[/Lucky|狗/,"E"],[/Beauty|健身/,"E"],[/金庫/,"C"],[/旅行/,"E","space"],
+ [/日晷|日曆|臥室|禱告|老宅|^家/,"TEC"],[/皮拉提斯|冥想|瑜/,"TEC","space"],[/街頭|麥克風|唱/,"TEC","space"],[/營火/,"T"],[/自媒體|攝影/,"T"],[/HH|高跟/,"E","space"],[/Lucky|狗/,"E"],[/Beauty|健身/,"E"],[/金庫/,"C"],[/旅行/,"T","space"],
  [/PK|來自星星/,"TEC"],[/About|真愛/i,"TEC"],[/傻瓜|Idiots/i,"T"],
  [/銀杏/,"TE"],[/罌粟/,"EC"],[/老虎/,"C"],[/星/,"T"],[/狼/,"T"]];
 // 同一部電影兩張卡（自己加的「PK」和預設的「來自星星…」）：留 PK 那張
@@ -491,7 +491,6 @@ function shakira(L){if(D.shk1015||!L)return L;const at=(r,dx,dy)=>({x:VREG[r][0]
   add("Faye","idol","C",0,-4,ONE.C+"空靈的聲音像水；她唱的〈但願人長久〉就是《水調歌頭》，接回中心的鄧麗君。",["金庫"]);
   add("大鞦韆","tat","E",0,6,"Elva 的力量：從中心盪出去，盪到哪一邊都會回來。沒刺在身上，但每天都在。",["Lucky"]);
   add("合唱團","space","T",-5,4,"跟別人一起唱。現在正在上，還不知道什麼時候結束。",["舞台"]);
-  add("Podcast（暫停）","space","T",5,4,"說給別人聽。先暫停，之後再回來；可能比合唱團走得更久。",["攝影棚"]);
   add("營火","env","T",0,9,"火：左邊的元素。中心那把火是火種，營火把它分給世界。",["營火"]);
   add("噴水池","env","C",0,9,"水：右邊的元素。錢像水，會流動，也會累積。",["金庫"]);
   if(D.personas){const t=D.personas.find(p=>p.id==="teresa");if(t){t.formula="共鳴・為眾生";t.tattoos=(t.tattoos||[]).filter(x=>!/Camino/.test(x));t.place="營火";}}
@@ -511,7 +510,9 @@ function relayout(L){if(D.layout1014||!L)return L;const n={};
     it.x=c[0]+((j%3)-1)*4.5;it.y=c[1]+(Math.floor(j/3)%3-1)*4;it.tags=T;});
   D.layout1014=1;try{save();}catch(e){}return L;}
 function addSpaces(L){if(D.addSp1||!L)return L;ADD_SPACES.forEach((a,i)=>{if(!L.some(it=>it.n===a.n))L.push({id:"sp"+i+Date.now().toString(36),k:"space",s:1,ic:"none",...a});});D.addSp1=1;try{save();}catch(e){}return L;}
-const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=playVoice(pkText(envLabel(timeText(fayeName(shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection))))))))))))));};
+// 2026-10-20：旅行搬到 Shakira（把聲音和自己帶去世界）；Podcast 拿掉
+function trav1020(L){if(D.trav1020||!L)return L;for(let i=L.length-1;i>=0;i--){const n=(L[i].n||"").trim();if(/^Podcast/.test(n))L.splice(i,1);else if(/旅行|旅遊|^World$/i.test(n)&&L[i].k!=="god"){L[i].tags="T";L[i].x=VREG.T[0]+5;L[i].y=VREG.T[1]+4;}}D.trav1020=1;try{save();}catch(e){}return L;}
+const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=trav1020(playVoice(pkText(envLabel(timeText(fayeName(shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection)))))))))))))));};
 function renderMe(){
   const items=meItems();
   const chip=(it,abs)=>{const ic=it.img||it.emo?null:cIcon(it);return `<button class="citem k-${it.k}${ic||it.img||it.emo?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${it.emo?`<span class="emo">${esc(it.emo)}</span>`:it.img?`<img src="${esc(it.img)}" alt="" referrerpolicy="no-referrer">`:ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};

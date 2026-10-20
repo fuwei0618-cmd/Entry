@@ -2085,7 +2085,7 @@ P.y=cur.floor(P.x,P.z);
     const N=PATCH.length*46,pet=new R.InstancedMesh(petG,pm,N);pm.side=R.DoubleSide;
     const ctr=new R.InstancedMesh(new R.SphereGeometry(.035,8,6),cm,N),ring=new R.InstancedMesh(ringG,cm,N),stem=new R.InstancedMesh(stemG,new R.MeshStandardMaterial({color:0x4E6B3A,roughness:.8}),N);
     const m=new R.Matrix4(),q=new R.Quaternion(),e=new R.Euler(),v=new R.Vector3(),sc=new R.Vector3(),up=new R.Vector3();let n=0;
-    PATCH.forEach(([cx,cz,rr])=>{for(let k=0;k<46;k++){const a=rand()*6.283,d=Math.sqrt(rand())*rr,x=cx+Math.cos(a)*d,z=cz+Math.sin(a)*d,y0=heightAt(x,z),hgt=.32+rand()*.28,s=.8+rand()*.45;
+    PATCH.forEach(([cx,cz,rr])=>{for(let k=0;k<46;k++){const a=rand()*6.283,d=Math.sqrt(rand())*rr,x=cx+Math.cos(a)*d,z=cz+Math.sin(a)*d,y0=heightAt(x,z),hgt=.5+rand()*.35,s=.42+rand()*.22;
       e.set((rand()-.5)*.35,rand()*6.283,(rand()-.5)*.35);q.setFromEuler(e);up.set(0,hgt,0).applyQuaternion(q);
       m.compose(v.set(x,y0,z),q,sc.set(1,hgt,1));stem.setMatrixAt(n,m);
       m.compose(v.set(x+up.x,y0+up.y,z+up.z),q,sc.set(s,s*(.85+rand()*.3),s));pet.setMatrixAt(n,m);

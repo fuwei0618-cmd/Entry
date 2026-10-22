@@ -516,11 +516,13 @@ function trav1020(L){if(D.trav1020||!L)return L;for(let i=L.length-1;i>=0;i--){c
 // 10/22：Teresa（中心）加兩個角色：佛地魔、古一法師
 function souls1022(L){if(D.souls1022||!L)return L;[["佛地魔",43,44,"靈魂灌注於形式的反面：他把靈魂撕碎藏進魂器，是因為怕死；我把靈魂放進聲音和作品，是因為想活。"],["古一法師",57,44,"放下自我，力量才會上來。不用知道路在哪裡，相信真實的感受，聲音會帶路。死亡讓每一天有意義。"]].forEach(([n,x,y,t])=>{if(!L.some(it=>(it.n||"").trim()===n))L.push({id:"sl"+Math.random().toString(36).slice(2,8),n,k:"film",tags:"TEC",x,y,t,pl:["日晷"],s:1});});D.souls1022=1;try{save();}catch(e){}return L;}
 // 10/22 晚：Teresa 變成 Shakira 的補充卡（像 Elva 下面的 G.E.M.），放左邊；中心改叫 Camino（聲音領路）
-function teresaLeft(L){if((D.teresaL&&D.teresaL2)||!L)return L;const pos={"Teresa":[24,62],"鄧麗君":[30,70],"佛地魔":[18,56],"古一法師":[26,54]};
+function teresaLeft(L){if((D.teresaL&&D.teresaL2)||!L)return L;const pos={"Teresa":[24,62],"鄧麗君":[30,70]};
   L.forEach(it=>{const n=(it.n||"").trim();if(!pos[n])return;it.tags="T";[it.x,it.y]=pos[n];if(n==="Teresa")it.t="Shakira 的補充卡（像 Elva 下面的 G.E.M.）：名字從鄧麗君來；也是那個比賽的代號。";if(n==="鄧麗君")it.t="Teresa 的名字從她來：用聲音帶路，從台灣唱到世界。";});
   if(!D.teresaL2&&!L.some(it=>(it.n||"").trim()==="Teresa"))L.push({id:"tr"+Math.random().toString(36).slice(2,8),n:"Teresa",k:"idol",tags:"T",x:24,y:62,t:"Shakira 的補充卡（像 Elva 下面的 G.E.M.）：名字從鄧麗君來；也是那個比賽的代號。",pl:["舞台"],s:1});
   D.teresaL=1;D.teresaL2=1;try{save();}catch(e){}return L;}
-const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=teresaLeft(souls1022(trav1020(playVoice(pkText(envLabel(timeText(fayeName(shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection)))))))))))))))));};
+// 10/22 晚：佛地魔、古一法師留在中心（Addiction 的兩面：沉迷與臣服）
+function soulsBack(L){if(D.soulsBack||!L)return L;const pos={"佛地魔":[43,44],"古一法師":[57,44]};L.forEach(it=>{const n=(it.n||"").trim();if(pos[n]){it.tags="TEC";[it.x,it.y]=pos[n];}});D.soulsBack=1;try{save();}catch(e){}return L;}
+const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=soulsBack(teresaLeft(souls1022(trav1020(playVoice(pkText(envLabel(timeText(fayeName(shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection))))))))))))))))));};
 function renderMe(){
   const items=meItems();
   const chip=(it,abs)=>{const ic=it.img||it.emo?null:cIcon(it);return `<button class="citem k-${it.k}${ic||it.img||it.emo?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${it.emo?`<span class="emo">${esc(it.emo)}</span>`:it.img?`<img src="${esc(it.img)}" alt="" referrerpolicy="no-referrer">`:ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};
@@ -528,10 +530,10 @@ function renderMe(){
   const map=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="#DCE6D2"/><path d="M0 40 C6 55 4 75 10 100 L0 100Z" fill="#AFCBD0"/><ellipse cx="50" cy="66" rx="40" ry="24" fill="none" stroke="#E6D6B4" stroke-width="2.4"/><rect x="30" y="6" width="56" height="44" rx="2" fill="#F1ECE2" stroke="#D8CFBE" stroke-width=".8"/><circle cx="50" cy="66" r="5" fill="#9CC7CF"/><circle cx="50" cy="66" r="3.6" fill="#EFE9DD"/></svg>`;
   const at={};items.forEach(it=>{const p=(it.pl||[])[0];if(p)(at[p]=at[p]||[]).push(it);});
   // 方位照「三個我」圖上的位置算：在哪幾個圈裡，就屬於哪幾個我（拖曳後表格自動跟著變）；圈外的算最近的那個圈
-  const COLS=[["TEC","Camino","中心・聲音領路","#C9A55A"],["T","Shakira","為眾生・火・狼","#C9705A"],["TE","Shakira × Elva","","#BF627A"],["E","Elva","燕尾蝶・風・狗","#B5546F"],["EC","Elva × Faye","","#A0776E"],["C","Faye","富偉・水・虎","#8C9A6B"],["TC","Faye × Shakira","","#AB8562"]];
+  const COLS=[["TEC","Addiction","中心・Camino・聲音領路","#C9A55A"],["T","Shakira","為眾生・火・狼","#C9705A"],["TE","Shakira × Elva","","#BF627A"],["E","Elva","燕尾蝶・風・狗","#B5546F"],["EC","Elva × Faye","","#A0776E"],["C","Faye","富偉・水・虎","#8C9A6B"],["TC","Faye × Shakira","","#AB8562"]];
   const inCol=(it,c)=>posTags(it)===c;
 const grid=`<div class="cgrid"><div class="cgwrap"><table><colgroup><col class="cg-ask"><col class="cg-k"></colgroup><thead><tr><th class="cask" colspan="2"><span class="cq">問的是・對應的原則</span><small class="cdilts">越上面越深<br>卡住時，往上一層找答案</small></th>${COLS.map(([c,n,s2,col])=>`<th class="${c.length===2?"pair":""}${c==="TEC"?" ccen":""}" style="color:${col}">${n}${s2?`<small>${s2}</small>`:""}</th>`).join("")}</tr></thead><tbody>${Object.entries(KINDS).filter(([k])=>meKinds[k]).map(([k,t],ri,arr)=>`${KIND_EXTRA[k]&&!(ri&&KIND_EXTRA[arr[ri-1][0]])?`<tr class="cextra"><td colspan="${COLS.length+2}">補充</td></tr>`:""}<tr class="${KIND_EXTRA[k]?"isextra":""}"><td class="cask">${k==="tat"?`<span>從中心往外的路</span><small>左邊給世界（公開，像銀杏）；右邊給自己（私密，像罌粟花）</small>`:KIND_ASK[k]?`<span>${KIND_ASK[k][0]}</span><b>${KIND_ASK[k][1]}</b><small>${KIND_ASK[k][2]}</small>`:""}</td><th class="k-${k}"><span>${t}</span></th>${COLS.map(([c])=>{const L=items.filter(it=>it.k===k&&inCol(it,c)).sort((a,b)=>envOrd(a)-envOrd(b));return `<td class="${c.length===2?"pair":""}${c==="TEC"?" ccen":""}">${L.length?L.map(it=>chip(it,0)).join(""):`<span class="cempty">${c.length===2?"·":"還沒長出來"}</span>`}</td>`;}).join("")}</tr>`).join("")}</tbody></table></div>
-    <div class="cprin"><b>聲音從中心出發</b><span>Camino（中心）找回聲音 → Shakira（左・火）把聲音送出去 → Elva（上・風）讓聲音去愛 → Faye（右・水）讓聲音換來自由。</span></div><div class="cprin"><b>一條線</b><span>用第一性原理問清楚為了什麼（使命）→ 用開心原則打開自己，走向想成為的人（身份）→ 用無痛・輕量原則讓每一天都做得下去（行為），也把每天回去的地方擺好（環境）。</span></div></div>`;
+    <div class="cprin"><b>聲音從中心出發</b><span>Addiction（中心・Camino）找回聲音 → Shakira（左・火）把聲音送出去 → Elva（上・風）讓聲音去愛 → Faye（右・水）讓聲音換來自由。</span></div><div class="cprin"><b>一條線</b><span>用第一性原理問清楚為了什麼（使命）→ 用開心原則打開自己，走向想成為的人（身份）→ 用無痛・輕量原則讓每一天都做得下去（行為），也把每天回去的地方擺好（環境）。</span></div></div>`;
   const stage=meView==="grid"?grid:meView==="venn"?venn+items.map(it=>chip(it,1)).join(""):map+Object.entries(MPL).map(([p,[x,y]])=>`<div class="cplace" style="left:${x}%;top:${y}%"><button class="cpl${meSelP===p?" on":""}" data-p="${esc(p)}">${esc(p)}</button><div class="cstack">${(at[p]||[]).filter(it=>meKinds[it.k]).map(it=>chip(it,0)).join("")}</div></div>`).join("");
   const sel=items.find(it=>it.id===meSel);
   const miniMap=pl=>`<div class="cmini">${map}${Object.entries(MPL).map(([p,[x,y]])=>`<span class="${(pl||[]).includes(p)?"lit":""}" style="left:${x}%;top:${y}%">${esc(p)}</span>`).join("")}</div>`;
@@ -604,7 +606,7 @@ function claudePrompt(story){
   const anti=D.breakdowns.filter(b=>b.antidote).slice(-6).map(b=>`- ${b.theme||""}：${b.antidote}`).join("\n");
   return `請幫我拆解一個事件（我在 Origina 使命板的拆解室）。
 
-【我的公式】聲音從中心的 Camino（聲音領路）出發；共鳴（Teresa 欄位＝左邊的 Shakira・為眾生，Teresa 是她的補充卡，給世界）× 慾望（Elva・燕尾蝶，給自己）× 豐盛（Faye 欄位＝Chiara・富偉，地基）＝生命力。是乘法，任何一項變零整個就是零。
+【我的公式】聲音從中心的 Addiction（Camino・聲音領路）出發；共鳴（Teresa 欄位＝左邊的 Shakira・為眾生，Teresa 是她的補充卡，給世界）× 慾望（Elva・燕尾蝶，給自己）× 豐盛（Faye 欄位＝Chiara・富偉，地基）＝生命力。是乘法，任何一項變零整個就是零。
 【我為什麼努力】${D.why}
 【常見警報】${D.alarms.map(a=>a.name).join("、")}
 ${themes.length?`【以前拆過的主題】${themes.join("、")}（同一個主題請用一樣的名字）\n`:""}${anti?`【以前的解藥句】\n${anti}\n`:""}

@@ -523,7 +523,8 @@ function teresaLeft(L){if((D.teresaL&&D.teresaL2)||!L)return L;const pos={"Teres
 // 10/22 晚：佛地魔、古一法師留在中心（Addiction 的兩面：沉迷與臣服）
 function soulsBack(L){if(D.soulsBack||!L)return L;const pos={"佛地魔":[43,44],"古一法師":[57,44]};L.forEach(it=>{const n=(it.n||"").trim();if(pos[n]){it.tags="TEC";[it.x,it.y]=pos[n];}});D.soulsBack=1;try{save();}catch(e){}return L;}
 // 10/24：兩個角色改成「想成為誰」（身份），名字用英文：AncientOne、Voldemort，留在中心 Addiction
-function souls1024(L){if(D.souls1024||!L)return L;const NM={"佛地魔":"Voldemort","古一法師":"AncientOne"};L.forEach(it=>{const n=(it.n||"").trim();if(NM[n]){it.n=NM[n];it.k="idol";it.tags="TEC";}});D.souls1024=1;try{save();}catch(e){}return L;}
+function souls1024(L){if(!L)return L;if(!D.souls1024b){const P={"Voldemort":[44,50],"AncientOne":[56,50],"佛地魔":[44,50],"古一法師":[56,50]};L.forEach(it=>{const p=P[(it.n||"").trim()];if(p){[it.x,it.y]=p;it.tags="TEC";}});D.souls1024b=1;try{save();}catch(e){}}   // 原本 43/57,44 落在兩兩交集，往下移進三圈交集
+  if(D.souls1024)return L;const NM={"佛地魔":"Voldemort","古一法師":"AncientOne"};L.forEach(it=>{const n=(it.n||"").trim();if(NM[n]){it.n=NM[n];it.k="idol";it.tags="TEC";}});D.souls1024=1;try{save();}catch(e){}return L;}
 const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=souls1024(soulsBack(teresaLeft(souls1022(trav1020(playVoice(pkText(envLabel(timeText(fayeName(shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection)))))))))))))))))));};
 function renderMe(){
   const items=meItems();

@@ -522,7 +522,9 @@ function teresaLeft(L){if((D.teresaL&&D.teresaL2)||!L)return L;const pos={"Teres
   D.teresaL=1;D.teresaL2=1;try{save();}catch(e){}return L;}
 // 10/22 晚：佛地魔、古一法師留在中心（Addiction 的兩面：沉迷與臣服）
 function soulsBack(L){if(D.soulsBack||!L)return L;const pos={"佛地魔":[43,44],"古一法師":[57,44]};L.forEach(it=>{const n=(it.n||"").trim();if(pos[n]){it.tags="TEC";[it.x,it.y]=pos[n];}});D.soulsBack=1;try{save();}catch(e){}return L;}
-const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=soulsBack(teresaLeft(souls1022(trav1020(playVoice(pkText(envLabel(timeText(fayeName(shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection))))))))))))))))));};
+// 10/24：兩個角色改成「想成為誰」（身份），名字用英文：AncientOne、Voldemort，留在中心 Addiction
+function souls1024(L){if(D.souls1024||!L)return L;const NM={"佛地魔":"Voldemort","古一法師":"AncientOne"};L.forEach(it=>{const n=(it.n||"").trim();if(NM[n]){it.n=NM[n];it.k="idol";it.tags="TEC";}});D.souls1024=1;try{save();}catch(e){}return L;}
+const meItems=()=>{if(meEdit)return meDraft;if(!D.collection){D.collection=defaultCollection();D.vreg2=1;}return D.collection=souls1024(soulsBack(teresaLeft(souls1022(trav1020(playVoice(pkText(envLabel(timeText(fayeName(shakira(envSplit(mediaCenter(dedupePK(relayout(addSpaces(godText(vregMigrate(withGods(D.collection)))))))))))))))))));};
 function renderMe(){
   const items=meItems();
   const chip=(it,abs)=>{const ic=it.img||it.emo?null:cIcon(it);return `<button class="citem k-${it.k}${ic||it.img||it.emo?" ico":""}${it.tags==="TEC"?" fire":""}${meSel===it.id?" on":""}${meKinds[it.k]?"":" dim"}" data-id="${it.id}" title="${esc(it.n)}" aria-label="${esc(it.n)}" style="${abs?`left:${it.x}%;top:${it.y}%;`:""}font-size:${(11.5*(it.s||1)).toFixed(1)}px">${it.emo?`<span class="emo">${esc(it.emo)}</span>`:it.img?`<img src="${esc(it.img)}" alt="" referrerpolicy="no-referrer">`:ic?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>`:esc(it.n)}</button>`;};

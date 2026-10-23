@@ -371,6 +371,7 @@ function finishDay(f){
 
 /* ---------- 畫面 ---------- */
 let flipped=false,tab="todo";try{tab=localStorage.getItem("dream-tab2")||"todo";}catch(e){}
+if(["todo","week","two","five"].includes(location.hash.slice(1)))tab=location.hash.slice(1);   // #week：從信念頁直接打開一週
 function at80HTML(){const A=D.at80||{};let open=false;try{open=localStorage.getItem("dream-80open")==="1";}catch(e){}
   return `<details class="at80" id="at80" ${open?"open":""}><summary><span aria-hidden="true">${open?"▾":"▸"}</span><b>80 歲的我</b><span class="muted">${open?"點這裡收起":"平常收起來，只有你點開才看得到"}</span></summary>
     <div class="in">${A.img?`<img src="${A.img}" alt="">`:""}
@@ -805,6 +806,7 @@ function bind(){
   document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{const[n,u]=b.dataset.open.split("|");openApp(n,u);});}
 
 // 卡片翻面時，讓卡片高度跟著背面
+{const w=document.createElement("a");w.href="../bedside/#me";w.textContent="我是誰 →";w.style.cssText="position:fixed;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:8;background:#FFFCF6;border:1px solid #E6DCCD;border-radius:999px;padding:6px 12px;font-size:13px;color:#3A2F27;text-decoration:none";document.body.appendChild(w);document.querySelector(".wrap").style.paddingTop="52px";}   // 右上：連到信念頁的我是誰
 if(window.top===window.self){const b=document.createElement("a");b.href="https://fuwei0618-cmd.github.io/Entry/?go=f1,cal";b.textContent="← Origina";b.style.cssText="position:fixed;left:12px;top:calc(10px + env(safe-area-inset-top));z-index:8;background:#FFFCF6;border:1px solid #E6DCCD;border-radius:999px;padding:6px 12px;font-size:13px;color:#3A2F27;text-decoration:none";document.body.appendChild(b);document.querySelector(".wrap").style.paddingTop="52px";}
 new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector(".back"),fr=f.querySelector(".front");if(bk&&fr)f.style.minHeight=Math.max(fr.offsetHeight,bk.scrollHeight)+"px";}).observe(document.body);
 render();

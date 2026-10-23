@@ -359,6 +359,7 @@ function declDialog(){const M=mode==="morning";dialog(`<h3>改寫${M?"起床":"�
   box=>{box.querySelector("[data-ok]").onclick=()=>{const v=box.querySelector("#dt").value.trim();if(v){M?B.morning=v:B.night=v;save();}$("#dlg").hidden=true;render();};
     box.querySelector("[data-def]").onclick=()=>{box.querySelector("#dt").value=M?DEF_M:DEF_N;};});}
 const FROMT=new URLSearchParams(location.search).get("from")==="temple";
+{const top=window.top===window.self||FROMT;const w=document.createElement("a");w.href="../dream/#week";w.textContent="一週";w.className="btn sm";w.style.cssText="color:var(--ink);position:fixed;left:"+(top?(FROMT?"104px":"100px"):"12px")+";top:calc(10px + env(safe-area-inset-top));z-index:5;text-decoration:none";document.body.appendChild(w);document.querySelector(".wrap").style.paddingTop="54px";}   // 左上：連到夢想版的一週
 if(window.top===window.self||FROMT){const a=document.createElement("a");a.href=FROMT?"../temple/?d=front":"https://fuwei0618-cmd.github.io/Entry/?go=f2,bed";a.textContent=FROMT?"← 回前殿":"← Origina";a.className="btn sm";a.style.cssText="color:var(--ink);position:fixed;left:12px;top:calc(10px + env(safe-area-inset-top));z-index:5;text-decoration:none";document.body.appendChild(a);document.querySelector(".wrap").style.paddingTop="54px";}
 render();
 </script>

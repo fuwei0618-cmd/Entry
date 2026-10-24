@@ -1432,7 +1432,7 @@ const DOGBED={x:hx+11.2,z:hz-15.2};   // Lucky 的窩：後花園，早餐平台
   const rim=add(new R.Mesh(new R.TorusGeometry(.5,.17,12,32),M(0xC89F74)),0,.17,0);rim.rotation.x=Math.PI/2;rim.scale.set(1,1.15,1);
   add(new R.Mesh(new R.CylinderGeometry(.5,.52,.12,28),M(0xF3E9D8)),0,.08,0).scale.z=1.15;
   const bl=add(new R.Mesh(new R.BoxGeometry(.46,.04,.36),M(0xE8B4B0)),.16,.16,.12);bl.rotation.y=.5;bl.rotation.z=.08;
-  const H=new R.Group();H.position.set(0,0,-1.05);bed.add(H);const wood=M(0xB98A5E,.9),roofM=M(0x8C5E3C,.9);
+  const H=new R.Group();H.position.set(-1.35,0,-.55);H.rotation.y=.35;bed.add(H);   /* 狗屋移到床的左後方，門口不被床擋住 */const wood=M(0xB98A5E,.9),roofM=M(0x8C5E3C,.9);
   const hb=new R.Mesh(new R.BoxGeometry(1.05,.72,.9),wood);hb.position.y=.36;hb.castShadow=true;H.add(hb);
   [-1,1].forEach(sd=>{const r=new R.Mesh(new R.BoxGeometry(.66,.06,1.02),roofM);r.position.set(sd*.27,.86,0);r.rotation.z=-sd*.62;r.castShadow=true;H.add(r);});
   const tri=new R.Shape();tri.moveTo(-.52,0);tri.lineTo(.52,0);tri.lineTo(0,.36);tri.lineTo(-.52,0);[.451,-.451].forEach(zz=>{const g=new R.Mesh(new R.ShapeGeometry(tri),wood);g.position.set(0,.72,zz);if(zz<0)g.rotation.y=Math.PI;H.add(g);});

@@ -1427,8 +1427,19 @@ const dog=new R.Group();{const fur=mat(0xC79B6D),dark=mat(0x6B4A30);
 // Lucky：住在家裡，不跟出門。你從大門進來時他跑來迎接、跟你走幾步，再回去自己的窩；點他「帶 Lucky 散步」才跟你出門
 const DOGBED={x:hx+11.2,z:hz-15.2};   // Lucky 的窩：後花園，早餐平台旁的草地上
 {const bed=new R.Group();bed.position.set(DOGBED.x,heightAt(DOGBED.x,DOGBED.z),DOGBED.z);out.add(bed);
-  const rim=new R.Mesh(new R.TorusGeometry(.42,.13,10,28),new R.MeshStandardMaterial({color:0xD9CBB2,roughness:1}));rim.rotation.x=Math.PI/2;rim.position.y=.13;rim.castShadow=true;bed.add(rim);
-  const pad=new R.Mesh(new R.CylinderGeometry(.4,.4,.08,24),new R.MeshStandardMaterial({color:0xEFE8DB,roughness:1}));pad.position.y=.06;bed.add(pad);}
+  // 10/25：換成看得到、很舒服的窩：焦糖色蓬蓬圓床＋奶油色墊子＋一條粉色小毯子，後面一間木頭小狗屋，旁邊一碗水
+  const M=(c,r=1)=>new R.MeshStandardMaterial({color:c,roughness:r});const add=(m,x,y,z)=>{m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;bed.add(m);return m;};
+  const rim=add(new R.Mesh(new R.TorusGeometry(.5,.17,12,32),M(0xC89F74)),0,.17,0);rim.rotation.x=Math.PI/2;rim.scale.set(1,1.15,1);
+  add(new R.Mesh(new R.CylinderGeometry(.5,.52,.12,28),M(0xF3E9D8)),0,.08,0).scale.z=1.15;
+  const bl=add(new R.Mesh(new R.BoxGeometry(.46,.04,.36),M(0xE8B4B0)),.16,.16,.12);bl.rotation.y=.5;bl.rotation.z=.08;
+  const H=new R.Group();H.position.set(0,0,-1.05);bed.add(H);const wood=M(0xB98A5E,.9),roofM=M(0x8C5E3C,.9);
+  const hb=new R.Mesh(new R.BoxGeometry(1.05,.72,.9),wood);hb.position.y=.36;hb.castShadow=true;H.add(hb);
+  [-1,1].forEach(sd=>{const r=new R.Mesh(new R.BoxGeometry(.66,.06,1.02),roofM);r.position.set(sd*.27,.86,0);r.rotation.z=-sd*.62;r.castShadow=true;H.add(r);});
+  const tri=new R.Shape();tri.moveTo(-.52,0);tri.lineTo(.52,0);tri.lineTo(0,.36);tri.lineTo(-.52,0);[.451,-.451].forEach(zz=>{const g=new R.Mesh(new R.ShapeGeometry(tri),wood);g.position.set(0,.72,zz);if(zz<0)g.rotation.y=Math.PI;H.add(g);});
+  const door=new R.Mesh(new R.CircleGeometry(.22,24),M(0x3A2A20));door.position.set(0,.3,.452);H.add(door);
+  const dl=new R.Mesh(new R.PlaneGeometry(.44,.3),M(0x3A2A20));dl.position.set(0,.15,.452);H.add(dl);
+  const bowl=add(new R.Mesh(new R.CylinderGeometry(.16,.12,.09,20),M(0x8FB3C4,.5)),.78,.05,.18);
+  add(new R.Mesh(new R.CircleGeometry(.13,20),new R.MeshStandardMaterial({color:0xBFE3EE,roughness:.2})),.78,.096,.18).rotation.x=-Math.PI/2;}
 dog.position.set(DOGBED.x+.6,heightAt(DOGBED.x,DOGBED.z),DOGBED.z-.4);out.add(dog);const dogAI={tx:DOGBED.x,tz:DOGBED.z,wait:1,greet:0};
 let dogMode='home';
 function dogTo(scene){if(dog.parent!==scene){if(dog.parent)dog.parent.remove(dog);scene.add(dog);}}
@@ -1914,8 +1925,8 @@ const MAP_MAIN=[
   ['健身房',['f1','gym'],W1F(5.4,4.3),['健身房']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
   ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];
 // 地下兩層的平面圖：跟主地圖同一個方向（倒過來看，往屋後在下）
-const PLAN_B1={x0:-11,z0:-13.2,w:22,h:21},PLAN_B2={x0:-12.4,z0:-12.4,w:24.8,h:21.6};
-const ppct=(P,x,z)=>[100-(x-P.x0)/P.w*100,100-(z-P.z0)/P.h*100];
+const PLAN_B1={x0:-11,z0:-13.2,w:22,h:21},PLAN_B2={x0:-12.4,z0:-12.4,w:24.8,h:21.6,upright:1};   // 10/25：B2 轉 180 度，從樓梯（下方）走進去，月老殿在正前方、媽祖左、財神右，跟我是誰同方向
+const ppct=(P,x,z)=>P.upright?[(x-P.x0)/P.w*100,(z-P.z0)/P.h*100]:[100-(x-P.x0)/P.w*100,100-(z-P.z0)/P.h*100];
 const MAP_B1=[['床邊',['f2','bed'],ppct(PLAN_B1,0,2.4),['床邊']],['書桌・交屋手冊',['f2','desk'],ppct(PLAN_B1,-3.6,-6.4)],['白水木・下沉庭院',['f2','plant'],ppct(PLAN_B1,-1.4,-9.6)],['往下・禱告房',['f2','ladder'],ppct(PLAN_B1,-9,-2.6)],['上樓・1F',['f2','up'],ppct(PLAN_B1,-8.8,5.4)]];
 const MAP_B2=[['前殿・跪下禱告',['attic','ladder'],ppct(PLAN_B2,0,-1.6)],['轉運流水盆',['attic','fountain'],ppct(PLAN_B2,-4.6,1.6)],['月老殿',['attic','halls'],ppct(PLAN_B2,0,-10.6)],['媽祖殿',['attic','mazu'],ppct(PLAN_B2,-10.2,-5)],['財神殿',['attic','caishen'],ppct(PLAN_B2,10.2,-5)],['上樓・B1',['attic','stairs'],ppct(PLAN_B2,6.6,6.6)]];
 const MAP_S=[['後台',['stage','back'],[10,60]],['Vocal',['stage','mic'],[36,82],['Vocal']],['合唱台',['stage','choir'],[50,22],['合唱團']],['Podcast',['stage','podcast'],[90,48],['Podcast']]];
@@ -1959,7 +1970,7 @@ function buildMapBG(){
   <rect x="${X0}" y="${Z0}" width="${MW}" height="20" fill="url(#mfog)"/>
   <text transform="rotate(180 ${hx} ${hz-2.2})" x="${hx}" y="${hz-2.2}" font-size="1.5" text-anchor="middle" fill="#B5ADA1" font-weight="700" letter-spacing=".3">1F</text>
   </g>  </svg>`;}
-const planSVG=(P,inner)=>`<svg viewBox="${P.x0} ${P.z0} ${P.w} ${P.h}" preserveAspectRatio="none" aria-hidden="true"><g transform="rotate(180 ${P.x0+P.w/2} ${P.z0+P.h/2})"><rect x="${P.x0}" y="${P.z0}" width="${P.w}" height="${P.h}" fill="#E7DED0"/>${inner}</g></svg>`;
+const planSVG=(P,inner)=>`<svg viewBox="${P.x0} ${P.z0} ${P.w} ${P.h}" preserveAspectRatio="none" aria-hidden="true"><g${P.upright?"":` transform="rotate(180 ${P.x0+P.w/2} ${P.z0+P.h/2})"`}><rect x="${P.x0}" y="${P.z0}" width="${P.w}" height="${P.h}" fill="#E7DED0"/>${inner}</g></svg>`;
 const B1SEC=planSVG(PLAN_B1,`<rect x="-10.6" y="-13" width="21.2" height="6.2" fill="#CFCAC1"/><rect x="-10.2" y="-12.6" width="20.4" height="5.6" fill="#8FAE74"/>${Array.from({length:9},(_,i)=>`<circle cx="${-9+i*2.25}" cy="-12" r=".45" fill="#6E9A5B"/>`).join('')}<circle cx="-1.4" cy="-9.6" r="1.6" fill="#7E9F6A" stroke="#5F7F4E" stroke-width=".15"/>
   <rect x="-10" y="-7" width="20" height="14" fill="#F1E8DA" stroke="#B5ADA1" stroke-width=".25"/><line x1="-10" y1="-7" x2="10" y2="-7" stroke="#8FBCC6" stroke-width=".35"/>${Array.from({length:6},(_,i)=>`<rect x="${-10.06+i*4}" y="-7.12" width=".12" height=".24" fill="#2E2A25"/>`).join('')}
   <rect x="-1.8" y=".2" width="3.6" height="2.4" fill="#E9DDEB"/><rect x="-1.3" y="3.3" width="2.6" height="3.2" rx=".15" fill="#FFF8EC" stroke="#C9A27A" stroke-width=".2"/><rect x="-1.28" y="3.4" width="2.56" height="1.9" fill="#D9CBB4"/><rect x="-.95" y="5.75" width=".9" height=".5" rx=".1" fill="#fff" stroke="#D8CFC2" stroke-width=".08"/><rect x=".05" y="5.75" width=".9" height=".5" rx=".1" fill="#fff" stroke="#D8CFC2" stroke-width=".08"/><rect x="-1.35" y="6.48" width="2.7" height=".15" fill="#A97C55"/><rect x="1.6" y="6.05" width=".6" height=".5" fill="#C9A27A"/><circle cx="1.9" cy="6.3" r=".16" fill="#FFE6B0"/>

@@ -1425,7 +1425,7 @@ const dog=new R.Group();{const fur=mat(0xC79B6D),dark=mat(0x6B4A30);
   const hit=new R.Mesh(new R.SphereGeometry(.85,10,8),new R.MeshBasicMaterial());hit.position.set(0,.45,0);hit.visible=false;dog.add(hit);
   dog.traverse(o=>{if(o.isMesh)o.userData.tap='lucky';});}
 // Lucky：住在家裡，不跟出門。你從大門進來時他跑來迎接、跟你走幾步，再回去自己的窩；點他「帶 Lucky 散步」才跟你出門
-const DOGBED={x:hx+11.2,z:hz-15.2};   // Lucky 的窩：後花園，早餐平台旁的草地上
+const DOGBED={x:hx+11.2,z:hz-15.2};F.spawns.lucky=[DOGBED.x+.4,DOGBED.z+2.6,Math.PI,0];   /* 地圖點 Lucky：站到他的窩前面 */   // Lucky 的窩：後花園，早餐平台旁的草地上
 {const bed=new R.Group();bed.position.set(DOGBED.x,heightAt(DOGBED.x,DOGBED.z),DOGBED.z);out.add(bed);
   // 10/25：換成看得到、很舒服的窩：焦糖色蓬蓬圓床＋奶油色墊子＋一條粉色小毯子，後面一間木頭小狗屋，旁邊一碗水
   const M=(c,r=1)=>new R.MeshStandardMaterial({color:c,roughness:r});const add=(m,x,y,z)=>{m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;bed.add(m);return m;};
@@ -1880,7 +1880,7 @@ const BEDROOM='https://fuwei0618-cmd.github.io/Entry/bedroom/';
 function goto(id,spawn){if(id==='f2'){openApp('B1 臥室',BEDROOM);return;}if(id==='attic'){const d={mazu:'mazu',caishen:'caishen',halls:'yuelao'}[spawn]||'front';openApp('禱告房',TEMPLE+d);return;}closeSheet();fade.classList.add('on');setTimeout(()=>{
   cur.scene.remove(player);if(marker.parent)marker.parent.remove(marker);
   cur=SC[id];cur.scene.add(player);curHot=null;prompt.hidden=true;target=null;
-  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];roofOn=(id==='forest'&&(spawn==='roof'||spawn==='garden'));if(dogMode==='walk'&&id!=='forest'&&id!=='f1')dogMode='home';if(dogMode==='walk'){dogTo(cur.scene);}else{dogTo(out);if(id==='forest'&&spawn==='deck'){dog.position.set(DOGBED.x-1,heightAt(DOGBED.x,DOGBED.z),DOGBED.z+1);dogAI.greet=8;}}P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}
+  const sp=cur.spawns[spawn]||Object.values(cur.spawns)[0];roofOn=(id==='forest'&&(spawn==='roof'||spawn==='garden'));if(dogMode==='walk'&&id!=='forest'&&id!=='f1')dogMode='home';if(dogMode==='walk'){dogTo(cur.scene);}else{dogTo(out);if(id==='forest'&&(spawn==='deck'||spawn==='lucky')){dog.position.set(DOGBED.x-1,heightAt(DOGBED.x,DOGBED.z),DOGBED.z+1);dogAI.greet=8;}}P.x=sp[0];P.z=sp[1];P.face=sp[2];P.yaw=sp[3];P.y=cur.floor(P.x,P.z);P.pitch=sp[4]!==undefined?sp[4]:-.05;P.orbit=cur.orbit0;if(sp[5]==='first'&&view!=='first'){toggleView();P.pitch=sp[4];}
   $('#where').textContent=cur.where;camInit=true;setTimeout(()=>fade.classList.remove('on'),60);},280);}
 
 /* ---------- sheets ---------- */
@@ -1920,7 +1920,7 @@ function closeApp(){appV.hidden=true;appV.innerHTML='';try{history.replaceState(
 const W1F=(ix,iz)=>[hx+ix,hz+iz];
 const MAP_MAIN=[
   ['森林入口',['forest','start'],[0,GZ+RW+6]],['會客亭',['forest','pavilion'],[0,GZ]],['狼',['forest','guardW'],[10,GZI]],['虎',['forest','guardT'],[-10,GZI]],['光孔日晷',['forest','center'],[0,EC.cz],['使命板'],[0,VZ+8.2]],['記錄之河',['forest','river'],[riverX(EC.cz)+2.5,EC.cz-5],['WonderMedia'],[riverX(EC.cz)+6.5,EC.cz-9.5]],['蘑菇攝影棚',['forest','studio'],[mx,mz],['WonderMedia']],
-  ['營火',['forest','campfire'],[FX,FZ]],['Lucky',['forest','deck'],[hx+11.2,hz-15.2],['Lucky']],['屋後的溪',['forest','stream'],[5.5,-27]],['螢火蟲',['forest','fireflies'],[16,GZ+8]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
+  ['營火',['forest','campfire'],[FX,FZ]],['Lucky',['forest','lucky'],[hx+11.2,hz-15.2],['Lucky']],['屋後的溪',['forest','stream'],[5.5,-27]],['螢火蟲',['forest','fireflies'],[16,GZ+8]],['金庫',['forest','vault'],[VX,VZ],['保險手冊','財富管理','投資'],[VX,VZ+8.2]],
   ['玄關',['f1','front'],W1F(0,4.3)],['日曆牆',['f1','cal'],W1F(-12,-1.5),['夢想版'],W1F(-16.3,-1.5)],['廚房',['f1','kitchen'],W1F(9,-4.4)],['Beauty',['f1','closet'],W1F(12,3),['正顎手冊'],W1F(16.3,3)],
   ['健身房',['f1','gym'],W1F(5.4,4.3),['健身房']],['樓梯',['f1','stairs'],W1F(-11.4,4.3)],
   ['舞台門',['f1','stage'],W1F(-2.6,-4.4)],['世界之門',['f1','stage'],W1F(2.4,-4.4),['旅遊手冊']]];
@@ -1989,7 +1989,8 @@ const SSEC=`<svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="tr
   ${Array.from({length:20},(_,k)=>`<circle cx="${(10+k*7.5).toFixed(1)}" cy="${82+(k%3)}" r="1.4" fill="${['#FFF1D6','#9FD6E0','#F2A2C0','#FFD68A'][k%4]}"/>`).join('')}</svg>`;
 function hereMarker(){let p=null;if(cur.id==='forest')p=[P.x,P.z];else if(cur.id==='f1')p=W1F(P.x,P.z);if(!p)return '';const[l,t]=pct(p[0],p[1]);if(l<0||l>100||t<0||t>100)return '';return `<i class="here" style="left:${l}%;top:${t}%"></i>`;}
 function openMap(){closeSheet();if(!mapBG)mapBG=buildMapBG();
-  const main=MAP_MAIN.map(([n,g,p,a,ap])=>spotHTML(n,g,pct(p[0],p[1]),a,ap&&pct(ap[0],ap[1]))).join('');
+  const at=(g,p)=>{const S=SC[g[0]],s=S&&S.spawns&&S.spawns[g[1]];if(!s)return p;return g[0]==='forest'?[s[0],s[1]]:g[0]==='f1'?W1F(s[0],s[1]):p;};   /* 10/26：點點畫在真的會被傳送到的位置，點了不會跑到別處 */
+  const main=MAP_MAIN.map(([n,g,p,a,ap])=>spotHTML(n,g,pct(...at(g,p)),a,ap&&pct(ap[0],ap[1]))).join('');
   const ins=(title,id,bg,list,PL,sid)=>{const here=cur.id===sid&&PL?(()=>{const[l,t]=ppct(PL,P.x,P.z);return `<i class="here" style="left:${l}%;top:${t}%"></i>`;})():'';return `<section class="inset"><h3>${title}${list.some(x=>x[1][0]===cur.id)?'<em>● 你在這裡</em>':''}</h3><div class="mapbox"${PL?` style="aspect-ratio:${PL.w}/${PL.h}"`:''}>${bg}${list.map(([n,g,p,a])=>spotHTML(n,g,p,a)).join('')}${here}</div></section>`;};
   mapV.innerHTML=`<div class="ovbar"><h2>Origina 地圖</h2><span style="display:flex;gap:8px"><button class="btn light" data-g="forest,garden">↑ 屋頂花園</button><button class="btn light" id="mapDown">↓ 地下・舞台</button><a class="btn light" href="sheet/" style="text-decoration:none">總表</a><button class="btn light" id="mapClose">✕ 關閉</button></span></div>
   <div class="ovbody"><div class="mwrap"><div class="mnote">點地名走過去 · 點空地直接傳送 · 點圖示打開 App<span class="phone-only"> · 左右滑動看整張地圖</span></div>

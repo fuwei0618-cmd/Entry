@@ -281,7 +281,7 @@ function allHTML(only){
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div>${b.flow?`<div class="flowln">儀式：${esc(b.flow)}</div>`:""}</div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}${b.open?`<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a>`:""}</span></div>
     ${b.k==="cathay"?b.f.filter(x=>x[0]==="note").map(([fk,label,val,type])=>`<div class="fld"><label>${esc(label)}</label><textarea data-fk="${fk}" data-type="${type}" rows="1" placeholder="還沒寫">${esc(val||"")}</textarea></div>`).join("")+sceneHTML():""}
-    ${b.k==="vocal"?whyHTML("vocal"):""}${b.k==="hh"?queenHTML():""}
+    ${b.k==="vocal"?whyHTML("vocal"):""}
     ${b.static?"":topHTML(b.k)}
     ${b.static?whyHTML(b.k):`<p class="layers" style="position:static;margin:4px 0 0">一句話 → 使命 → 身份 → 行為 → 卡住時</p>`}
     ${b.missing?`<p class="muted" style="margin:0;font-size:13px">${({nolog:`這台裝置還沒登入 OneDrive。按右下角雲朵登入，就會自動抓下來。`,nofile:`OneDrive 裡還沒有${esc(b.app)}的資料。請打開${esc(b.app)}，按它右下角的雲朵登入一次，它會把資料傳上去；之後這裡就讀得到。`,err:`抓雲端資料時出錯了，等一下再回來看看。`})[CS[b.k]]||`正在找${esc(b.app)}的資料……`}　<a class="link" href="${b.open}" target="_top">打開${esc(b.app)}</a></p>`:
@@ -306,9 +306,9 @@ function overviewHTML(){
   <tbody><tr class="ovme"><th class="ovh" data-ov="me"><b>我是誰</b><small>每一頁都從這段開始</small></th><td colspan="${BS.length}" data-ov="me" data-row="我是誰">${String(B0.whoami||"").trim()?`<div class="ovt ovw">${esc(String(B0.whoami).trim())}</div>`:`<span class="ovm">還沒寫</span>`}</td></tr>
   <tr><th class="ovh"><b>正念文案</b><small>接在我是誰後面</small></th>${BS.map(b=>{const t=SCR(b.k).trim();OVFULL[b.k+"|正念文案"]=t?pre(t):`<p class="muted">還沒寫</p>`;return `<td data-ov="${b.k}" data-row="正念文案">${t?`<div class="ovt">${esc(cut(t,60))}</div>`:`<span class="ovm">還沒寫</span>`}</td>`;}).join("")}</tr>
   ${ROWS.map(([r,q])=>`<tr><th class="ovh"><b>${r}</b><small>${q}</small></th>${BS.map(b=>{OVFULL[b.k+"|"+r]=b.missing?`<p class="muted">還沒載入</p>`:full(b,r);return `<td data-ov="${b.k}" data-row="${r}">${cell2(b,r)}</td>`;}).join("")}</tr>`).join("")}</tbody></table></div><aside class="ovside" id="ovside" hidden></aside></div>`;}
-/* 10/27：HH 頁加「女王的世界宣言」（存在床邊自己的資料，跟著 OneDrive 同步） */
+/* 10/27：我是誰頁加「女王的世界宣言」（先收在宣言下面，等整合）（存在床邊自己的資料，跟著 OneDrive 同步） */
 const QUEEN_DEF="1. 我走進房間\n當我走進一個房間，所有人都知道女神到了。\n所有的目光都溫柔地落在我身上，每個人都想知道我是誰。\n我的能量、我的氣場、我的氣質，讓人無法抗拒。\n\n2. 我的身體\n我欣賞我的身體，我容光煥發，我陽光、健康。\n我的皮膚光滑、細膩、富有光澤。\n我照顧好自己的身體，從頭髮到腳趾。\n我像超模一樣走路，自然、大方。我聞起來總是很香。\n\n3. 我不費力\n我什麼都不用做，世界就把我想要的一切送到我身邊。\n一切都是自然的，我是天生的女神。我感到很放鬆。\n\n4. 我無可取代\n沒有人可以和我競爭。我永遠是第一，我是唯一。\n我總是知道我要做什麼、說什麼、去哪裡。\n\n5. 世界寵愛我\n世界像對待女神一樣對待我。\n我遇到的每個人，都想對我好、想給我更多。\n好的機會、好的人、好的東西，總是自然而然地來到我身邊。\n我被世界寵壞了，而我欣然接受。\n\n6. 每一天\n我的微笑像太陽，讓身邊的人發自內心地微笑。\n每天醒來，我都感受到我是最性感的。\n每一天都是我生命中最美好的一天。\n我是最性感的女王，我不費吹灰之力地得到一切。";
-const queenHTML=()=>`<details class="queen" open><summary>👑 女王的世界宣言<span class="muted" style="font-size:12px;font-weight:400">・出發前唸一次</span></summary><textarea id="queenTx" rows="8">${esc(B.queen||QUEEN_DEF)}</textarea><div class="row" style="justify-content:flex-end;gap:8px"><button class="btn sm" id="queenCopy">複製</button></div></details>`;
+const queenHTML=()=>`<details class="queen"><summary>👑 女王的世界宣言<span class="muted" style="font-size:12px;font-weight:400">・先放這裡，還沒整合進上面的我是誰</span></summary><textarea id="queenTx" rows="8">${esc(B.queen||QUEEN_DEF)}</textarea><div class="row" style="justify-content:flex-end;gap:8px"><button class="btn sm" id="queenCopy">複製</button></div></details>`;
 function wireQueen(said){const t=document.getElementById("queenTx");if(!t)return;const g=()=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};g();
   t.oninput=()=>{g();B.queen=t.value;save();said&&said();};const c=document.getElementById("queenCopy");if(c)c.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(t.value);c.textContent="已複製";setTimeout(()=>c.textContent="複製",1200);};}
 function wireAll(){
@@ -364,7 +364,7 @@ function render(){setTimeout(loadVisB,0);$("#app").classList.toggle("wide",mode=
   document.body.classList.toggle("night",mode==="night");
   if(READ&&(mode==="me"||SCR(mode))){const t=mode==="me"?String(B.whoami||""):audioText(mode);$("#app").innerHTML=`<div style="padding:24px 8px"><div class="decl">${esc(t)}</div>${mode==="morning"||mode==="night"?`<div class="row" style="justify-content:center;margin-top:28px"><a class="btn pri" style="text-decoration:none" href="${YOGA}">開始瑜伽 →</a></div>`:""}</div>`;return;}
   if(mode==="me"){$("#app").innerHTML=`<div class="top"><h1>我是誰</h1>${segHTML()}</div><p class="muted" style="margin:-4px 0 0;font-size:13px">每一頁的音檔都從這段開始。改這裡，起床、睡前、HH、Vocal、Cathay 的音檔稿一起變。<span id="svd" class="svd"></span></p>
-    <section class="card bfull"><textarea id="whoami" rows="1" placeholder="寫下你的我是誰宣言">${esc(B.whoami||"")}</textarea><div class="row"><button class="btn sm" id="cpme">複製</button></div></section>${rootsHTML()}`;wireRoots();
+    <section class="card bfull"><textarea id="whoami" rows="1" placeholder="寫下你的我是誰宣言">${esc(B.whoami||"")}</textarea><div class="row"><button class="btn sm" id="cpme">複製</button></div></section>${queenHTML()}${rootsHTML()}`;wireRoots();wireQueen();
     const t=$("#whoami"),grow=()=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};grow();let tm=0;
     t.oninput=()=>{grow();B.whoami=t.value;save();const e=$("#svd");if(e){e.textContent="・已存";clearTimeout(tm);tm=setTimeout(()=>{e.textContent="";},1400);}};
     $("#cpme").onclick=e=>copyText(String(B.whoami||""),e.target);

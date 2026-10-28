@@ -281,7 +281,7 @@ function allHTML(only){
     <div class="bhead"><div><div class="stepn">${esc(b.name)}</div><div class="muted" style="font-size:12px">${esc(b.when)}${mins(b)?"・約 "+mins(b)+" 分鐘":""}</div>${b.flow?`<div class="flowln">儀式：${esc(b.flow)}</div>`:""}</div>
       <span class="blinks">${b.listen?`<a class="link" href="${b.listen}">純文字</a>`:""}${b.open?`<a class="link" href="${b.open}" ${b.open.startsWith("http")?'target="_top"':''}>原頁 ↗</a>`:""}</span></div>
     ${b.k==="cathay"?b.f.filter(x=>x[0]==="note").map(([fk,label,val,type])=>`<div class="fld"><label>${esc(label)}</label><textarea data-fk="${fk}" data-type="${type}" rows="1" placeholder="還沒寫">${esc(val||"")}</textarea></div>`).join("")+sceneHTML():""}
-    ${b.k==="vocal"?whyHTML("vocal")+sqHTML():""}${b.k==="cathay"?svcHTML()+cqHTML():""}
+    ${b.k==="vocal"?whyHTML("vocal")+sqHTML():""}${b.k==="hh"?hqHTML():""}${b.k==="cathay"?svcHTML()+cqHTML():""}
     ${b.static?"":topHTML(b.k)}
     ${b.static?whyHTML(b.k):`<p class="layers" style="position:static;margin:4px 0 0">一句話 → 使命 → 身份 → 行為 → 卡住時</p>`}
     ${b.missing?`<p class="muted" style="margin:0;font-size:13px">${({nolog:`這台裝置還沒登入 OneDrive。按右下角雲朵登入，就會自動抓下來。`,nofile:`OneDrive 裡還沒有${esc(b.app)}的資料。請打開${esc(b.app)}，按它右下角的雲朵登入一次，它會把資料傳上去；之後這裡就讀得到。`,err:`抓雲端資料時出錯了，等一下再回來看看。`})[CS[b.k]]||`正在找${esc(b.app)}的資料……`}　<a class="link" href="${b.open}" target="_top">打開${esc(b.app)}</a></p>`:
@@ -327,12 +327,16 @@ function wireCq(said){const t=document.getElementById("cqTx");if(!t)return;const
 const SQ_DEF="1. 我站上街頭\n當我架好麥克風，這條街就變成我的舞台。\n路過的人放慢腳步，因為他們感覺到，有好聽的事要發生了。\n我的聲音一出來，空氣就安靜下來。\n\n2. 我的樣子\n我穿著讓自己開心的衣服，站得很穩，腳底踩著地。\n胸口打開，聲音從核心出發，穿過 Camino，送到每個人心裡。\n我不用完美，我只要真。\n\n3. 我不費力\n我不追著誰聽，願意停下來的人，就是今天唱給他的。\n我不用證明什麼，我站在這裡，就已經是答案。\n\n4. 我無可取代\n這條街上只有一個我，這個聲音只屬於我。\n別人唱得多好都沒關係，他們唱不出我的故事。\n\n5. 路過的人愛我\n有人停下來聽完一整首，有人跟著輕輕哼。\n有人錄影，有人放下零錢，有人對我說「好好聽」。\n我唱的歌，陪一個陌生人走過了他的一天。\n\n6. 每一場\n每一場街演，都是我開給自己的小型演唱會。\n唱完一首就算贏，唱完一場就是圓滿。\n我輕鬆地開唱，滿足地收攤。\n\n7. 我是真的\n我不演給任何人看，我唱的是說中我的歌。\n停下來的人喜歡我，是因為我是真的。\n這條街聽見的，是我真正的聲音。";
 const sqHTML=()=>`<details class="queen"><summary>👑 Addiction・街演版<span class="muted" style="font-size:12px;font-weight:400">・開唱前唸一次</span></summary><textarea id="sqTx" rows="8">${esc(B.sq||SQ_DEF)}</textarea></details>`;
 function wireSq(said){const t=document.getElementById("sqTx");if(!t)return;const g=()=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};g();t.closest("details").addEventListener("toggle",g);t.oninput=()=>{g();B.sq=t.value;save();said&&said();};}
+/* 10/28：HH 頁加「Addiction・高跟鞋版」 */
+const HQ_DEF="1. 我走進教室\n我換上高跟鞋，站起來的那一刻，我就是女神。\n鏡子裡的我，連自己都忍不住多看一眼。\n音樂一下，我的能量、氣場、氣質，整個打開。\n\n2. 我的身體\n腳底三個點踩穩，頭頂一條線把我往上提。\n開肩、開髖，胸口打開，我整個人在發光。\n我欣賞我的身體，每一寸都在跳舞。\n\n3. 我不費力\n我不用跳得完美，我只要讓音樂穿過我。\n動作會忘，但感覺不會。我越鬆，越性感。\n\n4. 我無可取代\n教室裡每個人都很美，而我是我自己的那種美。\n沒有人跳得出我的味道，那是只屬於我的。\n\n5. 我被渴望\n我跳舞的時候，心裡有一個人在看著我，他移不開眼睛。\n他說我是他見過最迷人的女人。\n但我跳舞，不是為了他。上癮的是他，不是我。\n\n6. 每一堂課\n每一堂課，都是我寵愛自己的一個小時。\n跳完一段就算贏，記住一個八拍就是進步。\n我穿著高跟鞋走進教室，踩著自信走出來。\n\n7. 我是真的\n我不演給任何人看，我只是享受我的身體。\n我性感，是因為我是真的。\n高跟鞋讓我站得更高，但讓我發光的是我自己。";
+const hqHTML=()=>`<details class="queen"><summary>👑 Addiction・高跟鞋版<span class="muted" style="font-size:12px;font-weight:400">・換鞋時唸一次</span></summary><textarea id="hqTx" rows="8">${esc(B.hq||HQ_DEF)}</textarea></details>`;
+function wireHq(said){const t=document.getElementById("hqTx");if(!t)return;const g=()=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};g();t.closest("details").addEventListener("toggle",g);t.oninput=()=>{g();B.hq=t.value;save();said&&said();};}
 function wireQueen(said){const t=document.getElementById("queenTx");if(!t)return;const g=()=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};g();
   t.oninput=()=>{g();B.queen=t.value;save();said&&said();};const c=document.getElementById("queenCopy");if(c)c.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(t.value);c.textContent="已複製";setTimeout(()=>c.textContent="複製",1200);};}
 function wireAll(){
   const grow=t=>{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";};
   let tm=0;const said=()=>{const e=$("#svd");if(!e)return;e.textContent="・已存";clearTimeout(tm);tm=setTimeout(()=>{e.textContent="";},1400);};
-  wireTop(said);wireScenes(said);wireQueen(said);wireSvc(said);wireCq(said);wireSq(said);
+  wireTop(said);wireScenes(said);wireQueen(said);wireSvc(said);wireCq(said);wireSq(said);wireHq(said);
   document.querySelectorAll(".bfull textarea:not([data-script]):not([data-scf])").forEach(t=>{grow(t);t.oninput=()=>{grow(t);const k=t.closest("[data-b]").dataset.b;putBelief(k,t.dataset.fk,t.dataset.type==="l"?t.value.split("\n").map(x=>x.trim()).filter(Boolean):t.value);said();};});
   const rfs=k=>{if(k==="cathay")return JSON.parse(JSON.stringify(cathay().reframes||[]));if(k==="media")return JSON.parse(JSON.stringify(mediaB().reframes||[]));if(k==="money")return JSON.parse(JSON.stringify(moneyB().reframes||[]));const d=rd(k==="hh"?HKEY:VKEY);const v=k==="hh"?(d&&d.vision):(d&&d.meta&&d.meta.vision);return JSON.parse(JSON.stringify((v&&v.reframes)||[]));};
   document.querySelectorAll(".bfull .rf input").forEach(t=>t.oninput=()=>{const k=t.closest("[data-b]").dataset.b,R=rfs(k),i=+(t.dataset.rq??t.dataset.ra);R[i]=R[i]||{q:"",a:""};if(t.dataset.rq!=null)R[i].q=t.value;else R[i].a=t.value;putBelief(k,"reframes",R);said();});

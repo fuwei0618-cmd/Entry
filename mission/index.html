@@ -176,7 +176,7 @@ textarea{min-height:76px;resize:vertical}
 .cgrid tr.cextra td{text-align:left;font-size:11px;letter-spacing:.2em;color:var(--muted);background:#F4F0E9;padding:4px 10px;border-left:0}
 .cgrid tr.isextra td,.cgrid tr.isextra th{opacity:.85}
 .cempty{font-size:10.5px;color:#C9BFAF}
-.vision{position:relative;margin:4px auto 0;max-width:460px;width:100%;text-align:center}.vtag{font-size:12px;letter-spacing:.2em;color:#B08D57;margin-bottom:6px}.vimg{border-radius:18px;overflow:hidden;background:#EFE8DC;aspect-ratio:4/5;display:grid;place-items:center;box-shadow:0 14px 34px rgba(80,40,20,.18)}.vimg img{width:100%;height:100%;object-fit:cover;display:block}.vph{color:var(--muted);font-size:14px}.vline{font-family:var(--serif);font-size:18px;color:var(--ink);margin:12px 6px 0;outline:none;border-radius:8px;padding:2px 6px}.vline:focus{background:#FBF6EC}.vbtn{position:absolute;right:10px;top:30px;font-size:12px;background:rgba(255,252,246,.85);border-radius:999px;padding:4px 10px;cursor:pointer;color:#2B2724}
+.vision{position:relative;margin:4px auto 0;max-width:460px;width:100%;text-align:center}.vis3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:720px;margin:4px auto 0;width:100%}.vis3 .vision{max-width:none;margin:0}.vis3 .vimg{aspect-ratio:3/4;border-radius:14px}.vis3 .vline{font-size:14px;margin:8px 2px 0}.vis3 .vbtn{top:26px;right:6px}.vsub{font-size:11px;color:var(--muted);margin-top:2px}@media(max-width:560px){.vis3{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}.vis3 .vision{flex:0 0 72%;scroll-snap-align:center}}.vtag{font-size:12px;letter-spacing:.2em;color:#B08D57;margin-bottom:6px}.vimg{border-radius:18px;overflow:hidden;background:#EFE8DC;aspect-ratio:4/5;display:grid;place-items:center;box-shadow:0 14px 34px rgba(80,40,20,.18)}.vimg img{width:100%;height:100%;object-fit:cover;display:block}.vph{color:var(--muted);font-size:14px}.vline{font-family:var(--serif);font-size:18px;color:var(--ink);margin:12px 6px 0;outline:none;border-radius:8px;padding:2px 6px}.vline:focus{background:#FBF6EC}.vbtn{position:absolute;right:10px;top:30px;font-size:12px;background:rgba(255,252,246,.85);border-radius:999px;padding:4px 10px;cursor:pointer;color:#2B2724}
 .cprin{display:grid;gap:3px;font-size:12.5px;color:var(--muted);padding:10px 14px;border:1px dashed var(--line);border-radius:12px;background:#FBF9F5}.cprin b{font-family:var(--serif);color:var(--ink);font-weight:600;font-size:13.5px}
 @media (max-width:520px){.cgrid table{font-size:11px}.cgrid tbody th{width:44px}.cgrid tbody th span{padding:2px 5px;font-size:10.5px}.cgrid th,.cgrid td{padding:6px 2px}.cgrid td.cask{width:112px;padding:6px 8px}.cgwrap table{min-width:760px}}
 .citem.ico{width:2.7em;height:2.7em;padding:0;border-radius:50%;box-sizing:border-box;overflow:hidden}.citem.ico svg,.citem.ico img{position:absolute;left:50%;top:50%;width:1.7em;height:1.7em;transform:translate(-50%,-50%);display:block}.citem.ico img{width:100%;height:100%;object-fit:cover;border-radius:50%}
@@ -557,7 +557,7 @@ const grid=`<div class="cgrid"><div class="cgwrap"><table><colgroup><col class="
   else if(meView==="map"&&meSelP){const L=items.filter(it=>(it.pl||[]).includes(meSelP));detail=`<h3 class="cname">${esc(meSelP)}</h3><p class="muted" style="margin:0;font-size:13px">住在這裡的收藏</p><div class="ctags" style="gap:6px">${L.map(it=>chip(it,0)).join("")||'<span class="muted">還沒有</span>'}</div>${MPL[meSelP]?`<button class="btn pri" data-walk2="${esc(meSelP)}">走去 Origina 的${esc(meSelP)}</button>`:""}`;}
   $("#app").innerHTML=`<section style="display:grid;gap:12px">
     <h2 style="margin:0;text-align:center;font-family:var(--serif);font-size:22px;color:var(--ink);letter-spacing:.1em">我是誰</h2>
-    <div class="vision" id="vision"><div class="vtag">Addiction・終極幻境</div><div class="vimg" id="vimg"><span class="vph">放一張你的終極幻境</span></div><div class="vline" id="vline" contenteditable="true" spellcheck="false">${esc(D.visionLine||"被愛著、穿得很美，在一個新的地方。")}</div><label class="vbtn">換圖<input type="file" accept="image/*" id="vin" hidden></label></div>
+    <div class="vis3">${VSLOTS.map((v,i)=>`<div class="vision"><div class="vtag">${v.tag}</div><div class="vimg" id="vimg${i}"><span class="vph">放一張圖</span></div><div class="vline" id="vline${i}" contenteditable="true" spellcheck="false">${esc(D[v.lk]||v.def)}</div><div class="vsub">${v.sub}</div><label class="vbtn">換圖<input type="file" accept="image/*" id="vin${i}" hidden></label></div>`).join("")}</div>
     <div class="cseg">${[["venn","三個我（交集）"],["grid","類型 × 方位"],["map","Origina 地圖"]].map(([k,t])=>`<button data-mv="${k}" aria-pressed="${meView===k}">${t}</button>`).join("")}</div>
     <div class="ckinds">${Object.entries(KINDS).map(([k,t])=>`<button class="k-${k}" data-k="${k}" aria-pressed="${!!meKinds[k]}">${t}</button>`).join("")}<button class="kall" data-kall>${meMulti&&Object.keys(KINDS).every(k=>meKinds[k])?"全部取消":"全部顯示"}</button><button class="kall kmulti" data-kmulti aria-pressed="${meMulti}">${meMulti?"✓ 多選":"多選"}</button></div>
     <div class="cstage${meEdit?" editing":""}${meView==="grid"?" asgrid":""}" id="cstage">${stage}</div>
@@ -719,17 +719,20 @@ function bindBList(){document.querySelectorAll("[data-editb]").forEach(x=>x.oncl
 
 /* ---------- 證據 ---------- */
 /* 10/25：終極幻境（一張圖＋一句話）掛在 Addiction 最上面。圖只存在這台裝置和她自己的 OneDrive，不放進公開的網站檔案 */
-let visionURL=null;
-async function loadVision(){const box=$("#vimg"),ln=$("#vline"),inp=$("#vin");if(!box)return;
-  const show=b=>{if(!b)return;if(visionURL)URL.revokeObjectURL(visionURL);visionURL=URL.createObjectURL(b);box.innerHTML=`<img src="${visionURL}" alt="">`;box.classList.add("has");};
-  let b=null;try{b=await idb.get("vision-img");}catch(e){}
-  if(!b){try{if(window.OriginaSync&&await OriginaSync.getToken()){b=await OriginaSync.api.getBlob("Mission/vision.jpg");if(b)idb.put("vision-img",b).catch(()=>{});}}catch(e){}}
-  show(b);
-  ln.onblur=()=>{const t=ln.textContent.trim();if(t!==(D.visionLine||"")){D.visionLine=t;save();}};ln.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();ln.blur();}};
+/* 10/28：終極幻境變成三幅：被一個人愛著／被世界愛著／被愛很久很久。圖只存在這台裝置和她自己的 OneDrive（陽台那張是她自己生的，放一份當預設） */
+const VSLOTS=[{k:"vision-img",f:"Mission/vision.jpg",lk:"visionLine",tag:"被一個人愛著",sub:"戀愛",def:"被愛著、穿得很美，在一個新的地方。"},{k:"vision-img2",f:"Mission/vision2.jpg",lk:"visionLine2",tag:"被世界愛著",sub:"享受人生",def:"熱鬧是我的，安靜也是我的。",dflt:"img/villa.webp"},{k:"vision-img3",f:"Mission/vision3.jpg",lk:"visionLine3",tag:"被愛很久很久",sub:"長久",def:"他看我的眼神，一輩子都沒變。"}];
+const visionURLs=[];
+function loadVision(){VSLOTS.forEach((v,i)=>loadVSlot(v,i));}
+async function loadVSlot(v,i){const box=$("#vimg"+i),ln=$("#vline"+i),inp=$("#vin"+i);if(!box)return;
+  const show=b=>{if(!b)return;if(visionURLs[i])URL.revokeObjectURL(visionURLs[i]);visionURLs[i]=URL.createObjectURL(b);box.innerHTML=`<img src="${visionURLs[i]}" alt="">`;box.classList.add("has");};
+  ln.onblur=()=>{const t=ln.textContent.trim();if(t!==(D[v.lk]||"")){D[v.lk]=t;save();}};ln.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();ln.blur();}};
   inp.onchange=async e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),im=new Image();im.src=u;await im.decode().catch(()=>{});
     const W=Math.min(1400,im.naturalWidth||1400),H=Math.round(W*(im.naturalHeight||1)/(im.naturalWidth||1)),c=document.createElement("canvas");c.width=W;c.height=H;c.getContext("2d").drawImage(im,0,0,W,H);URL.revokeObjectURL(u);
-    const out=await new Promise(r=>c.toBlob(r,"image/jpeg",.86))||f;try{await idb.put("vision-img",out);}catch(err){}show(out);
-    try{if(window.OriginaSync&&await OriginaSync.getToken())await OriginaSync.api.putBlob("Mission/vision.jpg",out);}catch(err){}};}
+    const out=await new Promise(r=>c.toBlob(r,"image/jpeg",.86))||f;try{await idb.put(v.k,out);}catch(err){}show(out);
+    try{if(window.OriginaSync&&await OriginaSync.getToken())await OriginaSync.api.putBlob(v.f,out);}catch(err){}};
+  let b=null;try{b=await idb.get(v.k);}catch(e){}
+  if(!b){try{if(window.OriginaSync&&await OriginaSync.getToken()){b=await OriginaSync.api.getBlob(v.f);if(b)idb.put(v.k,b).catch(()=>{});}}catch(e){}}
+  if(b)show(b);else if(v.dflt)box.innerHTML=`<img src="${v.dflt}" alt="">`;}
 const idb=(()=>{let p;const db=()=>p||(p=new Promise((res,rej)=>{const r=indexedDB.open("origina-mission",1);r.onupgradeneeded=()=>r.result.createObjectStore("rec");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}));
   const tx=(m,f)=>db().then(d=>new Promise((res,rej)=>{const t=d.transaction("rec",m),q=f(t.objectStore("rec"));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error);}));
   return{put:(k,v)=>tx("readwrite",s=>s.put(v,k)),get:k=>tx("readonly",s=>s.get(k)),del:k=>tx("readwrite",s=>s.delete(k))};})();

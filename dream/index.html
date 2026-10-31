@@ -254,6 +254,10 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .cproj{display:grid;gap:6px;padding:8px;border-radius:12px;background:#FBF7F0}.cproj.folded{opacity:.7;background:transparent;border:1px dashed var(--line)}
 .cproj .fcount{font-size:12px;color:var(--muted);border:0;background:none;padding:0;text-align:left;cursor:pointer}
 .crfoot{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.donelog summary{list-style:none;cursor:pointer}.donelog summary::-webkit-details-marker{display:none}.donelog summary h2:before{content:"▸ ";color:var(--muted)}.donelog[open] summary h2:before{content:"▾ "}
+.dmon{padding:12px 14px;display:grid;gap:4px;margin-top:10px}.dline{display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 2px;text-align:left;font-size:13.5px;border-bottom:1px solid #F1EADF}.dline:last-child{border-bottom:0}
+.dline .dd{width:38px;color:var(--muted);font-size:12px;flex:none}.dline i{width:10px;height:10px;border-radius:3px;flex:none}.dline .dw{color:var(--muted);font-size:12px;flex:none;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dline .dt{flex:1}
+.dcount{font-size:12px;color:var(--muted);padding:2px 4px}
 .crpick{display:flex;flex-wrap:wrap;gap:6px}
 .addcol{border-style:dashed;background:transparent;color:var(--muted);min-height:80px;font-size:14px;box-shadow:none}
 .cdot{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}.cdot[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
@@ -509,7 +513,7 @@ function bind3(){
   {const th=document.querySelector(".wk th.today"),last=document.querySelector(".wk td.tlast"),f=document.querySelector(".tframe"),sc=document.querySelector(".wkscroll");
     if(th&&last&&f&&sc){const r0=sc.getBoundingClientRect(),a=th.getBoundingClientRect(),b=last.getBoundingClientRect();
       Object.assign(f.style,{left:(a.left-r0.left+sc.scrollLeft-3)+"px",top:(a.top-r0.top-3)+"px",width:(a.width+6)+"px",height:(b.bottom-a.top+6)+"px"});f.hidden=false;}}
-  document.querySelectorAll("[data-tdone]").forEach(c=>c.onchange=()=>{taskById(c.dataset.tdone).t.done=c.checked;save();render();});
+  document.querySelectorAll("[data-tdone]").forEach(c=>c.onchange=()=>{setDone(taskById(c.dataset.tdone).t,c.checked);save();render();});
   document.querySelectorAll("[data-wk]").forEach(b=>b.onclick=()=>{const v=b.dataset.wk;wkView=v==="tpl"?"tpl":+v;render();});
   const rs=$("[data-reset]");if(rs)rs.onclick=()=>{delete W.weeks[wkKeyOff(wkView)];save();render();};
   document.querySelectorAll("[data-outfit]").forEach(b=>b.onclick=()=>{const S=wkOwn(),d=+b.dataset.outfit,i=OUTFITS.indexOf(S.outfit[d]||"");S.outfit[d]=OUTFITS[(i+1)%OUTFITS.length];save();render();});
@@ -592,9 +596,16 @@ const weekKey=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));
 const nextWeekKey=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7)+7);return ymd(d);};
 function taskById(tid){for(const p of D.todo.projects){const t=p.tasks.find(x=>x.id===tid);if(t)return{p,t};}return null;}
 let weekCnt={};
+/* 10/31：做完的事不刪，收進「完成紀錄」，記下完成的日子 */
+function setDone(t,v){t.done=v;if(v){t.doneAt=t.doneAt||today();}else delete t.doneAt;}
+function doneHTML(){const T=D.todo,L=[];T.projects.forEach(p=>p.tasks.forEach(t=>{if(t.done)L.push({p,t});}));
+  if(!L.length)return "";L.sort((a,b)=>(b.t.doneAt||"")<(a.t.doneAt||"")?-1:1);const g={};L.forEach(x=>{const k=x.t.doneAt?`${+x.t.doneAt.slice(0,4)} 年 ${+x.t.doneAt.slice(5,7)} 月`:"更早";(g[k]=g[k]||[]).push(x);});
+  let op=false;try{op=localStorage.getItem("dream-donelog")==="1";}catch(e){}
+  return `<section><details class="donelog" id="donelog" ${op?"open":""}><summary><h2>完成紀錄<small>做完的事都收在這裡・共 ${L.length} 件・點一件可以改回沒做完</small></h2></summary>
+    ${Object.entries(g).map(([k,xs])=>`<div class="card dmon"><div class="crl">${k}・${xs.length} 件</div>${xs.map(({p,t})=>{const c=CREWK[crewOfProj(p)];return `<button class="dline" data-task="${t.id}"><span class="dd">${t.doneAt?`${+t.doneAt.slice(5,7)}/${+t.doneAt.slice(8)}`:""}</span><i style="background:${c.c}"></i><span class="dw">${esc(c.n)}・${esc(p.name)}</span><span class="dt">${esc(t.text)}</span></button>`;}).join("")}</div>`).join("")}</details></section>`;}
 function crewHTML(wkMode){D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();T.month[mk]=T.month[mk]||[];T.week[wk]=T.week[wk]||[];T.week[nk]=T.week[nk]||[];
   const task=t=>`<div class="task${t.done?" done":""}" data-dtask="${t.id}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}">本月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}">本週</button><button data-tn="${t.id}" aria-pressed="${T.week[nk].includes(t.id)}">下週</button></div></div>`;
-  const proj=p=>`<div class="cproj${p.folded?" folded":""}" data-dcol="${p.id}"><div class="colhw"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button><button class="fold" data-fold="${p.id}" title="${p.folded?"打開":"先收起來，不會刪掉"}">${p.folded?"▸":"▾"}</button></div>${p.folded?`<button class="fcount" data-fold="${p.id}">${p.tasks.length} 件・先收起來</button>`:p.tasks.map(task).join("")+`<button class="tadd" data-addtask="${p.id}">＋ 新增一件</button>`}</div>`;
+  const proj=p=>`<div class="cproj${p.folded?" folded":""}" data-dcol="${p.id}"><div class="colhw"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button><button class="fold" data-fold="${p.id}" title="${p.folded?"打開":"先收起來，不會刪掉"}">${p.folded?"▸":"▾"}</button></div>${p.folded?`<button class="fcount" data-fold="${p.id}">${p.tasks.length} 件・先收起來</button>`:p.tasks.filter(t=>!t.done).map(task).join("")+(p.tasks.some(t=>t.done)?`<span class="dcount">✓ 已完成 ${p.tasks.filter(t=>t.done).length} 件，在完成紀錄</span>`:"")+`<button class="tadd" data-addtask="${p.id}">＋ 新增一件</button>`}</div>`;
   const card=c=>{const its=W.items.filter(i=>crewOfItem(i)===c.k),ps=T.projects.filter(p=>crewOfProj(p)===c.k);const n=Math.round((weekCnt[c.k]||0)*10)/10;
     return `<div class="card crew" style="--c:${c.c}"><div class="crh"><i></i><b>${esc(c.n)}</b><small>${esc(c.r)}</small>${wkMode&&n?`<span class="crn">這週 ${n} 格</span>`:""}</div>
       <div class="crl">常態</div><div class="crs">${its.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${c.c}"><i></i>${esc(i.name)}</button>`).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>
@@ -602,7 +613,7 @@ function crewHTML(wkMode){D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=month
   const HALLS=[[["媽祖殿・Shakira",["teresa","director","leader"]],["月老殿・Sánchez",["venus","fox"]],["財神殿・金庫",["sales","trader"]]],[["跟在你身邊",["butler","healer"]]]];
   const cards=HALLS.map(row=>`<div class="crow board">${row.map(([t,ks])=>`<div class="chall"><h4>${t}</h4><div>${ks.map(k=>card(CREWK[k])).join("")}</div></div>`).join("")}</div>`).join("");
   return `<section><h2>工具人<small>常態的沙子＋專案抽屜・點名字可以改・按住一件事可以拖到別的專案</small></h2>${cards}
-    <div class="crfoot"><button class="chip2 add" data-additem>＋ 新的沙子</button><button class="chip2 add" data-addproj>＋ 新專案</button></div></section>`;}
+    <div class="crfoot"><button class="chip2 add" data-additem>＋ 新的沙子</button><button class="chip2 add" data-addproj>＋ 新專案</button></div></section>${doneHTML()}`;}
 function crewPick(cur){return `<div class="field">歸哪位工具人管<div class="crpick">${CREW.map(c=>`<button class="chip3" data-crew="${c.k}" aria-pressed="${cur===c.k}" style="--c:${c.c}"><i></i>${esc(c.n)}</button>`).join("")}</div></div>`;}
 function wireCrewPick(box,set){box.querySelectorAll("[data-crew]").forEach(b=>b.onclick=()=>{set(b.dataset.crew);box.querySelectorAll("[data-crew]").forEach(x=>x.setAttribute("aria-pressed",x===b));});}
 function bindCrew(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
@@ -617,6 +628,7 @@ function bindCrew(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
   document.querySelectorAll("[data-fold]").forEach(b=>b.onclick=e=>{e.stopPropagation();const p=T.projects.find(x=>x.id===b.dataset.fold);p.folded=!p.folded;save();render();});
   document.querySelectorAll("[data-item]").forEach(b=>b.onclick=()=>itemDialog(itemById(b.dataset.item)));
   const ai=$("[data-additem]");if(ai)ai.onclick=()=>itemDialog(null);
+  {const d=document.getElementById("donelog");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-donelog",d.open?"1":"0");}catch(e){}});}
   dragBoard();}
 function layer4(){
   D.todo=D.todo||TODO();const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
@@ -638,7 +650,7 @@ function bind4(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
   document.querySelectorAll("[data-tw]").forEach(b=>b.onclick=()=>tog(T.week[wk],b.dataset.tw,"本週"));
   document.querySelectorAll("[data-tn]").forEach(b=>b.onclick=()=>{try{localStorage.setItem("dream-nextwk","1");}catch(e){}tog(T.week[nk],b.dataset.tn,"下週");});
   {const d=document.getElementById("nextwk");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-nextwk",d.open?"1":"0");}catch(e){}d.querySelector(".ar").textContent=d.open?"▾":"▸";});}
-  document.querySelectorAll("[data-tdone]").forEach(c=>c.onchange=()=>{taskById(c.dataset.tdone).t.done=c.checked;save();render();});
+  document.querySelectorAll("[data-tdone]").forEach(c=>c.onchange=()=>{setDone(taskById(c.dataset.tdone).t,c.checked);save();render();});
   document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>dayDialog(T.days.find(d=>d.id===b.dataset.day)));
   $("[data-addday]").onclick=()=>dayDialog(null);
   bindCrew();}
@@ -673,7 +685,7 @@ function dayDialog(d){dialog(`<h3>${d?"改這個日子":"新增重要日子"}</h
 function taskDialog(p,t){dialog(`<h3>${esc(p.name)}・${t?"改這件事":"新增一件"}</h3><label class="field">內容<input id="tt" maxlength="60" value="${esc(t?t.text:"")}"></label>
   ${t?`<label class="check2"><input type="checkbox" id="tdn" ${t.done?"checked":""}> 做完了</label>`:""}
   <div class="row"><button class="btn pri" data-ok>存好</button>${t?`<button class="btn" data-del>刪除</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
-  box=>{const ok=()=>{const v=box.querySelector("#tt").value.trim();if(!v)return;if(t){t.text=v;t.done=box.querySelector("#tdn").checked;}else p.tasks.push({id:nid(),text:v,done:false});save();closeDlg();render();};
+  box=>{const ok=()=>{const v=box.querySelector("#tt").value.trim();if(!v)return;if(t){t.text=v;setDone(t,box.querySelector("#tdn").checked);}else p.tasks.push({id:nid(),text:v,done:false});save();closeDlg();render();};
     box.querySelector("[data-ok]").onclick=ok;box.querySelector("#tt").onkeydown=e=>{if(e.key==="Enter")ok();};
     const x=box.querySelector("[data-del]");if(x)x.onclick=()=>{p.tasks=p.tasks.filter(y=>y!==t);save();closeDlg();render();};});}
 function projDialog(p){let color=p?p.color:TCOL[D.todo.projects.length%TCOL.length],crew=p?crewOfProj(p):"butler";

@@ -261,6 +261,7 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .fp .dx{margin-left:auto;border:0;background:none;color:var(--muted);font-size:15px;padding:0 4px;cursor:pointer}.dline[disabled]{color:inherit;opacity:1;cursor:default}
 .aics{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-top:3px}.aic{border:0;background:#fff;border-radius:7px;font-size:14px;line-height:1;width:24px;height:24px;padding:0;box-shadow:0 0 0 1px var(--line);cursor:pointer}.aic.unset{opacity:.45;background:#FBF8F2;box-shadow:0 0 0 1px var(--line) inset}
 .icpick{display:flex;flex-wrap:wrap;gap:6px}.icpick button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:18px}.icpick button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.slot b .sa{font-style:normal;font-size:13px;margin:0 2px;cursor:pointer;text-shadow:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}.slot b .sa.unset{opacity:.8}
 .slot .sic{position:absolute;left:5px;top:3px;font-size:12px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
 .alist2{display:grid;gap:4px}.achip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 9px;text-align:left;font-size:13.5px}.achip .aci{font-size:15px;width:20px;text-align:center}.achip b{font-weight:700;min-width:40px}.achip .acs{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.achip em{font-style:normal;font-size:11.5px;color:var(--muted);flex:none}.achip.unset{border-style:dashed;background:#FBF8F2}
 .aadd{border:1px dashed var(--line);background:transparent;border-radius:10px;padding:5px;font-size:12.5px;color:var(--muted)}
@@ -502,16 +503,18 @@ let slotWeek=null;   // 現在看的那一週（範本是 null）
 const SAND_ALIAS={Cathay:"國泰"};
 function projSand(p){const W=D.week;if(p.sand&&itemById(p.sand))return itemById(p.sand);const n=SAND_ALIAS[p.name]||p.name;return W.items.find(i=>i.name===n)||null;}
 const slotTask=v=>{if(!v||!v.task||!slotWeek||!D.todo)return null;if(!(D.todo.week[slotWeek]||[]).includes(v.task))return null;const x=taskById(v.task);if(!x)return null;const sd=projSand(x.p);return{name:(x.t.done?"✓ ":"")+x.t.text,cat:sd?sd.cat:"make",crew:crewOfProj(x.p),task:1,done:x.t.done};};
-const slotInfo1=v=>{if(!v)return null;if(v.task)return slotTask(v);if(v.item){const it=itemById(v.item);return it?{name:it.name,cat:it.cat,crew:crewOfItem(it)}:null;}return v.text?{name:v.text,cat:v.cat||"life",crew:CAT2CREW[v.cat||"life"],once:1}:null;};
+const slotInfo1=v=>{if(!v)return null;if(v.task)return slotTask(v);if(v.item){const it=itemById(v.item);return it?{name:it.name,cat:it.cat,crew:crewOfItem(it),item:it.id}:null;}return v.text?{name:v.text,cat:v.cat||"life",crew:CAT2CREW[v.cat||"life"],once:1}:null;};
 function layer3(){
   const W=D.week,S=wkS(),cnt={},total=21;let filled=0;slotWeek=S.tpl?null:wkKeyOff(wkView);
   Object.values(S.slots).forEach(v=>{const its=slotInfos(v);if(!its.length)return;its.forEach(it=>cnt[it.crew]=(cnt[it.crew]||0)+1/its.length);filled++;});
   const blank=total-filled;
   const todayCol=S.tpl?-1:(()=>{const [y,m,dd]=wkKeyOff(wkView).split("-").map(Number);for(let i=0;i<7;i++)if(ymd(new Date(y,m-1,dd+i))===ymd(new Date()))return i;return -1;})();
   const cellHTML=(d,p)=>{const v=S.slots[d+"-"+p],its=slotInfos(v),it=its[0],tm=(slotList(v)[0]||{}).time,tc=d===todayCol?' class="tcol"':'';
-    const ai=autosAt(d,p),aic=ai.length?`<div class="aics">${ai.map(a=>`<button class="aic${a.set?"":" unset"}" data-auto="${a.id}" title="${esc((a.time?a.time+" ":"")+a.what)}" aria-label="${esc((a.time?a.time+" ":"")+(a.s||a.what))}">${aIcon(a)}</button>`).join("")}</div>`:"";
-    if(its.length>1)return `<td${tc}><div class="slot full multi" data-slot="${d}-${p}">${its.map(x=>`<span class="band${x.once?" once":""}" style="--c:${crewC(x)}"><span class="grain"></span><b>${x.crew&&CREWK[x.crew]?CREWK[x.crew].ic+" ":""}${esc(x.name)}</b></span>`).join("")}${tm?`<small class="tm">${esc(tm)}</small>`:""}</div>${aic}</td>`;
-    return `<td${tc}><div class="slot${it?" full":""}${it&&it.once?" once":""}${it&&it.task?" tk":""}${it&&it.done?" dn":""}" data-slot="${d}-${p}" style="${it?`--c:${crewC(it)}`:""}">${it?`<span class="grain"></span>${it.crew&&CREWK[it.crew]?`<span class="sic">${CREWK[it.crew].ic}</span>`:""}<b>${esc(it.name)}</b>${tm?`<small>${esc(tm)}</small>`:""}`:"<i>＋</i>"}</div>${aic}</td>`;};
+    const ai=autosAt(d,p),ids=its.map(x=>x.item).filter(Boolean),onS=a=>a.item&&ids.includes(a.item),loose=ai.filter(a=>!onS(a));
+    const deco=(x,nm)=>{if(!x.item)return esc(nm);const m=ai.filter(a=>a.item===x.item),pre=m.filter(a=>a.pos!=="post"),post=m.filter(a=>a.pos==="post");const ic=a=>`<i class="sa${a.set?"":" unset"}" data-auto="${a.id}" title="${esc((a.time?a.time+" ":"")+a.what)}">${aIcon(a)}</i>`;return pre.map(ic).join("")+esc(nm)+post.map(ic).join("");};
+    const aic=loose.length?`<div class="aics">${loose.map(a=>`<button class="aic${a.set?"":" unset"}" data-auto="${a.id}" title="${esc((a.time?a.time+" ":"")+a.what)}" aria-label="${esc((a.time?a.time+" ":"")+(a.s||a.what))}">${aIcon(a)}</button>`).join("")}</div>`:"";
+    if(its.length>1)return `<td${tc}><div class="slot full multi" data-slot="${d}-${p}">${its.map(x=>`<span class="band${x.once?" once":""}" style="--c:${crewC(x)}"><span class="grain"></span><b>${deco(x,x.name)}</b></span>`).join("")}${tm?`<small class="tm">${esc(tm)}</small>`:""}</div>${aic}</td>`;
+    return `<td${tc}><div class="slot${it?" full":""}${it&&it.once?" once":""}${it&&it.task?" tk":""}${it&&it.done?" dn":""}" data-slot="${d}-${p}" style="${it?`--c:${crewC(it)}`:""}">${it?`<span class="grain"></span><b>${deco(it,it.name)}</b>${tm?`<small>${esc(tm)}</small>`:""}`:"<i>＋</i>"}</div>${aic}</td>`;};
   const rows=PARTS.map((pt,p)=>`<tr><th>${pt}</th>${DAYS.map((_,d)=>cellHTML(d,p)).join("")}</tr>`).join("");
   const outfit=`<tr class="outfit"><th>服裝</th>${DAYS.map((_,d)=>`<td${d===todayCol?' class="tcol tlast"':''}><button data-outfit="${d}" class="of of-${["正裝","運動服","休閒"].indexOf(S.outfit[d])}">${esc(S.outfit[d]||"—")}</button></td>`).join("")}</tr>`;
   const segs=CREW.map(c=>c.k).filter(k=>cnt[k]).map(k=>({k,n:cnt[k]}));weekCnt=cnt;if(blank)segs.push({k:"blank",n:blank});
@@ -522,7 +525,7 @@ function layer3(){
   const lab=n=>{if(n==="tpl")return "範本";const[y,m,d]=wkKeyOff(n).split("-").map(Number);return n===0?`本週 ${m}/${d}`:n===1?`下週 ${m}/${d}`:`${m}/${d} 那週`;};
   const nav=`<div class="wknav">${["tpl",0,1,2,3,4,5,6,7].map(n=>`<button data-wk="${n}" aria-pressed="${String(wkView)===String(n)}">${lab(n)}</button>`).join("")}</div>`;
   const state=S.tpl?`<p class="hint">這是範本：每一週一開始都長這樣。改範本，還沒調整過的週都會跟著變。</p>`:S.own?`<p class="hint">這週有自己的安排。<button class="linkbtn" data-reset>還原成範本</button></p>`:`<p class="hint">這週目前跟範本一樣；一改就會變成這週專屬的安排，不影響範本。</p>`;
-  return top3+`<section><h2>一週的樣子<small>點格子放沙子（一格最多三件）・按住拖曳換位置・格子下的小圖示是鬧鐘提醒，點開看幾點、做什麼</small></h2>${nav}
+  return top3+`<section><h2>一週的樣子<small>點格子放沙子（一格最多三件）・按住拖曳換位置・沙子前後的小圖示是鬧鐘提醒（前面＝開始前，後面＝結束後），點圖示看幾點、做什麼</small></h2>${nav}
     <div class="card wk"><div class="wkscroll"><div class="tframe" hidden></div><table><thead><tr><th></th>${DAYS.map((d,i)=>{if(S.tpl)return `<th>${d}</th>`;const [y,m,dd]=wkKeyOff(wkView).split("-").map(Number),x=new Date(y,m-1,dd+i),today=ymd(x)===ymd(new Date());return `<th${today?' class="today"':''}>${d}<small class="wkd">${x.getMonth()+1}/${x.getDate()}</small></th>`;}).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>${state}</div></section>
   <section><h2>這週的沙<small>每一格是一把沙，看看哪位工具人最忙、哪位被冷落</small></h2><div class="card wk">${sand}</div></section>
   ${crewHTML(1)}`;}
@@ -536,6 +539,7 @@ function bind3(){
   const rs=$("[data-reset]");if(rs)rs.onclick=()=>{delete W.weeks[wkKeyOff(wkView)];save();render();};
   document.querySelectorAll("[data-outfit]").forEach(b=>b.onclick=()=>{const S=wkOwn(),d=+b.dataset.outfit,i=OUTFITS.indexOf(S.outfit[d]||"");S.outfit[d]=OUTFITS[(i+1)%OUTFITS.length];save();render();});
   bindCrew();
+  document.querySelectorAll(".sa[data-auto]").forEach(el=>{el.addEventListener("pointerdown",e=>e.stopPropagation());el.addEventListener("click",e=>{e.stopPropagation();e.preventDefault();autoDialog(D.autos.find(x=>x.id===el.dataset.auto));});});
   document.querySelectorAll("[data-tdrag]").forEach(el=>{
     let sx,sy,g=null,timer;const tid=el.dataset.tdrag,x=taskById(tid);
     const tgt=e=>{g.style.display="none";const t=document.elementFromPoint(e.clientX,e.clientY);g.style.display="";return t&&t.closest("[data-slot]");};
@@ -642,7 +646,9 @@ function AUTOS(){let n=0;const a=(days,part,time,crew,dev,what,audio)=>({id:"a"+
 const AICS=["✨","🌏","💄","📅","🤝","🎶","🎼","💋","👠","💰","🎥","🧭","🔍","🌙","☀️","⏰"];
 function aOcc(w){const M=[["起床","✨"],["睡前","✨"],["打扮","🌏"],["09:00","📅"],["10:00","🤝"],["Vocal","🎶"],["氛圍","💋"],["HH","👠"],["合唱","🎼"],["國泰","🤝"]];const f=M.find(([k])=>w.includes(k));return f?f[1]:"⏰";}
 function aShort(w){const M=[["起床","起床"],["睡前","睡前"],["打扮","打扮"],["國泰","國泰"],["Vocal","Vocal"],["氛圍","氛圍感"],["HH","HH"],["合唱","合唱"]];const f=M.find(([k])=>w.includes(k));return f?f[1]:w.slice(0,4);}
-function autosFix(){D.autos=D.autos||AUTOS();D.autos.forEach(a=>{if(!a.s)a.s=aShort(a.what||"");if(!a.ic)a.ic=aOcc((a.time||"")+" "+(a.what||""));});D.autos.forEach(a=>{if(a.days)return;const m=/^星期(.)$/.exec(a.time||"");
+function autosFix(){D.autos=D.autos||AUTOS();D.autos.forEach(a=>{if(!a.s)a.s=aShort(a.what||"");if(!a.ic)a.ic=aOcc((a.time||"")+" "+(a.what||""));
+  if(a.lk)return;a.lk=1;const L={起床:["Yoga","pre"],打扮:["Yoga","post"],氛圍感:["Yoga","pre"],睡前:["Yoga","post"],HH:["HH","pre"],Vocal:["Vocal","pre"],合唱:["Chorus","pre"],國泰:["國泰",a.ic==="📅"?"post":"pre"]}[a.s];
+  if(L){const it=D.week.items.find(i=>i.name===L[0]);if(it){a.item=it.id;a.pos=L[1];}}});D.autos.forEach(a=>{if(a.days)return;const m=/^星期(.)$/.exec(a.time||"");
   if(m){a.days=["一二三四五六日".indexOf(m[1])].filter(x=>x>=0);a.time="";a.part=/合唱|Chorus/.test(a.what)?0:1;}
   else{a.days=a.type==="work"?[0,1,2,3,4]:ALLD.slice();const h=parseInt(a.time,10);a.part=isNaN(h)?0:h<11?0:h<17?1:2;}delete a.type;});return D.autos;}
 const aIcon=a=>a.ic||"⏰";
@@ -650,10 +656,12 @@ const aSort=(x,y)=>x.part-y.part||((x.time||"99")<(y.time||"99")?-1:1);
 const autosAt=(d,p)=>autosFix().filter(a=>a.part===p&&a.days.includes(d)).sort(aSort);
 const aDays=a=>a.days.length===7?"每天":a.days.length===5&&[0,1,2,3,4].every(x=>a.days.includes(x))?"平日":(a.days.length===1?"星期":"週")+a.days.map(x=>"一二三四五六日"[x]).join("、");
 function aChip(a){return `<button class="achip${a.set?"":" unset"}" data-auto="${a.id}" title="${a.set?"捷徑設好了":"捷徑還沒設"}"><span class="aci">${aIcon(a)}</span><b>${esc(a.time||PARTN[a.part])}</b><span class="acs">${esc(a.s||a.what)}</span><em>${aDays(a)}</em></button>`;}
-function autoDialog(a,pre){pre=pre||{};let aic=a?aIcon(a):"⏰",crew=a?a.crew:(pre.crew||"butler"),dev=a?a.dev:"iPad",part=a?a.part:(pre.part??0),days=a?a.days.slice():(pre.days||ALLD.slice());
+function autoDialog(a,pre){pre=pre||{};let item=a?a.item||"":"",pos=a?a.pos||"pre":"pre",aic=a?aIcon(a):"⏰",crew=a?a.crew:(pre.crew||"butler"),dev=a?a.dev:"iPad",part=a?a.part:(pre.part??0),days=a?a.days.slice():(pre.days||ALLD.slice());
   dialog(`<h3>${a?"改這個自動化":"新增自動化"}</h3>
     <label class="field">會發生什麼<input id="awt" maxlength="40" value="${esc(a?a.what:"")}"></label>
     <label class="field">短名稱（四個字以內）<input id="ash" maxlength="5" value="${esc(a?a.s||"":"")}"></label>
+    <div class="field">黏在哪顆沙子上（週表上顯示在它前面或後面）<div class="crpick"><button class="chip3" data-aitem="" aria-pressed="${!item}" style="--c:#ccc"><i></i>不黏</button>${D.week.items.map(i=>`<button class="chip3" data-aitem="${i.id}" aria-pressed="${item===i.id}" style="--c:${(CREWK[crewOfItem(i)]||{}).c}"><i></i>${esc(i.name)}</button>`).join("")}</div>
+      <div class="seg" style="margin-top:6px"><button data-apos="pre" aria-pressed="${pos!=="post"}">放前面（開始前）</button><button data-apos="post" aria-pressed="${pos==="post"}">放後面（結束後）</button></div></div>
     <div class="field">圖示（代表這個場合，週表上只顯示它）<div class="icpick">${AICS.map(x=>`<button data-aic="${x}" aria-pressed="${aic===x}">${x}</button>`).join("")}</div></div>
     <div class="field">哪幾天<div class="seg">${"一二三四五六日".split("").map((x,i)=>`<button data-aday="${i}" aria-pressed="${days.includes(i)}">${x}</button>`).join("")}</div></div>
     <div class="field">週表上放在哪一格<div class="seg">${PARTN.map((x,i)=>`<button data-apart="${i}" aria-pressed="${part===i}">${x}</button>`).join("")}</div></div>
@@ -664,12 +672,14 @@ function autoDialog(a,pre){pre=pre||{};let aic=a?aIcon(a):"⏰",crew=a?a.crew:(p
     ${a?`<label class="check2"><input type="checkbox" id="aset" ${a.set?"checked":""}> 捷徑已經設好了</label>`:""}
     <div class="row"><button class="btn pri" data-ok>存好</button>${a?`<button class="btn" data-del>刪除</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
   box=>{wireCrewPick(box,k=>crew=k);
+    box.querySelectorAll("[data-aitem]").forEach(b=>b.onclick=()=>{item=b.dataset.aitem;box.querySelectorAll("[data-aitem]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    box.querySelectorAll("[data-apos]").forEach(b=>b.onclick=()=>{pos=b.dataset.apos;box.querySelectorAll("[data-apos]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
     box.querySelectorAll("[data-aic]").forEach(b=>b.onclick=()=>{aic=b.dataset.aic;box.querySelectorAll("[data-aic]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
     box.querySelectorAll("[data-aday]").forEach(b=>b.onclick=()=>{const i=+b.dataset.aday;days=days.includes(i)?days.filter(x=>x!==i):[...days,i].sort();b.setAttribute("aria-pressed",days.includes(i));});
     box.querySelectorAll("[data-apart]").forEach(b=>b.onclick=()=>{part=+b.dataset.apart;box.querySelectorAll("[data-apart]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
     box.querySelectorAll("[data-adev]").forEach(b=>b.onclick=()=>{dev=b.dataset.adev;box.querySelectorAll("[data-adev]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
     box.querySelector("[data-ok]").onclick=()=>{const time=box.querySelector("#atm").value.trim(),what=box.querySelector("#awt").value.trim(),audio=box.querySelector("#aau").value.trim();if(!what||!days.length)return;
-      const st=box.querySelector("#aset");const v={ic:aic,days,part,time,what,audio,dev,crew,s:box.querySelector("#ash").value.trim()||aShort(what)};if(a)Object.assign(a,v,{set:st?st.checked:a.set});else D.autos.push(Object.assign({id:nid(),set:false},v));save();closeDlg();render();};
+      const st=box.querySelector("#aset");const v={item:item||null,pos,lk:1,ic:aic,days,part,time,what,audio,dev,crew,s:box.querySelector("#ash").value.trim()||aShort(what)};if(a)Object.assign(a,v,{set:st?st.checked:a.set});else D.autos.push(Object.assign({id:nid(),set:false},v));save();closeDlg();render();};
     const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{D.autos=D.autos.filter(x=>x!==a);save();closeDlg();render();};});}
 function setDone(t,v){t.done=v;if(v){t.doneAt=t.doneAt||today();}else delete t.doneAt;}
 function doneHTML(){const T=D.todo,L=[];T.projects.forEach(p=>p.tasks.forEach(t=>{if(t.done)L.push({p,t});}));
@@ -945,5 +955,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202610311700";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202610311706";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

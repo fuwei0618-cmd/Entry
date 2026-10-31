@@ -257,6 +257,7 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .donelog summary{list-style:none;cursor:pointer}.donelog summary::-webkit-details-marker{display:none}.donelog summary h2:before{content:"▸ ";color:var(--muted)}.donelog[open] summary h2:before{content:"▾ "}
 .dmon{padding:12px 14px;display:grid;gap:4px;margin-top:10px}.dline{display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 2px;text-align:left;font-size:13.5px;border-bottom:1px solid #F1EADF}.dline:last-child{border-bottom:0}
 .dline .dd{width:38px;color:var(--muted);font-size:12px;flex:none}.dline i{width:10px;height:10px;border-radius:3px;flex:none}.dline .dw{color:var(--muted);font-size:12px;flex:none;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dline .dt{flex:1}
+.fp .dx{margin-left:auto;border:0;background:none;color:var(--muted);font-size:15px;padding:0 4px;cursor:pointer}.dline[disabled]{color:inherit;opacity:1;cursor:default}
 .dcount{font-size:12px;color:var(--muted);padding:2px 4px}
 .crpick{display:flex;flex-wrap:wrap;gap:6px}
 .addcol{border-style:dashed;background:transparent;color:var(--muted);min-height:80px;font-size:14px;box-shadow:none}
@@ -597,12 +598,30 @@ const nextWeekKey=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%
 function taskById(tid){for(const p of D.todo.projects){const t=p.tasks.find(x=>x.id===tid);if(t)return{p,t};}return null;}
 let weekCnt={};
 /* 10/31：做完的事不刪，收進「完成紀錄」，記下完成的日子 */
+/* 10/31：今日三件。可以直接寫雜事，也可以從本週三件放一件進來。每天自動換新的一天，做完的雜事會進完成紀錄 */
+function dayList(){const T=D.todo;T.today=T.today||{};const k=today();T.today[k]=(T.today[k]||[]).filter(x=>x.text||(x.task&&taskById(x.task)));return T.today[k];}
+function dayHTML(){const L=dayList();
+  const one=(x,i)=>{if(!x)return `<button class="card fslot empty" data-dslot="${i}">＋ 寫一件</button>`;
+    if(x.task){const y=taskById(x.task);return `<div class="card fslot${y.t.done?" done":""}"><div class="fp"><i style="background:${y.p.color}"></i>${esc(y.p.name)}<button class="dx" data-dslot="${i}" aria-label="換掉">⋯</button></div><label><input type="checkbox" data-tdone="${y.t.id}" ${y.t.done?"checked":""}><span class="ftx">${esc(y.t.text)}</span></label></div>`;}
+    return `<div class="card fslot${x.done?" done":""}"><div class="fp"><i style="background:#C9BBA5"></i>雜事<button class="dx" data-dslot="${i}" aria-label="改">⋯</button></div><label><input type="checkbox" data-ddone="${i}" ${x.done?"checked":""}><span class="ftx">${esc(x.text)}</span></label></div>`;};
+  const d=new Date();return `<section><h2>今日三件<small>${d.getMonth()+1}/${d.getDate()}・雜事也可以・明天自動換新的一天</small></h2><div class="focus">${[0,1,2].map(i=>one(L[i],i)).join("")}</div></section>`;}
+function daySlotDialog(i){const L=dayList(),x=L[i]||{},wk=(D.todo.week[weekKey()]||[]).map(taskById).filter(Boolean).filter(y=>!y.t.done);
+  dialog(`<h3>今日・第 ${i+1} 件</h3><label class="field">想做什麼（雜事直接寫）<input id="dtx" maxlength="40" value="${esc(x.text||"")}"></label>
+    ${wk.length?`<div class="field">或從本週三件放一件<div class="fishes">${wk.map(y=>`<button class="chip3" data-dpick="${y.t.id}" style="--c:${y.p.color}" aria-pressed="${x.task===y.t.id}"><i></i>${esc(y.t.text)}</button>`).join("")}</div></div>`:""}
+    <div class="row"><button class="btn pri" data-ok>存好</button>${L[i]?`<button class="btn" data-del>拿掉</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
+  box=>{const put=v=>{if(L[i])L[i]=v;else L.push(v);save();closeDlg();render();};
+    const ok=()=>{const v=box.querySelector("#dtx").value.trim();if(!v)return;put({text:v,done:x.text===v?!!x.done:false,id:x.id||nid()});};
+    box.querySelector("[data-ok]").onclick=ok;box.querySelector("#dtx").onkeydown=e=>{if(e.key==="Enter")ok();};
+    box.querySelectorAll("[data-dpick]").forEach(b=>b.onclick=()=>put({task:b.dataset.dpick}));
+    const del=box.querySelector("[data-del]");if(del)del.onclick=()=>{L.splice(i,1);save();closeDlg();render();};
+    setTimeout(()=>{const f=box.querySelector("#dtx");if(f)f.focus();},50);});}
 function setDone(t,v){t.done=v;if(v){t.doneAt=t.doneAt||today();}else delete t.doneAt;}
 function doneHTML(){const T=D.todo,L=[];T.projects.forEach(p=>p.tasks.forEach(t=>{if(t.done)L.push({p,t});}));
+  Object.entries(T.today||{}).forEach(([dk,xs])=>xs.forEach(x=>{if(x.text&&x.done)L.push({chore:1,t:{id:x.id,text:x.text,doneAt:x.doneAt||dk}});}));
   if(!L.length)return "";L.sort((a,b)=>(b.t.doneAt||"")<(a.t.doneAt||"")?-1:1);const g={};L.forEach(x=>{const k=x.t.doneAt?`${+x.t.doneAt.slice(0,4)} 年 ${+x.t.doneAt.slice(5,7)} 月`:"更早";(g[k]=g[k]||[]).push(x);});
   let op=false;try{op=localStorage.getItem("dream-donelog")==="1";}catch(e){}
   return `<section><details class="donelog" id="donelog" ${op?"open":""}><summary><h2>完成紀錄<small>做完的事都收在這裡・共 ${L.length} 件・點一件可以改回沒做完</small></h2></summary>
-    ${Object.entries(g).map(([k,xs])=>`<div class="card dmon"><div class="crl">${k}・${xs.length} 件</div>${xs.map(({p,t})=>{const c=CREWK[crewOfProj(p)];return `<button class="dline" data-task="${t.id}"><span class="dd">${t.doneAt?`${+t.doneAt.slice(5,7)}/${+t.doneAt.slice(8)}`:""}</span><i style="background:${c.c}"></i><span class="dw">${esc(c.n)}・${esc(p.name)}</span><span class="dt">${esc(t.text)}</span></button>`;}).join("")}</div>`).join("")}</details></section>`;}
+    ${Object.entries(g).map(([k,xs])=>`<div class="card dmon"><div class="crl">${k}・${xs.length} 件</div>${xs.map(({p,t,chore})=>{const c=chore?{c:"#C9BBA5",n:"今日"}:CREWK[crewOfProj(p)];return `<button class="dline" ${chore?"disabled":`data-task="${t.id}"`}><span class="dd">${t.doneAt?`${+t.doneAt.slice(5,7)}/${+t.doneAt.slice(8)}`:""}</span><i style="background:${c.c}"></i><span class="dw">${chore?"雜事":`${esc(c.n)}・${esc(p.name)}`}</span><span class="dt">${esc(t.text)}</span></button>`;}).join("")}</div>`).join("")}</details></section>`;}
 function crewHTML(wkMode){D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();T.month[mk]=T.month[mk]||[];T.week[wk]=T.week[wk]||[];T.week[nk]=T.week[nk]||[];
   const task=t=>`<div class="task${t.done?" done":""}" data-dtask="${t.id}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}">本月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}">本週</button><button data-tn="${t.id}" aria-pressed="${T.week[nk].includes(t.id)}">下週</button></div></div>`;
   const proj=p=>`<div class="cproj${p.folded?" folded":""}" data-dcol="${p.id}"><div class="colhw"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button><button class="fold" data-fold="${p.id}" title="${p.folded?"打開":"先收起來，不會刪掉"}">${p.folded?"▸":"▾"}</button></div>${p.folded?`<button class="fcount" data-fold="${p.id}">${p.tasks.length} 件・先收起來</button>`:p.tasks.filter(t=>!t.done).map(task).join("")+(p.tasks.some(t=>t.done)?`<span class="dcount">✓ 已完成 ${p.tasks.filter(t=>t.done).length} 件，在完成紀錄</span>`:"")+`<button class="tadd" data-addtask="${p.id}">＋ 新增一件</button>`}</div>`;
@@ -640,6 +659,7 @@ function layer4(){
     return `<div class="card fslot${x.t.done?" done":""}"><div class="fp"><i style="background:${x.p.color}"></i>${esc(x.p.name)}</div><label><input type="checkbox" data-tdone="${x.t.id}" ${x.t.done?"checked":""}><span class="ftx">${esc(x.t.text)}</span></label></div>`;};
   const [wy,wm,wd]=wk.split("-").map(Number);
   return `<section><h2>重要日子<small>點一下可以改・自動倒數</small></h2><div class="tdays">${days.map(d=>{const n=daysTo(d.date);return `<button class="card tday" data-day="${d.id}"><b>${n<=0?(n===0?"今天":"昨天"):n}${n>0?"<span>天</span>":""}</b><span class="t">${esc(d.text)}</span><span class="d">${+d.date.slice(5,7)}/${+d.date.slice(8)}</span></button>`;}).join("")}<button class="card tday add" data-addday>＋ 新增日子</button></div></section>
+  ${dayHTML()}
   <section><h2>本月三件<small>${+mk.slice(5)} 月・最多三件</small></h2><div class="focus">${[0,1,2].map(i=>slot(T.month[mk][i])).join("")}</div></section>
   <section><h2>本週三件<small>${wm}/${wd} 那週・最多三件・做完打勾</small></h2><div class="focus">${[0,1,2].map(i=>slot(T.week[wk][i],1)).join("")}</div></section>
   <section><details class="nextwk" id="nextwk" ${nOpen?"open":""}><summary><span class="ar" aria-hidden="true">${nOpen?"▾":"▸"}</span><h2>下週三件<small>${nm}/${nd} 那週・${nn?`已排 ${nn} 件・`:""}到了禮拜一會自動變成本週</small></h2></summary><div class="focus">${[0,1,2].map(i=>slot(T.week[nk][i],1)).join("")}</div></details></section>
@@ -653,6 +673,8 @@ function bind4(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
   document.querySelectorAll("[data-tdone]").forEach(c=>c.onchange=()=>{setDone(taskById(c.dataset.tdone).t,c.checked);save();render();});
   document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>dayDialog(T.days.find(d=>d.id===b.dataset.day)));
   $("[data-addday]").onclick=()=>dayDialog(null);
+  document.querySelectorAll("[data-dslot]").forEach(b=>b.onclick=e=>{e.preventDefault();daySlotDialog(+b.dataset.dslot);});
+  document.querySelectorAll("[data-ddone]").forEach(c=>c.onchange=()=>{const x=dayList()[+c.dataset.ddone];x.done=c.checked;if(c.checked)x.doneAt=today();else delete x.doneAt;save();render();});
   bindCrew();}
 // 專案抽屜：按住拖曳。拖一件事 → 放到別的事上（插在它前面）或別的專案欄（放到最後）；拖專案名稱 → 換專案的順序
 let dragJustEnded=0,boardDragging=false;

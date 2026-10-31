@@ -212,6 +212,13 @@ function kneel(){const hr=new Date().getHours(),M=KQ==="morning"?true:KQ==="nigh
     <div class="row"><button class="btn" id="kb">再敲一下鈴</button><button class="btn" id="kw">記一筆禱告</button><button class="btn pri" id="ku">起身</button></div>${KQ?`<div class="row" style="justify-content:center;margin-top:14px"><a class="btn pri" style="text-decoration:none" href="${YOGA}">聽完了，開始瑜伽 →</a></div>`:""}`;
     $("#kneelv").hidden=false;$("#kb").onclick=bell;$("#ku").onclick=rise;
     $("#kw").onclick=()=>{const H=HALLS.front;H.ask="為了什麼禱告？";wishForm();};},1500);}
+/* 10/31：?kneel=world（或 men、vocal…）：在任何一殿直接跪下，浮出那一版 Addiction 宣言，像起床睡前一樣。例：月老殿＋世界版 ?d=yuelao&kneel=world */
+const DKQ={world:["queen","Addiction・世界版","1. 我走進房間\n當我走進一個房間，所有人都知道女神到了。\n所有的目光都溫柔地落在我身上，每個人都想知道我是誰。\n我的能量、我的氣場、我的氣質，讓人無法抗拒。\n\n2. 我的身體\n我欣賞我的身體，我容光煥發，我陽光、健康。\n我的皮膚光滑、細膩、富有光澤。\n我照顧好自己的身體，從頭髮到腳趾。\n我像超模一樣走路，自然、大方。我聞起來總是很香。\n\n3. 我的風格\n我穿上今天的自己。\n簡單、乾淨、有質感，每一件都是我選的。\n我不是打扮給誰看，是讓自己走出門的那一刻，就已經在享受人生。\n被愛著、穿得很美，在一個新的地方。\n\n4. 我不費力\n我什麼都不用做，世界就把我想要的一切送到我身邊。\n一切都是自然的，我是天生的女神。我感到很放鬆。\n\n5. 我無可取代\n沒有人可以和我競爭。我永遠是第一，我是唯一。\n我總是知道我要做什麼、說什麼、去哪裡。\n\n6. 世界寵愛我\n世界像對待女神一樣對待我。\n我遇到的每個人，都想對我好、想給我更多。\n好的機會、好的人、好的東西，總是自然而然地來到我身邊。\n我被世界寵壞了，而我欣然接受。\n\n7. 每一天\n我的微笑像太陽，讓身邊的人發自內心地微笑。\n每天醒來，我都感受到我是最性感的。\n每一天都是我生命中最美好的一天。\n我是最性感的女王，我不費吹灰之力地得到一切。\n\n8. 我是真的\n我不演給任何人看，我只享受我真的喜歡的。\n世界愛我，是因為我是真的。\n我穿我喜歡的、吃我喜歡的、去我想去的地方，愛我真心愛的人。\n這就是女王：不是被看見的樣子，而是活成自己的樣子。"],men:["menq","Addiction・男人版","我是一個自信、性感的女王。\n我走進房間，空氣就變了。\n目光自然落在我身上。我享受，但我不追逐任何人。\n愛會自己走向我。\n\n我像超模一樣走路，自然、大方。\n腳底踩穩，頭頂被輕輕拉起，肩膀打開，髖打開。\n我的能量、我的氣場、我的氣質，讓人無法抗拒。\n\n我喜歡讓自己看起來很漂亮。\n我照顧好自己的身體，從頭髮到腳趾。\n我的皮膚光滑、細膩、富有光澤。\n我聞起來總是很香。\n性感和美麗，是我與生俱來的。\n\n我本來就很好。被寵愛，只是讓我更閃亮。\n我不需要證明什麼，也不需要和任何人比。\n我就是我，沒有人像我一樣。\n\n他來到我身邊。\n在所有人之中，他總是偏愛我。\n他的偏愛毫不掩飾，所有人都看得出來。\n我不用爭，也不用搶，他永遠站在我這一邊。\n他的眼光在我身上，他的手也想在我身上。\n他珍惜我，他想陪著我。\n他牽著我的手，走在街上。\n他從背後抱住我，把臉埋進我的頭髮裡。\n晚上，我們依偎著睡覺，我感覺到他的體溫，他的心跳。\n他說，我是他見過最性感的女神。\n他說，我是他的女王。\n\n他照顧我，我不用再照顧所有人。\n我只要放鬆，被愛著就好。\n\n我生命裡的一切都恰到好處，連不完美也是我的。\n華麗美好的生活，自然而然地來到我身邊。\n我被愛著，穿得很美，在一個新的地方。\n\n我是女神。\n我是 Addiction。"],vocal:["sq","Addiction・Vocal版",""],hh:["hq","Addiction・高跟鞋版",""],client:["cq","Addiction・客戶版",""],svc:["svc","服務件・排訪",""],money:["mq","Addiction・投資版",""],media:["wq","Addiction・自媒體版",""]};
+function kneelDecl(k){const [key,title,def]=DKQ[k],B=ls("origina.bedside.v1")||{},tx=String(B[key]||def||"").trim();
+  document.body.classList.add("kneel");navigator.vibrate&&navigator.vibrate(15);
+  setTimeout(()=>{bell();$("#kc").innerHTML=`<h3>${esc(title)}</h3><div class="w">${tx?esc(tx):"這一版還沒寫，到信念頁寫好就會出現在這裡。"}</div>
+    <div class="row"><button class="btn" id="kb">再敲一下鈴</button><button class="btn pri" id="ku">起身</button></div>`;
+    $("#kneelv").hidden=false;$("#kb").onclick=bell;$("#ku").onclick=rise;},1500);}
 function rise(){$("#kneelv").hidden=true;document.body.classList.remove("kneel");}
 
 /* ---------- 光明燈：點燈・添油・圓燈 ---------- */
@@ -281,7 +288,7 @@ function bookView(){const P=ls(PKEY)||{items:[]};
   b=>{b.querySelectorAll("[data-t]").forEach(x=>x.onclick=()=>{bookTab=x.dataset.t;bookView();});
     b.querySelectorAll("[data-id]").forEach(x=>x.onclick=()=>{const P2=ls(PKEY)||{items:[]};const it=P2.items.find(i=>i.id===x.dataset.id);if(!it)return;
       if(it.status==="done"){it.status="open";delete it.doneAt;}else{it.status="done";it.doneAt=ymd(new Date());}ls(PKEY,P2);bookView();});});}
-$("#pray").onclick=()=>HALLS[cur].front?kneel():pray();if(KQ!==null&&HALLS[cur].front)setTimeout(kneel,600);$("#book").onclick=bookView;
+$("#pray").onclick=()=>HALLS[cur].front?kneel():pray();if(KQ&&DKQ[KQ])setTimeout(()=>kneelDecl(KQ),600);else if(KQ!==null&&HALLS[cur].front)setTimeout(kneel,600);$("#book").onclick=bookView;
 $("#back").onclick=()=>{if(!HALLS[cur].front){setHall("front");return;}if(new URLSearchParams(location.search).get("from")==="bedroom"){location.href="../bedroom/";return;}if(window.top!==window.self)parent.postMessage({origina:"close-app"},"*");else location.href="https://fuwei0618-cmd.github.io/Entry/bedroom/";};
 setHall(cur,true);
 </script>

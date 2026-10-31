@@ -258,6 +258,12 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .dmon{padding:12px 14px;display:grid;gap:4px;margin-top:10px}.dline{display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 2px;text-align:left;font-size:13.5px;border-bottom:1px solid #F1EADF}.dline:last-child{border-bottom:0}
 .dline .dd{width:38px;color:var(--muted);font-size:12px;flex:none}.dline i{width:10px;height:10px;border-radius:3px;flex:none}.dline .dw{color:var(--muted);font-size:12px;flex:none;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dline .dt{flex:1}
 .fp .dx{margin-left:auto;border:0;background:none;color:var(--muted);font-size:15px;padding:0 4px;cursor:pointer}.dline[disabled]{color:inherit;opacity:1;cursor:default}
+.alink{font-size:12.5px;color:var(--c);text-decoration:none;font-weight:600;filter:brightness(.85)}
+.atypes{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted);margin:0 0 8px 2px}.atypes i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.alist{padding:6px 12px;display:grid}.arow{display:flex;align-items:center;gap:8px;border-bottom:1px solid #F1EADF}.arow:last-of-type{border-bottom:0}.arow.aset .awhat b{color:var(--muted)}
+.aok input{width:18px;height:18px}.abody{flex:1;display:flex;align-items:center;gap:12px;border:0;background:none;padding:10px 2px;text-align:left;min-width:0}
+.atime{flex:none;min-width:58px;font-weight:700;font-size:14px;color:var(--c);filter:brightness(.85)}.awhat{flex:1;display:grid;gap:2px;min-width:0}.awhat b{font-weight:500;font-size:14px}.awhat small{color:var(--muted);font-size:12.5px}
+.ameta{flex:none;display:grid;gap:3px;justify-items:end;font-size:12px;color:var(--muted)}.acrew i{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--c);margin-right:4px}
 .dcount{font-size:12px;color:var(--muted);padding:2px 4px}
 .crpick{display:flex;flex-wrap:wrap;gap:6px}
 .addcol{border-style:dashed;background:transparent;color:var(--muted);min-height:80px;font-size:14px;box-shadow:none}
@@ -615,6 +621,35 @@ function daySlotDialog(i){const L=dayList(),x=L[i]||{},wk=(D.todo.week[weekKey()
     box.querySelectorAll("[data-dpick]").forEach(b=>b.onclick=()=>put({task:b.dataset.dpick}));
     const del=box.querySelector("[data-del]");if(del)del.onclick=()=>{L.splice(i,1);save();closeDlg();render();};
     setTimeout(()=>{const f=box.querySelector("#dtx");if(f)f.focus();},50);});}
+/* 10/31：管家的自動化清單。捷徑在 iPad／手機上設，這裡記「幾點、誰負責、哪台、會發生什麼、放什麼音檔、設好了沒」 */
+const ATYPE={life:{n:"作息",c:"#5E7A55",h:"每天固定時間"},work:{n:"工作",c:"#A08C72",h:"上班時間・不放音檔"},event:{n:"活動",c:"#D9604A",h:"跟著週表某一天"}};
+function AUTOS(){let n=0;const a=(type,time,crew,dev,what,audio)=>({id:"a"+(n++)+Date.now().toString(36),type,time,crew,dev,what,audio,set:false});
+  return[a("life","07:30","healer","iPad","起床鬧鐘停 → 前殿跪下（早）","我是誰 → 世界版"),a("life","08:00","venus","iPad","瑜伽後打扮五分鐘：防曬、眉毛、唇膏",""),
+    a("work","09:00","sales","手機","國泰提醒",""),a("work","10:00","sales","手機","國泰提醒",""),a("life","19:00","teresa","iPad","打開 Vocal",""),
+    a("life","21:30","fox","iPad","氛圍感練習：穿高跟鞋走路","男人版"),a("life","22:00","healer","iPad","睡前鬧鐘停 → 前殿跪下（晚）","我是誰 → 睡前"),
+    a("event","星期一","fox","手機","HH 前三十分鐘提醒",""),a("event","星期六","teresa","手機","合唱前三十分鐘提醒","")];}
+function autosHTML(){D.autos=D.autos||AUTOS();const L=D.autos.slice().sort((x,y)=>{const o={life:0,work:0,event:1};return o[x.type]-o[y.type]||(x.time<y.time?-1:1);});const ok=L.filter(a=>a.set).length;
+  return `<section id="autos"><h2>管家的自動化<small>捷徑在 iPad、手機上設・這裡記每一條・設好了就打勾（${ok}／${L.length}）</small></h2>
+    <div class="atypes">${Object.values(ATYPE).map(t=>`<span><i style="background:${t.c}"></i>${t.n}・${t.h}</span>`).join("")}</div>
+    <div class="card alist">${L.map(a=>{const c=CREWK[a.crew]||CREWK.butler,t=ATYPE[a.type]||ATYPE.life;return `<div class="arow${a.set?" aset":""}"><label class="aok"><input type="checkbox" data-aset="${a.id}" ${a.set?"checked":""}></label>
+      <button class="abody" data-auto="${a.id}"><span class="atime" style="--c:${t.c}">${esc(a.time)}</span><span class="awhat"><b>${esc(a.what)}</b>${a.audio?`<small>🎧 ${esc(a.audio)}</small>`:""}</span>
+      <span class="ameta"><span class="acrew" style="--c:${c.c}"><i></i>${esc(c.n)}</span><span class="adev">${a.dev==="手機"?"📱":"📲"} ${esc(a.dev)}</span></span></button></div>`;}).join("")}
+      <button class="tadd" data-addauto>＋ 新增一條</button></div></section>`;}
+function autoDialog(a){let type=a?a.type:"life",crew=a?a.crew:"butler",dev=a?a.dev:"iPad";
+  dialog(`<h3>${a?"改這條自動化":"新增自動化"}</h3>
+    <div class="field">類型<div class="seg">${Object.entries(ATYPE).map(([k,t])=>`<button data-atype="${k}" aria-pressed="${type===k}">${t.n}</button>`).join("")}</div></div>
+    <label class="field">時間（例如 07:30，活動可以寫星期一）<input id="atm" maxlength="12" value="${esc(a?a.time:"")}"></label>
+    <label class="field">會發生什麼<input id="awt" maxlength="40" value="${esc(a?a.what:"")}"></label>
+    <label class="field">音檔（沒有就空著）<input id="aau" maxlength="30" value="${esc(a?a.audio||"":"")}"></label>
+    <div class="field">哪台<div class="seg">${["iPad","手機"].map(d=>`<button data-adev="${d}" aria-pressed="${dev===d}">${d}</button>`).join("")}</div></div>
+    ${crewPick(crew)}
+    <div class="row"><button class="btn pri" data-ok>存好</button>${a?`<button class="btn" data-del>刪除</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
+  box=>{wireCrewPick(box,k=>crew=k);
+    box.querySelectorAll("[data-atype]").forEach(b=>b.onclick=()=>{type=b.dataset.atype;box.querySelectorAll("[data-atype]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    box.querySelectorAll("[data-adev]").forEach(b=>b.onclick=()=>{dev=b.dataset.adev;box.querySelectorAll("[data-adev]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    box.querySelector("[data-ok]").onclick=()=>{const time=box.querySelector("#atm").value.trim(),what=box.querySelector("#awt").value.trim(),audio=box.querySelector("#aau").value.trim();if(!time||!what)return;
+      if(a)Object.assign(a,{type,time,what,audio,dev,crew});else D.autos.push({id:nid(),type,time,what,audio,dev,crew,set:false});save();closeDlg();render();};
+    const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{D.autos=D.autos.filter(x=>x!==a);save();closeDlg();render();};});}
 function setDone(t,v){t.done=v;if(v){t.doneAt=t.doneAt||today();}else delete t.doneAt;}
 function doneHTML(){const T=D.todo,L=[];T.projects.forEach(p=>p.tasks.forEach(t=>{if(t.done)L.push({p,t});}));
   Object.entries(T.today||{}).forEach(([dk,xs])=>xs.forEach(x=>{if(x.text&&x.done)L.push({chore:1,t:{id:x.id,text:x.text,doneAt:x.doneAt||dk}});}));
@@ -626,13 +661,13 @@ function crewHTML(wkMode){D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=month
   const task=t=>`<div class="task${t.done?" done":""}" data-dtask="${t.id}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}">本月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}">本週</button><button data-tn="${t.id}" aria-pressed="${T.week[nk].includes(t.id)}">下週</button></div></div>`;
   const proj=p=>`<div class="cproj${p.folded?" folded":""}" data-dcol="${p.id}"><div class="colhw"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button><button class="fold" data-fold="${p.id}" title="${p.folded?"打開":"先收起來，不會刪掉"}">${p.folded?"▸":"▾"}</button></div>${p.folded?`<button class="fcount" data-fold="${p.id}">${p.tasks.length} 件・先收起來</button>`:p.tasks.filter(t=>!t.done).map(task).join("")+(p.tasks.some(t=>t.done)?`<span class="dcount">✓ 已完成 ${p.tasks.filter(t=>t.done).length} 件，在完成紀錄</span>`:"")+`<button class="tadd" data-addtask="${p.id}">＋ 新增一件</button>`}</div>`;
   const card=c=>{const its=W.items.filter(i=>crewOfItem(i)===c.k),ps=T.projects.filter(p=>crewOfProj(p)===c.k);const n=Math.round((weekCnt[c.k]||0)*10)/10;
-    return `<div class="card crew" style="--c:${c.c}"><div class="crh"><i></i><b>${esc(c.n)}</b><small>${esc(c.r)}</small>${wkMode&&n?`<span class="crn">這週 ${n} 格</span>`:""}</div>
+    return `<div class="card crew" style="--c:${c.c}"><div class="crh"><i></i><b>${esc(c.n)}</b><small>${esc(c.r)}</small>${wkMode&&n?`<span class="crn">這週 ${n} 格</span>`:""}</div>${c.k==="butler"?`<a class="alink" href="#autos">⚙ 自動化 ${(D.autos||AUTOS()).length} 條 →</a>`:""}
       <div class="crl">常態</div><div class="crs">${its.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${c.c}"><i></i>${esc(i.name)}</button>`).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>
       <div class="crl">專案</div>${[...ps.filter(p=>!p.folded),...ps.filter(p=>p.folded)].map(proj).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>`;};
   const HALLS=[[["媽祖殿・Shakira",["teresa","director","leader"]],["月老殿・Sánchez",["venus","fox"]],["財神殿・金庫",["sales","trader"]]],[["跟在你身邊",["butler","healer"]]]];
   const cards=HALLS.map(row=>`<div class="crow board">${row.map(([t,ks])=>`<div class="chall"><h4>${t}</h4><div>${ks.map(k=>card(CREWK[k])).join("")}</div></div>`).join("")}</div>`).join("");
   return `<section><h2>工具人<small>常態的沙子＋專案抽屜・點名字可以改・按住一件事可以拖到別的專案</small></h2>${cards}
-    <div class="crfoot"><button class="chip2 add" data-additem>＋ 新的沙子</button><button class="chip2 add" data-addproj>＋ 新專案</button></div></section>${doneHTML()}`;}
+    <div class="crfoot"><button class="chip2 add" data-additem>＋ 新的沙子</button><button class="chip2 add" data-addproj>＋ 新專案</button></div></section>${autosHTML()}${doneHTML()}`;}
 function crewPick(cur){return `<div class="field">歸哪位工具人管<div class="crpick">${CREW.map(c=>`<button class="chip3" data-crew="${c.k}" aria-pressed="${cur===c.k}" style="--c:${c.c}"><i></i>${esc(c.n)}</button>`).join("")}</div></div>`;}
 function wireCrewPick(box,set){box.querySelectorAll("[data-crew]").forEach(b=>b.onclick=()=>{set(b.dataset.crew);box.querySelectorAll("[data-crew]").forEach(x=>x.setAttribute("aria-pressed",x===b));});}
 function bindCrew(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
@@ -647,6 +682,10 @@ function bindCrew(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
   document.querySelectorAll("[data-fold]").forEach(b=>b.onclick=e=>{e.stopPropagation();const p=T.projects.find(x=>x.id===b.dataset.fold);p.folded=!p.folded;save();render();});
   document.querySelectorAll("[data-item]").forEach(b=>b.onclick=()=>itemDialog(itemById(b.dataset.item)));
   const ai=$("[data-additem]");if(ai)ai.onclick=()=>itemDialog(null);
+  document.querySelectorAll("[data-aset]").forEach(c=>c.onchange=()=>{const a=D.autos.find(x=>x.id===c.dataset.aset);a.set=c.checked;save();render();});
+  document.querySelectorAll("[data-auto]").forEach(b=>b.onclick=()=>autoDialog(D.autos.find(x=>x.id===b.dataset.auto)));
+  const aa=$("[data-addauto]");if(aa)aa.onclick=()=>autoDialog(null);
+  document.querySelectorAll(".alink").forEach(l=>l.onclick=e=>{e.preventDefault();const t=document.getElementById("autos");if(t)t.scrollIntoView({behavior:"smooth",block:"start"});});
   {const d=document.getElementById("donelog");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-donelog",d.open?"1":"0");}catch(e){}});}
   dragBoard();}
 function layer4(){

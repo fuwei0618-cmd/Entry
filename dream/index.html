@@ -249,7 +249,8 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .crow{display:flex;gap:18px;overflow-x:auto;align-items:flex-start;padding-bottom:8px;margin-bottom:10px}.chall{flex:none;display:grid;gap:6px}.chall>h4{margin:0;font-size:12.5px;letter-spacing:.12em;color:var(--muted);font-weight:500;padding-left:4px}.chall>div{display:flex;gap:10px;align-items:flex-start}.chall .crew{width:228px}
 .crew{padding:14px;display:grid;gap:8px;border-top:4px solid var(--c)}
 .crh{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}.crh i{width:12px;height:12px;border-radius:4px;background:var(--c);align-self:center}.crh b{font-size:16px}.crh small{color:var(--muted);font-size:12px}.crh .crn{margin-left:auto;font-size:12px;color:var(--c);font-weight:700;filter:brightness(.8)}
-.crl{font-size:11.5px;letter-spacing:.15em;color:var(--muted);margin-top:2px}
+.crl{font-size:12px;letter-spacing:.08em;color:var(--ink);opacity:.7;margin-top:4px;font-weight:600}.cric{font-size:20px;line-height:1}.crr{font-size:12.5px;color:var(--muted);margin-top:-4px}
+.dqb{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 11px;font-size:13px;color:var(--ink);text-decoration:none}.dqb:hover{border-color:var(--c)}
 .crs{display:flex;flex-wrap:wrap;gap:6px}.crs .chip3{font-size:13px;padding:4px 10px}
 .cproj{display:grid;gap:6px;padding:8px;border-radius:12px;background:#FBF7F0}.cproj.folded{opacity:.7;background:transparent;border:1px dashed var(--line)}
 .cproj .fcount{font-size:12px;color:var(--muted);border:0;background:none;padding:0;text-align:left;cursor:pointer}
@@ -310,10 +311,15 @@ const DEFAULT={v:4,
 // 第三層：一週的樣子（範本，可以隨時拖動調整）
 const CATS={body:{n:"身體",c:"#3A2F27"},vocal:{n:"Vocal",c:"#D9604A"},work:{n:"國泰",c:"#A08C72"},life:{n:"生活",c:"#9CC4C0"},trip:{n:"旅行",c:"#D9A23A"},make:{n:"做東西",c:"#5E7A55"}};
 /* 10/30：工具人。七位＋管家、療癒師，照禱告圖的座位排。每位管一把常態的沙子（週表）和自己的專案抽屜 */
-const CREW=[{k:"teresa",n:"Teresa",r:"聲音",c:"#D9604A",cat:"vocal"},{k:"director",n:"導演",r:"拍攝・剪輯・自媒體",c:"#7C93A8",cat:"make"},{k:"leader",n:"領隊",r:"世界・旅行",c:"#D9A23A",cat:"trip"},
-  {k:"venus",n:"維納斯",r:"造型・妝髮・醫美・保養",c:"#B5546F",cat:"body"},{k:"fox",n:"Fox",r:"性感的身體",c:"#3A2F27",cat:"body"},
-  {k:"sales",n:"銷冠",r:"國泰",c:"#A08C72",cat:"work"},{k:"trader",n:"操盤手",r:"投資",c:"#2F5D7C",cat:"make"},
-  {k:"butler",n:"管家",r:"人和事・Origina",c:"#5E7A55",cat:"make"},{k:"healer",n:"療癒師",r:"身心・精力",c:"#9CC4C0",cat:"life"}];
+const CREW=[{k:"teresa",ic:"🎤",n:"Teresa",r:"唱歌・街演・合唱",c:"#D9604A",cat:"vocal",dq:[["🎶","Vocal版","vocal","sq"]]},
+  {k:"director",ic:"🎬",n:"導演",r:"拍片・剪片・發文",c:"#7C93A8",cat:"make",dq:[["🎥","自媒體版","media","wq"]]},
+  {k:"leader",ic:"🧭",n:"領隊",r:"旅行",c:"#D9A23A",cat:"trip",dq:[]},
+  {k:"venus",ic:"💄",n:"維納斯",r:"變美：穿搭・妝髮・保養・醫美",c:"#B5546F",cat:"body",dq:[["🌏","世界版","me","queen"]]},
+  {k:"fox",ic:"🦊",n:"Fox",r:"性感的身體：HH・瑜伽・重訓",c:"#3A2F27",cat:"body",dq:[["💋","男人版","hh","menq"],["👠","高跟鞋版","hh","hq"]]},
+  {k:"sales",ic:"🏆",n:"銷冠",r:"國泰業務",c:"#A08C72",cat:"work",dq:[["🤝","客戶版","cathay","cq"],["📅","服務件","cathay","svc"]]},
+  {k:"trader",ic:"📈",n:"操盤手",r:"投資",c:"#2F5D7C",cat:"make",dq:[["💰","投資版","money","mq"]]},
+  {k:"butler",ic:"🗝️",n:"管家",r:"行程・雜事・Origina",c:"#5E7A55",cat:"make",dq:[]},
+  {k:"healer",ic:"🕯️",n:"療癒師",r:"身心・精力・睡眠",c:"#9CC4C0",cat:"life",dq:[["✨","我是誰（主卡）","me","whoami"],["🔍","掃描儀","me","alch"]]}];
 const CREWK=Object.fromEntries(CREW.map(c=>[c.k,c]));
 const CAT2CREW={body:"fox",vocal:"teresa",work:"sales",life:"healer",trip:"leader",make:"butler"};
 const ITEM2CREW={Vocal:"teresa",SV:"teresa",Chorus:"teresa",Yoga:"fox",HH:"fox",WG:"fox",HP:"fox",Beauty:"venus","國泰":"sales",Bangkok:"leader","重慶":"leader",Origina:"butler","洗衣貓":"butler",Eric:"butler",Rest:"healer"};
@@ -668,15 +674,16 @@ function crewHTML(wkMode){D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=month
   const task=t=>`<div class="task${t.done?" done":""}" data-dtask="${t.id}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}">本月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}">本週</button><button data-tn="${t.id}" aria-pressed="${T.week[nk].includes(t.id)}">下週</button></div></div>`;
   const proj=p=>`<div class="cproj${p.folded?" folded":""}" data-dcol="${p.id}"><div class="colhw"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button><button class="fold" data-fold="${p.id}" title="${p.folded?"打開":"先收起來，不會刪掉"}">${p.folded?"▸":"▾"}</button></div>${p.folded?`<button class="fcount" data-fold="${p.id}">${p.tasks.length} 件・先收起來</button>`:p.tasks.filter(t=>!t.done).map(task).join("")+(p.tasks.some(t=>t.done)?`<span class="dcount">✓ 已完成 ${p.tasks.filter(t=>t.done).length} 件，在完成紀錄</span>`:"")+`<button class="tadd" data-addtask="${p.id}">＋ 新增一件</button>`}</div>`;
   const card=c=>{const its=W.items.filter(i=>crewOfItem(i)===c.k),ps=T.projects.filter(p=>crewOfProj(p)===c.k);const n=Math.round((weekCnt[c.k]||0)*10)/10;
-    return `<div class="card crew" style="--c:${c.c}"><div class="crh"><i></i><b>${esc(c.n)}</b><small>${esc(c.r)}</small>${wkMode&&n?`<span class="crn">這週 ${n} 格</span>`:""}</div>
-      <div class="crl">常態</div><div class="crs">${its.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${c.c}"><i></i>${esc(i.name)}</button>`).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>
-      ${(()=>{const as=autosFix().filter(a=>a.crew===c.k).sort(aSort);return `<div class="crl">自動化</div><div class="alist2">${as.map(aChip).join("")}<button class="aadd" data-addauto="${c.k}">＋ 自動化</button></div>`;})()}
-      <div class="crl">專案</div>${[...ps.filter(p=>!p.folded),...ps.filter(p=>p.folded)].map(proj).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>`;};
+    return `<div class="card crew" style="--c:${c.c}"><div class="crh"><span class="cric">${c.ic}</span><b>${esc(c.n)}</b>${wkMode&&n?`<span class="crn">這週 ${n} 格</span>`:""}</div><div class="crr">${esc(c.r)}</div>
+      <div class="crl">🔁 每週固定</div><div class="crs">${its.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${c.c}"><i></i>${esc(i.name)}</button>`).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>
+      ${(()=>{const as=autosFix().filter(a=>a.crew===c.k).sort(aSort);return `<div class="crl">⏰ 鬧鐘提醒</div><div class="alist2">${as.map(aChip).join("")}<button class="aadd" data-addauto="${c.k}">＋ 鬧鐘提醒</button></div>`;})()}
+      ${c.dq.length?`<div class="crl">📣 宣言</div><div class="crs">${c.dq.map(([ic,t,m,k])=>`<a class="dqb" href="../bedside/?open=${k}#${m}">${ic} ${esc(t)}</a>`).join("")}</div>`:""}
+      <div class="crl">📁 專案</div>${[...ps.filter(p=>!p.folded),...ps.filter(p=>p.folded)].map(proj).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>`;};
   const HALLS=[[["媽祖殿・Shakira",["teresa","director","leader"]],["月老殿・Sánchez",["venus","fox"]],["財神殿・金庫",["sales","trader"]]],[["跟在你身邊",["butler","healer"]]]];
   const cards=HALLS.map(row=>`<div class="crow board">${row.map(([t,ks])=>`<div class="chall"><h4>${t}</h4><div>${ks.map(k=>card(CREWK[k])).join("")}</div></div>`).join("")}</div>`).join("");
   return `<section><h2>工具人<small>常態的沙子＋專案抽屜・點名字可以改・按住一件事可以拖到別的專案</small></h2>${cards}
     <div class="crfoot"><button class="chip2 add" data-additem>＋ 新的沙子</button><button class="chip2 add" data-addproj>＋ 新專案</button></div></section>${doneHTML()}`;}
-function crewPick(cur){return `<div class="field">歸哪位工具人管<div class="crpick">${CREW.map(c=>`<button class="chip3" data-crew="${c.k}" aria-pressed="${cur===c.k}" style="--c:${c.c}"><i></i>${esc(c.n)}</button>`).join("")}</div></div>`;}
+function crewPick(cur){return `<div class="field">歸哪位工具人管<div class="crpick">${CREW.map(c=>`<button class="chip3" data-crew="${c.k}" aria-pressed="${cur===c.k}" style="--c:${c.c}">${c.ic} ${esc(c.n)}</button>`).join("")}</div></div>`;}
 function wireCrewPick(box,set){box.querySelectorAll("[data-crew]").forEach(b=>b.onclick=()=>{set(b.dataset.crew);box.querySelectorAll("[data-crew]").forEach(x=>x.setAttribute("aria-pressed",x===b));});}
 function bindCrew(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
   const tog=(L,tid,name)=>{const i=L.indexOf(tid);if(i>=0)L.splice(i,1);else if(L.length>=3)return toast(`${name}已經有三件了，先拿掉一件`);else L.push(tid);save();render();};

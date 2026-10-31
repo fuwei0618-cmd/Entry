@@ -270,6 +270,7 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .aok input{width:18px;height:18px}.abody{flex:1;display:flex;align-items:center;gap:12px;border:0;background:none;padding:10px 2px;text-align:left;min-width:0}
 .atime{flex:none;min-width:58px;font-weight:700;font-size:14px;color:var(--c);filter:brightness(.85)}.awhat{flex:1;display:grid;gap:2px;min-width:0}.awhat b{font-weight:500;font-size:14px}.awhat small{color:var(--muted);font-size:12.5px}
 .ameta{flex:none;display:grid;gap:3px;justify-items:end;font-size:12px;color:var(--muted)}.acrew i{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--c);margin-right:4px}
+.bt4 button{min-width:34px;padding-left:0;padding-right:0;text-align:center}
 .dcount{font-size:12px;color:var(--muted);padding:2px 4px}
 .crpick{display:flex;flex-wrap:wrap;gap:6px}
 .addcol{border-style:dashed;background:transparent;color:var(--muted);min-height:80px;font-size:14px;box-shadow:none}
@@ -689,7 +690,7 @@ function doneHTML(){const T=D.todo,L=[];T.projects.forEach(p=>p.tasks.forEach(t=
   return `<section><details class="donelog" id="donelog" ${op?"open":""}><summary><h2>完成紀錄<small>做完的事都收在這裡・共 ${L.length} 件・點一件可以改回沒做完</small></h2></summary>
     ${Object.entries(g).map(([k,xs])=>`<div class="card dmon"><div class="crl">${k}・${xs.length} 件</div>${xs.map(({p,t,chore})=>{const c=chore?{c:"#C9BBA5",n:"今日"}:CREWK[crewOfProj(p)];return `<button class="dline" ${chore?"disabled":`data-task="${t.id}"`}><span class="dd">${t.doneAt?`${+t.doneAt.slice(5,7)}/${+t.doneAt.slice(8)}`:""}</span><i style="background:${c.c}"></i><span class="dw">${chore?"雜事":`${esc(c.n)}・${esc(p.name)}`}</span><span class="dt">${esc(t.text)}</span></button>`;}).join("")}</div>`).join("")}</details></section>`;}
 function crewHTML(wkMode){D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();T.month[mk]=T.month[mk]||[];T.week[wk]=T.week[wk]||[];T.week[nk]=T.week[nk]||[];
-  const task=t=>`<div class="task${t.done?" done":""}" data-dtask="${t.id}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}">本月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}">本週</button><button data-tn="${t.id}" aria-pressed="${T.week[nk].includes(t.id)}">下週</button></div></div>`;
+  const task=t=>`<div class="task${t.done?" done":""}" data-dtask="${t.id}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt bt4"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}" title="本月">月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}" title="本週">週</button><button data-td="${t.id}" aria-pressed="${dayList().some(x=>x.task===t.id)}" title="今日">日</button><button data-tn="${t.id}" aria-pressed="${T.week[nk].includes(t.id)}" title="下週">下</button></div></div>`;
   const proj=p=>`<div class="cproj${p.folded?" folded":""}" data-dcol="${p.id}"><div class="colhw"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button><button class="fold" data-fold="${p.id}" title="${p.folded?"打開":"先收起來，不會刪掉"}">${p.folded?"▸":"▾"}</button></div>${p.folded?`<button class="fcount" data-fold="${p.id}">${p.tasks.length} 件・先收起來</button>`:p.tasks.filter(t=>!t.done).map(task).join("")+(p.tasks.some(t=>t.done)?`<span class="dcount">✓ 已完成 ${p.tasks.filter(t=>t.done).length} 件，在完成紀錄</span>`:"")+`<button class="tadd" data-addtask="${p.id}">＋ 新增一件</button>`}</div>`;
   const card=c=>{const its=W.items.filter(i=>crewOfItem(i)===c.k),ps=T.projects.filter(p=>crewOfProj(p)===c.k);const n=Math.round((weekCnt[c.k]||0)*10)/10;
     return `<div class="card crew" style="--c:${c.c}"><div class="crh"><span class="cric">${c.ic}</span><b>${esc(c.n)}</b>${wkMode&&n?`<span class="crn">這週 ${n} 格</span>`:""}</div><div class="crr">${esc(c.r)}</div>
@@ -699,7 +700,7 @@ function crewHTML(wkMode){D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=month
       <div class="crl">📁 專案</div>${[...ps.filter(p=>!p.folded),...ps.filter(p=>p.folded)].map(proj).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>`;};
   const HALLS=[[["媽祖殿・Shakira",["teresa","director","leader"]],["月老殿・Sánchez",["venus","fox"]],["財神殿・金庫",["sales","trader"]]],[["跟在你身邊",["butler","healer"]]]];
   const cards=HALLS.map(row=>`<div class="crow board">${row.map(([t,ks])=>`<div class="chall"><h4>${t}</h4><div>${ks.map(k=>card(CREWK[k])).join("")}</div></div>`).join("")}</div>`).join("");
-  return `<section><h2>工具人<small>常態的沙子＋專案抽屜・點名字可以改・按住一件事可以拖到別的專案</small></h2>${cards}
+  return `<section><h2>工具人<small>常態的沙子＋專案抽屜・月／週／日／下＝本月、本週、今日、下週・按住一件事可以拖到別的專案</small></h2>${cards}
     <div class="crfoot"><button class="chip2 add" data-additem>＋ 新的沙子</button><button class="chip2 add" data-addproj>＋ 新專案</button></div></section>${doneHTML()}`;}
 function crewPick(cur){return `<div class="field">歸哪位工具人管<div class="crpick">${CREW.map(c=>`<button class="chip3" data-crew="${c.k}" aria-pressed="${cur===c.k}" style="--c:${c.c}">${c.ic} ${esc(c.n)}</button>`).join("")}</div></div>`;}
 function wireCrewPick(box,set){box.querySelectorAll("[data-crew]").forEach(b=>b.onclick=()=>{set(b.dataset.crew);box.querySelectorAll("[data-crew]").forEach(x=>x.setAttribute("aria-pressed",x===b));});}
@@ -708,6 +709,7 @@ function bindCrew(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
   document.querySelectorAll("[data-tm]").forEach(b=>b.onclick=()=>tog(T.month[mk],b.dataset.tm,"本月"));
   document.querySelectorAll("[data-tw]").forEach(b=>b.onclick=()=>tog(T.week[wk],b.dataset.tw,"本週"));
   document.querySelectorAll("[data-tn]").forEach(b=>b.onclick=()=>{try{localStorage.setItem("dream-nextwk","1");}catch(e){}tog(T.week[nk],b.dataset.tn,"下週");});
+  document.querySelectorAll("[data-td]").forEach(b=>b.onclick=()=>{const L=dayList(),i=L.findIndex(x=>x.task===b.dataset.td);if(i>=0)L.splice(i,1);else if(L.length>=3)return toast("今日已經有三件了，先拿掉一件");else L.push({task:b.dataset.td});save();render();});
   document.querySelectorAll("[data-task]").forEach(b=>b.onclick=()=>{const x=taskById(b.dataset.task);taskDialog(x.p,x.t);});
   document.querySelectorAll("[data-addtask]").forEach(b=>b.onclick=()=>taskDialog(T.projects.find(p=>p.id===b.dataset.addtask),null));
   document.querySelectorAll("[data-proj]").forEach(b=>b.onclick=()=>projDialog(T.projects.find(p=>p.id===b.dataset.proj)));
@@ -955,5 +957,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202610311717";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202610311723";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

@@ -656,6 +656,7 @@ function autosFix(){D.autos=D.autos||AUTOS();
   /* 10/31：音檔改成編號檔名（0 開頭每天、1 開頭看場合），只改一次 */
   if(!D.audNum){D.audNum=1;const N={"我是誰 → 起床":"00我是誰 → 01起床","世界版":"02世界版","Vocal版":"03Vocal版","男人版":"04男人版","我是誰 → 睡前":"00我是誰 → 05睡前","高跟鞋":"11高跟鞋版","高跟鞋版":"11高跟鞋版"};
     D.autos.forEach(a=>{if(N[a.audio])a.audio=N[a.audio];});save();}
+  if(!D.note0730){D.note0730=1;const a=D.autos.find(x=>x.time==="07:30"||/起床/.test(x.what));if(a&&!a.note)a.note="觸發：iPad 早上 7:30 鬧鐘停止時\n1. 取得 Wi-Fi 網路名稱\n2. 如果 網路是 144-1-5G（只在家才跑，出門在外不會突然放聲音）\n3. 打開 https://fuwei0618-cmd.github.io/Entry/temple/?d=front&kneel=morning（前殿・跪下早）\n4. 從「音檔」資料夾取得 00我是誰.mp3 → 播放聲音（放完才往下）\n5. 取得 01起床.wav → 播放聲音\n6. 打開 https://fuwei0618-cmd.github.io/Gym/#tab=yoga\n7. 等待 5 秒 → 打開 Yoga App\n8. 結束如果\n\n注意：音檔改名後，第 4、5 步要點進去重新選檔案。";save();}
   if(!D.audNum2){D.audNum2=1;D.autos.forEach(a=>{a.audio=(a.audio||"").replace("03Vocal版","03Vocal").replace("04男人版","04Men");});save();}D.autos.forEach(a=>{if(!a.s)a.s=aShort(a.what||"");if(!a.ic)a.ic=aOcc((a.time||"")+" "+(a.what||""));
   if(a.lk)return;a.lk=1;const L={起床:["Yoga","pre"],打扮:["Yoga","post"],氛圍感:["Yoga","pre"],睡前:["Yoga","post"],HH:["HH","pre"],Vocal:["Vocal","pre"],合唱:["Chorus","pre"],國泰:["國泰",a.ic==="📅"?"post":"pre"]}[a.s];
   if(L){const it=D.week.items.find(i=>i.name===L[0]);if(it){a.item=it.id;a.pos=L[1];}}});D.autos.forEach(a=>{if(a.days)return;const m=/^星期(.)$/.exec(a.time||"");
@@ -667,8 +668,8 @@ const autosAt=(d,p)=>autosFix().filter(a=>a.part===p&&a.days.includes(d)).sort(a
 const aDays=a=>a.days.length===7?"每天":a.days.length===5&&[0,1,2,3,4].every(x=>a.days.includes(x))?"平日":(a.days.length===1?"星期":"週")+a.days.map(x=>"一二三四五六日"[x]).join("、");
 function aChip(a){return `<button class="achip${a.set?"":" unset"}" data-auto="${a.id}" title="${a.set?"捷徑設好了":"捷徑還沒設"}"><span class="aci">${aIcon(a)}</span><b>${esc(a.time||PARTN[a.part])}</b><span class="acs">${esc(a.s||a.what)}</span><em>${aDays(a)}</em></button>`;}
 function alarmTable(){const L=autosFix().slice().sort((x,y)=>{const t=a=>a.time||("~"+a.part);return t(x)<t(y)?-1:1;});let op=false;try{op=localStorage.getItem("dream-alarms")==="1";}catch(e){}const ok=L.filter(a=>a.set).length;
-  return `<section><details class="donelog" id="alarmtbl" ${op?"open":""}><summary><h2>📋 鬧鐘總表<small>點格子就能直接改・哪台點一下切換・設好打勾（${ok}／${L.length}）</small></h2></summary>
-    <div class="card atbl"><table><thead><tr><th>設好</th><th></th><th>時間</th><th>哪幾天</th><th>做什麼</th><th>音檔</th><th>哪台</th></tr></thead><tbody>${L.map(a=>`<tr class="${a.set?"aset":""}"><td><input type="checkbox" data-aset="${a.id}" ${a.set?"checked":""}></td><td class="ti"><button class="tib" data-auto="${a.id}" title="點開完整設定">${aIcon(a)}</button></td><td><input class="ain tm" data-af="time" data-aid="${a.id}" value="${esc(a.time||"")}" placeholder="${PARTN[a.part]}"></td><td><button class="tib dy" data-auto="${a.id}">${aDays(a)}</button></td><td><input class="ain" data-af="what" data-aid="${a.id}" value="${esc(a.what)}"></td><td><input class="ain" data-af="audio" data-aid="${a.id}" value="${esc(a.audio||"")}" placeholder="—"></td><td><button class="devb" data-adevt="${a.id}">${esc(a.dev)}</button></td></tr>`).join("")}</tbody></table>
+  return `<section><details class="donelog" id="alarmtbl" ${op?"open":""}><summary><h2>📋 鬧鐘總表<small>點格子就能直接改・哪台點一下切換・📝＝有捷徑步驟筆記，點圖示看・設好打勾（${ok}／${L.length}）</small></h2></summary>
+    <div class="card atbl"><table><thead><tr><th>設好</th><th></th><th>時間</th><th>哪幾天</th><th>做什麼</th><th>音檔</th><th>哪台</th></tr></thead><tbody>${L.map(a=>`<tr class="${a.set?"aset":""}"><td><input type="checkbox" data-aset="${a.id}" ${a.set?"checked":""}></td><td class="ti"><button class="tib" data-auto="${a.id}" title="點開完整設定">${aIcon(a)}</button></td><td><input class="ain tm" data-af="time" data-aid="${a.id}" value="${esc(a.time||"")}" placeholder="${PARTN[a.part]}"></td><td><button class="tib dy" data-auto="${a.id}">${aDays(a)}</button></td><td><div style="display:flex;align-items:center;gap:4px"><input class="ain" data-af="what" data-aid="${a.id}" value="${esc(a.what)}">${a.note?`<button class="tib" data-auto="${a.id}" title="看捷徑步驟">📝</button>`:""}</div></td><td><input class="ain" data-af="audio" data-aid="${a.id}" value="${esc(a.audio||"")}" placeholder="—"></td><td><button class="devb" data-adevt="${a.id}">${esc(a.dev)}</button></td></tr>`).join("")}</tbody></table>
     <button class="tadd" data-addauto="butler">＋ 新增鬧鐘</button></div></details></section>`;}
 function autoDialog(a,pre){pre=pre||{};let item=a?a.item||"":"",pos=a?a.pos||"pre":"pre",aic=a?aIcon(a):"⏰",crew=a?a.crew:(pre.crew||"butler"),dev=a?a.dev:"iPad",part=a?a.part:(pre.part??0),days=a?a.days.slice():(pre.days||ALLD.slice());
   dialog(`<h3>${a?"改這個自動化":"新增自動化"}</h3>
@@ -683,6 +684,7 @@ function autoDialog(a,pre){pre=pre||{};let item=a?a.item||"":"",pos=a?a.pos||"pr
     <label class="field">音檔（沒有就空著）<input id="aau" maxlength="30" value="${esc(a?a.audio||"":"")}"></label>
     <div class="field">哪台<div class="seg">${["iPad","手機"].map(d=>`<button data-adev="${d}" aria-pressed="${dev===d}">${d}</button>`).join("")}</div></div>
     ${crewPick(crew)}
+    <label class="field">捷徑步驟（筆記：這條在捷徑裡怎麼設）<textarea id="anote" rows="6" style="min-height:120px">${esc(a?a.note||"":"")}</textarea></label>
     ${a?`<label class="check2"><input type="checkbox" id="aset" ${a.set?"checked":""}> 捷徑已經設好了</label>`:""}
     <div class="row"><button class="btn pri" data-ok>存好</button>${a?`<button class="btn" data-del>刪除</button>`:""}<button class="btn ghost" data-x>取消</button></div>`,
   box=>{wireCrewPick(box,k=>crew=k);
@@ -693,7 +695,7 @@ function autoDialog(a,pre){pre=pre||{};let item=a?a.item||"":"",pos=a?a.pos||"pr
     box.querySelectorAll("[data-apart]").forEach(b=>b.onclick=()=>{part=+b.dataset.apart;box.querySelectorAll("[data-apart]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
     box.querySelectorAll("[data-adev]").forEach(b=>b.onclick=()=>{dev=b.dataset.adev;box.querySelectorAll("[data-adev]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
     box.querySelector("[data-ok]").onclick=()=>{const time=box.querySelector("#atm").value.trim(),what=box.querySelector("#awt").value.trim(),audio=box.querySelector("#aau").value.trim();if(!what||!days.length)return;
-      const st=box.querySelector("#aset");const v={item:item||null,pos,lk:1,ic:aic,days,part,time,what,audio,dev,crew,s:box.querySelector("#ash").value.trim()||aShort(what)};if(a)Object.assign(a,v,{set:st?st.checked:a.set});else D.autos.push(Object.assign({id:nid(),set:false},v));save();closeDlg();render();};
+      const st=box.querySelector("#aset");const v={note:box.querySelector("#anote").value,item:item||null,pos,lk:1,ic:aic,days,part,time,what,audio,dev,crew,s:box.querySelector("#ash").value.trim()||aShort(what)};if(a)Object.assign(a,v,{set:st?st.checked:a.set});else D.autos.push(Object.assign({id:nid(),set:false},v));save();closeDlg();render();};
     const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{D.autos=D.autos.filter(x=>x!==a);save();closeDlg();render();};});}
 function setDone(t,v){t.done=v;if(v){t.doneAt=t.doneAt||today();}else delete t.doneAt;}
 function doneHTML(){const T=D.todo,L=[];T.projects.forEach(p=>p.tasks.forEach(t=>{if(t.done)L.push({p,t,k:crewOfProj(p)});}));
@@ -975,5 +977,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202610312304";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202610312308";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

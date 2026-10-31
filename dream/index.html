@@ -259,7 +259,8 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .dmon{padding:12px 14px;display:grid;gap:4px;margin-top:10px}.dline{display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 2px;text-align:left;font-size:13.5px;border-bottom:1px solid #F1EADF}.dline:last-child{border-bottom:0}
 .dline .dd{width:38px;color:var(--muted);font-size:12px;flex:none}.dline i{width:10px;height:10px;border-radius:3px;flex:none}.dline .dw{color:var(--muted);font-size:12px;flex:none;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dline .dt{flex:1}
 .fp .dx{margin-left:auto;border:0;background:none;color:var(--muted);font-size:15px;padding:0 4px;cursor:pointer}.dline[disabled]{color:inherit;opacity:1;cursor:default}
-.aics{display:flex;gap:2px;justify-content:center;margin-top:2px;flex-wrap:wrap}.aic{border:0;background:#fff;border-radius:6px;font-size:11px;line-height:1;padding:3px 3px;box-shadow:0 0 0 1px var(--line);cursor:pointer}.aic.unset{opacity:.45;box-shadow:0 0 0 1px dashed var(--line)}
+.aics{display:grid;gap:2px;margin-top:3px}.aic{display:flex;align-items:center;gap:3px;border:0;background:#fff;border-radius:6px;font-size:11px;line-height:1.1;padding:3px 4px;box-shadow:0 0 0 1px var(--line);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);text-align:left}.aic b{font-weight:700}.aic.unset{opacity:.5;background:#FBF8F2;outline:1px dashed var(--line);box-shadow:none}
+.slot .sic{position:absolute;left:5px;top:3px;font-size:12px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
 .alist2{display:grid;gap:5px}.achip{display:block;border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 9px;text-align:left;font-size:13px}.achip b{font-weight:700}.achip small{color:var(--muted)}.achip em{display:block;margin-top:2px;font-style:normal;font-size:11.5px;color:var(--muted)}.achip.unset{border-style:dashed;background:#FBF8F2}
 .aadd{border:1px dashed var(--line);background:transparent;border-radius:10px;padding:5px;font-size:12.5px;color:var(--muted)}
 .atypes{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted);margin:0 0 8px 2px}.atypes i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
@@ -507,9 +508,9 @@ function layer3(){
   const blank=total-filled;
   const todayCol=S.tpl?-1:(()=>{const [y,m,dd]=wkKeyOff(wkView).split("-").map(Number);for(let i=0;i<7;i++)if(ymd(new Date(y,m-1,dd+i))===ymd(new Date()))return i;return -1;})();
   const cellHTML=(d,p)=>{const v=S.slots[d+"-"+p],its=slotInfos(v),it=its[0],tm=(slotList(v)[0]||{}).time,tc=d===todayCol?' class="tcol"':'';
-    const ai=autosAt(d,p),aic=ai.length?`<div class="aics">${ai.map(a=>`<button class="aic${a.set?"":" unset"}" data-auto="${a.id}" title="${esc((a.time?a.time+" ":"")+a.what)}">${aIcon(a)}</button>`).join("")}</div>`:"";
-    if(its.length>1)return `<td${tc}><div class="slot full multi" data-slot="${d}-${p}">${its.map(x=>`<span class="band${x.once?" once":""}" style="--c:${crewC(x)}"><span class="grain"></span><b>${esc(x.name)}</b></span>`).join("")}${tm?`<small class="tm">${esc(tm)}</small>`:""}</div>${aic}</td>`;
-    return `<td${tc}><div class="slot${it?" full":""}${it&&it.once?" once":""}${it&&it.task?" tk":""}${it&&it.done?" dn":""}" data-slot="${d}-${p}" style="${it?`--c:${crewC(it)}`:""}">${it?`<span class="grain"></span><b>${esc(it.name)}</b>${tm?`<small>${esc(tm)}</small>`:""}`:"<i>＋</i>"}</div>${aic}</td>`;};
+    const ai=autosAt(d,p),aic=ai.length?`<div class="aics">${ai.map(a=>`<button class="aic${a.set?"":" unset"}" data-auto="${a.id}" title="${esc((a.time?a.time+" ":"")+a.what)}"><span>${(CREWK[a.crew]||CREWK.butler).ic}</span>${a.time?`<b>${esc(a.time)}</b>`:""}${esc(a.s||"")}</button>`).join("")}</div>`:"";
+    if(its.length>1)return `<td${tc}><div class="slot full multi" data-slot="${d}-${p}">${its.map(x=>`<span class="band${x.once?" once":""}" style="--c:${crewC(x)}"><span class="grain"></span><b>${x.crew&&CREWK[x.crew]?CREWK[x.crew].ic+" ":""}${esc(x.name)}</b></span>`).join("")}${tm?`<small class="tm">${esc(tm)}</small>`:""}</div>${aic}</td>`;
+    return `<td${tc}><div class="slot${it?" full":""}${it&&it.once?" once":""}${it&&it.task?" tk":""}${it&&it.done?" dn":""}" data-slot="${d}-${p}" style="${it?`--c:${crewC(it)}`:""}">${it?`<span class="grain"></span>${it.crew&&CREWK[it.crew]?`<span class="sic">${CREWK[it.crew].ic}</span>`:""}<b>${esc(it.name)}</b>${tm?`<small>${esc(tm)}</small>`:""}`:"<i>＋</i>"}</div>${aic}</td>`;};
   const rows=PARTS.map((pt,p)=>`<tr><th>${pt}</th>${DAYS.map((_,d)=>cellHTML(d,p)).join("")}</tr>`).join("");
   const outfit=`<tr class="outfit"><th>服裝</th>${DAYS.map((_,d)=>`<td${d===todayCol?' class="tcol tlast"':''}><button data-outfit="${d}" class="of of-${["正裝","運動服","休閒"].indexOf(S.outfit[d])}">${esc(S.outfit[d]||"—")}</button></td>`).join("")}</tr>`;
   const segs=CREW.map(c=>c.k).filter(k=>cnt[k]).map(k=>({k,n:cnt[k]}));weekCnt=cnt;if(blank)segs.push({k:"blank",n:blank});
@@ -520,7 +521,7 @@ function layer3(){
   const lab=n=>{if(n==="tpl")return "範本";const[y,m,d]=wkKeyOff(n).split("-").map(Number);return n===0?`本週 ${m}/${d}`:n===1?`下週 ${m}/${d}`:`${m}/${d} 那週`;};
   const nav=`<div class="wknav">${["tpl",0,1,2,3,4,5,6,7].map(n=>`<button data-wk="${n}" aria-pressed="${String(wkView)===String(n)}">${lab(n)}</button>`).join("")}</div>`;
   const state=S.tpl?`<p class="hint">這是範本：每一週一開始都長這樣。改範本，還沒調整過的週都會跟著變。</p>`:S.own?`<p class="hint">這週有自己的安排。<button class="linkbtn" data-reset>還原成範本</button></p>`:`<p class="hint">這週目前跟範本一樣；一改就會變成這週專屬的安排，不影響範本。</p>`;
-  return top3+`<section><h2>一週的樣子<small>點格子放沙子（一格最多三件）・按住拖曳換位置・格子下的 🎧⏰📱 是自動化，點開可以改</small></h2>${nav}
+  return top3+`<section><h2>一週的樣子<small>點格子放沙子（一格最多三件）・按住拖曳換位置・格子下的小條是鬧鐘提醒（工具人圖示＋時間），點開可以改</small></h2>${nav}
     <div class="card wk"><div class="wkscroll"><div class="tframe" hidden></div><table><thead><tr><th></th>${DAYS.map((d,i)=>{if(S.tpl)return `<th>${d}</th>`;const [y,m,dd]=wkKeyOff(wkView).split("-").map(Number),x=new Date(y,m-1,dd+i),today=ymd(x)===ymd(new Date());return `<th${today?' class="today"':''}>${d}<small class="wkd">${x.getMonth()+1}/${x.getDate()}</small></th>`;}).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>${state}</div></section>
   <section><h2>這週的沙<small>每一格是一把沙，看看哪位工具人最忙、哪位被冷落</small></h2><div class="card wk">${sand}</div></section>
   ${crewHTML(1)}`;}
@@ -632,12 +633,13 @@ function daySlotDialog(i){const L=dayList(),x=L[i]||{},wk=(D.todo.week[weekKey()
     setTimeout(()=>{const f=box.querySelector("#dtx");if(f)f.focus();},50);});}
 /* 10/31（二版）：自動化直接長在週表格子和工具人卡片上。一條＝哪幾天、早中晚哪一格、幾點、誰負責、哪台、做什麼、音檔、設好了沒 */
 const ALLD=[0,1,2,3,4,5,6],PARTN=["早","中","晚"];
-function AUTOS(){let n=0;const a=(days,part,time,crew,dev,what,audio)=>({id:"a"+(n++)+Date.now().toString(36),days,part,time,crew,dev,what,audio,set:false});
+function AUTOS(){let n=0;const a=(days,part,time,crew,dev,what,audio)=>({id:"a"+(n++)+Date.now().toString(36),days,part,time,crew,dev,what,audio,set:false,s:aShort(what)});
   return[a(ALLD,0,"07:30","healer","iPad","起床鬧鐘停 → 前殿跪下（早）","我是誰 → 世界版"),a(ALLD,0,"08:00","venus","iPad","瑜伽後打扮五分鐘",""),
     a([0,1,2,3,4],0,"09:00","sales","手機","國泰提醒",""),a([0,1,2,3,4],0,"10:00","sales","手機","國泰提醒",""),a(ALLD,2,"19:00","teresa","iPad","打開 Vocal",""),
     a(ALLD,2,"21:30","fox","iPad","氛圍感練習：穿高跟鞋走路","男人版"),a(ALLD,2,"22:00","healer","iPad","睡前鬧鐘停 → 前殿跪下（晚）","我是誰 → 睡前"),
     a([0],1,"","fox","手機","HH 前三十分鐘提醒",""),a([5],0,"","teresa","手機","合唱前三十分鐘提醒","")];}
-function autosFix(){D.autos=D.autos||AUTOS();D.autos.forEach(a=>{if(a.days)return;const m=/^星期(.)$/.exec(a.time||"");
+function aShort(w){const M=[["起床","起床"],["睡前","睡前"],["打扮","打扮"],["國泰","國泰"],["Vocal","Vocal"],["氛圍","氛圍感"],["HH","HH"],["合唱","合唱"]];const f=M.find(([k])=>w.includes(k));return f?f[1]:w.slice(0,4);}
+function autosFix(){D.autos=D.autos||AUTOS();D.autos.forEach(a=>{if(!a.s)a.s=aShort(a.what||"");});D.autos.forEach(a=>{if(a.days)return;const m=/^星期(.)$/.exec(a.time||"");
   if(m){a.days=["一二三四五六日".indexOf(m[1])].filter(x=>x>=0);a.time="";a.part=/合唱|Chorus/.test(a.what)?0:1;}
   else{a.days=a.type==="work"?[0,1,2,3,4]:ALLD.slice();const h=parseInt(a.time,10);a.part=isNaN(h)?0:h<11?0:h<17?1:2;}delete a.type;});return D.autos;}
 const aIcon=a=>a.audio?"🎧":a.dev==="手機"?"📱":"⏰";
@@ -648,6 +650,7 @@ function aChip(a){return `<button class="achip${a.set?"":" unset"}" data-auto="$
 function autoDialog(a,pre){pre=pre||{};let crew=a?a.crew:(pre.crew||"butler"),dev=a?a.dev:"iPad",part=a?a.part:(pre.part??0),days=a?a.days.slice():(pre.days||ALLD.slice());
   dialog(`<h3>${a?"改這個自動化":"新增自動化"}</h3>
     <label class="field">會發生什麼<input id="awt" maxlength="40" value="${esc(a?a.what:"")}"></label>
+    <label class="field">週表上顯示的短名稱（四個字以內）<input id="ash" maxlength="5" value="${esc(a?a.s||"":"")}"></label>
     <div class="field">哪幾天<div class="seg">${"一二三四五六日".split("").map((x,i)=>`<button data-aday="${i}" aria-pressed="${days.includes(i)}">${x}</button>`).join("")}</div></div>
     <div class="field">週表上放在哪一格<div class="seg">${PARTN.map((x,i)=>`<button data-apart="${i}" aria-pressed="${part===i}">${x}</button>`).join("")}</div></div>
     <label class="field">幾點（選填，例如 07:30）<input id="atm" maxlength="12" value="${esc(a?a.time||"":"")}"></label>
@@ -661,7 +664,7 @@ function autoDialog(a,pre){pre=pre||{};let crew=a?a.crew:(pre.crew||"butler"),de
     box.querySelectorAll("[data-apart]").forEach(b=>b.onclick=()=>{part=+b.dataset.apart;box.querySelectorAll("[data-apart]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
     box.querySelectorAll("[data-adev]").forEach(b=>b.onclick=()=>{dev=b.dataset.adev;box.querySelectorAll("[data-adev]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
     box.querySelector("[data-ok]").onclick=()=>{const time=box.querySelector("#atm").value.trim(),what=box.querySelector("#awt").value.trim(),audio=box.querySelector("#aau").value.trim();if(!what||!days.length)return;
-      const st=box.querySelector("#aset");const v={days,part,time,what,audio,dev,crew};if(a)Object.assign(a,v,{set:st?st.checked:a.set});else D.autos.push(Object.assign({id:nid(),set:false},v));save();closeDlg();render();};
+      const st=box.querySelector("#aset");const v={days,part,time,what,audio,dev,crew,s:box.querySelector("#ash").value.trim()||aShort(what)};if(a)Object.assign(a,v,{set:st?st.checked:a.set});else D.autos.push(Object.assign({id:nid(),set:false},v));save();closeDlg();render();};
     const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{D.autos=D.autos.filter(x=>x!==a);save();closeDlg();render();};});}
 function setDone(t,v){t.done=v;if(v){t.doneAt=t.doneAt||today();}else delete t.doneAt;}
 function doneHTML(){const T=D.todo,L=[];T.projects.forEach(p=>p.tasks.forEach(t=>{if(t.done)L.push({p,t});}));
@@ -936,4 +939,6 @@ if(window.top===window.self){const b=document.createElement("a");b.href="https:/
 new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector(".back"),fr=f.querySelector(".front");if(bk&&fr)f.style.minHeight=Math.max(fr.offsetHeight,bk.scrollHeight)+"px";}).observe(document.body);
 render();
 </script>
+<script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
+const PAGE_V="202610311653";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

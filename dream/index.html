@@ -510,8 +510,8 @@ function layer3(){
   const blank=total-filled;
   const todayCol=S.tpl?-1:(()=>{const [y,m,dd]=wkKeyOff(wkView).split("-").map(Number);for(let i=0;i<7;i++)if(ymd(new Date(y,m-1,dd+i))===ymd(new Date()))return i;return -1;})();
   const cellHTML=(d,p)=>{const v=S.slots[d+"-"+p],its=slotInfos(v),it=its[0],tm=(slotList(v)[0]||{}).time,tc=d===todayCol?' class="tcol"':'';
-    const ai=autosAt(d,p),ids=its.map(x=>x.item).filter(Boolean),onS=a=>a.item&&ids.includes(a.item),loose=ai.filter(a=>!onS(a));
-    const deco=(x,nm)=>{if(!x.item)return esc(nm);const m=ai.filter(a=>a.item===x.item),pre=m.filter(a=>a.pos!=="post"),post=m.filter(a=>a.pos==="post");const ic=a=>`<i class="sa${a.set?"":" unset"}" data-auto="${a.id}" title="${esc((a.time?a.time+" ":"")+a.what)}">${aIcon(a)}</i>`;return pre.map(ic).join("")+esc(nm)+post.map(ic).join("");};
+    const ai=autosAt(d,p),aN=a=>{const i=a.item&&itemById(a.item);return i?i.name:null;},loose=ai.filter(a=>!aN(a));
+    const deco=(x,nm)=>{if(!x.item)return esc(nm);const m=ai.filter(a=>aN(a)===nm),pre=m.filter(a=>a.pos!=="post"),post=m.filter(a=>a.pos==="post");const ic=a=>`<i class="sa${a.set?"":" unset"}" data-auto="${a.id}" title="${esc((a.time?a.time+" ":"")+a.what)}">${aIcon(a)}</i>`;return pre.map(ic).join("")+esc(nm)+post.map(ic).join("");};
     const aic=loose.length?`<div class="aics">${loose.map(a=>`<button class="aic${a.set?"":" unset"}" data-auto="${a.id}" title="${esc((a.time?a.time+" ":"")+a.what)}" aria-label="${esc((a.time?a.time+" ":"")+(a.s||a.what))}">${aIcon(a)}</button>`).join("")}</div>`:"";
     if(its.length>1)return `<td${tc}><div class="slot full multi" data-slot="${d}-${p}">${its.map(x=>`<span class="band${x.once?" once":""}" style="--c:${crewC(x)}"><span class="grain"></span><b>${deco(x,x.name)}</b></span>`).join("")}${tm?`<small class="tm">${esc(tm)}</small>`:""}</div>${aic}</td>`;
     return `<td${tc}><div class="slot${it?" full":""}${it&&it.once?" once":""}${it&&it.task?" tk":""}${it&&it.done?" dn":""}" data-slot="${d}-${p}" style="${it?`--c:${crewC(it)}`:""}">${it?`<span class="grain"></span><b>${deco(it,it.name)}</b>${tm?`<small>${esc(tm)}</small>`:""}`:"<i>＋</i>"}</div>${aic}</td>`;};
@@ -955,5 +955,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202610311706";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202610311712";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

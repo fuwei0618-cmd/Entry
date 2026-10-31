@@ -729,9 +729,9 @@ function layer4(){
     return `<div class="card fslot${x.t.done?" done":""}"><div class="fp"><i style="background:${x.p.color}"></i>${esc(x.p.name)}</div><label><input type="checkbox" data-tdone="${x.t.id}" ${x.t.done?"checked":""}><span class="ftx">${esc(x.t.text)}</span></label></div>`;};
   const [wy,wm,wd]=wk.split("-").map(Number);
   return `<section><h2>重要日子<small>點一下可以改・自動倒數</small></h2><div class="tdays">${days.map(d=>{const n=daysTo(d.date);return `<button class="card tday" data-day="${d.id}"><b>${n<=0?(n===0?"今天":"昨天"):n}${n>0?"<span>天</span>":""}</b><span class="t">${esc(d.text)}</span><span class="d">${+d.date.slice(5,7)}/${+d.date.slice(8)}</span></button>`;}).join("")}<button class="card tday add" data-addday>＋ 新增日子</button></div></section>
-  ${dayHTML()}
   <section><h2>本月三件<small>${+mk.slice(5)} 月・最多三件</small></h2><div class="focus">${[0,1,2].map(i=>slot(T.month[mk][i])).join("")}</div></section>
   <section><h2>本週三件<small>${wm}/${wd} 那週・最多三件・做完打勾</small></h2><div class="focus">${[0,1,2].map(i=>slot(T.week[wk][i],1)).join("")}</div></section>
+  ${dayHTML()}
   <section><details class="nextwk" id="nextwk" ${nOpen?"open":""}><summary><span class="ar" aria-hidden="true">${nOpen?"▾":"▸"}</span><h2>下週三件<small>${nm}/${nd} 那週・${nn?`已排 ${nn} 件・`:""}到了禮拜一會自動變成本週</small></h2></summary><div class="focus">${[0,1,2].map(i=>slot(T.week[nk][i],1)).join("")}</div></details></section>
   ${crewHTML(0)}`;}
 function bind4(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
@@ -955,5 +955,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202610311712";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202610311717";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

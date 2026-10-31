@@ -643,14 +643,16 @@ function daySlotDialog(i){const L=dayList(),x=L[i]||{},wk=(D.todo.week[weekKey()
 /* 10/31（二版）：自動化直接長在週表格子和工具人卡片上。一條＝哪幾天、早中晚哪一格、幾點、誰負責、哪台、做什麼、音檔、設好了沒 */
 const ALLD=[0,1,2,3,4,5,6],PARTN=["早","中","晚"];
 function AUTOS(){let n=0;const a=(days,part,time,crew,dev,what,audio)=>({id:"a"+(n++)+Date.now().toString(36),days,part,time,crew,dev,what,audio,set:false,s:aShort(what)});
-  return[a(ALLD,0,"07:30","healer","iPad","起床鬧鐘停 → 前殿跪下（早）","我是誰 → 世界版"),a(ALLD,0,"08:00","venus","iPad","瑜伽後打扮五分鐘",""),
-    a([0,1,2,3,4],0,"09:00","sales","手機","國泰提醒",""),a([0,1,2,3,4],0,"10:00","sales","手機","國泰提醒",""),a(ALLD,2,"19:00","teresa","iPad","打開 Vocal",""),
+  return[a(ALLD,0,"07:30","healer","iPad","起床鬧鐘停 → 前殿跪下（早）","我是誰 → 起床"),a(ALLD,0,"08:00","venus","iPad","瑜伽後打扮五分鐘","世界版"),
+    a([0,1,2,3,4],0,"09:00","sales","手機","國泰提醒",""),a([0,1,2,3,4],0,"10:00","sales","手機","國泰提醒",""),a(ALLD,2,"19:00","teresa","iPad","打開 Vocal","Vocal版"),
     a(ALLD,2,"21:30","fox","iPad","氛圍感練習：穿高跟鞋走路","男人版"),a(ALLD,2,"22:00","healer","iPad","睡前鬧鐘停 → 前殿跪下（晚）","我是誰 → 睡前"),
-    a([0],1,"","fox","手機","HH 前三十分鐘提醒",""),a([5],0,"","teresa","手機","合唱前三十分鐘提醒","")];}
+    a([0],1,"","fox","手機","HH 前三十分鐘提醒","高跟鞋"),a([5],0,"","teresa","手機","合唱前三十分鐘提醒","")];}
 const AICS=["✨","🌏","💄","📅","🤝","🎶","🎼","💋","👠","💰","🎥","🧭","🔍","🌙","☀️","⏰"];
 function aOcc(w){const M=[["起床","✨"],["睡前","✨"],["打扮","🌏"],["09:00","📅"],["10:00","🤝"],["Vocal","🎶"],["氛圍","💋"],["HH","👠"],["合唱","🎼"],["國泰","🤝"]];const f=M.find(([k])=>w.includes(k));return f?f[1]:"⏰";}
 function aShort(w){const M=[["起床","起床"],["睡前","睡前"],["打扮","打扮"],["國泰","國泰"],["Vocal","Vocal"],["氛圍","氛圍感"],["HH","HH"],["合唱","合唱"]];const f=M.find(([k])=>w.includes(k));return f?f[1]:w.slice(0,4);}
-function autosFix(){D.autos=D.autos||AUTOS();D.autos.forEach(a=>{if(!a.s)a.s=aShort(a.what||"");if(!a.ic)a.ic=aOcc((a.time||"")+" "+(a.what||""));
+function autosFix(){D.autos=D.autos||AUTOS();
+  if(!D.aud1031){D.aud1031=1;const M=[[a=>/起床/.test(a.what)||a.time==="07:30","我是誰 → 起床"],[a=>/打扮/.test(a.what),"世界版"],[a=>/國泰/.test(a.what),""],[a=>/Vocal/.test(a.what),"Vocal版"],[a=>/氛圍/.test(a.what),"男人版"],[a=>/睡前/.test(a.what),"我是誰 → 睡前"],[a=>/HH/.test(a.what),"高跟鞋"],[a=>/合唱/.test(a.what),""]];
+    D.autos.forEach(a=>{const f=M.find(([t])=>t(a));if(f)a.audio=f[1];});save();}D.autos.forEach(a=>{if(!a.s)a.s=aShort(a.what||"");if(!a.ic)a.ic=aOcc((a.time||"")+" "+(a.what||""));
   if(a.lk)return;a.lk=1;const L={起床:["Yoga","pre"],打扮:["Yoga","post"],氛圍感:["Yoga","pre"],睡前:["Yoga","post"],HH:["HH","pre"],Vocal:["Vocal","pre"],合唱:["Chorus","pre"],國泰:["國泰",a.ic==="📅"?"post":"pre"]}[a.s];
   if(L){const it=D.week.items.find(i=>i.name===L[0]);if(it){a.item=it.id;a.pos=L[1];}}});D.autos.forEach(a=>{if(a.days)return;const m=/^星期(.)$/.exec(a.time||"");
   if(m){a.days=["一二三四五六日".indexOf(m[1])].filter(x=>x>=0);a.time="";a.part=/合唱|Chorus/.test(a.what)?0:1;}
@@ -969,5 +971,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202610311739";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202610311742";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

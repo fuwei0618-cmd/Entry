@@ -256,8 +256,8 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .cproj .fcount{font-size:12px;color:var(--muted);border:0;background:none;padding:0;text-align:left;cursor:pointer}
 .crfoot{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .donelog summary{list-style:none;cursor:pointer}.donelog summary::-webkit-details-marker{display:none}.donelog summary h2:before{content:"▸ ";color:var(--muted)}.donelog[open] summary h2:before{content:"▾ "}
-.dmon{padding:12px 14px;display:grid;gap:4px;margin-top:10px}.dline{display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 2px;text-align:left;font-size:13.5px;border-bottom:1px solid #F1EADF}.dline:last-child{border-bottom:0}
-.dline .dd{width:38px;color:var(--muted);font-size:12px;flex:none}.dline i{width:10px;height:10px;border-radius:3px;flex:none}.dline .dw{color:var(--muted);font-size:12px;flex:none;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dline .dt{flex:1}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:10px;align-items:start}.dmon{padding:12px 14px;display:grid;gap:2px;border-top:4px solid var(--c)}.dgh{display:flex;align-items:center;gap:6px;font-size:14px;margin-bottom:4px}.dgh span{margin-left:auto;font-size:12px;color:var(--muted)}.dline{display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 2px;text-align:left;font-size:13.5px;border-bottom:1px solid #F1EADF}.dline:last-child{border-bottom:0}
+.dline .dd{width:38px;color:var(--muted);font-size:12px;flex:none}.dline i{width:10px;height:10px;border-radius:3px;flex:none}.dline .dw{color:var(--muted);font-size:11.5px;flex:none;max-width:35%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dline .dt{flex:1}
 .fp .dx{margin-left:auto;border:0;background:none;color:var(--muted);font-size:15px;padding:0 4px;cursor:pointer}.dline[disabled]{color:inherit;opacity:1;cursor:default}
 .aics{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-top:3px}.aic{border:0;background:#fff;border-radius:7px;font-size:14px;line-height:1;width:24px;height:24px;padding:0;box-shadow:0 0 0 1px var(--line);cursor:pointer}.aic.unset{opacity:.45;background:#FBF8F2;box-shadow:0 0 0 1px var(--line) inset}
 .icpick{display:flex;flex-wrap:wrap;gap:6px}.icpick button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:18px}.icpick button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
@@ -271,6 +271,7 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .atime{flex:none;min-width:58px;font-weight:700;font-size:14px;color:var(--c);filter:brightness(.85)}.awhat{flex:1;display:grid;gap:2px;min-width:0}.awhat b{font-weight:500;font-size:14px}.awhat small{color:var(--muted);font-size:12.5px}
 .ameta{flex:none;display:grid;gap:3px;justify-items:end;font-size:12px;color:var(--muted)}.acrew i{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--c);margin-right:4px}
 .bt4 button{min-width:34px;padding-left:0;padding-right:0;text-align:center}
+.atbl{padding:10px 12px;overflow-x:auto}.atbl table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}.atbl th{font-size:12px;color:var(--muted);font-weight:500;text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}.atbl td{padding:7px 6px;border-bottom:1px solid #F1EADF;vertical-align:middle}.atbl td.ti{font-size:16px}.atbl tr.aset td{color:var(--muted)}.atbl input{width:18px;height:18px}.atbl .linkbtn{text-align:left;color:var(--ink)}
 .dcount{font-size:12px;color:var(--muted);padding:2px 4px}
 .crpick{display:flex;flex-wrap:wrap;gap:6px}
 .addcol{border-style:dashed;background:transparent;color:var(--muted);min-height:80px;font-size:14px;box-shadow:none}
@@ -322,11 +323,12 @@ const CREW=[{k:"teresa",ic:"🎤",n:"Teresa",r:"唱歌・街演・合唱",c:"#D9
   {k:"fox",ic:"🦊",n:"Fox",r:"性感的身體：HH・瑜伽・重訓",c:"#3A2F27",cat:"body",dq:[["💋","男人版","hh","menq"],["👠","高跟鞋版","hh","hq"]]},
   {k:"sales",ic:"🏆",n:"銷冠",r:"國泰業務",c:"#A08C72",cat:"work",dq:[["🤝","客戶版","cathay","cq"],["📅","服務件","cathay","svc"]]},
   {k:"trader",ic:"📈",n:"操盤手",r:"投資",c:"#2F5D7C",cat:"make",dq:[["💰","投資版","money","mq"]]},
+  {k:"vault",ic:"🏦",n:"金庫",r:"財神殿的其他項目（不歸工具人）",c:"#C9A55A",cat:"work",dq:[],plain:1},
   {k:"butler",ic:"🗝️",n:"管家",r:"行程・雜事・Origina",c:"#5E7A55",cat:"make",dq:[]},
   {k:"healer",ic:"🕯️",n:"療癒師",r:"身心・精力・睡眠",c:"#9CC4C0",cat:"life",dq:[["✨","我是誰（主卡）","me","whoami"],["🔍","掃描儀","me","alch"]]}];
 const CREWK=Object.fromEntries(CREW.map(c=>[c.k,c]));
 const CAT2CREW={body:"fox",vocal:"teresa",work:"sales",life:"healer",trip:"leader",make:"butler"};
-const ITEM2CREW={Vocal:"teresa",SV:"teresa",Chorus:"teresa",Yoga:"fox",HH:"fox",WG:"fox",HP:"fox",Beauty:"venus","國泰":"sales",Bangkok:"leader","重慶":"leader",Origina:"butler","洗衣貓":"butler",Eric:"butler",Rest:"healer"};
+const ITEM2CREW={Vocal:"teresa",SV:"teresa",Chorus:"teresa",Yoga:"fox",HH:"fox",WG:"fox",HP:"fox",Beauty:"venus","國泰":"sales",Bangkok:"leader","重慶":"leader",Origina:"butler","洗衣貓":"butler",Eric:"vault",Rest:"healer"};
 const PROJ2CREW={Bangkok:"leader","正顎":"venus",Cathay:"sales","重慶":"director","寫程式":"butler",Origina:"butler",Vocal:"teresa","Body/Beauty":"fox","投資":"trader","金庫":"trader","宇宙印鈔機":"trader"};
 const crewOfItem=it=>CREWK[it.crew]?it.crew:(ITEM2CREW[it.name]||CAT2CREW[it.cat]||"butler");
 const crewOfProj=p=>CREWK[p.crew]?p.crew:(PROJ2CREW[p.name]||(()=>{const sd=typeof projSand==="function"&&projSand(p);return sd?crewOfItem(sd):"butler";})());
@@ -528,6 +530,7 @@ function layer3(){
   const state=S.tpl?`<p class="hint">這是範本：每一週一開始都長這樣。改範本，還沒調整過的週都會跟著變。</p>`:S.own?`<p class="hint">這週有自己的安排。<button class="linkbtn" data-reset>還原成範本</button></p>`:`<p class="hint">這週目前跟範本一樣；一改就會變成這週專屬的安排，不影響範本。</p>`;
   return top3+`<section><h2>一週的樣子<small>點格子放沙子（一格最多三件）・按住拖曳換位置・沙子前後的小圖示是鬧鐘提醒（前面＝開始前，後面＝結束後），點圖示看幾點、做什麼</small></h2>${nav}
     <div class="card wk"><div class="wkscroll"><div class="tframe" hidden></div><table><thead><tr><th></th>${DAYS.map((d,i)=>{if(S.tpl)return `<th>${d}</th>`;const [y,m,dd]=wkKeyOff(wkView).split("-").map(Number),x=new Date(y,m-1,dd+i),today=ymd(x)===ymd(new Date());return `<th${today?' class="today"':''}>${d}<small class="wkd">${x.getMonth()+1}/${x.getDate()}</small></th>`;}).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>${state}</div></section>
+  ${alarmTable()}
   <section><h2>這週的沙<small>每一格是一把沙，看看哪位工具人最忙、哪位被冷落</small></h2><div class="card wk">${sand}</div></section>
   ${crewHTML(1)}`;}
 function bind3(){
@@ -657,6 +660,10 @@ const aSort=(x,y)=>x.part-y.part||((x.time||"99")<(y.time||"99")?-1:1);
 const autosAt=(d,p)=>autosFix().filter(a=>a.part===p&&a.days.includes(d)).sort(aSort);
 const aDays=a=>a.days.length===7?"每天":a.days.length===5&&[0,1,2,3,4].every(x=>a.days.includes(x))?"平日":(a.days.length===1?"星期":"週")+a.days.map(x=>"一二三四五六日"[x]).join("、");
 function aChip(a){return `<button class="achip${a.set?"":" unset"}" data-auto="${a.id}" title="${a.set?"捷徑設好了":"捷徑還沒設"}"><span class="aci">${aIcon(a)}</span><b>${esc(a.time||PARTN[a.part])}</b><span class="acs">${esc(a.s||a.what)}</span><em>${aDays(a)}</em></button>`;}
+function alarmTable(){const L=autosFix().slice().sort((x,y)=>{const t=a=>a.time||("~"+a.part);return t(x)<t(y)?-1:1;});let op=false;try{op=localStorage.getItem("dream-alarms")==="1";}catch(e){}const ok=L.filter(a=>a.set).length;
+  return `<section><details class="donelog" id="alarmtbl" ${op?"open":""}><summary><h2>📋 鬧鐘總表<small>整理捷徑時打開・照著一條一條設・設好打勾（${ok}／${L.length}）</small></h2></summary>
+    <div class="card atbl"><table><thead><tr><th>設好</th><th></th><th>時間</th><th>哪幾天</th><th>做什麼</th><th>音檔</th><th>哪台</th></tr></thead><tbody>${L.map(a=>`<tr class="${a.set?"aset":""}"><td><input type="checkbox" data-aset="${a.id}" ${a.set?"checked":""}></td><td class="ti">${aIcon(a)}</td><td><b>${esc(a.time||PARTN[a.part])}</b></td><td>${aDays(a)}</td><td><button class="linkbtn" data-auto="${a.id}">${esc(a.what)}</button></td><td>${esc(a.audio||"—")}</td><td>${esc(a.dev)}</td></tr>`).join("")}</tbody></table>
+    <button class="tadd" data-addauto="butler">＋ 新增鬧鐘</button></div></details></section>`;}
 function autoDialog(a,pre){pre=pre||{};let item=a?a.item||"":"",pos=a?a.pos||"pre":"pre",aic=a?aIcon(a):"⏰",crew=a?a.crew:(pre.crew||"butler"),dev=a?a.dev:"iPad",part=a?a.part:(pre.part??0),days=a?a.days.slice():(pre.days||ALLD.slice());
   dialog(`<h3>${a?"改這個自動化":"新增自動化"}</h3>
     <label class="field">會發生什麼<input id="awt" maxlength="40" value="${esc(a?a.what:"")}"></label>
@@ -683,22 +690,23 @@ function autoDialog(a,pre){pre=pre||{};let item=a?a.item||"":"",pos=a?a.pos||"pr
       const st=box.querySelector("#aset");const v={item:item||null,pos,lk:1,ic:aic,days,part,time,what,audio,dev,crew,s:box.querySelector("#ash").value.trim()||aShort(what)};if(a)Object.assign(a,v,{set:st?st.checked:a.set});else D.autos.push(Object.assign({id:nid(),set:false},v));save();closeDlg();render();};
     const d=box.querySelector("[data-del]");if(d)d.onclick=()=>{D.autos=D.autos.filter(x=>x!==a);save();closeDlg();render();};});}
 function setDone(t,v){t.done=v;if(v){t.doneAt=t.doneAt||today();}else delete t.doneAt;}
-function doneHTML(){const T=D.todo,L=[];T.projects.forEach(p=>p.tasks.forEach(t=>{if(t.done)L.push({p,t});}));
-  Object.entries(T.today||{}).forEach(([dk,xs])=>xs.forEach(x=>{if(x.text&&x.done)L.push({chore:1,t:{id:x.id,text:x.text,doneAt:x.doneAt||dk}});}));
-  if(!L.length)return "";L.sort((a,b)=>(b.t.doneAt||"")<(a.t.doneAt||"")?-1:1);const g={};L.forEach(x=>{const k=x.t.doneAt?`${+x.t.doneAt.slice(0,4)} 年 ${+x.t.doneAt.slice(5,7)} 月`:"更早";(g[k]=g[k]||[]).push(x);});
-  let op=false;try{op=localStorage.getItem("dream-donelog")==="1";}catch(e){}
-  return `<section><details class="donelog" id="donelog" ${op?"open":""}><summary><h2>完成紀錄<small>做完的事都收在這裡・共 ${L.length} 件・點一件可以改回沒做完</small></h2></summary>
-    ${Object.entries(g).map(([k,xs])=>`<div class="card dmon"><div class="crl">${k}・${xs.length} 件</div>${xs.map(({p,t,chore})=>{const c=chore?{c:"#C9BBA5",n:"今日"}:CREWK[crewOfProj(p)];return `<button class="dline" ${chore?"disabled":`data-task="${t.id}"`}><span class="dd">${t.doneAt?`${+t.doneAt.slice(5,7)}/${+t.doneAt.slice(8)}`:""}</span><i style="background:${c.c}"></i><span class="dw">${chore?"雜事":`${esc(c.n)}・${esc(p.name)}`}</span><span class="dt">${esc(t.text)}</span></button>`;}).join("")}</div>`).join("")}</details></section>`;}
+function doneHTML(){const T=D.todo,L=[];T.projects.forEach(p=>p.tasks.forEach(t=>{if(t.done)L.push({p,t,k:crewOfProj(p)});}));
+  Object.entries(T.today||{}).forEach(([dk,xs])=>xs.forEach(x=>{if(x.text&&x.done)L.push({chore:1,k:"chore",t:{id:x.id,text:x.text,doneAt:x.doneAt||dk}});}));
+  if(!L.length)return "";let op=false;try{op=localStorage.getItem("dream-donelog")==="1";}catch(e){}
+  const dt=t=>t.doneAt?`${+t.doneAt.slice(5,7)}/${+t.doneAt.slice(8)}`:"較早";
+  const groups=[...CREW.map(c=>({k:c.k,ic:c.ic,n:c.n,c:c.c})),{k:"chore",ic:"🧺",n:"雜事",c:"#C9BBA5"}].map(g=>({...g,xs:L.filter(x=>x.k===g.k).sort((a,b)=>(b.t.doneAt||"")<(a.t.doneAt||"")?-1:1)})).filter(g=>g.xs.length);
+  return `<section><details class="donelog" id="donelog" ${op?"open":""}><summary><h2>完成紀錄<small>做完的事都收在這裡・共 ${L.length} 件・照工具人分・點一件可以改回沒做完</small></h2></summary>
+    <div class="dgrid">${groups.map(g=>`<div class="card dmon" style="--c:${g.c}"><div class="dgh">${g.ic} <b>${esc(g.n)}</b><span>${g.xs.length} 件</span></div>${g.xs.map(({p,t,chore})=>`<button class="dline" ${chore?"disabled":`data-task="${t.id}"`}><span class="dd">${dt(t)}</span><span class="dt">${esc(t.text)}</span>${chore?"":`<span class="dw">${esc(p.name)}</span>`}</button>`).join("")}</div>`).join("")}</div></details></section>`;}
 function crewHTML(wkMode){D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();T.month[mk]=T.month[mk]||[];T.week[wk]=T.week[wk]||[];T.week[nk]=T.week[nk]||[];
   const task=t=>`<div class="task${t.done?" done":""}" data-dtask="${t.id}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt bt4"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}" title="本月">月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}" title="本週">週</button><button data-td="${t.id}" aria-pressed="${dayList().some(x=>x.task===t.id)}" title="今日">日</button><button data-tn="${t.id}" aria-pressed="${T.week[nk].includes(t.id)}" title="下週">下</button></div></div>`;
   const proj=p=>`<div class="cproj${p.folded?" folded":""}" data-dcol="${p.id}"><div class="colhw"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button><button class="fold" data-fold="${p.id}" title="${p.folded?"打開":"先收起來，不會刪掉"}">${p.folded?"▸":"▾"}</button></div>${p.folded?`<button class="fcount" data-fold="${p.id}">${p.tasks.length} 件・先收起來</button>`:p.tasks.filter(t=>!t.done).map(task).join("")+(p.tasks.some(t=>t.done)?`<span class="dcount">✓ 已完成 ${p.tasks.filter(t=>t.done).length} 件，在完成紀錄</span>`:"")+`<button class="tadd" data-addtask="${p.id}">＋ 新增一件</button>`}</div>`;
   const card=c=>{const its=W.items.filter(i=>crewOfItem(i)===c.k),ps=T.projects.filter(p=>crewOfProj(p)===c.k);const n=Math.round((weekCnt[c.k]||0)*10)/10;
     return `<div class="card crew" style="--c:${c.c}"><div class="crh"><span class="cric">${c.ic}</span><b>${esc(c.n)}</b>${wkMode&&n?`<span class="crn">這週 ${n} 格</span>`:""}</div><div class="crr">${esc(c.r)}</div>
       <div class="crl">🔁 每週固定</div><div class="crs">${its.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${c.c}"><i></i>${esc(i.name)}</button>`).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>
-      ${(()=>{const as=autosFix().filter(a=>a.crew===c.k).sort(aSort);return `<div class="crl">⏰ 鬧鐘提醒</div><div class="alist2">${as.map(aChip).join("")}<button class="aadd" data-addauto="${c.k}">＋ 鬧鐘提醒</button></div>`;})()}
+      ${c.plain?"":(()=>{const as=autosFix().filter(a=>a.crew===c.k).sort(aSort);return `<div class="crl">⏰ 鬧鐘提醒</div><div class="alist2">${as.map(aChip).join("")}<button class="aadd" data-addauto="${c.k}">＋ 鬧鐘提醒</button></div>`;})()}
       ${c.dq.length?`<div class="crl">📣 宣言</div><div class="crs">${c.dq.map(([ic,t,m,k])=>`<a class="dqb" href="../bedside/?open=${k}#${m}">${ic} ${esc(t)}</a>`).join("")}</div>`:""}
       <div class="crl">📁 專案</div>${[...ps.filter(p=>!p.folded),...ps.filter(p=>p.folded)].map(proj).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>`;};
-  const HALLS=[[["媽祖殿・Shakira",["teresa","director","leader"]],["月老殿・Sánchez",["venus","fox"]],["財神殿・金庫",["sales","trader"]]],[["跟在你身邊",["butler","healer"]]]];
+  const HALLS=[[["媽祖殿・Shakira",["teresa","director","leader"]],["月老殿・Sánchez",["venus","fox"]],["財神殿・金庫",["sales","trader","vault"]]],[["跟在你身邊",["butler","healer"]]]];
   const cards=HALLS.map(row=>`<div class="crow board">${row.map(([t,ks])=>`<div class="chall"><h4>${t}</h4><div>${ks.map(k=>card(CREWK[k])).join("")}</div></div>`).join("")}</div>`).join("");
   return `<section><h2>工具人<small>常態的沙子＋專案抽屜・月／週／日／下＝本月、本週、今日、下週・按住一件事可以拖到別的專案</small></h2>${cards}
     <div class="crfoot"><button class="chip2 add" data-additem>＋ 新的沙子</button><button class="chip2 add" data-addproj>＋ 新專案</button></div></section>${doneHTML()}`;}
@@ -718,6 +726,8 @@ function bindCrew(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
   document.querySelectorAll("[data-item]").forEach(b=>b.onclick=()=>itemDialog(itemById(b.dataset.item)));
   const ai=$("[data-additem]");if(ai)ai.onclick=()=>itemDialog(null);
   document.querySelectorAll("[data-auto]").forEach(b=>b.onclick=e=>{e.stopPropagation();autoDialog(D.autos.find(x=>x.id===b.dataset.auto));});
+  document.querySelectorAll("[data-aset]").forEach(c=>c.onchange=()=>{const a=D.autos.find(x=>x.id===c.dataset.aset);a.set=c.checked;save();render();});
+  {const d=document.getElementById("alarmtbl");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-alarms",d.open?"1":"0");}catch(e){}});}
   document.querySelectorAll("[data-addauto]").forEach(b=>b.onclick=()=>autoDialog(null,{crew:b.dataset.addauto}));
   {const d=document.getElementById("donelog");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-donelog",d.open?"1":"0");}catch(e){}});}
   dragBoard();}
@@ -957,5 +967,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202610311723";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202610311733";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

@@ -145,7 +145,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 <div id="rescue" hidden><div class="rs-card"><div class="rs-t">他們都到你身邊了</div>
   <div class="rs-l"><b>狼・左前方</b><p data-rs="wolf"></p></div>
   <div class="rs-l"><b>虎・右前方</b><p data-rs="tiger"></p></div>
-  <div class="rs-l"><b>管家・你正前方</b><p data-rs="butler"></p></div>
+  <div class="rs-l"><b>執行長・你正前方</b><p data-rs="butler"></p></div>
   <div class="rs-f">你只要站著，腳掌踩穩。<span class="muted">（點一句換下一句）</span></div>
   <div class="rs-b"><button id="rsSlash">再砍一次</button><button id="rsMin">收起</button><button id="rsOff">解除</button></div></div></div>
 <div id="rsFlash"></div>
@@ -1021,7 +1021,7 @@ F.hots=[
   let BX=hx+2.6,BZ=hz+9.6;const GROUND=[hx+2.6,hz+9.6,heightAt(hx,hz)+.5],ROOF=[hx+11.6,hz+6.4,heightAt(hx,hz)+5.9];   // 平常在門口；你上屋頂時到屋頂左上角（地圖上）
   const piv=new R.Group();piv.position.set(BX,GROUND[2],BZ);piv.add(body);piv.add(gun);out.add(piv);
   const bcol={x:BX,z:BZ,r:.4};F.col.push(bcol);let onRoof=false;
-  const bh_={id:'butler',name:'管家',verb:'換一套',x:BX,z:BZ+1.4,r:4.5,go:()=>{oi=(oi+1)%OUTFITS.length;localStorage.setItem('origina.butler',OUTFITS[oi].k);dress();say('換好了，'+OUTFITS[oi].n+'。');}};F.hots.push(bh_);
+  const bh_={id:'butler',name:'執行長',verb:'換一套',x:BX,z:BZ+1.4,r:4.5,go:()=>{oi=(oi+1)%OUTFITS.length;localStorage.setItem('origina.butler',OUTFITS[oi].k);dress();say('換好了，'+OUTFITS[oi].n+'。');}};F.hots.push(bh_);
   // 他會開口：走近時說一句。外表交給圖，聰明交給他說的話
   const bub=document.createElement('div');bub.id='butlerSay';document.body.appendChild(bub);
   const st=document.createElement('style');st.textContent='#butlerSay{position:fixed;z-index:6;max-width:min(260px,62vw);padding:9px 13px;border-radius:14px 14px 14px 4px;background:rgba(28,26,24,.88);color:#F3EDE2;font:500 13.5px/1.55 "Noto Sans TC",system-ui,sans-serif;letter-spacing:.02em;pointer-events:none;opacity:0;transition:opacity .4s;transform:translate(12px,-100%)}#butlerSay.on{opacity:1}#butlerSay b{color:#D9B35A;font-weight:600}';document.head.appendChild(st);
@@ -1731,7 +1731,7 @@ const INFO={
   closet:{tag:'家 · Beauty',title:'Beauty',body:'關於「美」的房間，像藝人上工前的梳化間，也是定期進廠保養的地方。裡面有兩扇門：',list:['梳化間：衣櫥、妝髮、美甲，整體造型與穿搭模板（製作中）','保養廠：醫美、半永久、日常保養；正顎手術也在這裡'],links:[['梳化間（製作中）',''],['保養廠 · 正顎手冊','https://fuwei0618-cmd.github.io/OGS/']]},
   gym:{tag:'家 · 健身房',title:'身體',body:'YOGA 柔軟度 → 開肩開髖 → 一字馬，還有重訓、Heel 與體況紀錄。',links:[['打開健身房','https://fuwei0618-cmd.github.io/Gym/']]},
   center:{tag:'森林 · 十字中心',title:'光孔日晷',body:'十字的交會點蓋了一座圓形小涼亭，兩道砂岩懸鏈拱從地面升起，四個拱腳讓出四個方向：東西連著金庫和營火（錢與熱情），南北連著家和森林入口（你自己和外面的世界）。兩道拱在頭頂交成十字，交點就是光孔，每天正午，一道光會落在地上那條金色的子午線上。站在這裡的人就是中心；不追趕什麼，只是每天都有一道光來找你。'},
-  butler:{tag:'家門口',title:'管家',body:'他話不多。看到他站在門口，就知道所有的事都會被打理乾淨、好好收尾。你只要安心出門，安心回家。他就是「無痛原則」的樣子：做什麼事都先把流程順到無痛。卡住的時候不是你不夠努力，是流程還不夠順；先改流程，不先怪自己。'},
+  butler:{tag:'家門口',title:'執行長',body:'他話不多，帶著整個團隊替你把人和事都打理好。看到他站在門口，就知道所有的事都會被打理乾淨、好好收尾。你只要安心出門，安心回家。他就是「無痛原則」的樣子：做什麼事都先把流程順到無痛。卡住的時候不是你不夠努力，是流程還不夠順；先改流程，不先怪自己。'},
   garden:{tag:'家 · 屋頂',title:'屋頂花園',body:'停機坪的另一邊。坐在長沙發上，整個園區都在眼前：森林入口的狼與虎、光孔日晷、金庫的噴泉、營火。累了就上來坐一下。'},
   helipad:{tag:'家 · 屋頂',title:'私人飛機',body:'家可以只有一個，但我隨時可以起飛。時間和地點綁不住我：想去哪裡，走上屋頂就出發。'},
   vault:{tag:'家門口 · 金庫',title:'源源不絕',body:'噴水池的水不停往上噴，金幣被你吸引過來、砸在你身上，閃都閃不掉。理財、保險健檢、投資都在這裡。',links:[['富偉・金庫願景','https://fuwei0618-cmd.github.io/Entry/vault/'],['保險手冊','https://fuwei0618-cmd.github.io/Insurance/'],['財富管理','https://fuwei0618-cmd.github.io/Wealth-mgm/'],['投資','https://investment-beige-iota.vercel.app/']]},

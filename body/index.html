@@ -75,6 +75,14 @@ html,body{margin:0;height:100%;background:#1c1814;color:var(--ink);font-family:"
     <ellipse cx="802" cy="166" rx="9" ry="4" fill="rgba(205,30,70,0.75)"/>
   </g>
 
+  <g id="L-b" fill="none" stroke="#3E6A8A" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M802,60 L802,910" stroke-width="2" stroke-dasharray="3 7"/>
+    <path d="M748,232 Q802,214 856,232" stroke-width="3.5"/>
+    <path d="M770,250 Q802,262 834,250 M770,286 Q802,298 834,286" stroke-width="2"/>
+    <path d="M756,380 Q802,404 848,380" stroke-width="3.5"/>
+    <path d="M776,640 L770,760 M828,640 L834,760" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <circle cx="802" cy="100" r="58" stroke-width="2" stroke-dasharray="2 6"/>
+  </g>
   <g id="lines"></g>
   <g id="labels"></g>
 </svg>
@@ -92,14 +100,16 @@ html,body{margin:0;height:100%;background:#1c1814;color:var(--ink);font-family:"
 
 <script>
 const NS="http://www.w3.org/2000/svg";
-const COL={m:"#B23A3A",p:"#C2457A",d:"#5E8A4C"};
-const META=[["m","醫美","0／500,000"],["p","半永久","0／50,000"],["d","日常保養","每月 3,200"]];
+const COL={m:"#B23A3A",p:"#C2457A",d:"#5E8A4C",b:"#3E6A8A"};
+const META=[["m","醫美","0／500,000"],["p","半永久","0／50,000"],["d","日常保養","每月 3,200"],["b","體態・精神","連到健身房、臥室"]];
+const GH="https://fuwei0618-cmd.github.io/";
 const WISH=["想做","研究中","預約","做完","回診"],DAILY=["還沒","做了"];
 const ITEMS=[
  ["m","L","植髮",760,92],["m","L","眼袋・黑眼圈",764,146],["m","L","拉皮",752,150],["m","L","除毛",712,286],["m","L","抽脂",738,380],
  ["m","R","正顎",838,182],["m","R","隆乳",862,310],
  ["p","L","霧眉",776,116],["p","L","眼線",777,126],["p","R","臥蠶",826,135],["p","R","唇",811,166],
- ["d","R","頭髮護理",868,120],["d","L","臉部保養・防曬",762,170],["d","R","身體保養・按摩",900,330],["d","L","美甲",712,548],["d","R","美足",834,906]
+ ["d","R","頭髮護理",868,120],["d","L","臉部保養・防曬",762,170],["d","R","身體保養・按摩",900,330],["d","L","美甲",712,548],["d","R","美足",834,906],
+ ["b","L","精神・睡眠",802,44,"../bedroom/"],["b","R","肩頸・開肩",856,232,GH+"Gym/#tab=move"],["b","L","背・站姿",770,268,GH+"Gym/#tab=body"],["b","R","腰腹・核心",848,380,GH+"Gym/#tab=plan"],["b","L","腿・柔軟",773,700,GH+"Gym/#tab=move"]
 ];
 const KEY="origina-body-v1";
 let st={};try{st=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){st={};}
@@ -107,22 +117,22 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
 
 const q=new URLSearchParams(location.search);
 const start=(q.get("layer")||"m").split(",");
-const on={m:start.includes("m"),p:start.includes("p"),d:start.includes("d")};
-if(!on.m&&!on.p&&!on.d)on.m=true;
+const on={m:start.includes("m"),p:start.includes("p"),d:start.includes("d"),b:start.includes("b")};
+if(!on.m&&!on.p&&!on.d&&!on.b)on.m=true;
 
 function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
 function textW(s,size){let w=0;for(const ch of s)w+=/[\x00-\xff]/.test(ch)?size*.58:size;return w;}
 
 function draw(){
-  ["m","p","d"].forEach(k=>{document.getElementById("L-"+k).style.display=on[k]?"":"none";});
+  ["m","p","d","b"].forEach(k=>{document.getElementById("L-"+k).style.display=on[k]?"":"none";});
   const lines=document.getElementById("lines"),labels=document.getElementById("labels");
   lines.innerHTML="";labels.innerHTML="";
   const vis=ITEMS.filter(it=>on[it[0]]);
   ["L","R"].forEach(side=>{
     let prev=-1000;
-    vis.filter(it=>it[1]===side).sort((a,b)=>a[4]-b[4]).forEach(([c,sd,name,x,y])=>{
-      const col=COL[c],daily=c==="d",list=daily?DAILY:WISH;
-      const s=st[name]||0,done=daily?s===1:s>=3;
+    vis.filter(it=>it[1]===side).sort((a,b)=>a[4]-b[4]).forEach(([c,sd,name,x,y,link])=>{
+      const col=COL[c],daily=c==="d",list=link?["去看 →"]:daily?DAILY:WISH;
+      const s=link?0:(st[name]||0),done=link?false:daily?s===1:s>=3;
       const ly=Math.min(Math.max(y-60,prev+54,60),905);prev=ly;
       const edgeX=side==="L"?620:985,elbowX=side==="L"?660:945;
       el("polyline",{points:`${x},${y} ${elbowX},${ly} ${edgeX},${ly}`,fill:"none",stroke:col,"stroke-width":1.4},lines);
@@ -136,7 +146,7 @@ function draw(){
       const tx=gx+16+textW(name,16)+10,tw=textW(status,12)+16;
       el("rect",{x:tx,y:ly-11,width:tw,height:22,rx:11,fill:done?col:"rgba(255,255,255,0.25)"},g);
       const t2=el("text",{x:tx+8,y:ly+4.5,"font-size":12,fill:"#FFFFFF"},g);t2.textContent=status;
-      const tap=()=>{st[name]=(s+1)%list.length;save();draw();};
+      const tap=()=>{if(link){location.href=link;return;}st[name]=(s+1)%list.length;save();draw();};
       g.addEventListener("click",tap);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tap();}});
     });
   });
@@ -149,7 +159,7 @@ function draw(){
     L.appendChild(b);
   });
   document.getElementById("ogs").classList.toggle("on",on.m);
-  try{history.replaceState(null,"","?layer="+["m","p","d"].filter(k=>on[k]).join(","));}catch(e){}
+  try{history.replaceState(null,"","?layer="+["m","p","d","b"].filter(k=>on[k]).join(","));}catch(e){}
 }
 draw();
 const v=document.getElementById("view"),stage=document.getElementById("stage");

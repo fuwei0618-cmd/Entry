@@ -58,9 +58,9 @@ const S={
    {x:72,y:83,label:"美甲",t:"美甲",b:"做過的款式、顏色和店家，下次直接指給美甲師看。",app:null},
    {x:80,y:64,label:"回到 Beauty",go:"beauty",door:1}]},
  spa:{title:"保養廠",sub:"醫美・半永久・日常保養",img:"img/spa.webp",back:"beauty",hots:[
-   {x:44,y:62,label:"醫美・正顎",t:"醫美療程",b:"療程紀錄、回診時間。正顎手術也在這裡：正顎手冊已經做好，可以直接打開。",app:[["打開正顎手冊",GH+"OGS/"]]},
-   {x:66,y:47,label:"半永久",t:"半永久",b:"眉、睫、唇的紀錄和補色時間。",app:null},
-   {x:87,y:68,label:"日常保養",t:"日常保養",b:"早晚保養流程、用完要補的瓶瓶罐罐。",app:null},
+   {x:44,y:62,label:"醫美・正顎",url:"../body/?layer=m"},
+   {x:66,y:47,label:"半永久",url:"../body/?layer=p"},
+   {x:87,y:68,label:"日常保養",url:"../body/?layer=d"},
    {x:20,y:70,label:"回到 Beauty",go:"beauty",door:1}]},
  gym:{title:"健身房",sub:"皮拉提斯・瑜伽・重訓",img:"img/gym.webp",back:null,startX:12,hots:[
    {x:48,y:70,label:"皮拉提斯",t:"皮拉提斯",b:"你最想堅持到底的一件事。記下每堂課練了什麼、哪裡進步。",app:[["打開紀錄",GH+"Gym/#tab=log"],["今日課表",GH+"Gym/#tab=today"]]},
@@ -81,13 +81,14 @@ function show(id,push){
   img.src=sc.img;st.appendChild(img);
   $("#bg").style.backgroundImage=`url(${sc.img.replace(".webp","-s.webp")})`;
   sc.hots.forEach(h=>{const b=document.createElement("button");b.className="hot"+(h.door?" door":"");b.style.left=h.x+"%";b.style.top=h.y+"%";
-    b.innerHTML=`<i></i><span>${h.label}</span>`;b.onclick=()=>h.go?show(h.go,true):openSheet(sc,h);st.appendChild(b);});
-  const ch=$("#chips");ch.innerHTML="";sc.hots.forEach(h=>{const b=document.createElement("button");if(h.door)b.className="door";b.textContent=h.label;b.onclick=()=>h.go?show(h.go,true):openSheet(sc,h);ch.appendChild(b);});
+    b.innerHTML=`<i></i><span>${h.label}</span>`;b.onclick=()=>tap(sc,h);st.appendChild(b);});
+  const ch=$("#chips");ch.innerHTML="";sc.hots.forEach(h=>{const b=document.createElement("button");if(h.door)b.className="door";b.textContent=h.label;b.onclick=()=>tap(sc,h);ch.appendChild(b);});
   const v=$("#view");requestAnimationFrame(()=>{v.scrollLeft=sc.startX!=null?Math.max(0,v.scrollWidth*sc.startX/100-v.clientWidth*.15):(v.scrollWidth-v.clientWidth)/2;});
   $("#pan").style.opacity=v.scrollWidth>v.clientWidth+4?".85":"0";setTimeout(()=>$("#pan").style.opacity="0",3500);
   $("#back").textContent=hist.length?"← 返回":"← Origina";
   try{history.replaceState(null,"","?s="+id);}catch(e){}
 }
+function tap(sc,h){if(h.url){location.href=h.url;return;}if(h.go){show(h.go,true);return;}openSheet(sc,h);}
 function openSheet(sc,h){
   $("#sTag").textContent=sc.title;$("#sTitle").textContent=h.t||h.label;$("#sBody").textContent=h.b||"";
   $("#sRow").innerHTML=(h.app?h.app.map(([t,u],i)=>`<a class="${i?"":"pri"}" href="${u}">${t}</a>`).join(""):`<span class="off" style="padding:10px 0;font-size:13px">這個 App 正在做，之後點這裡就會打開。</span>`)+`<button id="sClose">關閉</button>`;

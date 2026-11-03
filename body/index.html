@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c1814">
+<title>保養廠・身體地圖</title>
+<style>
+:root{--ink:#F4EEE6;--glass:rgba(28,24,20,.72);--line:rgba(244,238,230,.3);--gold:#E2C188;--m:#B23A3A;--p:#C2457A;--d:#5E8A4C}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#1c1814;color:var(--ink);font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+#bg{position:fixed;inset:-40px;background:url(body-s.webp) center/cover;filter:blur(30px) brightness(.55);transform:scale(1.1)}
+#view{position:fixed;inset:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#view::-webkit-scrollbar{display:none}
+#stage{position:relative;height:100%;aspect-ratio:16/9;margin:0 auto}
+@media (min-aspect-ratio:16/9){#stage{height:auto;width:100%;top:50%;transform:translateY(-50%)}}
+#stage svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.lab{cursor:pointer}
+.panel{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);display:flex;flex-direction:column;gap:8px;max-width:300px}
+.panel button{font:inherit}
+.backbtn{align-self:flex-start;border:1px solid var(--line);background:var(--glass);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:13px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.box{background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.box h1{margin:0 0 2px;font-size:18px;letter-spacing:.12em}
+.box small{font-size:11px;opacity:.8}
+.layer{width:100%;display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid rgba(244,238,230,.15);background:transparent;color:var(--ink);cursor:pointer;opacity:.65;text-align:left}
+.layer.on{opacity:1;background:rgba(244,238,230,.14);border-color:rgba(244,238,230,.45)}
+.layer i{width:16px;height:16px;border-radius:50%;flex-shrink:0;border:2px solid currentColor}
+.layer b{flex:1;font-size:15px}
+.layer em{font-style:normal;font-size:12px;opacity:.85}
+.ogs{display:none;align-self:flex-start;border:1px solid var(--gold);background:var(--glass);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:13px;text-decoration:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.ogs.on{display:inline-block}
+</style></head><body>
+<div id="bg"></div>
+<div id="view"><div id="stage">
+<svg id="svg" viewBox="0 0 1680 944" xmlns="http://www.w3.org/2000/svg">
+  <image href="body.webp" x="0" y="0" width="1680" height="944" preserveAspectRatio="xMidYMid slice"/>
+
+  <g id="L-d" fill="none" stroke="#5E8A4C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M734,190 Q726,126 748,88 Q772,58 803,58 Q836,58 858,88 Q880,126 872,190" stroke-dasharray="7 6"/>
+    <ellipse cx="802" cy="150" rx="42" ry="44" stroke-dasharray="2 5" stroke-width="3"/>
+    <path d="M706,330 q6,-10 12,0 t12,0 M876,330 q6,-10 12,0 t12,0 M760,560 q8,-10 16,0 t16,0 t16,0 t16,0 t16,0"/>
+    <circle cx="712" cy="548" r="11"/><circle cx="902" cy="548" r="11"/>
+    <circle cx="770" cy="906" r="13"/><circle cx="822" cy="906" r="13"/>
+  </g>
+
+  <g id="L-m">
+    <g fill="none" stroke="rgba(165,165,168,0.9)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M758,128 Q752,88 770,70 Q790,56 804,62 Q822,54 840,68 Q858,84 852,126"/>
+      <path d="M770,118 Q768,86 786,74 Q800,70 806,84 Q812,70 828,76 Q842,88 838,120"/>
+      <path d="M752,150 Q744,112 762,92 M852,150 Q860,112 846,92"/>
+      <path d="M736,286 C730,322 756,340 786,322"/>
+      <path d="M866,284 C872,322 846,340 818,322"/>
+      <path d="M746,342 C730,366 732,396 748,418"/>
+      <path d="M856,338 C874,360 872,392 856,414"/>
+    </g>
+    <rect x="764" y="142" width="16" height="7" rx="2" fill="rgba(240,210,110,0.85)"/>
+    <rect x="823" y="142" width="16" height="7" rx="2" fill="rgba(240,210,110,0.85)"/>
+    <g fill="none" stroke="#D0181E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M754,160 Q748,148 756,136 M750,141 L756,135 L761,141"/>
+      <path d="M850,160 Q856,148 848,136 M843,141 L848,135 L854,141"/>
+      <path d="M760,166 Q766,184 790,190"/>
+      <path d="M844,166 Q838,184 814,190"/>
+    </g>
+    <g fill="none" stroke="#2A2220" stroke-width="1.6" stroke-linecap="round">
+      <path d="M712,282 l3,8 M718,280 l3,8 M724,282 l3,8"/>
+      <path d="M868,262 l3,8 M874,260 l3,8 M880,262 l3,8"/>
+      <path d="M800,484 l3,8 M806,482 l3,8 M812,484 l3,8 M818,482 l3,8"/>
+    </g>
+  </g>
+
+  <g id="L-p">
+    <g fill="none" stroke="#C2457A" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M774,117 Q784,111 795,116" stroke-width="4"/>
+      <path d="M809,116 Q820,111 830,117" stroke-width="4"/>
+      <path d="M776,126 Q785,122 794,126 M810,126 Q819,122 828,126" stroke-width="2"/>
+      <path d="M777,134 Q785,138 793,134 M811,134 Q819,138 827,134" stroke-width="2"/>
+    </g>
+    <ellipse cx="802" cy="166" rx="9" ry="4" fill="rgba(205,30,70,0.75)"/>
+  </g>
+
+  <g id="lines"></g>
+  <g id="labels"></g>
+</svg>
+</div></div>
+
+<div class="panel">
+  <button class="backbtn" id="back">← 保養廠</button>
+  <div class="box">
+    <h1>身體地圖</h1>
+    <small>點圖層打開或關掉，可以疊在一起看</small>
+    <div id="layers"></div>
+  </div>
+  <a class="ogs" id="ogs" href="https://fuwei0618-cmd.github.io/OGS/">打開正顎手冊 →</a>
+</div>
+
+<script>
+const NS="http://www.w3.org/2000/svg";
+const COL={m:"#B23A3A",p:"#C2457A",d:"#5E8A4C"};
+const META=[["m","醫美","0／500,000"],["p","半永久","0／50,000"],["d","日常保養","每月 3,200"]];
+const WISH=["想做","研究中","預約","做完","回診"],DAILY=["還沒","做了"];
+const ITEMS=[
+ ["m","L","植髮",760,92],["m","L","眼袋・黑眼圈",764,146],["m","L","拉皮",752,150],["m","L","除毛",712,286],["m","L","抽脂",738,380],
+ ["m","R","正顎",838,182],["m","R","隆乳",862,310],
+ ["p","L","霧眉",776,116],["p","L","眼線",777,126],["p","R","臥蠶",826,135],["p","R","唇",811,166],
+ ["d","R","頭髮護理",868,120],["d","L","臉部保養・防曬",762,170],["d","R","身體保養・按摩",900,330],["d","L","美甲",712,548],["d","R","美足",834,906]
+];
+const KEY="origina-body-v1";
+let st={};try{st=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){st={};}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+
+const q=new URLSearchParams(location.search);
+const start=(q.get("layer")||"m").split(",");
+const on={m:start.includes("m"),p:start.includes("p"),d:start.includes("d")};
+if(!on.m&&!on.p&&!on.d)on.m=true;
+
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function textW(s,size){let w=0;for(const ch of s)w+=/[\x00-\xff]/.test(ch)?size*.58:size;return w;}
+
+function draw(){
+  ["m","p","d"].forEach(k=>{document.getElementById("L-"+k).style.display=on[k]?"":"none";});
+  const lines=document.getElementById("lines"),labels=document.getElementById("labels");
+  lines.innerHTML="";labels.innerHTML="";
+  const vis=ITEMS.filter(it=>on[it[0]]);
+  ["L","R"].forEach(side=>{
+    let prev=-1000;
+    vis.filter(it=>it[1]===side).sort((a,b)=>a[4]-b[4]).forEach(([c,sd,name,x,y])=>{
+      const col=COL[c],daily=c==="d",list=daily?DAILY:WISH;
+      const s=st[name]||0,done=daily?s===1:s>=3;
+      const ly=Math.min(Math.max(y-60,prev+54,60),905);prev=ly;
+      const edgeX=side==="L"?620:985,elbowX=side==="L"?660:945;
+      el("polyline",{points:`${x},${y} ${elbowX},${ly} ${edgeX},${ly}`,fill:"none",stroke:col,"stroke-width":1.4},lines);
+      el("circle",{cx:x,cy:y,r:3.5,fill:col},lines);
+      const status=list[s];
+      const w=16+textW(name,16)+10+textW(status,12)+16+16;
+      const gx=side==="L"?edgeX-w:edgeX;
+      const g=el("g",{class:"lab",role:"button",tabindex:"0","aria-label":name+"，"+status},labels);
+      el("rect",{x:gx,y:ly-20,width:w,height:40,rx:20,fill:done?"#FFFAF4":col,stroke:col,"stroke-width":2},g);
+      const t1=el("text",{x:gx+16,y:ly+6,"font-size":16,"font-weight":700,fill:done?col:"#FFFFFF"},g);t1.textContent=name;
+      const tx=gx+16+textW(name,16)+10,tw=textW(status,12)+16;
+      el("rect",{x:tx,y:ly-11,width:tw,height:22,rx:11,fill:done?col:"rgba(255,255,255,0.25)"},g);
+      const t2=el("text",{x:tx+8,y:ly+4.5,"font-size":12,fill:"#FFFFFF"},g);t2.textContent=status;
+      const tap=()=>{st[name]=(s+1)%list.length;save();draw();};
+      g.addEventListener("click",tap);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tap();}});
+    });
+  });
+  const L=document.getElementById("layers");L.innerHTML="";
+  META.forEach(([k,name,budget])=>{
+    const b=document.createElement("button");b.className="layer"+(on[k]?" on":"");b.style.color=on[k]?"var(--ink)":"var(--ink)";
+    b.innerHTML=`<i style="color:${COL[k]};background:${on[k]?COL[k]:"transparent"}"></i><b>${name}</b><em>${budget}</em>`;
+    b.setAttribute("aria-pressed",on[k]?"true":"false");
+    b.onclick=()=>{on[k]=!on[k];draw();};
+    L.appendChild(b);
+  });
+  document.getElementById("ogs").classList.toggle("on",on.m);
+  try{history.replaceState(null,"","?layer="+["m","p","d"].filter(k=>on[k]).join(","));}catch(e){}
+}
+draw();
+const v=document.getElementById("view");
+requestAnimationFrame(()=>{v.scrollLeft=(v.scrollWidth-v.clientWidth)/2;});
+document.getElementById("back").onclick=()=>{location.href="../scenes/?s=spa";};
+</script>
+</body></html>

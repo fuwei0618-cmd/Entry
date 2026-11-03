@@ -14,18 +14,26 @@ html,body{margin:0;height:100%;background:#1c1814;color:#2E2420;font-family:"Pin
 #stage>svg{position:absolute;inset:0}
 button{font:inherit;cursor:pointer}
 .serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
-.dark{background:rgba(40,28,22,.84);color:#FFF6EC}
-.ring{cursor:pointer}
-.rl{position:absolute;transform:translate(-50%,-50%);border:0;border-radius:999px;padding:4px 12px;font-size:14px;letter-spacing:.2em;white-space:nowrap;background:rgba(255,250,244,.85);color:#5A4228;box-shadow:0 1px 6px rgba(60,40,20,.15)}
-.rl.on{background:#3A2A24;color:#FFE7C2}
-.rl.focus{box-shadow:0 0 0 2px #E2B867,0 0 18px rgba(226,184,103,.8)}
-#panel{position:absolute;top:20px;right:20px;bottom:20px;width:380px;display:none;border-radius:20px;background:rgba(255,250,244,.96);padding:22px 22px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 30px rgba(40,28,20,.18);overflow:auto}
-.chk{display:flex;align-items:center;gap:10px;min-height:42px;padding:0 12px;border-radius:12px;border:1px solid #E6D8C8;background:#fff;color:#2E2420;text-align:left;width:100%}
-.chk.on{border-color:#C98E80;background:#F7ECE4}
-.chk i{width:18px;height:18px;border-radius:6px;border:2px solid #C9B6A4;flex-shrink:0}
+.rl{position:absolute;transform:translate(-50%,-50%);border:0;border-radius:999px;padding:3px 11px;font-size:13px;letter-spacing:.15em;white-space:nowrap;background:rgba(255,250,244,.88);color:#5A4228;box-shadow:0 1px 6px rgba(60,40,20,.15)}
+.rl.focus{background:#3A2A24;color:#FFE7C2;box-shadow:0 0 0 2px #E2B867,0 0 16px rgba(226,184,103,.8)}
+.card{position:absolute;width:318px;height:300px;border-radius:16px;background:rgba(255,250,244,.94);box-shadow:0 4px 16px rgba(40,28,20,.14);padding:11px 13px;display:flex;flex-direction:column;gap:5px;border:1.5px solid transparent}
+.card.focus{border-color:#E2B867;box-shadow:0 0 0 3px rgba(226,184,103,.35),0 4px 16px rgba(40,28,20,.14)}
+.head{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px}
+.num{width:24px;height:24px;border-radius:50%;background:#B8893A;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.more{margin-left:auto;font-size:12px;color:#8A6E4B}
+.ss{display:grid;grid-template-columns:auto 1fr;gap:1px 8px;font-size:12px;line-height:1.5;padding:5px 8px;border-radius:8px;background:#F4EBDF}
+.ss b{color:#8A6E4B}.ss b.x{color:#8E2B2B}
+.chk{display:flex;align-items:center;gap:8px;min-height:27px;padding:0 8px;border-radius:8px;border:1px solid #EADCCB;background:#fff;color:#2E2420;text-align:left;width:100%;font-size:13px}
+.chk.on{border-color:#C98E80;background:#F7ECE4;color:#7A5A48;text-decoration:line-through}
+.chk i{width:15px;height:15px;border-radius:5px;border:2px solid #C9B6A4;flex-shrink:0}
 .chk.on i{background:#8E2B2B;border-color:#8E2B2B}
-.chk em{margin-left:auto;font-style:normal;font-size:11px;color:#8A6E4B;background:#F3EADF;border-radius:999px;padding:2px 8px}
-.go{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid #CDB8A4;background:#fff;color:#3A2A24;text-decoration:none;font-size:14px}
+.chk em{margin-left:auto;font-style:normal;font-size:10.5px;color:#8A6E4B;background:#F3EADF;border-radius:999px;padding:1px 7px;text-decoration:none}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.go{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;border:1px solid #CDB8A4;background:#fff;color:#3A2A24;text-decoration:none;font-size:12px}
+.strip{position:absolute;left:50%;transform:translateX(-50%);border-radius:999px;background:rgba(40,28,22,.84);color:#FFF6EC;padding:8px 20px;display:flex;align-items:center;gap:16px;white-space:nowrap;font-size:13px}
+#detail{position:absolute;inset:0;background:rgba(30,20,14,.35);display:none;align-items:center;justify-content:center}
+#detail.on{display:flex}
+#dbox{width:620px;max-height:820px;overflow:auto;border-radius:22px;background:#FFFAF4;padding:26px 28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(30,20,14,.3)}
 .back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 </style></head><body>
 <div id="bg"></div>
@@ -34,78 +42,76 @@ button{font:inherit;cursor:pointer}
   <img src="ripple.webp" alt="從上往下看的洞石水盆，中間一滴水漣漪往外擴">
   <svg id="svg" width="1680" height="944" viewBox="0 0 1680 944" aria-hidden="true"></svg>
   <div id="labels"></div>
-
-  <div class="dark" style="position:absolute;left:20px;top:76px;width:300px;border-radius:18px;padding:14px 18px;display:flex;flex-direction:column;gap:8px">
-    <div class="serif" style="font-size:22px;letter-spacing:4px">維納斯的桌子</div>
-    <div class="serif" style="font-size:18px;color:#F2C9A8;letter-spacing:3px">軟軟的性感</div>
-    <div style="font-size:12.5px;opacity:.85">由內到外，點一圈看詳細</div>
-    <div style="padding-top:8px;border-top:1px solid rgba(255,246,236,.2);font-size:13px">這個月的重點：<span id="focusName" class="serif" style="font-size:16px;color:#FFE7C2"></span></div>
-  </div>
-
-  <div id="panel"></div>
+  <div class="strip" style="top:14px"><span class="serif" style="font-size:18px;letter-spacing:3px">維納斯的桌子</span><span class="serif" style="font-size:17px;color:#F2C9A8">軟軟的性感</span><span style="opacity:.85">由內到外，越裡面越根本</span></div>
+  <div class="strip" style="bottom:14px"><span>本月重點：<b id="focusName" style="color:#FFE7C2"></b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>
+  <div id="cards"></div>
+  <div id="detail"><div id="dbox"></div></div>
 </div></div></div>
-
 <script>
 const E="../";
 const CX=835,CY=472;
 const R=[
- {k:"heart",n:"心",sub:"自信、從容、情緒穩定",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
+ {k:"heart",why:"美的最源頭。放鬆的人才軟，喜歡自己的人才性感。外面做再多，這圈空了，看起來就是緊繃、用力。",n:"心",sub:"自信、從容、情緒穩定",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
   tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["臥室",E+"bedroom/"]]},
- {k:"care",n:"養護",sub:"睡眠、飲食、喝水、運動",soft:"睡飽、皮膚有水分",sexy:"有血色、有精神",
+ {k:"care",why:"身體的原料。睡眠、飲食、水和運動決定氣色和皮膚，是任何化妝品都補不回來的。",n:"養護",sub:"睡眠、飲食、喝水、運動",soft:"睡飽、皮膚有水分",sexy:"有血色、有精神",
   tasks:[["固定時間睡覺","每天"],["喝水一千五百到兩千",  "每天"],["運動三次","每週"],["少糖、少手搖飲","每週"]],links:[["健身房","https://fuwei0618-cmd.github.io/Gym/"],["臥室",E+"bedroom/"]]},
- {k:"body",n:"身體",sub:"體態、皮膚、頭髮、身材",soft:"開肩開髖、水潤、頭髮蓬鬆",sexy:"挺拔、腰線、會露的地方也保養",
+ {k:"body",why:"地基，佔美的六成。挺拔的體態、透亮的皮膚、蓬鬆的頭髮，比瘦十公斤更抓眼睛。",n:"身體",sub:"體態、皮膚、頭髮、身材",soft:"開肩開髖、水潤、頭髮蓬鬆",sexy:"挺拔、腰線、會露的地方也保養",
   tasks:[["防曬","每天"],["晚上卸妝保養","每天"],["靠牆站五分鐘","每天"],["面膜、去角質、護髮","每週"],["剪髮或護髮","每月"]],links:[["身體地圖・日常",E+"body/?layer=d"],["身體地圖・體態",E+"body/?layer=b"]]},
- {k:"frame",n:"結構",sub:"五官比例、臉型、醫美、半永久",soft:"選讓線條變柔和的",sexy:"加強眼神和唇形，不做讓臉變硬的",
+ {k:"frame",why:"改結構，花最多錢、做最少次。先把日常做穩再做，才不會白做；挑讓線條變柔和的。",n:"結構",sub:"五官比例、臉型、醫美、半永久",soft:"選讓線條變柔和的",sexy:"加強眼神和唇形，不做讓臉變硬的",
   tasks:[["醫美基金存三千","每月"],["研究霧眉：看店、看作品","每月"]],note:"每月預算：保養品、頭髮、衣服、妝 4,500＋醫美基金 3,000",links:[["身體地圖・醫美",E+"body/?layer=m"],["身體地圖・半永久",E+"body/?layer=p"]]},
- {k:"dress",n:"修飾",sub:"妝、髮型、穿搭",soft:"邊界暈開、蓬鬆、柔軟的布料",sexy:"一個焦點、露一個點、看得到腰線",
+ {k:"dress",why:"每天把底子拿出來給人看。化妝只做四件事：整理膚色、重建立體、強化五官、設一個焦點。",n:"修飾",sub:"妝、髮型、穿搭",soft:"邊界暈開、蓬鬆、柔軟的布料",sexy:"一個焦點、露一個點、看得到腰線",
   tasks:[["托盤妝","每天"],["練一種妝或一種編髮","每週"],["週日排好下週穿搭","每週"],["整理五件衣服或化妝品","每月"]],links:[["妝台",E+"vanity/"],["衣櫥",E+"wardrobe/"]]},
- {k:"style",n:"風格",sub:"三殿、聲音、香味、別人感受到的你",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
+ {k:"style",why:"別人看到、聽到、聞到的你。三殿決定今天開多大聲，聲音和香味也是你的一部分。",n:"風格",sub:"三殿、聲音、香味、別人感受到的你",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
   tasks:[["拍一張這一季的我","每季"],["找一支招牌香味","每季"],["換季整理衣櫥","每季"]],links:[["衣櫥・三殿",E+"wardrobe/"]]}
 ];
 const KEY="origina-venus-v1";
-let S={sel:null,focus:"dress",done:{}};
-try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,o,{sel:null});}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({focus:S.focus,done:S.done}));}catch(e){}}
+let S={focus:"dress",done:{}};
+try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,{focus:o.focus||S.focus,done:o.done||{}});}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 const $=id=>document.getElementById(id);
 function period(p){const d=new Date();const y=d.getFullYear(),m=d.getMonth()+1;
   if(p==="每天")return d.toLocaleDateString("sv");
   if(p==="每週"){const t=new Date(d);t.setDate(d.getDate()-((d.getDay()+6)%7));return "W"+t.toLocaleDateString("sv");}
   if(p==="每月")return y+"-"+m;return y+"-Q"+Math.ceil(m/3);}
 function rad(i){const rx=62+i*72;return [rx,rx*.87];}
-
+const POS=[[16,30],[16,332],[16,634],[1346,30],[1346,332],[1346,634]];
+function items(r){return r.tasks.map(([t,p],j)=>{const key=r.k+j+"@"+period(p);return {t,p,key,on:!!S.done[key]};});}
+function toggle(key){if(S.done[key])delete S.done[key];else S.done[key]=1;save();render();}
+function taskHTML(r){return items(r).map(it=>`<button class="chk${it.on?" on":""}" data-key="${it.key}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("");}
 function render(){
   let svg='<defs><filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter></defs>';
-  R.forEach((r,i)=>{const [rx,ry]=rad(i);const f=S.focus===r.k,on=S.sel===r.k;
+  R.forEach((r,i)=>{const [rx,ry]=rad(i);const f=S.focus===r.k;
     if(f)svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="#F2C77A" stroke-width="10" opacity=".55" filter="url(#glow)"/>`;
-    svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="${on?"#7A4E1E":"#B8893A"}" stroke-width="${on||f?2.6:1.3}" opacity="${on||f?1:.75}"/>`;
-    svg+=`<ellipse class="ring" data-k="${r.k}" cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="transparent" stroke-width="44" style="pointer-events:stroke"/>`;});
+    svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="#B8893A" stroke-width="${f?2.6:1.3}" opacity="${f?1:.75}"/>`;});
   svg+=`<circle cx="${CX}" cy="${CY}" r="6" fill="#F2C77A"/>`;
-  $("svg").innerHTML=svg;$("svg").style.pointerEvents="auto";
-  $("svg").querySelectorAll(".ring").forEach(e=>e.onclick=()=>{S.sel=e.dataset.k;render();});
-  $("labels").innerHTML="";
-  R.forEach((r,i)=>{const [rx,ry]=rad(i);const b=document.createElement("button");b.className="rl"+(S.sel===r.k?" on":"")+(S.focus===r.k?" focus":"");
-    b.style.left=CX+"px";b.style.top=(CY-ry)+"px";b.textContent=r.n;b.onclick=()=>{S.sel=r.k;render();};$("labels").appendChild(b);});
-  $("focusName").textContent=R.find(r=>r.k===S.focus).n;
-  const P=$("panel"),r=R.find(x=>x.k===S.sel);
-  P.style.display=r?"flex":"none";
-  if(!r){return;P.innerHTML=`<div style="font-size:13px;color:#8A6E4B;letter-spacing:.2em">由內到外</div>
-    <div class="serif" style="font-size:24px">點一圈，看這一圈要做什麼</div>
-    <div style="display:flex;flex-direction:column;gap:8px">${R.map((x,i)=>`<button class="chk" data-k="${x.k}" style="${S.focus===x.k?"border-color:#E2B867;background:#FBF3E4":""}"><span class="serif" style="font-size:16px;width:2.6em">${x.n}</span><span style="font-size:13px;color:#6A5246">${x.sub}</span></button>`).join("")}</div>
-    <div style="font-size:12.5px;color:#7A5A48;line-height:1.6;margin-top:auto">外面那圈每天都能改，但裡面空掉，外面會撐不久。</div>`;
-    P.querySelectorAll("button[data-k]").forEach(b=>b.onclick=()=>{S.sel=b.dataset.k;render();});return;}
-  const items=r.tasks.map(([t,p],j)=>{const key=r.k+j+"@"+period(p);const on=!!S.done[key];return {t,p,key,on};});
-  P.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div><div style="font-size:13px;color:#8A6E4B;letter-spacing:.2em">第 ${R.indexOf(r)+1} 圈</div><div class="serif" style="font-size:30px">${r.n}</div><div style="font-size:13px;color:#6A5246">${r.sub}</div></div>
-      <button id="x" aria-label="關閉" style="width:40px;height:40px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;color:#3A2A24;font-size:18px">×</button></div>
-    <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13.5px;padding:10px 12px;border-radius:12px;background:#F6EEE3">
-      <b style="color:#8A6E4B">軟</b><span>${r.soft}</span><b style="color:#8E2B2B">性感</b><span>${r.sexy}</span></div>${r.note?`<div style="font-size:12.5px;color:#6A5246">${r.note}</div>`:""}
-    <div style="display:flex;flex-direction:column;gap:6px">${items.map((it,j)=>`<button class="chk${it.on?" on":""}" data-j="${j}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("")}</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">${r.links.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div>
-    <button id="f" style="margin-top:auto;min-height:44px;border-radius:12px;border:0;background:${S.focus===r.k?"#E9D9BE":"#3A2A24"};color:${S.focus===r.k?"#5A4228":"#FFF6EC"};font-size:15px">${S.focus===r.k?"這是這個月的重點":"設成這個月的重點"}</button>`;
-  $("x").onclick=()=>{S.sel=null;render();};
-  $("f").onclick=()=>{S.focus=r.k;save();render();};
-  P.querySelectorAll("button[data-j]").forEach(b=>b.onclick=()=>{const it=items[+b.dataset.j];if(it.on)delete S.done[it.key];else S.done[it.key]=1;save();render();});
+  $("svg").innerHTML=svg;
+  $("labels").innerHTML=R.map((r,i)=>{const [rx,ry]=rad(i);return `<button class="rl${S.focus===r.k?" focus":""}" data-open="${r.k}" style="left:${CX}px;top:${CY-ry}px">${i+1} ${r.n}</button>`;}).join("");
+  const f=R.find(r=>r.k===S.focus);$("focusName").textContent=f.n+"・"+f.sub;
+  $("cards").innerHTML=R.map((r,i)=>{const its=items(r),d=its.filter(x=>x.on).length;return `<div class="card${S.focus===r.k?" focus":""}" style="left:${POS[i][0]}px;top:${POS[i][1]}px">
+    <button class="head" data-open="${r.k}"><span class="num">${i+1}</span><span class="serif" style="font-size:19px;white-space:nowrap">${r.n}</span><span class="more">${d}/${its.length}　詳細 ›</span></button>
+    <div class="ss"><b>軟</b><span>${r.soft}</span><b class="x">性感</b><span>${r.sexy}</span></div>
+    ${taskHTML(r)}
+    <div class="links">${r.links.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div></div>`;}).join("");
+  document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openD(b.dataset.open));
+  document.querySelectorAll("#cards [data-key]").forEach(b=>b.onclick=()=>toggle(b.dataset.key));
+  if(cur)openD(cur);
 }
+let cur=null;
+function openD(k){cur=k;const r=R.find(x=>x.k===k),i=R.indexOf(r);
+  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div><div style="font-size:13px;color:#8A6E4B;letter-spacing:.2em">第 ${i+1} 圈</div><div class="serif" style="font-size:32px">${r.n}</div><div style="font-size:14px;color:#6A5246">${r.sub}</div></div>
+    <button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;color:#3A2A24;font-size:20px">×</button></div>
+    <div style="font-size:15px;line-height:1.8">${r.why}</div>
+    <div class="ss" style="font-size:14px;padding:10px 12px"><b>軟</b><span>${r.soft}</span><b class="x">性感</b><span>${r.sexy}</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px">${taskHTML(r)}</div>
+    <div class="links">${r.links.map(([t,u])=>`<a class="go" style="min-height:38px;font-size:14px" href="${u}">${t} →</a>`).join("")}</div>
+    <button id="f" style="min-height:46px;border-radius:12px;border:0;background:${S.focus===r.k?"#E9D9BE":"#3A2A24"};color:${S.focus===r.k?"#5A4228":"#FFF6EC"};font-size:15px">${S.focus===r.k?"這是這個月的重點":"設成這個月的重點"}</button>`;
+  $("detail").classList.add("on");
+  $("x").onclick=()=>{cur=null;$("detail").classList.remove("on");};
+  $("f").onclick=()=>{S.focus=r.k;save();render();};
+  $("dbox").querySelectorAll("[data-key]").forEach(b=>b.onclick=()=>toggle(b.dataset.key));
+}
+$("detail").addEventListener("click",e=>{if(e.target.id==="detail"){cur=null;$("detail").classList.remove("on");}});
 function fit(){const s=Math.min(innerWidth/1680,innerHeight/944);$("stage").style.transform=`scale(${s})`;$("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";}
 addEventListener("resize",fit);render();fit();
 $("back").onclick=()=>{location.href="../scenes/?s=beauty";};

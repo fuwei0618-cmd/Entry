@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c1814">
+<title>維納斯的桌子</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#1c1814;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+#bg{position:fixed;inset:-40px;background:url(ripple-s.webp) center/cover;filter:blur(30px) brightness(.55);transform:scale(1.1)}
+#view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#sizer{position:relative;flex-shrink:0}
+#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:#E8DCCB}
+#stage>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#stage>svg{position:absolute;inset:0}
+button{font:inherit;cursor:pointer}
+.serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
+.dark{background:rgba(40,28,22,.84);color:#FFF6EC}
+.ring{cursor:pointer}
+.rl{position:absolute;transform:translate(-50%,-50%);border:0;border-radius:999px;padding:4px 12px;font-size:14px;letter-spacing:.2em;white-space:nowrap;background:rgba(255,250,244,.85);color:#5A4228;box-shadow:0 1px 6px rgba(60,40,20,.15)}
+.rl.on{background:#3A2A24;color:#FFE7C2}
+.rl.focus{box-shadow:0 0 0 2px #E2B867,0 0 18px rgba(226,184,103,.8)}
+#panel{position:absolute;top:20px;right:20px;bottom:20px;width:380px;border-radius:20px;background:rgba(255,250,244,.96);padding:22px 22px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 30px rgba(40,28,20,.18);overflow:auto}
+.chk{display:flex;align-items:center;gap:10px;min-height:42px;padding:0 12px;border-radius:12px;border:1px solid #E6D8C8;background:#fff;color:#2E2420;text-align:left;width:100%}
+.chk.on{border-color:#C98E80;background:#F7ECE4}
+.chk i{width:18px;height:18px;border-radius:6px;border:2px solid #C9B6A4;flex-shrink:0}
+.chk.on i{background:#8E2B2B;border-color:#8E2B2B}
+.chk em{margin-left:auto;font-style:normal;font-size:11px;color:#8A6E4B;background:#F3EADF;border-radius:999px;padding:2px 8px}
+.go{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid #CDB8A4;background:#fff;color:#3A2A24;text-decoration:none;font-size:14px}
+.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+</style></head><body>
+<div id="bg"></div>
+<button class="back" id="back">← Beauty</button>
+<div id="view"><div id="sizer"><div id="stage">
+  <img src="ripple.webp" alt="從上往下看的洞石水盆，中間一滴水漣漪往外擴">
+  <svg id="svg" width="1680" height="944" viewBox="0 0 1680 944" aria-hidden="true"></svg>
+  <div id="labels"></div>
+
+  <div class="dark" style="position:absolute;left:20px;top:76px;width:310px;border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+    <div class="serif" style="font-size:24px;letter-spacing:4px">維納斯的桌子</div>
+    <div style="font-size:13px;opacity:.85;line-height:1.6">美是由內到外的漣漪。<br>越裡面越慢、越根本；越外面越快、越容易換。</div>
+    <div style="padding-top:8px;border-top:1px solid rgba(255,246,236,.2)">
+      <div style="font-size:12px;opacity:.75">核心</div>
+      <div class="serif" style="font-size:20px;color:#F2C9A8;letter-spacing:3px">軟軟的性感</div>
+      <div style="font-size:12.5px;line-height:1.6;opacity:.9">軟：柔和、有溫度、讓人想靠近<br>性感：有線條、有自信、讓人多看一眼</div>
+    </div>
+    <div style="padding-top:8px;border-top:1px solid rgba(255,246,236,.2)">
+      <div style="font-size:12px;opacity:.75">這個月的重點</div>
+      <div id="focusName" class="serif" style="font-size:20px;color:#FFE7C2"></div>
+    </div>
+  </div>
+
+  <div class="dark" style="position:absolute;left:20px;bottom:20px;width:310px;border-radius:18px;padding:14px 18px;display:flex;flex-direction:column;gap:6px;font-size:13px">
+    <div class="serif" style="font-size:16px">每月預算</div>
+    <div style="display:flex;justify-content:space-between"><span>保養品・頭髮・衣服・妝</span><span>4,500</span></div>
+    <div style="display:flex;justify-content:space-between"><span>醫美基金（存起來）</span><span>3,000</span></div>
+  </div>
+
+  <div id="panel"></div>
+</div></div></div>
+
+<script>
+const E="../";
+const CX=835,CY=472;
+const R=[
+ {k:"heart",n:"心",sub:"自信、從容、情緒穩定",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
+  tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["臥室",E+"bedroom/"]]},
+ {k:"care",n:"養護",sub:"睡眠、飲食、喝水、運動",soft:"睡飽、皮膚有水分",sexy:"有血色、有精神",
+  tasks:[["固定時間睡覺","每天"],["喝水一千五百到兩千",  "每天"],["運動三次","每週"],["少糖、少手搖飲","每週"]],links:[["健身房","https://fuwei0618-cmd.github.io/Gym/"],["臥室",E+"bedroom/"]]},
+ {k:"body",n:"身體",sub:"體態、皮膚、頭髮、身材",soft:"開肩開髖、水潤、頭髮蓬鬆",sexy:"挺拔、腰線、會露的地方也保養",
+  tasks:[["防曬","每天"],["晚上卸妝保養","每天"],["靠牆站五分鐘","每天"],["面膜、去角質、護髮","每週"],["剪髮或護髮","每月"]],links:[["身體地圖・日常",E+"body/?layer=d"],["身體地圖・體態",E+"body/?layer=b"]]},
+ {k:"frame",n:"結構",sub:"五官比例、臉型、醫美、半永久",soft:"選讓線條變柔和的",sexy:"加強眼神和唇形，不做讓臉變硬的",
+  tasks:[["醫美基金存三千","每月"],["研究霧眉：看店、看作品","每月"]],links:[["身體地圖・醫美",E+"body/?layer=m"],["身體地圖・半永久",E+"body/?layer=p"]]},
+ {k:"dress",n:"修飾",sub:"妝、髮型、穿搭",soft:"邊界暈開、蓬鬆、柔軟的布料",sexy:"一個焦點、露一個點、看得到腰線",
+  tasks:[["托盤妝","每天"],["練一種妝或一種編髮","每週"],["週日排好下週穿搭","每週"],["整理五件衣服或化妝品","每月"]],links:[["妝台",E+"vanity/"],["衣櫥",E+"wardrobe/"]]},
+ {k:"style",n:"風格",sub:"三殿、聲音、香味、別人感受到的你",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
+  tasks:[["拍一張這一季的我","每季"],["找一支招牌香味","每季"],["換季整理衣櫥","每季"]],links:[["衣櫥・三殿",E+"wardrobe/"]]}
+];
+const KEY="origina-venus-v1";
+let S={sel:null,focus:"dress",done:{}};
+try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,o,{sel:null});}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({focus:S.focus,done:S.done}));}catch(e){}}
+const $=id=>document.getElementById(id);
+function period(p){const d=new Date();const y=d.getFullYear(),m=d.getMonth()+1;
+  if(p==="每天")return d.toLocaleDateString("sv");
+  if(p==="每週"){const t=new Date(d);t.setDate(d.getDate()-((d.getDay()+6)%7));return "W"+t.toLocaleDateString("sv");}
+  if(p==="每月")return y+"-"+m;return y+"-Q"+Math.ceil(m/3);}
+function rad(i){const rx=62+i*72;return [rx,rx*.87];}
+
+function render(){
+  let svg='<defs><filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter></defs>';
+  R.forEach((r,i)=>{const [rx,ry]=rad(i);const f=S.focus===r.k,on=S.sel===r.k;
+    if(f)svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="#F2C77A" stroke-width="10" opacity=".55" filter="url(#glow)"/>`;
+    svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="${on?"#7A4E1E":"#B8893A"}" stroke-width="${on||f?2.6:1.3}" opacity="${on||f?1:.75}"/>`;
+    svg+=`<ellipse class="ring" data-k="${r.k}" cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="transparent" stroke-width="44" style="pointer-events:stroke"/>`;});
+  svg+=`<circle cx="${CX}" cy="${CY}" r="6" fill="#F2C77A"/>`;
+  $("svg").innerHTML=svg;$("svg").style.pointerEvents="auto";
+  $("svg").querySelectorAll(".ring").forEach(e=>e.onclick=()=>{S.sel=e.dataset.k;render();});
+  $("labels").innerHTML="";
+  R.forEach((r,i)=>{const [rx,ry]=rad(i);const b=document.createElement("button");b.className="rl"+(S.sel===r.k?" on":"")+(S.focus===r.k?" focus":"");
+    b.style.left=CX+"px";b.style.top=(CY-ry)+"px";b.textContent=r.n;b.onclick=()=>{S.sel=r.k;render();};$("labels").appendChild(b);});
+  $("focusName").textContent=R.find(r=>r.k===S.focus).n+"・"+R.find(r=>r.k===S.focus).sub;
+  const P=$("panel"),r=R.find(x=>x.k===S.sel);
+  if(!r){P.innerHTML=`<div style="font-size:13px;color:#8A6E4B;letter-spacing:.2em">由內到外</div>
+    <div class="serif" style="font-size:24px">點一圈，看這一圈要做什麼</div>
+    <div style="display:flex;flex-direction:column;gap:8px">${R.map((x,i)=>`<button class="chk" data-k="${x.k}" style="${S.focus===x.k?"border-color:#E2B867;background:#FBF3E4":""}"><span class="serif" style="font-size:16px;width:2.6em">${x.n}</span><span style="font-size:13px;color:#6A5246">${x.sub}</span></button>`).join("")}</div>
+    <div style="font-size:12.5px;color:#7A5A48;line-height:1.6;margin-top:auto">外面那圈每天都能改，但裡面空掉，外面會撐不久。</div>`;
+    P.querySelectorAll("button[data-k]").forEach(b=>b.onclick=()=>{S.sel=b.dataset.k;render();});return;}
+  const items=r.tasks.map(([t,p],j)=>{const key=r.k+j+"@"+period(p);const on=!!S.done[key];return {t,p,key,on};});
+  P.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div style="font-size:13px;color:#8A6E4B;letter-spacing:.2em">第 ${R.indexOf(r)+1} 圈</div><div class="serif" style="font-size:30px">${r.n}</div><div style="font-size:13px;color:#6A5246">${r.sub}</div></div>
+      <button id="x" aria-label="關閉" style="width:40px;height:40px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;color:#3A2A24;font-size:18px">×</button></div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13.5px;padding:10px 12px;border-radius:12px;background:#F6EEE3">
+      <b style="color:#8A6E4B">軟</b><span>${r.soft}</span><b style="color:#8E2B2B">性感</b><span>${r.sexy}</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px">${items.map((it,j)=>`<button class="chk${it.on?" on":""}" data-j="${j}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("")}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">${r.links.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div>
+    <button id="f" style="margin-top:auto;min-height:44px;border-radius:12px;border:0;background:${S.focus===r.k?"#E9D9BE":"#3A2A24"};color:${S.focus===r.k?"#5A4228":"#FFF6EC"};font-size:15px">${S.focus===r.k?"這是這個月的重點":"設成這個月的重點"}</button>`;
+  $("x").onclick=()=>{S.sel=null;render();};
+  $("f").onclick=()=>{S.focus=r.k;save();render();};
+  P.querySelectorAll("button[data-j]").forEach(b=>b.onclick=()=>{const it=items[+b.dataset.j];if(it.on)delete S.done[it.key];else S.done[it.key]=1;save();render();});
+}
+function fit(){const s=Math.min(innerWidth/1680,innerHeight/944);$("stage").style.transform=`scale(${s})`;$("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";}
+addEventListener("resize",fit);render();fit();
+$("back").onclick=()=>{location.href="../scenes/?s=beauty";};
+</script>
+</body></html>

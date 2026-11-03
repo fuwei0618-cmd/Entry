@@ -10,7 +10,16 @@ html,body{margin:0;height:100%;background:#1c1814;color:#2E2420;font-family:"Pin
 #view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
 #sizer{position:relative;flex-shrink:0}
 #stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:#E8DCCB}
-#stage>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#stage>img{position:absolute;top:0;left:-372px;width:1680px;height:944px;object-fit:cover}
+#paper{position:absolute;left:902px;top:0;width:778px;height:944px;background:#F6EEE3;box-shadow:-8px 0 30px rgba(40,28,20,.25)}
+.band{position:absolute;left:930px;width:722px;border:0;border-radius:0;display:grid;grid-template-columns:150px 215px 1fr;align-items:center;gap:14px;padding:0 16px;text-align:left}
+.band .nm{display:flex;flex-direction:column;gap:2px;cursor:pointer}
+.band .ss2{font-size:12.5px;line-height:1.55}
+.band .ss2 b{font-weight:700;margin-right:6px}
+.tk{display:flex;flex-wrap:wrap;gap:5px}
+.tk .chk{width:auto;min-height:26px;font-size:12px;padding:0 9px;gap:6px;background:rgba(255,255,255,.75)}
+.tk .chk i{width:12px;height:12px;border-radius:4px}
+.side{position:absolute;font-size:12px;letter-spacing:.2em;color:#8A6E4B;writing-mode:vertical-rl}
 #stage>svg{position:absolute;inset:0}
 button{font:inherit;cursor:pointer}
 .serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
@@ -40,16 +49,16 @@ button{font:inherit;cursor:pointer}
 <button class="back" id="back">← Beauty</button>
 <div id="view"><div id="sizer"><div id="stage">
   <img src="ripple.webp" alt="從上往下看的洞石水盆，中間一滴水漣漪往外擴">
+  <div id="paper"></div>
   <svg id="svg" width="1680" height="944" viewBox="0 0 1680 944" aria-hidden="true"></svg>
   <div id="labels"></div>
-  <div class="strip" style="top:14px"><span class="serif" style="font-size:18px;letter-spacing:3px">維納斯的桌子</span><span class="serif" style="font-size:17px;color:#F2C9A8">軟軟的性感</span><span style="opacity:.85">由內到外，越裡面越根本</span></div>
-  <div class="strip" style="bottom:14px"><span>本月重點：<b id="focusName" style="color:#FFE7C2"></b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>
-  <div id="cards"></div>
-  <div id="detail"><div id="dbox"></div></div>
+  <div class="strip" style="top:14px;left:450px"><span class="serif" style="font-size:18px;letter-spacing:3px">維納斯的桌子</span><span class="serif" style="font-size:17px;color:#F2C9A8">軟軟的性感</span></div>
+  <div class="strip" style="bottom:14px;left:450px"><span>本月重點：<b id="focusName" style="color:#FFE7C2"></b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>
+    <div id="detail"><div id="dbox"></div></div>
 </div></div></div>
 <script>
 const E="../";
-const CX=835,CY=472;
+const CX=463,CY=472;
 const R=[
  {k:"heart",why:"美的最源頭。放鬆的人才軟，喜歡自己的人才性感。外面做再多，這圈空了，看起來就是緊繃、用力。",n:"心",sub:"自信、從容、情緒穩定",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
   tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["臥室",E+"bedroom/"]]},
@@ -73,33 +82,45 @@ function period(p){const d=new Date();const y=d.getFullYear(),m=d.getMonth()+1;
   if(p==="每天")return d.toLocaleDateString("sv");
   if(p==="每週"){const t=new Date(d);t.setDate(d.getDate()-((d.getDay()+6)%7));return "W"+t.toLocaleDateString("sv");}
   if(p==="每月")return y+"-"+m;return y+"-Q"+Math.ceil(m/3);}
-function rad(i){const rx=62+i*72;return [rx,rx*.87];}
-const POS=[[16,30],[16,332],[16,634],[1346,30],[1346,332],[1346,634]];
+function rad(i){const rx=62+i*66;return [rx,rx*.87];}
+const COL=["#6E3632","#8E4E40","#AE7552","#C69E76","#DCC3A0","#EDE0CB"];
+const BT=78,BH=128;
+function bandY(i){return BT+(5-i)*BH;}
 function items(r){return r.tasks.map(([t,p],j)=>{const key=r.k+j+"@"+period(p);return {t,p,key,on:!!S.done[key]};});}
 function toggle(key){if(S.done[key])delete S.done[key];else S.done[key]=1;save();render();}
 function taskHTML(r){return items(r).map(it=>`<button class="chk${it.on?" on":""}" data-key="${it.key}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("");}
 function render(){
   let svg='<defs><filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter></defs>';
-  let tot=0,dn=0;const LB=[];
+  let tot=0,dn=0,html="";
   R.forEach((r,i)=>{const [rx,ry]=rad(i);const f=S.focus===r.k;const its=items(r);const d=its.filter(x=>x.on).length;const q=its.length?d/its.length:0;tot+=its.length;dn+=d;
     if(q>0)svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="#FFD58A" stroke-width="${4+q*10}" opacity="${.25+q*.55}" filter="url(#glow)"/>`;
-    svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="${q>=1?"#E9A83A":"#B8893A"}" stroke-width="${1.2+q*2.4+(f?1:0)}" opacity="${.6+q*.4}" ${f?'stroke-dasharray="10 6"':''}/>`;
-    const cx=POS[i][0]+(i<3?318:0),cy=POS[i][1]+150;const a=Math.atan2((cy-CY)/ry,(cx-CX)/rx);
-    const px=CX+rx*Math.cos(a),py=CY+ry*Math.sin(a);
-    svg+=`<polyline points="${px},${py} ${cx},${cy}" fill="none" stroke="#B8893A" stroke-width="1.2" opacity=".8"/><circle cx="${px}" cy="${py}" r="4.5" fill="#B8893A"/>`;
-    LB.push({r,i,px,py,f,d,n:its.length});});
-  svg+=`<circle cx="${CX}" cy="${CY}" r="6" fill="#F2C77A"/>`;
+    svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="${q>=1?"#E9A83A":"#9A6E2E"}" stroke-width="${2+q*2.4+(f?1:0)}" opacity="${.75+q*.25}" ${f?'stroke-dasharray="10 6"':''}/>`;
+    // 字沿著漣漪寫（上半圈）
+    const tr=rx-26,ty=ry-26;
+    svg+=`<path id="arc${i}" d="M ${CX-tr} ${CY} A ${tr} ${ty} 0 0 1 ${CX+tr} ${CY}" fill="none"/>`;
+    if(i>0)svg+=`<text font-size="${i<2?14:15}" letter-spacing="3" fill="#4A3424" style="font-family:'Songti TC','Noto Serif TC',serif;font-weight:700;paint-order:stroke" stroke="rgba(255,250,240,.75)" stroke-width="4"><textPath href="#arc${i}" startOffset="50%" text-anchor="middle">${r.n}${i>1?"・"+r.sub.split("、").slice(0,3).join(" "):""}</textPath></text>`;
+    // 切線上的點 → 剖面那一層
+    const px=CX+rx,py=CY,by=bandY(i)+BH/2;
+    svg+=`<path d="M ${px} ${py} C ${px+60} ${py}, 860 ${by}, 930 ${by}" fill="none" stroke="${f?"#E2B867":"#B8893A"}" stroke-width="${f?2.2:1.2}" opacity=".85"/><circle cx="${px}" cy="${py}" r="4.5" fill="#B8893A"/>`;
+    const dark=i<3,ink=dark?"#FFF3E6":"#3A2A24",sub=dark?"rgba(255,243,230,.75)":"#6A5246";
+    html+=`<div class="band" style="top:${bandY(i)}px;height:${BH}px;background:${COL[i]};color:${ink};${f?"box-shadow:inset 0 0 0 3px #E2B867;":""}">
+      <div class="nm" data-open="${r.k}"><span style="font-size:12px;letter-spacing:.2em;color:${sub}">第 ${i+1} 層　${d}/${its.length}</span><span class="serif" style="font-size:30px;line-height:1.1">${r.n}</span><span style="font-size:12px;color:${sub}">${r.sub}</span><span style="font-size:12px;color:${dark?"#FFD58A":"#8A6E4B"}">詳細 ›</span></div>
+      <div class="ss2"><div><b>軟</b>${r.soft}</div><div><b style="color:${dark?"#FFB4A4":"#8E2B2B"}">性感</b>${r.sexy}</div></div>
+      <div class="tk">${taskHTML(r)}</div></div>`;
+  });
+  // 水平切線
+  const [mx]=rad(5);
+  svg+=`<line x1="${CX}" y1="${CY}" x2="${CX+mx+20}" y2="${CY}" stroke="#8E2B2B" stroke-width="1.5" stroke-dasharray="6 5"/>`;
+  svg+=`<text x="${CX+mx+16}" y="${CY-10}" font-size="13" fill="#8E2B2B" text-anchor="end" letter-spacing="2">✂ 從中心切開</text>`;
+  svg+=`<circle cx="${CX}" cy="${CY}" r="7" fill="#F2C77A"/>`;
+  svg+=`<text x="${CX}" y="${CY-16}" text-anchor="middle" font-size="18" fill="#4A3424" style="font-family:'Songti TC','Noto Serif TC',serif;font-weight:700;paint-order:stroke" stroke="rgba(255,250,240,.8)" stroke-width="4">心</text>`;
   $("svg").innerHTML=svg;
-  $("labels").innerHTML=LB.map(o=>`<button class="rl${o.f?" focus":""}" data-open="${o.r.k}" style="left:${o.px+(o.i<3?-6:6)}px;top:${o.py-18}px;transform:translate(${o.i<3?"-100%":"0"},-50%)">${o.i+1} ${o.r.n}</button>`).join("")
-    +`<div style="position:absolute;left:${CX}px;top:${CY+46}px;transform:translateX(-50%);text-align:center;color:#5A4228;pointer-events:none"><div class="serif" style="font-size:30px;line-height:1">${dn}<span style="font-size:18px;opacity:.7"> / ${tot}</span></div><div style="font-size:12px;letter-spacing:.2em;margin-top:2px">做到的，漣漪就會亮</div></div>`;
+  html+=`<div style="position:absolute;left:930px;top:22px;width:722px;display:flex;align-items:baseline;gap:14px;color:#3A2A24"><span class="serif" style="font-size:22px;letter-spacing:4px">剖面</span><span style="font-size:13px;color:#6A5246">把水盆切開，就是六層由內到外。越下面越根本、越慢；越上面越快、越容易換。</span></div>
+    <div style="position:absolute;left:930px;top:${BT+6*BH+12}px;width:722px;display:flex;justify-content:space-between;font-size:13px;color:#6A5246"><span>做到的打勾，那一圈漣漪就會亮　<b class="serif" style="font-size:20px;color:#3A2A24">${dn}</b> / ${tot}</span><span>第三層「身體」是地基，佔美的六成</span></div>`;
+  $("labels").innerHTML=html;
   const f=R.find(r=>r.k===S.focus);$("focusName").textContent=f.n+"・"+f.sub;
-  $("cards").innerHTML=R.map((r,i)=>{const its=items(r),d=its.filter(x=>x.on).length;return `<div class="card${S.focus===r.k?" focus":""}" style="left:${POS[i][0]}px;top:${POS[i][1]}px">
-    <button class="head" data-open="${r.k}"><span class="num">${i+1}</span><span class="serif" style="font-size:19px;white-space:nowrap">${r.n}</span><span class="more">${d}/${its.length}　詳細 ›</span></button>
-    <div class="ss"><b>軟</b><span>${r.soft}</span><b class="x">性感</b><span>${r.sexy}</span></div>
-    ${taskHTML(r)}
-    <div class="links">${r.links.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div></div>`;}).join("");
   document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openD(b.dataset.open));
-  document.querySelectorAll("#cards [data-key]").forEach(b=>b.onclick=()=>toggle(b.dataset.key));
+  document.querySelectorAll("#labels [data-key]").forEach(b=>b.onclick=()=>toggle(b.dataset.key));
   if(cur)openD(cur);
 }
 let cur=null;

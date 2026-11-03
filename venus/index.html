@@ -79,13 +79,19 @@ function items(r){return r.tasks.map(([t,p],j)=>{const key=r.k+j+"@"+period(p);r
 function toggle(key){if(S.done[key])delete S.done[key];else S.done[key]=1;save();render();}
 function taskHTML(r){return items(r).map(it=>`<button class="chk${it.on?" on":""}" data-key="${it.key}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("");}
 function render(){
-  let svg='<defs><filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter></defs>';
-  R.forEach((r,i)=>{const [rx,ry]=rad(i);const f=S.focus===r.k;
-    if(f)svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="#F2C77A" stroke-width="10" opacity=".55" filter="url(#glow)"/>`;
-    svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="#B8893A" stroke-width="${f?2.6:1.3}" opacity="${f?1:.75}"/>`;});
+  let svg='<defs><filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter></defs>';
+  let tot=0,dn=0;const LB=[];
+  R.forEach((r,i)=>{const [rx,ry]=rad(i);const f=S.focus===r.k;const its=items(r);const d=its.filter(x=>x.on).length;const q=its.length?d/its.length:0;tot+=its.length;dn+=d;
+    if(q>0)svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="#FFD58A" stroke-width="${4+q*10}" opacity="${.25+q*.55}" filter="url(#glow)"/>`;
+    svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="${q>=1?"#E9A83A":"#B8893A"}" stroke-width="${1.2+q*2.4+(f?1:0)}" opacity="${.6+q*.4}" ${f?'stroke-dasharray="10 6"':''}/>`;
+    const cx=POS[i][0]+(i<3?318:0),cy=POS[i][1]+150;const a=Math.atan2((cy-CY)/ry,(cx-CX)/rx);
+    const px=CX+rx*Math.cos(a),py=CY+ry*Math.sin(a);
+    svg+=`<polyline points="${px},${py} ${cx},${cy}" fill="none" stroke="#B8893A" stroke-width="1.2" opacity=".8"/><circle cx="${px}" cy="${py}" r="4.5" fill="#B8893A"/>`;
+    LB.push({r,i,px,py,f,d,n:its.length});});
   svg+=`<circle cx="${CX}" cy="${CY}" r="6" fill="#F2C77A"/>`;
   $("svg").innerHTML=svg;
-  $("labels").innerHTML=R.map((r,i)=>{const [rx,ry]=rad(i);return `<button class="rl${S.focus===r.k?" focus":""}" data-open="${r.k}" style="left:${CX}px;top:${CY-ry}px">${i+1} ${r.n}</button>`;}).join("");
+  $("labels").innerHTML=LB.map(o=>`<button class="rl${o.f?" focus":""}" data-open="${o.r.k}" style="left:${o.px+(o.i<3?-6:6)}px;top:${o.py-18}px;transform:translate(${o.i<3?"-100%":"0"},-50%)">${o.i+1} ${o.r.n}</button>`).join("")
+    +`<div style="position:absolute;left:${CX}px;top:${CY+46}px;transform:translateX(-50%);text-align:center;color:#5A4228;pointer-events:none"><div class="serif" style="font-size:30px;line-height:1">${dn}<span style="font-size:18px;opacity:.7"> / ${tot}</span></div><div style="font-size:12px;letter-spacing:.2em;margin-top:2px">做到的，漣漪就會亮</div></div>`;
   const f=R.find(r=>r.k===S.focus);$("focusName").textContent=f.n+"・"+f.sub;
   $("cards").innerHTML=R.map((r,i)=>{const its=items(r),d=its.filter(x=>x.on).length;return `<div class="card${S.focus===r.k?" focus":""}" style="left:${POS[i][0]}px;top:${POS[i][1]}px">
     <button class="head" data-open="${r.k}"><span class="num">${i+1}</span><span class="serif" style="font-size:19px;white-space:nowrap">${r.n}</span><span class="more">${d}/${its.length}　詳細 ›</span></button>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c1814">
+<title>衣櫥</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#1c1814;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+#bg{position:fixed;inset:-40px;background:url(room-s.webp) center/cover;filter:blur(30px) brightness(.55);transform:scale(1.1)}
+#view{position:fixed;inset:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;display:flex;align-items:center}
+#view::-webkit-scrollbar{display:none}
+#sizer{position:relative;flex-shrink:0;margin:0 auto}
+#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:#2A1E18}
+#stage>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+button{font:inherit;cursor:pointer}
+.serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
+.glass{background:rgba(40,28,22,.78);color:#FFF6EC}
+.w{font-size:15px;min-height:40px;padding:0 16px;border-radius:999px;border:0;background:transparent;color:#FFF6EC}
+.w.on{background:#FFF6EC;color:#3A2A24;font-weight:700}
+.spot{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:0;padding:0}
+.spot i{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,246,230,.95);box-shadow:0 0 0 6px rgba(255,246,230,.22)}
+.spot span{padding:8px 16px;border-radius:999px;background:rgba(40,28,22,.78);color:#FFF6EC;font-size:16px;white-space:nowrap;border:1px solid rgba(255,230,190,.5)}
+.spot.on i{border-color:#E9B08A}.spot.on span{background:#FFF6EC;color:#3A2A24;font-weight:700}
+#panel{position:absolute;top:0;right:0;bottom:0;width:500px;background:rgba(255,249,241,.97);padding:30px 32px;display:none;flex-direction:column;gap:14px;box-shadow:-10px 0 40px rgba(30,20,14,.25)}
+#panel.on{display:flex}
+.card{border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.tag{font-size:13px;padding:4px 10px;border-radius:999px}
+.day{border-radius:12px;padding:8px 10px;min-height:76px;display:flex;flex-direction:column;gap:2px;text-align:left;color:#2E2420}
+.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+</style></head><body>
+<div id="bg"></div>
+<button class="back" id="back">← 梳化間</button>
+<div id="view"><div id="sizer"><div id="stage">
+  <img src="room.webp" alt="暖光梳化間，三個拱門衣櫃前站著三位女生">
+
+  <div style="position:absolute;left:24px;top:76px;display:flex;flex-direction:column;gap:2px;color:#FFF6EC;text-shadow:0 1px 6px rgba(0,0,0,.45)">
+    <div class="serif" style="font-size:30px;letter-spacing:4px">衣櫥</div>
+    <div style="font-size:15px;letter-spacing:3px">軟軟的性感</div>
+  </div>
+
+  <div style="position:absolute;right:24px;top:20px;display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+    <div id="weather" class="glass" style="display:flex;gap:6px;padding:6px;border-radius:999px"></div>
+    <div style="padding:10px 18px;border-radius:16px;background:rgba(255,248,238,.9);font-size:15px;max-width:380px;text-align:right;line-height:1.5"><span id="season" class="serif" style="font-size:17px"></span>　<span id="mood"></span></div>
+  </div>
+
+  <div id="spots"></div>
+
+  <div class="glass" style="position:absolute;left:24px;right:24px;bottom:20px;padding:10px 14px;border-radius:18px;display:flex;align-items:center;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:2px;white-space:nowrap">
+      <span class="serif" style="font-size:17px">這一週</span><span style="font-size:12px;opacity:.85">點一天換下一套</span>
+    </div>
+    <div id="week" style="flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px"></div>
+  </div>
+
+  <div id="panel" role="dialog" aria-modal="false">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div id="pSub" style="font-size:14px;letter-spacing:3px"></div>
+        <div id="pName" class="serif" style="font-size:34px"></div>
+      </div>
+      <button id="close" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;color:#3A2A24;font-size:20px">×</button>
+    </div>
+    <div id="pCards" style="display:flex;flex-direction:column;gap:12px"></div>
+  </div>
+</div></div></div>
+
+<script>
+const WHO={sh:{hall:"媽祖殿",name:"Shakira",accent:"#8E2B2B",tint:"#F3DCD8",x:400,y:330},sa:{hall:"月老殿",name:"Sánchez",accent:"#A0566A",tint:"#F6E4E4",x:786,y:330},ch:{hall:"財神殿",name:"Chiara",accent:"#8A6A3A",tint:"#EFE4D2",x:1186,y:330}};
+const MAKE={sh:["混血妝","大捲髮・側邊貼頭皮編"],sa:["韓式水感妝","耳後小麻花・珍珠夾"],ch:["千金妝","兩側扭轉往後夾"]};
+const D={
+ hot:{name:"夏",mood:"很熱，露一點肩，穿透氣的亞麻。",
+  sexy:{sh:["慵懶熱帶","酒紅亞麻露肩長洋裝・金色大圈耳環・綁帶涼鞋"],sa:["輕柔亞麻","奶油色細肩帶長裙・薄針織小外搭・平底穆勒鞋"],ch:["清爽俐落","白色亞麻襯衫・高腰寬褲・細皮帶・尖頭平底鞋"]},
+  comfy:{sh:["酒紅鬆背心","酒紅寬背心・棉麻短褲・夾腳拖"],sa:["棉質小洋裝","奶油色棉質洋裝・開襟薄衫・平底鞋"],ch:["白T日","白T・直筒褲・小白鞋"]}},
+ mild:{name:"春秋",mood:"舒爽的天氣，針織和薄外套最剛好。",
+  sexy:{sh:["酒紅夜晚","酒紅貼身針織洋裝・短皮外套・大耳環・短靴"],sa:["粉霧針織","霧粉針織上衣・緞面長裙・珍珠小耳環・低跟鞋"],ch:["駝色西裝","駝色西裝外套・黑色合身上衣・直筒長褲・樂福鞋"]},
+  comfy:{sh:["酒紅寬毛衣","酒紅針織寬上衣・黑色寬褲・短靴"],sa:["粉色毛衣","粉色毛衣・針織長裙・平底鞋"],ch:["駝色開衫","駝色針織開衫・牛仔褲・樂福鞋"]}},
+ cold:{name:"冬",mood:"冷了，把自己軟軟地包起來，但留一點線條。",
+  sexy:{sh:["黑絲絨","黑絲絨長洋裝・長版大衣・亮面耳環・及膝靴"],sa:["毛毛熊","奶油毛絨外套・貼身針織洋裝・短靴"],ch:["炭灰大衣","炭灰長大衣・高領針織・西裝褲・短靴"]},
+  comfy:{sh:["黑色大毛衣","黑色大毛衣・寬褲・皮短靴"],sa:["毛絨連帽","奶油毛絨連帽外套・寬褲・毛毛拖"],ch:["灰色大衣","灰色大衣・運動褲・球鞋"]}},
+ rain:{name:"雨天",mood:"下雨了，綁起頭髮，短一點、防水一點出門。",
+  sexy:{sh:["雨中慵懶","深酒紅短洋裝・防水短外套・雨靴・防水小包"],sa:["雨中散步","海軍藍針織短洋裝・薄外套・防水樂福鞋"],ch:["風衣日","卡其風衣・黑色上衣・西裝短褲・防水短靴"]},
+  comfy:{sh:["黑帽T","黑色帽T・短褲・雨靴"],sa:["藍色針織","海軍藍針織・九分褲・防水平底鞋"],ch:["防水外套","防水外套・黑色短褲・雨鞋"]}}
+};
+const KEY="origina-wardrobe-v1";
+let S={weather:"mild",open:null,week:[5,2,4,5,0,1,3]};
+try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,o,{open:null});}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({weather:S.weather,week:S.week}));}catch(e){}}
+const $=id=>document.getElementById(id);
+const ORDER=["sh","sa","ch"];
+function all(){const s=D[S.weather];return ORDER.map(k=>({k,sexy:1,v:s.sexy[k]})).concat(ORDER.map(k=>({k,sexy:0,v:s.comfy[k]})));}
+
+function render(){
+  const s=D[S.weather];
+  $("weather").innerHTML="";[["hot","炎熱"],["mild","舒爽"],["cold","寒冷"],["rain","下雨"]].forEach(([k,n])=>{const b=document.createElement("button");b.className="w"+(S.weather===k?" on":"");b.textContent=n;b.setAttribute("aria-pressed",S.weather===k);b.onclick=()=>{S.weather=k;save();render();};$("weather").appendChild(b);});
+  $("season").textContent=s.name;$("mood").textContent=s.mood;
+  $("spots").innerHTML="";ORDER.forEach(k=>{const w=WHO[k];const b=document.createElement("button");b.className="spot"+(S.open===k?" on":"");b.style.left=w.x+"px";b.style.top=w.y+"px";b.innerHTML=`<i></i><span>${w.hall}・${w.name}</span>`;b.onclick=()=>{S.open=S.open===k?null:k;render();};$("spots").appendChild(b);});
+  const list=all(),days="一二三四五六日";
+  $("week").innerHTML="";S.week.forEach((idx,i)=>{const c=list[idx%6],w=WHO[c.k];const b=document.createElement("button");b.className="day";b.style.background=w.tint;b.style.border=c.sexy?"1px solid #D8BFAE":"1px dashed #CDB8A4";
+    b.innerHTML=`<span style="font-size:12px;color:#7A5A48">週${days[i]}・${c.sexy?"性感":"舒適"}</span><span class="serif" style="font-size:15px">${w.name}</span><span style="font-size:13px">${c.v[0]}</span>`;
+    b.onclick=()=>{S.week[i]=(S.week[i]+1)%6;save();render();};$("week").appendChild(b);});
+  const P=$("panel");
+  if(S.open){const k=S.open,w=WHO[k];P.classList.add("on");
+    $("pSub").textContent=w.hall+"・"+s.name;$("pSub").style.color=w.accent;$("pName").textContent=w.name;
+    $("pCards").innerHTML=[["性感",s.sexy[k],w.tint,"1px solid #E2CFC0",MAKE[k][0],MAKE[k][1]],["舒適",s.comfy[k],"#FBF5EC","1px dashed #D9C6B2","日系妝","鬆鬆半紮"]].map(([lay,v,bg,bd,mk,hr])=>`
+      <div class="card" style="background:${bg};border:${bd}">
+        <div style="font-size:13px;color:#6A5246">${lay}</div>
+        <div class="serif" style="font-size:22px;color:${w.accent}">${v[0]}</div>
+        <div style="font-size:15px;line-height:1.7">${v[1].split("・").join("<br>")}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag" style="background:#F3E3DA;color:#6E2A3A">${mk}</span><span class="tag" style="background:#EFE6D6;color:#5A4228">${hr}</span></div>
+      </div>`).join("");
+  }else P.classList.remove("on");
+}
+$("close").onclick=()=>{S.open=null;render();};
+function fit(){
+  const vw=innerWidth,vh=innerHeight;
+  const s=Math.min(vw/1680,vh/944);
+  $("stage").style.transform=`scale(${s})`;$("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";
+  const v=$("view");v.scrollLeft=(v.scrollWidth-v.clientWidth)/2;
+}
+addEventListener("resize",fit);
+render();fit();
+$("back").onclick=()=>{location.href="../scenes/?s=glam";};
+</script>
+</body></html>

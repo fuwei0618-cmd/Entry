@@ -324,7 +324,7 @@ const CREW=[{k:"teresa",ic:"🎤",n:"Teresa",r:"唱歌・街演・合唱",c:"#D9
   {k:"sales",ic:"🏆",n:"銷冠",r:"國泰業務",c:"#A08C72",cat:"work",dq:[["🤝","客戶版","cathay","cq"],["📅","服務件","cathay","svc"]]},
   {k:"trader",ic:"📈",n:"操盤手",r:"投資",c:"#2F5D7C",cat:"make",dq:[["💰","投資版","money","mq"]]},
   {k:"vault",ic:"🏦",n:"金庫",r:"財神殿的其他項目（不歸工具人）",c:"#C9A55A",cat:"work",dq:[],plain:1},
-  {k:"butler",ic:"🗝️",n:"管家",r:"行程・雜事・Origina",c:"#5E7A55",cat:"make",dq:[]},
+  {k:"butler",ic:"💼",n:"執行長",r:"人和事・行程・Origina・主持開會",c:"#5E7A55",cat:"make",dq:[]},
   {k:"healer",ic:"🕯️",n:"療癒師",r:"身心・精力・睡眠",c:"#9CC4C0",cat:"life",dq:[["✨","我是誰（主卡）","me","whoami"],["🔍","掃描儀","me","alch"]]}];
 const CREWK=Object.fromEntries(CREW.map(c=>[c.k,c]));
 const CAT2CREW={body:"fox",vocal:"teresa",work:"sales",life:"healer",trip:"leader",make:"butler"};
@@ -977,5 +977,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202610312308";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202611032311";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

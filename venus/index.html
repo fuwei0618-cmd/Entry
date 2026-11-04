@@ -22,6 +22,8 @@ button{font:inherit;cursor:pointer}
 .hot .b.pb{width:62px;height:62px;overflow:hidden;background:#FFFCF8}.hot.on .b.pb{background:#FFF3E0;border-width:3px}
 .hot.on .w{background:#3A2A24;color:#FFE7C2}
 .hot.dim{opacity:.45}
+.hot.pt{transform:translate(-31px,-50%)}
+.hot.lay.on .b,.hot.lay.on .w{box-shadow:0 0 0 3px #E2B867,0 3px 10px rgba(40,20,10,.25)}
 .left{position:absolute;left:700px;top:36px;width:950px;color:#3A2A24;background:rgba(255,250,244,.6);border-radius:18px;padding:20px 26px;display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 36px;align-items:start}
 .f{display:flex;align-items:baseline;gap:8px;font:700 30px "Songti TC","Noto Serif TC",serif;letter-spacing:.06em}
 .f small{font-size:15px;color:#8A6E4B;font-weight:400}
@@ -190,7 +192,7 @@ const SIX=[["眼","視覺","被看到","眼神、姿態"],["耳","聽覺","被�
 const HEART=ENDS[0],SOUL=ENDS[1];
 const PARTS=[
  {k:"hair",n:"頭髮",pt:[242,390],side:"L",by:390,yn:"營養、睡眠",xn:"髮型、編髮",yt:"護髮療程",xt:"植髮、接髮",cap:"髮量、髮質"},
- {k:"face",n:"臉",pt:[290,338],side:"R",by:300,yn:"睡飽、吃好",xn:"彩妝",yt:"保養品、雷射",xt:"填充、正顎、半永久眉",cap:"五官、臉型"},
+ {k:"face",n:"臉",pt:[318,352],side:"R",by:300,yn:"睡飽、吃好",xn:"彩妝",yt:"保養品、雷射",xt:"填充、正顎、半永久眉",cap:"五官、臉型"},
  {k:"skin",n:"皮膚",pt:[358,432],side:"R",by:450,yn:"喝水、睡眠",xn:"底妝、香氛",yt:"保養品、半醫美",xt:"除斑、除毛",cap:"膚色、膚質"},
  {k:"shape",n:"身材",pt:[295,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭",yt:"電波、體雕",xt:"隆乳、抽脂",cap:"名詞・有什麼"},
  {k:"pose",n:"體態",pt:[295,760],side:"R",by:740,yn:"伸展、皮拉提斯",xn:"高跟鞋、修身衣",yt:"整脊、矯正",xt:"",cap:"動詞・怎麼用"}];
@@ -220,16 +222,18 @@ function render(){
   g+=`<ellipse cx="${C[0]}" cy="${C[1]}" rx="292" ry="${292*K}" fill="none" stroke="#C9A24A" stroke-width="${sel==="soul"?3:1.6}" stroke-dasharray="3 7" stroke-linecap="round"/>`;
   g+=`<path d="${ell(178)}" fill="#AE7552" fill-opacity="${isP?.2:.12}" style="mix-blend-mode:multiply"/><ellipse cx="${C[0]}" cy="${C[1]}" rx="178" ry="${178*K}" fill="none" stroke="#AE7552" stroke-width="${isP?3.2:2.2}"/>`;
   g+=`<circle class="beat" cx="${C[0]}" cy="${C[1]}" r="${sel==="heart"?70:52}" fill="url(#gh)"/><path d="M295 466s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z" fill="#fff"/>`;
-  PARTS.forEach(p=>{const [x,y]=p.pt,bx=p.side==="L"?x-95:x+120,on=sel===p.k;
+  const ANG=[-62,-31,0,31,62],RB=178;
+  const bpos=i=>{const a=ANG[i]*Math.PI/180;return [C[0]+RB*Math.cos(a),C[1]+RB*K*Math.sin(a)];};
+  PARTS.forEach((p,i)=>{const [x,y]=p.pt,[bx,by]=bpos(i),on=sel===p.k;p.by=by;
     g+=`<path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/><path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="${on?2.4:1.4}"/><circle cx="${x}" cy="${y}" r="${on?7:5}" fill="#fff" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="2"/>`;});
   $("sv").innerHTML=g;
   let u="";
   // 三層的名牌：沿著同一條斜線往外
-  const lay=[["heart","心","#7A3238",0,C[0]+40,C[1]-70],["body","身","#AE7552",-1,C[0]+178*.62,C[1]-178*K*.79],["soul","靈","#C9A24A",5,C[0]+292*.62,C[1]-292*K*.79]];
+  const lay=[["heart","心","#7A3238",0,C[0]+40,C[1]-70],["body","身","#AE7552",-1,C[0]-178*.5-56,C[1]-178*K*.866],["soul","靈","#C9A24A",5,C[0]+292*.62,C[1]-292*K*.79]];
   lay.forEach(([k,n,c,ii,x,y])=>{const on=sel===k||(k==="body"&&isP);
-    u+=`<button class="hot R${on?" on":""}" data-sel="${k}" style="left:${x}px;top:${y}px"><span class="b" style="border-color:${c};width:46px;height:46px">${ii>=0?ic(ii,on?"#FFE7C2":c,24):mi("體態",on?"#FFE7C2":c,26)}</span><span class="w" style="font-size:20px">${n}</span></button>`;});
-  PARTS.forEach(p=>{const bx=p.side==="L"?p.pt[0]-95:p.pt[0]+120;
-    u+=`<button class="hot ${p.side}${sel===p.k?" on":""}${sel&&sel!==p.k&&isP?" dim":""}" data-sel="${p.k}" style="left:${bx}px;top:${p.by}px"><span class="b pb">${pimg(p.k,50)}</span><span class="w">${p.n}</span></button>`;});
+    u+=`<button class="hot R lay${on?" on":""}" data-sel="${k}" style="left:${x}px;top:${y}px;--c:${c}"><span class="b" style="background:${c};border-color:#fff;width:46px;height:46px">${ii>=0?ic(ii,"#fff",24):mi("體態","#fff",26)}</span><span class="w" style="font-size:20px;background:${c};color:#fff">${n}</span></button>`;});
+  PARTS.forEach((p,i)=>{const [bx,by]=bpos(i);
+    u+=`<button class="hot R pt${sel===p.k?" on":""}${sel&&sel!==p.k&&isP?" dim":""}" data-sel="${p.k}" style="left:${bx}px;top:${by}px"><span class="b pb">${pimg(p.k,50)}</span><span class="w">${p.n}</span></button>`;});
   u+=`<header class="hd"><div class="kick">維納斯的桌子</div><h1>身<i>・</i>心<i>・</i>靈</h1><p>身上每個部位，可以<b>養</b>，讓它本身變好；也可以<b>修</b>，讓它看起來不同。<br>兩種都分<b>自然</b>和<b>科技</b>。身和心顧好了，靈會自己散出來。</p></header>`;
   u+=`<div class="panel">${table()}</div>`;
   const fn=S.focus==="heart"?"心":S.focus==="style"||S.focus==="soul"?"靈":PI[S.focus]||"還沒選";

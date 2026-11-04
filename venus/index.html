@@ -23,6 +23,7 @@ button{font:inherit;cursor:pointer}
 .row:hover,.row.focus{background:rgba(255,250,244,.7)}
 .row .dot{width:42px;height:42px;border-radius:50%;display:grid;place-items:center}
 .row .t{font:700 19px "Songti TC","Noto Serif TC",serif;color:#3A2A24}
+.mis{display:inline-flex;flex-wrap:wrap;gap:3px 10px;margin-left:12px;vertical-align:2px;font:400 12.5px "PingFang TC","Noto Sans TC",sans-serif;color:#6A5246}.mis span{display:inline-flex;align-items:center;gap:3px}
 .row .t small{font:400 12.5px "PingFang TC","Noto Sans TC",sans-serif;color:#6A5246;margin-left:10px}
 .row .w{font-size:13px;color:#5A4228;margin-top:2px}.row .w b{color:#8E2B2B;margin-right:6px}
 .row .c{font-size:12px;color:#8A6E4B;white-space:nowrap}
@@ -48,6 +49,7 @@ textarea{font:inherit;font-size:15px;min-height:76px;border-radius:12px;border:1
 @media (prefers-reduced-motion:reduce){.beat{animation:none}}
 </style></head><body>
 <button class="back" id="back">← Venus</button>
+<svg width="0" height="0" style="position:absolute"><filter id="mw" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="5"/><feDisplacementMap in="SourceGraphic" scale=".9"/></filter></svg>
 <div id="view"><div id="sizer"><div id="stage">
   <div id="fig" role="img" aria-label="穿絲質洋裝和針織外套的女生"></div>
   <svg id="sv" viewBox="0 0 1680 944" aria-hidden="true"></svg>
@@ -86,6 +88,33 @@ const IC=[
  // 風格：香水瓶＋飄出來的香味
  '<path d="M8.4 10.2h7.2c1 0 1.8.8 1.8 1.8v6.6c0 1.2-1 2.2-2.2 2.2H8.8c-1.2 0-2.2-1-2.2-2.2V12c0-1 .8-1.8 1.8-1.8z"/><path d="M10.2 10.2V8.3h3.6v1.9M10.6 8.3V6.6h2.8v1.7"/><path d="M9.2 15.2c1.6-.8 3.6-.8 5.6 0" stroke-width="1.2"/><path d="M15.6 5.6c.9-.9.9-1.9 0-2.8M18 6.6c1.4-1.4 1.4-3 0-4.4" stroke-width="1.2"/>'];
 const ic=(i,c,z)=>`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><defs><filter id="w${i}${z}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="${i+3}"/><feDisplacementMap in="SourceGraphic" scale=".9"/></filter></defs><g filter="url(#w${i}${z})">${IC[i]}</g><g opacity=".38" transform="translate(.35 .25)">${IC[i]}</g></svg>`;
+
+// 每個小項目的手繪小圖
+const MI={
+"自信":'<path d="M4 17l1.6-9 4 4.4L12 6l2.4 6.4 4-4.4L20 17z"/><path d="M4.5 19.5h15"/>',
+"從容":'<path d="M5 10h11v3.5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 11.5h1.5a2 2 0 0 1 0 4H16"/><path d="M9 7c-.8-1 .8-2 0-3M12.5 7c-.8-1 .8-2 0-3"/>',
+"情緒穩定":'<ellipse cx="12" cy="18.5" rx="6.5" ry="2"/><ellipse cx="12" cy="13.6" rx="4.6" ry="1.8"/><ellipse cx="12" cy="9.4" rx="3" ry="1.5"/><ellipse cx="12" cy="6" rx="1.8" ry="1.1"/>',
+"睡眠":'<path d="M15.5 18.5A7 7 0 0 1 10 6a7 7 0 1 0 8.6 9.6 6.8 6.8 0 0 1-3.1 2.9z"/><path d="M15 5h3l-3 3.5h3"/>',
+"飲食":'<path d="M4 12h16a8 6.5 0 0 1-16 0z"/><path d="M9 20h6"/><path d="M13 9.5l6-6M15 10l5.5-4.5"/>',
+"喝水":'<path d="M7 4h10l-1.4 15.4a1.8 1.8 0 0 1-1.8 1.6H10.2a1.8 1.8 0 0 1-1.8-1.6z"/><path d="M7.8 10.5c1.4-.8 2.8-.8 4.2 0s2.8.8 4.2 0"/>',
+"運動":'<path d="M4 12h16"/><path d="M6 8.5v7M8.5 7v10M18 8.5v7M15.5 7v10"/>',
+"體態":'<circle cx="12" cy="5" r="1.8"/><path d="M12 7v13M8 9.5h8"/><path d="M12 2.2V1" stroke-dasharray="1 1.2"/>',
+"皮膚":'<circle cx="11" cy="13" r="6.5"/><path d="M8 11c.6-1.4 1.8-2.2 3.2-2.3"/><path d="M18 3.5l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/>',
+"頭髮":'<path d="M7 4c-1.8 4 1.6 6.4 0 10.4S8 19 7 21M12 3c-1.8 4 1.6 6.4 0 10.4S13 19 12 21M17 4c-1.8 4 1.6 6.4 0 10.4S18 19 17 21"/>',
+"身材":'<path d="M8 3c0 4 3 5.5 3 9s-3 5-3 9M16 3c0 4-3 5.5-3 9s3 5 3 9"/>',
+"五官比例":'<ellipse cx="12" cy="12" rx="6" ry="8"/><path d="M6 10h12M12 4v16" stroke-dasharray="1.6 1.6"/><path d="M9 10h.01M15 10h.01M10.5 15.5h3"/>',
+"臉型":'<path d="M6.5 8.5c0-3.2 2.4-5 5.5-5s5.5 1.8 5.5 5c0 4.6-3 10.5-5.5 10.5S6.5 13.1 6.5 8.5z"/><path d="M8 14.5l4 4.5 4-4.5" stroke-dasharray="1.4 1.4"/>',
+"醫美":'<path d="M17 3l4 4M19 5l-9.5 9.5M14 6l4 4M12.5 7.5l4 4M9.5 14.5L5.5 18.5M3 21l2.5-2.5"/><path d="M11 9l4 4"/>',
+"半永久":'<path d="M4 12c3-4.4 9-5.4 14-2.4"/><path d="M5.5 11.2l.6-1.4M8 9.8l.4-1.5M10.5 9l.3-1.5M13 8.8l.1-1.5M15.5 9.2l-.1-1.5"/><path d="M14 20l6-6 1.5 1.5-6 6H14z"/>',
+"妝":'<circle cx="9" cy="14" r="5.5"/><path d="M6.5 13.2c.8-1.4 2.2-2 3.6-1.8"/><path d="M14.5 9.5l6-6M16.5 4.5c1.2 0 3 1.8 3 3"/>',
+"髮型":'<path d="M12 3c-3 2.4-3 4.6 0 6.6s3 4.2 0 6.4-3 3.6 0 5M12 3c3 2.4 3 4.6 0 6.6s-3 4.2 0 6.4 3 3.6 0 5"/>',
+"穿搭":'<path d="M12 3.5a1.6 1.6 0 1 1 1.6 1.6c-.9 0-1.6.7-1.6 1.6v.6M12 7.3L4 12.5h16z"/><path d="M8.5 12.5L6.5 21h11l-2-8.5"/>',
+"三殿":'<path d="M3 10.5L12 4l9 6.5"/><path d="M5 9.5c-.4 1-1.2 1.6-2 1.8M19 9.5c.4 1 1.2 1.6 2 1.8"/><path d="M6.5 11v8.5M17.5 11v8.5M10 19.5v-5h4v5M4.5 19.5h15"/>',
+"聲音":'<path d="M9 17.5V6l9-2v11.5"/><circle cx="6.8" cy="17.6" r="2.3"/><circle cx="15.8" cy="15.6" r="2.3"/>',
+"香味":'<path d="M8.4 10.2h7.2c1 0 1.8.8 1.8 1.8v6.6c0 1.2-1 2.2-2.2 2.2H8.8c-1.2 0-2.2-1-2.2-2.2V12c0-1 .8-1.8 1.8-1.8zM10.2 10.2V7.4h3.6v2.8"/><path d="M15.6 5.6c.9-.9.9-1.9 0-2.8M18 6.6c1.4-1.4 1.4-3 0-4.4"/>',
+"別人感受到的你":'<path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>'};
+const mi=(k,c)=>MI[k]?`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><g filter="url(#mw)">${MI[k]}</g></svg>`:"";
+const chips=(r,c)=>`<span class="mis">${r.sub.split("、").map(w=>`<span>${mi(w,c)}${w}</span>`).join("")}</span>`;
 // 分組小插圖：虛＝一縷光、行為＝一隻手、實體＝一顆石頭
 const GI={"虛":'<path d="M4 14c2-3 4-3 6 0s4 3 6 0 4-3 5-1"/><path d="M7 8.5c1.2-1.4 2.6-1.4 3.8 0M14 7.5l.6-1.6M17 9l1.4-.9M11 5l-.2-1.6" stroke-width="1.2"/>',
  "行為":'<path d="M8.5 20c-1.6-1.4-3.4-3.6-4.2-5.4-.4-.9.6-1.7 1.4-1.1l2 1.6V6.2c0-.8.6-1.3 1.3-1.3s1.3.5 1.3 1.3v5.2-6.6c0-.8.6-1.3 1.3-1.3s1.3.5 1.3 1.3v6.6-5.4c0-.8.6-1.3 1.3-1.3s1.3.5 1.3 1.3v5.6-3.4c0-.8.6-1.3 1.3-1.3s1.2.5 1.2 1.3v7.3c0 2.6-1.4 4.6-3.4 5.6"/>',
@@ -140,7 +169,7 @@ function render(){
     if(KIND[i]!==last){h+=`<div class="grp">${gi(KIND[i],"#8A6E4B")}${KIND[i]}</div>`;last=KIND[i];}
     const note=(S.note[r.k]||{})[today()];
     const c=KIND[i]==="虛"?(note?"今天寫了 ✓":"今天一句"):`${d}/${it.length}`;
-    return h+`<button class="row${S.focus===r.k?" focus":""}" data-open="${r.k}"><span class="dot" style="background:${COL[i]}">${ic(i,"#fff",28)}</span><span><div class="t">${i+1}　${r.n}<small>${r.sub}</small></div><div class="w"><b>軟</b>${r.soft}</div></span><span class="c">${c} ›</span></button>`;}).join("")+`</div>`;
+    return h+`<button class="row${S.focus===r.k?" focus":""}" data-open="${r.k}"><span class="dot" style="background:${COL[i]}">${ic(i,"#fff",28)}</span><span><div class="t">${i+1}　${r.n}${chips(r,"#7A5A40")}</div><div class="w"><b>軟</b>${r.soft}</div></span><span class="c">${c} ›</span></button>`;}).join("")+`</div>`;
   const f=R.find(r=>r.k===S.focus);
   u+=`<div class="strip"><span>本月重點：<b style="color:#FFE7C2">${f.n}・${f.sub}</b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>`;
   $("ui").innerHTML=u;
@@ -154,7 +183,7 @@ function openD(k){cur=k;const r=R.find(x=>x.k===k),i=R.indexOf(r),kind=KIND[i];
    ?`<div style="font-size:13px;color:#8A6E4B">今天一句（看不見的東西，用一句話照顧它）</div><textarea id="nt" placeholder="${i===0?"今天喜歡自己的一個地方……":"今天別人感受到的我……"}">${note.replace(/</g,"&lt;")}</textarea><div style="display:flex;flex-direction:column;gap:6px">${items(r).map(it=>`<button class="chk${it.on?" on":""}" data-key="${it.key}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("")}</div>`
    :`<div style="display:flex;flex-direction:column;gap:6px">${items(r).map(it=>`<button class="chk${it.on?" on":""}" data-key="${it.key}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("")}</div>`;
   $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start">
-    <div><div style="font-size:13px;color:#8A6E4B;letter-spacing:.2em">第 ${i+1} 層・${kind}</div><div class="serif" style="font-size:32px;display:flex;align-items:center;gap:10px"><span style="width:40px;height:40px;border-radius:50%;background:${COL[i]};display:grid;place-items:center">${ic(i,"#fff",22)}</span>${r.n}</div><div style="font-size:14px;color:#6A5246;margin-top:4px">${r.sub}</div></div>
+    <div><div style="font-size:13px;color:#8A6E4B;letter-spacing:.2em">第 ${i+1} 層・${kind}</div><div class="serif" style="font-size:32px;display:flex;align-items:center;gap:10px"><span style="width:40px;height:40px;border-radius:50%;background:${COL[i]};display:grid;place-items:center">${ic(i,"#fff",22)}</span>${r.n}</div><div style="margin-top:6px">${chips(r,"#7A5A40").replace('class="mis"','class="mis" style="margin-left:0;font-size:14px"')}</div></div>
     <button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;color:#3A2A24;font-size:20px">×</button></div>
     <div style="font-size:15px;line-height:1.8">${r.why}</div>
     <div class="ss"><b>軟</b><span>${r.soft}</span><b class="x">性感</b><span>${r.sexy}</span></div>

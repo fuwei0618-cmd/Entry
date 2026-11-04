@@ -6,60 +6,56 @@
 <link rel="apple-touch-icon" href="../venus/icon-180.png"><link rel="icon" href="../venus/icon-192.png">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#1c1814;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
-#bg{position:fixed;inset:-40px;background:url(ripple-s.webp) center/cover;filter:blur(30px) brightness(.55);transform:scale(1.1)}
+html,body{margin:0;height:100%;background:#2a221c;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
 #view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
 #sizer{position:relative;flex-shrink:0}
-#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:#E8DCCB}
-#stage>img{position:absolute;top:0;left:-372px;width:1680px;height:944px;object-fit:cover}
-#paper{position:absolute;left:902px;top:0;width:778px;height:944px;background:#F6EEE3;box-shadow:-8px 0 30px rgba(40,28,20,.25)}
-.band{position:absolute;transition:filter .2s;left:930px;width:722px;border:0;border-radius:0;display:grid;grid-template-columns:150px 215px 1fr;align-items:center;gap:14px;padding:0 16px;text-align:left}
-.band .nm{display:flex;flex-direction:column;gap:2px;cursor:pointer}
-.band .ss2{font-size:12.5px;line-height:1.55}
-.band .ss2 b{font-weight:700;margin-right:6px}
-.tk{display:flex;flex-wrap:wrap;gap:5px}
-.tk .chk{width:auto;min-height:26px;font-size:12px;padding:0 9px;gap:6px;background:rgba(255,255,255,.75)}
-.tk .chk i{width:12px;height:12px;border-radius:4px}
-.side{position:absolute;font-size:12px;letter-spacing:.2em;color:#8A6E4B;writing-mode:vertical-rl}
-#stage>svg{position:absolute;inset:0}
+#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:radial-gradient(ellipse at 50% 50%,#E9D9C4,#F3EADF 62%)}
+#fig{position:absolute;left:590px;top:0;width:500px;height:944px;background:url(fig.webp);-webkit-mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
+#sv{position:absolute;inset:0}
 button{font:inherit;cursor:pointer}
 .serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
-.rl{position:absolute;transform:translate(-50%,-50%);border:0;border-radius:999px;padding:3px 11px;font-size:13px;letter-spacing:.15em;white-space:nowrap;background:rgba(255,250,244,.88);color:#5A4228;box-shadow:0 1px 6px rgba(60,40,20,.15)}
-.rl.focus{background:#3A2A24;color:#FFE7C2;box-shadow:0 0 0 2px #E2B867,0 0 16px rgba(226,184,103,.8)}
-.card{position:absolute;width:318px;height:300px;border-radius:16px;background:rgba(255,250,244,.94);box-shadow:0 4px 16px rgba(40,28,20,.14);padding:11px 13px;display:flex;flex-direction:column;gap:5px;border:1.5px solid transparent}
-.card.focus{border-color:#E2B867;box-shadow:0 0 0 3px rgba(226,184,103,.35),0 4px 16px rgba(40,28,20,.14)}
-.head{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px}
-.num{width:24px;height:24px;border-radius:50%;background:#B8893A;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.more{margin-left:auto;font-size:12px;color:#8A6E4B}
-.ss{display:grid;grid-template-columns:auto 1fr;gap:1px 8px;font-size:12px;line-height:1.5;padding:5px 8px;border-radius:8px;background:#F4EBDF}
-.ss b{color:#8A6E4B}.ss b.x{color:#8E2B2B}
-.chk{display:flex;align-items:center;gap:8px;min-height:27px;padding:0 8px;border-radius:8px;border:1px solid #EADCCB;background:#fff;color:#2E2420;text-align:left;width:100%;font-size:13px}
-.chk.on{border-color:#C98E80;background:#F7ECE4;color:#7A5A48;text-decoration:line-through}
-.chk i{width:15px;height:15px;border-radius:5px;border:2px solid #C9B6A4;flex-shrink:0}
-.chk.on i{background:#8E2B2B;border-color:#8E2B2B}
-.chk em{margin-left:auto;font-style:normal;font-size:10.5px;color:#8A6E4B;background:#F3EADF;border-radius:999px;padding:1px 7px;text-decoration:none}
-.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
-.go{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;border:1px solid #CDB8A4;background:#fff;color:#3A2A24;text-decoration:none;font-size:12px}
-.strip{position:absolute;left:50%;transform:translateX(-50%);border-radius:999px;background:rgba(40,28,22,.84);color:#FFF6EC;padding:8px 20px;display:flex;align-items:center;gap:16px;white-space:nowrap;font-size:13px}
+.pill{position:absolute;transform:translate(-14px,-50%);display:flex;align-items:center;gap:6px;border:0;color:#fff;border-radius:999px;padding:4px 12px 4px 6px;box-shadow:0 2px 8px rgba(40,20,10,.25);white-space:nowrap;font:700 15px "Songti TC","Noto Serif TC",serif;letter-spacing:.1em}
+.pill i{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center}
+.pill.focus{box-shadow:0 0 0 2px #FFE7C2,0 0 14px rgba(226,184,103,.9)}
+.leg{position:absolute;left:1190px;top:96px;width:450px;display:flex;flex-direction:column;gap:6px}
+.grp{font-size:12px;letter-spacing:.25em;color:#8A6E4B;margin:8px 0 0 52px}
+.row{all:unset;cursor:pointer;display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;padding:6px 10px;border-radius:14px}
+.row:hover,.row.focus{background:rgba(255,250,244,.7)}
+.row .dot{width:42px;height:42px;border-radius:50%;display:grid;place-items:center}
+.row .t{font:700 19px "Songti TC","Noto Serif TC",serif;color:#3A2A24}
+.row .t small{font:400 12.5px "PingFang TC","Noto Sans TC",sans-serif;color:#6A5246;margin-left:10px}
+.row .w{font-size:13px;color:#5A4228;margin-top:2px}.row .w b{color:#8E2B2B;margin-right:6px}
+.row .c{font-size:12px;color:#8A6E4B;white-space:nowrap}
+.left{position:absolute;left:80px;top:190px;width:440px;color:#3A2A24}
+.key{display:grid;grid-template-columns:54px 1fr;gap:10px 12px;align-items:center;margin-top:26px;font-size:13.5px;color:#5A4228}
+.key b{color:#3A2A24}
+.strip{position:absolute;left:80px;bottom:30px;border-radius:999px;background:rgba(40,28,22,.86);color:#FFF6EC;padding:9px 20px;display:flex;gap:16px;white-space:nowrap;font-size:13px}
 #detail{position:absolute;inset:0;background:rgba(30,20,14,.35);display:none;align-items:center;justify-content:center}
 #detail.on{display:flex}
-#dbox{width:620px;max-height:820px;overflow:auto;border-radius:22px;background:#FFFAF4;padding:26px 28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(30,20,14,.3)}
-.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#dbox{width:620px;max-height:840px;overflow:auto;border-radius:22px;background:#FFFAF4;padding:26px 28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(30,20,14,.3)}
+.ss{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:14px;line-height:1.6;padding:10px 12px;border-radius:10px;background:#F4EBDF}
+.ss b{color:#8A6E4B}.ss b.x{color:#8E2B2B}
+.chk{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #EADCCB;background:#fff;color:#2E2420;text-align:left;width:100%;font-size:14px}
+.chk.on{border-color:#C98E80;background:#F7ECE4;color:#7A5A48;text-decoration:line-through}
+.chk i{width:17px;height:17px;border-radius:5px;border:2px solid #C9B6A4;flex-shrink:0}
+.chk.on i{background:#8E2B2B;border-color:#8E2B2B}
+.chk em{margin-left:auto;font-style:normal;font-size:11px;color:#8A6E4B;background:#F3EADF;border-radius:999px;padding:1px 8px;text-decoration:none}
+.go{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid #CDB8A4;background:#fff;color:#3A2A24;text-decoration:none;font-size:14px}
+textarea{font:inherit;font-size:15px;min-height:76px;border-radius:12px;border:1px solid #E2D3C2;padding:10px 12px;background:#fff;resize:vertical}
+.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px}
+@keyframes beat{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.12);opacity:1}}
+.beat{transform-box:fill-box;transform-origin:center;animation:beat 3.2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.beat{animation:none}}
 </style></head><body>
-<div id="bg"></div>
 <button class="back" id="back">← Venus</button>
 <div id="view"><div id="sizer"><div id="stage">
-  <img src="ripple.webp" alt="從上往下看的洞石水盆，中間一滴水漣漪往外擴">
-  <div id="paper"></div>
-  <svg id="svg" width="1680" height="944" viewBox="0 0 1680 944" aria-hidden="true"></svg>
-  <div id="labels"></div>
-  <div class="strip" style="top:14px;left:450px"><span class="serif" style="font-size:18px;letter-spacing:3px">維納斯的桌子</span><span class="serif" style="font-size:17px;color:#F2C9A8">軟軟的性感</span></div>
-  <div class="strip" style="bottom:14px;left:450px"><span>本月重點：<b id="focusName" style="color:#FFE7C2"></b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>
-    <div id="detail"><div id="dbox"></div></div>
+  <div id="fig" role="img" aria-label="穿絲質洋裝和針織外套的女生"></div>
+  <svg id="sv" viewBox="0 0 1680 944" aria-hidden="true"></svg>
+  <div id="ui"></div>
+  <div id="detail"><div id="dbox"></div></div>
 </div></div></div>
 <script>
 const E="../";
-const CX=463,CY=472;
 const R=[
  {k:"heart",why:"美的最源頭。放鬆的人才軟，喜歡自己的人才性感。外面做再多，這圈空了，看起來就是緊繃、用力。",n:"心",sub:"自信、從容、情緒穩定",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
   tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["臥室",E+"bedroom/"]]},
@@ -74,87 +70,88 @@ const R=[
  {k:"style",why:"別人看到、聽到、聞到的你。三殿決定今天開多大聲，聲音和香味也是你的一部分。",n:"風格",sub:"三殿、聲音、香味、別人感受到的你",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
   tasks:[["拍一張這一季的我","每季"],["找一支招牌香味","每季"],["換季整理衣櫥","每季"]],links:[["衣櫥・三殿",E+"wardrobe/"]]}
 ];
+const KIND=["虛","行為","實體","實體","行為","虛"];
+const COL=["#7A3238","#9A5444","#AE7552","#B98F66","#B5894F","#C9A24A"];
+const IC=['<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>','<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>','<circle cx="12" cy="5" r="2.2"/><path d="M12 8v7M8 10.5h8M12 15l-3 6M12 15l3 6"/>','<path d="M7 4c-2 3-2 9 0 12 2 3 8 3 10 0 2-3 2-9 0-12"/><path d="M9 11h.01M15 11h.01M10 15h4"/>','<rect x="9" y="11" width="6" height="10" rx="1"/><path d="M10 11V6l4-2v7"/>','<path d="M12 3l2.2 6.2L20 12l-5.8 2.8L12 21l-2.2-6.2L4 12l5.8-2.8z"/>'];
+const ic=(i,c,z)=>`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[i]}</svg>`;
 const KEY="origina-venus-v1";
-let S={focus:"dress",done:{}};
-try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,{focus:o.focus||S.focus,done:o.done||{}});}catch(e){}
+let S={focus:"dress",done:{},note:{}};
+try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,{focus:o.focus||S.focus,done:o.done||{},note:o.note||{}});}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 const $=id=>document.getElementById(id);
+const today=()=>new Date().toLocaleDateString("sv");
 function period(p){const d=new Date();const y=d.getFullYear(),m=d.getMonth()+1;
-  if(p==="每天")return d.toLocaleDateString("sv");
+  if(p==="每天")return today();
   if(p==="每週"){const t=new Date(d);t.setDate(d.getDate()-((d.getDay()+6)%7));return "W"+t.toLocaleDateString("sv");}
   if(p==="每月")return y+"-"+m;return y+"-Q"+Math.ceil(m/3);}
-function rad(i){const rx=62+i*66;return [rx,rx*.87];}
-const COL=["#6E3632","#8E4E40","#AE7552","#C69E76","#DCC3A0","#EDE0CB"];
-const BT=78,BH=128;
-const IC=[
- '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
- '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
- '<circle cx="12" cy="5" r="2.2"/><path d="M12 8v7M8 10.5h8M12 15l-3 6M12 15l3 6"/>',
- '<path d="M7 4c-2 3-2 9 0 12 2 3 8 3 10 0 2-3 2-9 0-12"/><path d="M9 11h.01M15 11h.01M10 15h4"/>',
- '<rect x="9" y="11" width="6" height="10" rx="1"/><path d="M10 11V6l4-2v7"/>',
- '<path d="M12 3l2.2 6.2L20 12l-5.8 2.8L12 21l-2.2-6.2L4 12l5.8-2.8z"/>'];
-function icon(i,c,sz){return `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${IC[i]}</svg>`;}
-function bandY(i){return BT+(5-i)*BH;}
 function items(r){return r.tasks.map(([t,p],j)=>{const key=r.k+j+"@"+period(p);return {t,p,key,on:!!S.done[key]};});}
+function prog(r){const it=items(r);return it.length?it.filter(x=>x.on).length/it.length:0;}
 function toggle(key){if(S.done[key])delete S.done[key];else S.done[key]=1;save();render();}
-function taskHTML(r){return items(r).map(it=>`<button class="chk${it.on?" on":""}" data-key="${it.key}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("");}
+const C=[855,455],RX=[34,78,128,182,240,300],K=1.62;
+function ell(rx){return `M${C[0]-rx} ${C[1]} a${rx} ${rx*K} 0 1 0 ${2*rx} 0 a${rx} ${rx*K} 0 1 0 ${-2*rx} 0`;}
 function render(){
-  let svg='<defs><filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter></defs>';
-  let tot=0,dn=0,html="",badges="";
-  R.forEach((r,i)=>{const [rx,ry]=rad(i);const f=S.focus===r.k;const its=items(r);const d=its.filter(x=>x.on).length;const q=its.length?d/its.length:0;tot+=its.length;dn+=d;
-    const [ix,iy]=i?rad(i-1):[0,0];
-    svg+=`<path class="ann" data-i="${i}" data-open="${r.k}" fill-rule="evenodd" fill="${COL[i]}" fill-opacity="${.34+q*.3}" data-base="${.34+q*.3}" style="cursor:pointer" d="M ${CX-rx} ${CY} a ${rx} ${ry} 0 1 0 ${2*rx} 0 a ${rx} ${ry} 0 1 0 ${-2*rx} 0 ${i?`M ${CX-ix} ${CY} a ${ix} ${iy} 0 1 0 ${2*ix} 0 a ${ix} ${iy} 0 1 0 ${-2*ix} 0`:""}"/>`;
-    if(q>0)svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="#FFD58A" stroke-width="${4+q*10}" opacity="${.25+q*.55}" filter="url(#glow)"/>`;
-    svg+=`<ellipse cx="${CX}" cy="${CY}" rx="${rx}" ry="${ry}" fill="none" stroke="${q>=1?"#E9A83A":"#9A6E2E"}" stroke-width="${2+q*2.4+(f?1:0)}" opacity="${.75+q*.25}" ${f?'stroke-dasharray="10 6"':''}/>`;
-    // 字沿著漣漪寫（上半圈）
-    const tr=rx-26,ty=ry-26;
-    svg+=`<path id="arc${i}" d="M ${CX-tr} ${CY} A ${tr} ${ty} 0 0 1 ${CX+tr} ${CY}" fill="none"/>`;
-    if(i>0)svg+=`<text font-size="${i<2?14:15}" letter-spacing="3" fill="#4A3424" style="pointer-events:none;font-family:'Songti TC','Noto Serif TC',serif;font-weight:700;paint-order:stroke" stroke="rgba(255,250,240,.75)" stroke-width="4"><textPath href="#arc${i}" startOffset="50%" text-anchor="middle">${r.n}${i>1?"・"+r.sub.split("、").slice(0,3).join(" "):""}</textPath></text>`;
-    // 切線上的點 → 剖面那一層
-    const px=CX+rx,py=CY,by=bandY(i)+BH/2;
-    svg+=`<path style="pointer-events:none" d="M ${px} ${py} C ${px+60} ${py}, 860 ${by}, 930 ${by}" fill="none" stroke="${f?"#E2B867":"#B8893A"}" stroke-width="${f?2.2:1.2}" opacity=".85"/>`;
-    badges+=`<g style="pointer-events:none"><circle cx="${px-ix?px-(rx-ix)/2:px}" cy="${py}" r="11" fill="${COL[i]}" stroke="#fff" stroke-width="1.5"/><text x="${px-ix?px-(rx-ix)/2:px}" y="${py+4.5}" text-anchor="middle" font-size="12" font-weight="700" fill="${i<3?"#fff":"#3A2A24"}">${i+1}</text></g>`;
-    const dark=i<3,ink=dark?"#FFF3E6":"#3A2A24",sub=dark?"rgba(255,243,230,.75)":"#6A5246";
-    html+=`<div class="band" data-i="${i}" style="top:${bandY(i)}px;height:${BH}px;background:${COL[i]};color:${ink};${f?"box-shadow:inset 0 0 0 3px #E2B867;":""}">
-      <div class="nm" data-open="${r.k}"><span style="font-size:12px;letter-spacing:.2em;color:${sub}">第 ${i+1} 層　${d}/${its.length}</span><span style="display:flex;align-items:center;gap:8px">${icon(i,ink,28)}<span class="serif" style="font-size:30px;line-height:1.1">${r.n}</span></span><span style="font-size:12px;color:${sub}">${r.sub}</span><span style="font-size:12px;color:${dark?"#FFD58A":"#8A6E4B"}">詳細 ›</span></div>
-      <div class="ss2"><div><b>軟</b>${r.soft}</div><div><b style="color:${dark?"#FFB4A4":"#8E2B2B"}">性感</b>${r.sexy}</div></div>
-      <div class="tk">${taskHTML(r)}</div><div style="position:absolute;left:0;bottom:0;height:5px;width:${q*100}%;background:#FFD58A;transition:width .4s"></div></div>`;
-  });
-  // 水平切線
-  const [mx]=rad(5);
-  svg+=`<line x1="${CX}" y1="${CY}" x2="${CX+mx+20}" y2="${CY}" stroke="#8E2B2B" stroke-width="1.5" stroke-dasharray="6 5"/>`;
-  svg+=`<text x="${CX+mx+16}" y="${CY-10}" font-size="13" fill="#8E2B2B" text-anchor="end" letter-spacing="2">✂ 從中心切開</text>`;
-  svg+=badges;
-  svg+=`<text x="${CX}" y="${CY-16}" text-anchor="middle" font-size="18" fill="#4A3424" style="font-family:'Songti TC','Noto Serif TC',serif;font-weight:700;paint-order:stroke" stroke="rgba(255,250,240,.8)" stroke-width="4">心</text>`;
-  $("svg").innerHTML=svg;
-  html+=`<div style="position:absolute;left:930px;top:22px;width:722px;display:flex;align-items:baseline;gap:14px;color:#3A2A24"><span class="serif" style="font-size:22px;letter-spacing:4px">剖面</span><span style="font-size:13px;color:#6A5246">把水盆切開，就是六層由內到外。越下面越根本、越慢；越上面越快、越容易換。</span></div>
-    <div style="position:absolute;left:930px;top:${BT+6*BH+12}px;width:722px;display:flex;justify-content:space-between;font-size:13px;color:#6A5246"><span>做到的打勾，那一圈漣漪就會亮　<b class="serif" style="font-size:20px;color:#3A2A24">${dn}</b> / ${tot}</span><span>第三層「身體」是地基，佔美的六成</span></div>`;
-  $("labels").innerHTML=html;
-  const f=R.find(r=>r.k===S.focus);$("focusName").textContent=f.n+"・"+f.sub;
+  const q=R.map(prog);
+  let g=`<defs>
+   <radialGradient id="gh"><stop offset="0" stop-color="#FFE0B0"/><stop offset=".45" stop-color="#E98A7A" stop-opacity=".75"/><stop offset="1" stop-color="#C0505A" stop-opacity="0"/></radialGradient>
+   <radialGradient id="ga" cx="50%" cy="50%" r="50%"><stop offset=".72" stop-color="#F6DC9A" stop-opacity="0"/><stop offset=".88" stop-color="#F6DC9A" stop-opacity="${.35+q[5]*.4}"/><stop offset="1" stop-color="#F6DC9A" stop-opacity="0"/></radialGradient>
+   <filter id="bl"><feGaussianBlur stdDeviation="5"/></filter></defs>`;
+  // 6 風格（虛）：全身外圍的光暈
+  g+=`<ellipse cx="${C[0]}" cy="${C[1]}" rx="${RX[5]+40}" ry="${(RX[5]+40)*K}" fill="url(#ga)"/>`;
+  // 實體：實心輪廓＋淡淡的色面
+  [2,3].forEach(i=>{g+=`<path d="${ell(RX[i])}" fill="${COL[i]}" fill-opacity="${i===2?.16:.08}" style="mix-blend-mode:multiply"/><ellipse cx="${C[0]}" cy="${C[1]}" rx="${RX[i]}" ry="${RX[i]*K}" fill="none" stroke="${COL[i]}" stroke-width="3"/>`;});
+  // 行為：虛線，做越多越亮越粗
+  [1,4].forEach(i=>{if(q[i]>0)g+=`<ellipse cx="${C[0]}" cy="${C[1]}" rx="${RX[i]}" ry="${RX[i]*K}" fill="none" stroke="#FFD58A" stroke-width="${6+q[i]*10}" opacity="${.3+q[i]*.5}" filter="url(#bl)"/>`;
+    g+=`<ellipse cx="${C[0]}" cy="${C[1]}" rx="${RX[i]}" ry="${RX[i]*K}" fill="none" stroke="${q[i]>=1?"#E9A83A":COL[i]}" stroke-width="${2.4+q[i]*2}" stroke-dasharray="9 7" stroke-linecap="round"/>`;});
+  // 1 心（虛）：胸口的光
+  g+=`<circle class="beat" cx="${C[0]}" cy="${C[1]}" r="${46+q[0]*16}" fill="url(#gh)"/><path d="M855 466s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z" fill="#fff"/>`;
+  // 尺：從心口往右上
+  const A=-52*Math.PI/180,pts=RX.map(rx=>[C[0]+rx*Math.cos(A),C[1]+rx*K*Math.sin(A)]);
+  g+=`<path d="M${C[0]} ${C[1]} L${pts[5][0]+40} ${pts[5][1]-52}" stroke="#8E2B2B" stroke-width="1.4" stroke-dasharray="5 5"/>`;
+  $("sv").innerHTML=g;
+  let u=R.map((r,i)=>`<button class="pill${S.focus===r.k?" focus":""}" data-open="${r.k}" style="left:${pts[i][0]}px;top:${pts[i][1]}px;background:${COL[i]}"><i>${ic(i,"#fff",15)}</i>${r.n}</button>`).join("");
+  // 左：一句話＋圖例
+  u+=`<div class="left"><div class="serif" style="font-size:46px;line-height:1.22;letter-spacing:.08em">由內<br>到外</div>
+   <div style="margin-top:16px;font-size:15px;line-height:1.9;color:#5A4228">中間是摸得到的你，<br>兩邊是你每天做的事，<br>最裡面和最外面，都是看不見的。</div>
+   <div class="key">
+    <svg width="54" height="22"><defs><radialGradient id="k1"><stop offset="0" stop-color="#E98A7A"/><stop offset="1" stop-color="#E98A7A" stop-opacity="0"/></radialGradient></defs><ellipse cx="27" cy="11" rx="24" ry="10" fill="url(#k1)"/></svg><span><b>光＝虛</b>　心、風格｜用感受照顧</span>
+    <svg width="54" height="22"><line x1="4" y1="11" x2="50" y2="11" stroke="#9A5444" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round"/></svg><span><b>虛線＝行為</b>　養護、修飾｜每天去做</span>
+    <svg width="54" height="22"><line x1="4" y1="11" x2="50" y2="11" stroke="#AE7552" stroke-width="3.5"/></svg><span><b>實線＝實體</b>　身體、結構｜慢慢養、久久改</span>
+   </div></div>`;
+  // 右：對照表，由外到內，依種類分組
+  const order=[5,4,3,2,1,0];let last="";
+  u+=`<div class="leg">`+order.map(i=>{const r=R[i],it=items(r),d=it.filter(x=>x.on).length;let h="";
+    if(KIND[i]!==last){h+=`<div class="grp">${KIND[i]}</div>`;last=KIND[i];}
+    const note=(S.note[r.k]||{})[today()];
+    const c=KIND[i]==="虛"?(note?"今天寫了 ✓":"今天一句"):`${d}/${it.length}`;
+    return h+`<button class="row${S.focus===r.k?" focus":""}" data-open="${r.k}"><span class="dot" style="background:${COL[i]}">${ic(i,"#fff",22)}</span><span><div class="t">${i+1}　${r.n}<small>${r.sub}</small></div><div class="w"><b>軟</b>${r.soft}</div></span><span class="c">${c} ›</span></button>`;}).join("")+`</div>`;
+  const f=R.find(r=>r.k===S.focus);
+  u+=`<div class="strip"><span>本月重點：<b style="color:#FFE7C2">${f.n}・${f.sub}</b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>`;
+  $("ui").innerHTML=u;
   document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openD(b.dataset.open));
-  document.querySelectorAll("#labels [data-key]").forEach(b=>b.onclick=()=>toggle(b.dataset.key));
-  document.querySelectorAll(".band").forEach(b=>{const i=b.dataset.i;b.onmouseenter=()=>hl(i);b.onmouseleave=()=>hl(null);});
-  document.querySelectorAll(".ann").forEach(a=>{a.onmouseenter=()=>hl(a.dataset.i);a.onmouseleave=()=>hl(null);});
   if(cur)openD(cur);
 }
-function hl(i){document.querySelectorAll(".ann").forEach(a=>a.setAttribute("fill-opacity",a.dataset.i===i?.7:a.dataset.base));
-  document.querySelectorAll(".band").forEach(b=>b.style.filter=i!=null&&b.dataset.i!==i?"saturate(.5) opacity(.55)":"");}
 let cur=null;
-function openD(k){cur=k;const r=R.find(x=>x.k===k),i=R.indexOf(r);
+function openD(k){cur=k;const r=R.find(x=>x.k===k),i=R.indexOf(r),kind=KIND[i];
+  const note=(S.note[k]||{})[today()]||"";
+  const body=kind==="虛"
+   ?`<div style="font-size:13px;color:#8A6E4B">今天一句（看不見的東西，用一句話照顧它）</div><textarea id="nt" placeholder="${i===0?"今天喜歡自己的一個地方……":"今天別人感受到的我……"}">${note.replace(/</g,"&lt;")}</textarea><div style="display:flex;flex-direction:column;gap:6px">${items(r).map(it=>`<button class="chk${it.on?" on":""}" data-key="${it.key}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("")}</div>`
+   :`<div style="display:flex;flex-direction:column;gap:6px">${items(r).map(it=>`<button class="chk${it.on?" on":""}" data-key="${it.key}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("")}</div>`;
   $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start">
-    <div><div style="font-size:13px;color:#8A6E4B;letter-spacing:.2em">第 ${i+1} 圈</div><div class="serif" style="font-size:32px">${r.n}</div><div style="font-size:14px;color:#6A5246">${r.sub}</div></div>
+    <div><div style="font-size:13px;color:#8A6E4B;letter-spacing:.2em">第 ${i+1} 層・${kind}</div><div class="serif" style="font-size:32px;display:flex;align-items:center;gap:10px"><span style="width:40px;height:40px;border-radius:50%;background:${COL[i]};display:grid;place-items:center">${ic(i,"#fff",22)}</span>${r.n}</div><div style="font-size:14px;color:#6A5246;margin-top:4px">${r.sub}</div></div>
     <button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;color:#3A2A24;font-size:20px">×</button></div>
     <div style="font-size:15px;line-height:1.8">${r.why}</div>
-    <div class="ss" style="font-size:14px;padding:10px 12px"><b>軟</b><span>${r.soft}</span><b class="x">性感</b><span>${r.sexy}</span></div>
-    <div style="display:flex;flex-direction:column;gap:6px">${taskHTML(r)}</div>
-    <div class="links">${r.links.map(([t,u])=>`<a class="go" style="min-height:38px;font-size:14px" href="${u}">${t} →</a>`).join("")}</div>
+    <div class="ss"><b>軟</b><span>${r.soft}</span><b class="x">性感</b><span>${r.sexy}</span></div>
+    ${body}
+    <div style="display:flex;flex-wrap:wrap;gap:8px">${r.links.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div>
     <button id="f" style="min-height:46px;border-radius:12px;border:0;background:${S.focus===r.k?"#E9D9BE":"#3A2A24"};color:${S.focus===r.k?"#5A4228":"#FFF6EC"};font-size:15px">${S.focus===r.k?"這是這個月的重點":"設成這個月的重點"}</button>`;
   $("detail").classList.add("on");
-  $("x").onclick=()=>{cur=null;$("detail").classList.remove("on");};
+  $("x").onclick=closeD;
   $("f").onclick=()=>{S.focus=r.k;save();render();};
   $("dbox").querySelectorAll("[data-key]").forEach(b=>b.onclick=()=>toggle(b.dataset.key));
+  const nt=$("nt");if(nt)nt.oninput=()=>{(S.note[k]=S.note[k]||{})[today()]=nt.value;save();};
 }
-$("detail").addEventListener("click",e=>{if(e.target.id==="detail"){cur=null;$("detail").classList.remove("on");}});
+function closeD(){cur=null;$("detail").classList.remove("on");render();}
+$("detail").addEventListener("click",e=>{if(e.target.id==="detail")closeD();});
 function fit(){const s=Math.min(innerWidth/1680,innerHeight/944);$("stage").style.transform=`scale(${s})`;$("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";}
 addEventListener("resize",fit);render();fit();
 $("back").onclick=()=>{location.href="../scenes/?s=beauty";};

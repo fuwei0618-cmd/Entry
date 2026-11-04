@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c1814">
+<title>妝台（舊版）</title>
+<link rel="apple-touch-icon" href="../venus/icon-180.png"><link rel="icon" href="../venus/icon-192.png">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#1c1814;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+#bg{position:fixed;inset:-40px;background:url(face-s.webp) center/cover;filter:blur(30px) brightness(.55);transform:scale(1.1)}
+#view{position:fixed;inset:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;display:flex;align-items:center}
+#view::-webkit-scrollbar{display:none}
+#sizer{position:relative;flex-shrink:0;margin:0 auto}
+#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:#E8DCCB}
+#stage>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#stage>svg{position:absolute;inset:0}
+.dark{background:rgba(40,28,22,.86);color:#FFF6EC}
+.serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
+button{font:inherit;cursor:pointer}
+.pill{font-size:14px;min-height:36px;padding:0 10px;border-radius:10px;background:transparent;color:#FFF6EC;border:1px solid rgba(255,246,236,.35)}
+.pill.on{background:#FFF6EC;color:#3A2A24;font-weight:700;border-color:#FFF6EC}
+.lab{position:absolute;display:flex;align-items:center;gap:10px;height:70px;padding:0 14px;border-radius:14px;background:rgba(255,250,244,.95);box-shadow:0 2px 8px rgba(30,20,14,.15);white-space:nowrap}
+.lab.L{flex-direction:row-reverse}
+.lab .n{width:24px;height:24px;border-radius:50%;background:#3A2A24;color:#FFF6EC;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lab .t{display:flex;flex-direction:column;gap:2px}
+.lab.L .t{align-items:flex-end}
+.lab .nm{font-size:15px;font-weight:700}
+.lab .tip{font-size:12px;font-weight:400;color:#6A5246}
+.lab .how{font-size:14px;color:#2E2420}
+.lab .why{font-size:12px;color:#9A4A2E}
+.tray{font-size:14px;min-height:40px;padding:0 14px;border-radius:999px;background:transparent;color:#FFF6EC;border:1px solid rgba(255,246,236,.4)}
+.tray.on{background:#E9B08A;color:#2E2420;font-weight:700;border-color:#E9B08A}
+.braid{font-size:14px;min-height:40px;padding:0 10px;border-radius:10px;border:1px solid #E2D3C2;background:#fff;color:#2E2420;display:flex;justify-content:space-between;align-items:center}
+.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+</style></head><body>
+<div id="bg"></div>
+<button class="back" id="back">← 梳化間</button>
+<div id="view"><div id="sizer"><div id="stage">
+  <img src="face.webp" alt="素顏正面特寫">
+  <svg id="svg" width="1680" height="944" viewBox="0 0 1680 944" aria-hidden="true"></svg>
+
+  <div class="dark" style="position:absolute;left:24px;top:76px;width:540px;display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <span class="serif" style="font-size:26px;letter-spacing:4px">妝台</span>
+      <div id="zones" style="display:flex;gap:4px"></div>
+    </div>
+    <div id="tabs" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px"></div>
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <span id="keys" class="serif" style="font-size:20px;color:#F2C9A8;letter-spacing:3px"></span>
+      <span id="focus" style="font-size:13px;opacity:.85"></span>
+    </div>
+    <div style="font-size:12.5px;line-height:1.6;padding-top:6px;border-top:1px solid rgba(255,246,236,.2)"><b style="color:#F2C9A8">化妝＝光影＋顏色</b>　亮的往前凸、暗的往後退；只做粉底遮瑕會像沒化，要加眉、腮紅、唇。</div>
+  </div>
+
+  <div style="position:absolute;right:24px;top:20px;width:150px;height:200px;border-radius:16px;border:2px dashed rgba(58,42,36,.45);background:rgba(255,250,244,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;color:#6A5246">
+    <span id="refname" style="font-size:14px;font-weight:700"></span><span style="font-size:12px">之後放這裡</span>
+  </div>
+
+  <div id="labels"></div>
+
+    <div style="position:absolute;right:24px;bottom:96px;width:400px;padding:12px 14px;border-radius:16px;background:rgba(255,250,244,.94);display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span class="serif" style="font-size:17px">短髮編髮</span><span style="font-size:12px;color:#6A5246">點一下＝練一次</span>
+    </div>
+    <div id="braids" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px"></div>
+  </div>
+
+  <div class="dark" style="position:absolute;left:24px;right:24px;bottom:20px;height:62px;padding:0 16px;border-radius:18px;display:flex;align-items:center;gap:12px">
+    <span class="serif" style="font-size:17px;white-space:nowrap">今天的托盤</span>
+    <span id="trayDone" style="font-size:13px;opacity:.85;white-space:nowrap"></span>
+    <div id="tray" style="flex:1;display:flex;gap:8px;justify-content:flex-end"></div>
+  </div>
+</div></div></div>
+
+<script>
+const LOOKS=[
+ {name:"日系",keys:"霧・淡・圓",who:"舒適層",focus:"霧面底妝、圓圓腮紅",blush:"#E99A80",bop:.4,bx:738,by:482,brx:46,bry:28,rot:0,cop:.08,hop:.2,eop:.15,lip:"rgba(200,110,90,0.4)",gloss:0,brow:"#6A4A36",bw:4,lw:.8,wing:0},
+ {name:"水感",keys:"光・粉・無辜",who:"Sánchez",focus:"腮紅掃高、臥蠶、唇蜜",blush:"#F58FA0",bop:.45,bx:745,by:458,brx:48,bry:26,rot:-8,cop:.12,hop:.85,eop:.15,lip:"rgba(240,95,115,0.45)",gloss:1,brow:"#6A4A36",bw:4,lw:1.4,wing:0},
+ {name:"千金",keys:"淨・精・貴",who:"Chiara",focus:"眉形俐落、細眼線、玫瑰唇",blush:"#E39C88",bop:.3,bx:730,by:486,brx:42,bry:24,rot:-5,cop:.22,hop:.5,eop:.22,lip:"rgba(186,100,110,0.55)",gloss:0,brow:"#4E3424",bw:5,lw:2,wing:0},
+ {name:"混血",keys:"深・立體・對比",who:"Shakira",focus:"修容深、濃眉、上揚眼線",blush:"#D07A62",bop:.4,bx:712,by:476,brx:58,bry:18,rot:-24,cop:.5,hop:.75,eop:.45,lip:"rgba(190,110,100,0.55)",gloss:0,brow:"#2E1C12",bw:7,lw:3,wing:1}
+];
+const STEPS=[
+ ["base","primer","妝前乳","espoir 粉色","只擦額頭、鼻子、下巴","皮膚平了，粉才不會卡","L",790,300],
+ ["base","foundation","粉底","Lancome・粉底刷","從臉中間往外推，越外越薄","統一膚色，不是蓋住","L",700,470],
+ ["base","conceal","遮瑕","遮瑕盤・斜角刷","只點眼下三角和泛紅的點","哪裡不均就點哪裡","L",745,428],
+ ["base","setting","定妝","Mooekiss・粉撲","只壓法令紋、眼下、嘴邊","會出油、會動的地方才壓","L",800,560],
+ ["base","blush","腮紅","RedChamber・指腹","笑起來最高的地方，往斜上拍","放高＝可愛，往斜＝成熟","L",738,482],
+ ["base","contour","修容","Mooekiss・扁刷","刷臉的外圈：鬢角、下顎、鼻側","暗的地方會往後退，臉變小","L",676,520],
+ ["base","highlight","高光","迷你扇形刷","點骨頭最高處：鼻樑、顴骨、下巴","亮的地方會往前凸","L",855,440],
+ ["eye","shadow","眼影","大號眼影刷","睫毛根部最深，往上越淡","越靠根部越深，眼睛越深邃","R",950,362],
+ ["eye","liner","眼線","眼影粉定位、液筆","貼著睫毛根部填滿，眼尾拉一點","填滿空隙，眼睛就變大","R",986,380],
+ ["eye","lash","睫毛","eyecurl","夾三下：根部、中段、尾端","夾翹比刷濃重要","R",935,368],
+ ["eye","aegyo","臥蠶","HOLIKA","眼下中間點亮，下緣一條淡影","中間亮、下面暗，就有笑眼","R",948,412],
+ ["brow","brow","眉毛","眉筆 GR03","先畫眉尾，眉頭最後輕輕帶","眉頭淡、眉尾清楚最自然","R",960,322],
+ ["lip","lip","唇","花洛莉亞","先壓底色，從唇中間往外塗","跟腮紅同色系，臉就不亂","R",912,590]
+];
+const ZONES=[["all","全部"],["base","底妝"],["eye","眼"],["brow","眉"],["lip","唇"]];
+const TRAY=["底妝","眉筆","睫毛夾","腮紅","唇","一支刷子"];
+const BRAIDS=[["鬆鬆半紮","舒適"],["兩側扭轉","Chiara"],["耳後小麻花","Sánchez"],["側邊貼頭皮編","Shakira"]];
+const KEY="origina-vanity-v1";
+const today=new Date().toLocaleDateString("sv");
+let S={look:0,zone:"all",trayDay:today,tray:[0,0,0,0,0,0],braids:[0,0,0,0]};
+try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,o);}catch(e){}
+if(S.trayDay!==today){S.trayDay=today;S.tray=[0,0,0,0,0,0];}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const $=id=>document.getElementById(id);
+
+function face(){
+  const L=LOOKS[S.look],on=st=>S.zone==="all"||st[0]===S.zone,v={};
+  STEPS.forEach(st=>v[st[1]]=on(st)?1:.12);
+  const POS=[[],[]];
+  const bx2=1710-L.bx;
+  const lineL="M726,383 Q760,369 797,381"+(L.wing?" L812,372":""),lineR="M984,381 Q950,367 913,379"+(L.wing?" M984,381 L1000,372":"");
+  let marks="";
+  const labs=[];
+  ["L","R"].forEach(side=>{
+    let prev=side==="L"?236:140;
+    STEPS.map((st,i)=>({st,i})).filter(o=>o.st[6]===side&&on(o.st)).forEach(({st,i})=>{
+      const x=st[7],y=st[8],ly=prev+78;prev=ly;
+      const edgeX=side==="L"?580:1130,elbowX=side==="L"?620:1090;
+      marks+=`<polyline points="${x},${y} ${elbowX},${ly} ${edgeX},${ly}" fill="none" stroke="rgba(58,42,36,0.7)" stroke-width="1.3"/><circle cx="${x}" cy="${y}" r="4" fill="#3A2A24" stroke="#fff" stroke-width="1.5"/>`;
+      labs.push(`<div class="lab ${side}" style="top:${ly-35}px;${side==="L"?`right:${1680-edgeX}px`:`left:${edgeX}px`}"><span class="n">${i+1}</span><span class="t"><span class="nm">${st[2]}<span class="tip">　${st[3]}</span></span><span class="how">${st[4]}</span><span class="why">${st[5]}</span></span></div>`);
+    });
+  });
+  $("svg").innerHTML=`<defs><filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter><filter id="softer" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5"/></filter></defs>
+<g opacity="${v.primer}" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"><path d="M760,300 L950,300 M855,300 L855,500 M820,670 Q855,690 890,670"/></g>
+<g opacity="${v.foundation}" fill="none" stroke="rgba(255,240,220,0.95)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M790,480 L700,470 M708,462 L700,470 L708,478"/><path d="M920,480 L1010,470 M1002,462 L1010,470 L1002,478"/></g>
+<g opacity="${v.conceal}" fill="rgba(250,226,170,0.6)"><path d="M724,414 L796,414 L760,474 Z"/><path d="M914,414 L986,414 L950,474 Z"/></g>
+<g opacity="${v.setting}" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-dasharray="2 6" stroke-linecap="round"><path d="M800,520 Q790,555 800,600 M910,520 Q920,555 910,600"/></g>
+<g opacity="${v.blush}" filter="url(#soft)"><ellipse cx="${L.bx}" cy="${L.by}" rx="${L.brx}" ry="${L.bry}" transform="rotate(${L.rot} ${L.bx} ${L.by})" fill="${L.blush}" fill-opacity="${L.bop}"/><ellipse cx="${bx2}" cy="${L.by}" rx="${L.brx}" ry="${L.bry}" transform="rotate(${-L.rot} ${bx2} ${L.by})" fill="${L.blush}" fill-opacity="${L.bop}"/></g>
+<g opacity="${v.contour}" filter="url(#soft)" fill="none" stroke="#7A4E34" stroke-width="16" stroke-linecap="round" stroke-opacity="${L.cop}"><path d="M662,400 Q660,470 690,540 Q720,610 780,650"/><path d="M1048,400 Q1050,470 1020,540 Q990,610 930,650"/><path d="M828,380 L824,480 M882,380 L886,480" stroke-width="8"/></g>
+<g opacity="${v.highlight}" filter="url(#softer)" fill="none" stroke="#fff" stroke-linecap="round" stroke-opacity="${L.hop}"><path d="M855,372 L855,470" stroke-width="7"/><path d="M752,452 Q770,444 790,450 M920,450 Q940,444 958,452" stroke-width="7"/><circle cx="855" cy="668" r="7" fill="#fff" fill-opacity="${L.hop}" stroke="none"/></g>
+<g opacity="${v.shadow}" filter="url(#soft)"><ellipse cx="760" cy="364" rx="40" ry="12" fill="#B07A5A" fill-opacity="${L.eop}"/><ellipse cx="950" cy="362" rx="40" ry="12" fill="#B07A5A" fill-opacity="${L.eop}"/></g>
+<g opacity="${v.liner}" fill="none" stroke="#2A1A14" stroke-linecap="round" stroke-width="${L.lw}"><path d="${lineL}"/><path d="${lineR}"/></g>
+<g opacity="${v.lash}" fill="none" stroke="#2A1A14" stroke-width="1.4" stroke-linecap="round"><path d="M735,374 l-3,-8 M748,370 l-2,-9 M762,369 l0,-9 M776,370 l2,-9 M788,374 l3,-8"/><path d="M922,372 l-3,-8 M935,368 l-2,-9 M949,367 l0,-9 M963,368 l2,-9 M975,372 l3,-8"/></g>
+<g opacity="${v.aegyo}" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-opacity="0.85"><path d="M730,404 Q760,418 792,404"/><path d="M918,404 Q948,418 980,404"/></g>
+<g opacity="${v.brow}" fill="none" stroke="${L.brow}" stroke-linecap="round" stroke-width="${L.bw}" stroke-opacity="0.8"><path d="M672,334 Q730,314 800,326"/><path d="M1038,334 Q980,314 910,326"/></g>
+<g opacity="${v.lip}"><path d="M787,588 Q818,556 855,566 Q892,556 925,588 Q892,624 855,622 Q818,624 787,588 Z" fill="${L.lip}"/>${L.gloss?'<ellipse cx="855" cy="604" rx="18" ry="4" fill="rgba(255,255,255,0.75)"/>':""}</g>
+${marks}`;
+  $("labels").innerHTML=labs.join("");
+  $("keys").textContent=L.keys;$("focus").textContent=L.who+"・"+L.focus;$("refname").textContent=L.name+"參考圖";
+}
+
+function ui(){
+  $("tabs").innerHTML="";LOOKS.forEach((l,i)=>{const b=document.createElement("button");b.className="pill"+(i===S.look?" on":"");b.textContent=l.name;b.setAttribute("aria-pressed",i===S.look);b.onclick=()=>{S.look=i;save();render();};$("tabs").appendChild(b);});
+  $("zones").innerHTML="";ZONES.forEach(([k,n])=>{const b=document.createElement("button");b.className="pill"+(S.zone===k?" on":"");b.textContent=n;b.setAttribute("aria-pressed",S.zone===k);b.onclick=()=>{S.zone=k;save();render();};$("zones").appendChild(b);});
+  $("tray").innerHTML="";TRAY.forEach((t,i)=>{const b=document.createElement("button");b.className="tray"+(S.tray[i]?" on":"");b.textContent=t;b.setAttribute("aria-pressed",!!S.tray[i]);b.onclick=()=>{S.tray[i]=S.tray[i]?0:1;save();render();};$("tray").appendChild(b);});
+  $("trayDone").textContent=S.tray.filter(Boolean).length+"／6";
+  $("braids").innerHTML="";BRAIDS.forEach(([n,w],i)=>{const b=document.createElement("button");b.className="braid";b.innerHTML=`<span>${n}<span style="font-size:11px;color:#7A5A48">　${w}</span></span><span style="font-size:12px;color:#9A4A2E">${S.braids[i]} 次</span>`;b.onclick=()=>{S.braids[i]++;save();render();};$("braids").appendChild(b);});
+}
+function render(){face();ui();}
+
+function fit(){
+  const vw=innerWidth,vh=innerHeight;
+  const s=Math.min(vw/1680,vh/944);
+  $("stage").style.transform=`scale(${s})`;
+  $("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";
+  const v=$("view");v.scrollLeft=(v.scrollWidth-v.clientWidth)/2;
+}
+addEventListener("resize",fit);
+render();fit();
+$("back").onclick=()=>{location.href="../scenes/?s=glam";};
+</script>
+</body></html>

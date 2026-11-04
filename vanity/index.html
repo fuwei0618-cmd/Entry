@@ -6,72 +6,59 @@
 <link rel="apple-touch-icon" href="../venus/icon-180.png"><link rel="icon" href="../venus/icon-192.png">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#1c1814;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
-#bg{position:fixed;inset:-40px;background:url(face-s.webp) center/cover;filter:blur(30px) brightness(.55);transform:scale(1.1)}
-#view{position:fixed;inset:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;display:flex;align-items:center}
-#view::-webkit-scrollbar{display:none}
-#sizer{position:relative;flex-shrink:0;margin:0 auto}
-#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:#E8DCCB}
-#stage>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-#stage>svg{position:absolute;inset:0}
-.dark{background:rgba(40,28,22,.86);color:#FFF6EC}
-.serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
+html,body{margin:0;height:100%;background:#EADFD0;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+#view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#sizer{position:relative;flex-shrink:0}
+#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:#EFE5D8}
+#face{position:absolute;left:-470px;top:0;width:1680px;height:944px;object-fit:cover;-webkit-mask:linear-gradient(90deg,#000 62%,transparent 70%);mask:linear-gradient(90deg,#000 62%,transparent 70%)}
+#sv{position:absolute;inset:0;pointer-events:none}
 button{font:inherit;cursor:pointer}
-.pill{font-size:14px;min-height:36px;padding:0 10px;border-radius:10px;background:transparent;color:#FFF6EC;border:1px solid rgba(255,246,236,.35)}
-.pill.on{background:#FFF6EC;color:#3A2A24;font-weight:700;border-color:#FFF6EC}
-.lab{position:absolute;display:flex;align-items:center;gap:10px;height:70px;padding:0 14px;border-radius:14px;background:rgba(255,250,244,.95);box-shadow:0 2px 8px rgba(30,20,14,.15);white-space:nowrap}
-.lab.L{flex-direction:row-reverse}
-.lab .n{width:24px;height:24px;border-radius:50%;background:#3A2A24;color:#FFF6EC;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.lab .t{display:flex;flex-direction:column;gap:2px}
-.lab.L .t{align-items:flex-end}
-.lab .nm{font-size:15px;font-weight:700}
-.lab .tip{font-size:12px;font-weight:400;color:#6A5246}
-.lab .how{font-size:14px;color:#2E2420}
-.lab .why{font-size:12px;color:#9A4A2E}
-.tray{font-size:14px;min-height:40px;padding:0 14px;border-radius:999px;background:transparent;color:#FFF6EC;border:1px solid rgba(255,246,236,.4)}
-.tray.on{background:#E9B08A;color:#2E2420;font-weight:700;border-color:#E9B08A}
-.braid{font-size:14px;min-height:40px;padding:0 10px;border-radius:10px;border:1px solid #E2D3C2;background:#fff;color:#2E2420;display:flex;justify-content:space-between;align-items:center}
-.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
+.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px}
+.g{position:absolute;display:flex;align-items:center;gap:10px;border:0;background:rgba(255,251,246,.94);border-radius:999px;padding:6px 16px 6px 6px;box-shadow:0 3px 12px rgba(40,20,10,.18);transform:translateY(-50%)}
+.g i{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 17px "Songti TC",serif;font-style:normal}
+.g b{font:700 18px "Songti TC","Noto Serif TC",serif;color:#3A2A24}
+.g.on{background:#3A2A24}.g.on b{color:#FFE7C2}
+.g.dim{opacity:.5}
+.dot{position:absolute;width:26px;height:26px;border-radius:50%;background:#3A2A24;color:#FFF6EC;font:700 13px sans-serif;display:grid;place-items:center;transform:translate(-50%,-50%);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none}
+.hd{position:absolute;left:660px;top:24px;width:990px}
+.hd .kick{font-size:13px;letter-spacing:.4em;color:#A0805A}
+.hd h1{margin:2px 0 4px;font:700 44px/1.1 "Songti TC","Noto Serif TC",serif;letter-spacing:.12em;color:#3A2A24}
+.hd p{margin:0;font-size:15px;line-height:1.7;color:#5A4228}.hd p b{color:#8E2B2B}
+.card{background:rgba(255,251,246,.86);border-radius:22px;box-shadow:0 6px 24px rgba(60,40,20,.08)}
+.col{position:absolute;left:660px;top:146px;width:990px;display:flex;flex-direction:column;gap:12px}
+.tbl{padding:6px 18px 8px}
+.mx{display:grid;grid-template-columns:230px repeat(4,1fr);font-size:15.5px}
+.mx .lk{border:0;background:none;padding:8px 6px 6px;font:700 17px "Songti TC","Noto Serif TC",serif;color:#8A6E4B;letter-spacing:.2em;border-bottom:2px solid #E6D6C2;text-align:center}
+.mx .lk small{display:block;font:400 12px "PingFang TC",sans-serif;letter-spacing:.05em;color:#A0805A;margin-top:2px}
+.mx .lk.on{color:#3A2A24;border-bottom-color:#8E2B2B;background:rgba(255,241,220,.7);border-radius:12px 12px 0 0}
+.mx .rh{display:flex;align-items:center;gap:10px;padding:8px 6px;border-top:1px solid #EFE3D4;cursor:pointer}
+.mx .rh i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 14px sans-serif;font-style:normal;flex:none}
+.mx .rh b{font:700 17px "Songti TC","Noto Serif TC",serif;color:#3A2A24;display:block}.mx .rh small{font-size:12px;color:#A0805A}
+.mx .c{display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 10px;border-top:1px solid #EFE3D4;color:#5A4228;line-height:1.45;cursor:pointer}
+.mx .c.on{background:rgba(255,241,220,.7);color:#2E2420;font-weight:600}
+.mx .r.sel{background:#FFF3E2}
+.steps{padding:12px 18px;display:flex;flex-direction:column;gap:10px}
+.steps .t{display:flex;align-items:baseline;gap:12px}.steps .t b{font:700 20px "Songti TC",serif}.steps .t span{font-size:13.5px;color:#8A6E4B}
+.sl{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
+.st{display:grid;grid-template-columns:28px 1fr;gap:2px 10px;padding:8px 10px;border-radius:14px;background:#fff;border:1px solid #EFE3D4}
+.st .n{grid-row:span 3;width:26px;height:26px;border-radius:50%;background:#3A2A24;color:#fff;font:700 13px sans-serif;display:grid;place-items:center}
+.st .nm{font-weight:700;font-size:15.5px}.st .nm small{font-weight:400;font-size:12px;color:#8A6E4B;margin-left:6px}
+.st .how{font-size:14px;color:#2E2420}.st .why{font-size:12.5px;color:#9A4A2E}
+.hint{color:#8A6E4B;font-size:14.5px;line-height:1.8}
+.bot{position:absolute;left:660px;bottom:18px;width:990px;display:flex;gap:12px}
+.tray,.braid{white-space:nowrap;border-radius:999px;font-size:13px;min-height:34px;padding:0 9px;border:1px solid #E2D3C2;background:#fff;color:#3A2A24}
+.tray.on{background:#E9B08A;border-color:#E9B08A;font-weight:700}
+.box{padding:8px 14px;display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.box .ttl{font:700 16px "Songti TC",serif;margin-right:4px;white-space:nowrap}
+.box small{font-size:12px;color:#8A6E4B}
 </style></head><body>
-<div id="bg"></div>
 <button class="back" id="back">← 梳化間</button>
 <div id="view"><div id="sizer"><div id="stage">
-  <img src="face.webp" alt="素顏正面特寫">
-  <svg id="svg" width="1680" height="944" viewBox="0 0 1680 944" aria-hidden="true"></svg>
-
-  <div class="dark" style="position:absolute;left:24px;top:76px;width:540px;display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:18px">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-      <span class="serif" style="font-size:26px;letter-spacing:4px">妝台</span>
-      <div id="zones" style="display:flex;gap:4px"></div>
-    </div>
-    <div id="tabs" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px"></div>
-    <div style="display:flex;align-items:baseline;gap:10px">
-      <span id="keys" class="serif" style="font-size:20px;color:#F2C9A8;letter-spacing:3px"></span>
-      <span id="focus" style="font-size:13px;opacity:.85"></span>
-    </div>
-    <div style="font-size:12.5px;line-height:1.6;padding-top:6px;border-top:1px solid rgba(255,246,236,.2)"><b style="color:#F2C9A8">化妝＝光影＋顏色</b>　亮的往前凸、暗的往後退；只做粉底遮瑕會像沒化，要加眉、腮紅、唇。</div>
-  </div>
-
-  <div style="position:absolute;right:24px;top:20px;width:150px;height:200px;border-radius:16px;border:2px dashed rgba(58,42,36,.45);background:rgba(255,250,244,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;color:#6A5246">
-    <span id="refname" style="font-size:14px;font-weight:700"></span><span style="font-size:12px">之後放這裡</span>
-  </div>
-
-  <div id="labels"></div>
-
-    <div style="position:absolute;right:24px;bottom:96px;width:400px;padding:12px 14px;border-radius:16px;background:rgba(255,250,244,.94);display:flex;flex-direction:column;gap:8px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline">
-      <span class="serif" style="font-size:17px">短髮編髮</span><span style="font-size:12px;color:#6A5246">點一下＝練一次</span>
-    </div>
-    <div id="braids" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px"></div>
-  </div>
-
-  <div class="dark" style="position:absolute;left:24px;right:24px;bottom:20px;height:62px;padding:0 16px;border-radius:18px;display:flex;align-items:center;gap:12px">
-    <span class="serif" style="font-size:17px;white-space:nowrap">今天的托盤</span>
-    <span id="trayDone" style="font-size:13px;opacity:.85;white-space:nowrap"></span>
-    <div id="tray" style="flex:1;display:flex;gap:8px;justify-content:flex-end"></div>
-  </div>
+  <img id="face" src="face.webp" alt="素顏正面特寫">
+  <svg id="sv" viewBox="0 0 1680 944" aria-hidden="true"></svg>
+  <div id="ui"></div>
 </div></div></div>
-
 <script>
 const LOOKS=[
  {name:"日系",keys:"霧・淡・圓",who:"舒適層",focus:"霧面底妝、圓圓腮紅",blush:"#E99A80",bop:.4,bx:738,by:482,brx:46,bry:28,rot:0,cop:.08,hop:.2,eop:.15,lip:"rgba(200,110,90,0.4)",gloss:0,brow:"#6A4A36",bw:4,lw:.8,wing:0},
@@ -87,42 +74,41 @@ const STEPS=[
  ["base","blush","腮紅","RedChamber・指腹","笑起來最高的地方，往斜上拍","放高＝可愛，往斜＝成熟","L",738,482],
  ["base","contour","修容","Mooekiss・扁刷","刷臉的外圈：鬢角、下顎、鼻側","暗的地方會往後退，臉變小","L",676,520],
  ["base","highlight","高光","迷你扇形刷","點骨頭最高處：鼻樑、顴骨、下巴","亮的地方會往前凸","L",855,440],
- ["eye","shadow","眼影","大號眼影刷","睫毛根部最深，往上越淡","越靠根部越深，眼睛越深邃","R",950,362],
+ ["eye","shadow","眼影","大號眼影刷","睫毛根部最深，往上越淡","越靠根部越深，眼睛越深邃","R",962,346],
  ["eye","liner","眼線","眼影粉定位、液筆","貼著睫毛根部填滿，眼尾拉一點","填滿空隙，眼睛就變大","R",986,380],
- ["eye","lash","睫毛","eyecurl","夾三下：根部、中段、尾端","夾翹比刷濃重要","R",935,368],
+ ["eye","lash","睫毛","eyecurl","夾三下：根部、中段、尾端","夾翹比刷濃重要","R",915,362],
  ["eye","aegyo","臥蠶","HOLIKA","眼下中間點亮，下緣一條淡影","中間亮、下面暗，就有笑眼","R",948,412],
  ["brow","brow","眉毛","眉筆 GR03","先畫眉尾，眉頭最後輕輕帶","眉頭淡、眉尾清楚最自然","R",960,322],
  ["lip","lip","唇","花洛莉亞","先壓底色，從唇中間往外塗","跟腮紅同色系，臉就不亂","R",912,590]
 ];
-const ZONES=[["all","全部"],["base","底妝"],["eye","眼"],["brow","眉"],["lip","唇"]];
-const TRAY=["底妝","眉筆","睫毛夾","腮紅","唇","一支刷子"];
+
+// 化妝只做四件事
+const G=[
+ {k:"skin",n:"整理膚色",c:"#C9A27A",pt:[290,470],y:470,why:"先把膚色統一，臉才乾淨",steps:["primer","foundation","conceal","setting"],
+  look:["霧面、薄透","光澤、水潤","精緻無瑕、半霧","健康膚色、不要太白"]},
+ {k:"shape",n:"重建立體",c:"#8A6448",pt:[205,520],y:560,why:"亮的往前凸，暗的往後退",steps:["contour","highlight"],
+  look:["幾乎不修，鼻樑一點光","只打亮：顴骨、鼻樑","輕輕修臉的外圈","修容深、高光亮"]},
+ {k:"feat",n:"強化五官",c:"#5A4030",pt:[290,364],y:360,why:"眉眼是臉的重點，畫清楚就有精神",steps:["brow","shadow","liner","lash","aegyo"],
+  look:["平眉、圓眼、睫毛自然","下垂眼線、臥蠶","俐落眉形、細眼線","濃眉、深眼窩、上揚眼線"]},
+ {k:"focus",n:"一個焦點",c:"#B5584A",pt:[385,590],y:650,why:"腮紅或唇選一個當主角，臉才不亂",steps:["blush","lip"],
+  look:["圓圓腮紅在蘋果肌","粉色腮紅掃高＋唇蜜","玫瑰色唇","立體唇、腮紅往斜上"]}];
+const SM={};STEPS.forEach(st=>SM[st[1]]=st);
+const TRAY=["底妝","眉筆","睫毛夾","腮紅","唇","刷子"];
 const BRAIDS=[["鬆鬆半紮","舒適"],["兩側扭轉","Chiara"],["耳後小麻花","Sánchez"],["側邊貼頭皮編","Shakira"]];
 const KEY="origina-vanity-v1";
 const today=new Date().toLocaleDateString("sv");
-let S={look:0,zone:"all",trayDay:today,tray:[0,0,0,0,0,0],braids:[0,0,0,0]};
+let S={look:0,trayDay:today,tray:[0,0,0,0,0,0],braids:[0,0,0,0]};
 try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,o);}catch(e){}
 if(S.trayDay!==today){S.trayDay=today;S.tray=[0,0,0,0,0,0];}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 const $=id=>document.getElementById(id);
-
-function face(){
-  const L=LOOKS[S.look],on=st=>S.zone==="all"||st[0]===S.zone,v={};
-  STEPS.forEach(st=>v[st[1]]=on(st)?1:.12);
-  const POS=[[],[]];
+let sel=null;
+function marks(){
+  const L=LOOKS[S.look],act=sel?G.find(g=>g.k===sel).steps:STEPS.map(s=>s[1]),v={};
+  STEPS.forEach(st=>v[st[1]]=act.includes(st[1])?1:(sel?0:.9));
   const bx2=1710-L.bx;
   const lineL="M726,383 Q760,369 797,381"+(L.wing?" L812,372":""),lineR="M984,381 Q950,367 913,379"+(L.wing?" M984,381 L1000,372":"");
-  let marks="";
-  const labs=[];
-  ["L","R"].forEach(side=>{
-    let prev=side==="L"?236:140;
-    STEPS.map((st,i)=>({st,i})).filter(o=>o.st[6]===side&&on(o.st)).forEach(({st,i})=>{
-      const x=st[7],y=st[8],ly=prev+78;prev=ly;
-      const edgeX=side==="L"?580:1130,elbowX=side==="L"?620:1090;
-      marks+=`<polyline points="${x},${y} ${elbowX},${ly} ${edgeX},${ly}" fill="none" stroke="rgba(58,42,36,0.7)" stroke-width="1.3"/><circle cx="${x}" cy="${y}" r="4" fill="#3A2A24" stroke="#fff" stroke-width="1.5"/>`;
-      labs.push(`<div class="lab ${side}" style="top:${ly-35}px;${side==="L"?`right:${1680-edgeX}px`:`left:${edgeX}px`}"><span class="n">${i+1}</span><span class="t"><span class="nm">${st[2]}<span class="tip">　${st[3]}</span></span><span class="how">${st[4]}</span><span class="why">${st[5]}</span></span></div>`);
-    });
-  });
-  $("svg").innerHTML=`<defs><filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter><filter id="softer" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5"/></filter></defs>
+  return `<defs><filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter><filter id="softer" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5"/></filter></defs>
 <g opacity="${v.primer}" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"><path d="M760,300 L950,300 M855,300 L855,500 M820,670 Q855,690 890,670"/></g>
 <g opacity="${v.foundation}" fill="none" stroke="rgba(255,240,220,0.95)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M790,480 L700,470 M708,462 L700,470 L708,478"/><path d="M920,480 L1010,470 M1002,462 L1010,470 L1002,478"/></g>
 <g opacity="${v.conceal}" fill="rgba(250,226,170,0.6)"><path d="M724,414 L796,414 L760,474 Z"/><path d="M914,414 L986,414 L950,474 Z"/></g>
@@ -136,29 +122,30 @@ function face(){
 <g opacity="${v.aegyo}" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-opacity="0.85"><path d="M730,404 Q760,418 792,404"/><path d="M918,404 Q948,418 980,404"/></g>
 <g opacity="${v.brow}" fill="none" stroke="${L.brow}" stroke-linecap="round" stroke-width="${L.bw}" stroke-opacity="0.8"><path d="M672,334 Q730,314 800,326"/><path d="M1038,334 Q980,314 910,326"/></g>
 <g opacity="${v.lip}"><path d="M787,588 Q818,556 855,566 Q892,556 925,588 Q892,624 855,622 Q818,624 787,588 Z" fill="${L.lip}"/>${L.gloss?'<ellipse cx="855" cy="604" rx="18" ry="4" fill="rgba(255,255,255,0.75)"/>':""}</g>
-${marks}`;
-  $("labels").innerHTML=labs.join("");
-  $("keys").textContent=L.keys;$("focus").textContent=L.who+"・"+L.focus;$("refname").textContent=L.name+"參考圖";
+`;}
+function render(){
+  const L=LOOKS[S.look];
+  let g=`<g transform="translate(-470 0)">${marks()}</g>`;
+  G.forEach((x,i)=>{const on=sel===x.k;g+=`<path d="M150 ${x.y} Q${(150+x.pt[0])/2} ${x.y} ${x.pt[0]} ${x.pt[1]}" fill="none" stroke="#fff" stroke-width="3" opacity="${sel&&!on?.25:.7}"/><path d="M150 ${x.y} Q${(150+x.pt[0])/2} ${x.y} ${x.pt[0]} ${x.pt[1]}" fill="none" stroke="${x.c}" stroke-width="${on?2.4:1.5}" opacity="${sel&&!on?.3:1}"/><circle cx="${x.pt[0]}" cy="${x.pt[1]}" r="5" fill="#fff" stroke="${x.c}" stroke-width="2" opacity="${sel&&!on?.3:1}"/>`;});
+  $("sv").innerHTML=g;
+  let u=G.map((x,i)=>`<button class="g${sel===x.k?" on":""}${sel&&sel!==x.k?" dim":""}" data-g="${x.k}" style="left:24px;top:${x.y}px"><i style="background:${x.c}">${i+1}</i><b>${x.n}</b></button>`).join("");
+  if(sel){const gg=G.find(x=>x.k===sel);gg.steps.forEach(k=>{const st=SM[k],n=STEPS.indexOf(st)+1;u+=`<span class="dot" style="left:${st[7]-470}px;top:${st[8]}px">${n}</span>`;});}
+  u+=`<header class="hd"><div class="kick">梳化間</div><h1>妝台</h1><p><b>化妝＝光影＋顏色</b>。只做四件事，照順序：整理膚色 → 重建立體 → 強化五官 → 一個焦點。<br>選今天要畫的妝，看每一步要注意什麼；點一件事，臉上只畫那一步。</p></header>`;
+  u+=`<div class="col"><div class="card tbl"><div class="mx"><div></div>${LOOKS.map((l,i)=>`<button class="lk${i===S.look?" on":""}" data-look="${i}">${l.name}<small>${l.keys}</small></button>`).join("")}
+   ${G.map((x,i)=>`<div class="rh${sel===x.k?" r sel":""}" data-g="${x.k}"><i style="background:${x.c}">${i+1}</i><span><b>${x.n}</b><small>${x.why}</small></span></div>${x.look.map((t,j)=>`<div class="c${j===S.look?" on":""}${sel===x.k?" r sel":""}" data-g="${x.k}">${t}</div>`).join("")}`).join("")}</div></div>`;
+  if(sel){const gg=G.find(x=>x.k===sel),gi=G.indexOf(gg);
+    u+=`<div class="card steps"><div class="t"><b>${gi+1}　${gg.n}</b><span>${L.name}：${gg.look[S.look]}</span></div><div class="sl">${gg.steps.map(k=>{const st=SM[k],n=STEPS.indexOf(st)+1;return `<div class="st"><span class="n">${n}</span><span class="nm">${st[2]}<small>${st[3]}</small></span><span class="how">${st[4]}</span><span class="why">${st[5]}</span></div>`;}).join("")}</div></div>`;}
+  else u+=`<div class="card steps"><div class="t"><b>${L.name}</b><span>${L.who}・${L.focus}</span></div><div class="hint">點左邊或表格裡的一件事，看那一步的產品和畫法。<br>臉上現在是「${L.name}」全部畫好的樣子。</div></div>`;
+  u+=`</div><div class="bot"><div class="card box" style="flex:1"><span class="ttl">今天的托盤</span><small>${S.tray.filter(Boolean).length}/6</small>${TRAY.map((t,i)=>`<button class="tray${S.tray[i]?" on":""}" data-tray="${i}">${t}</button>`).join("")}</div>
+   <div class="card box"><span class="ttl">編髮</span>${BRAIDS.map(([n,w],i)=>`<button class="braid" data-braid="${i}" title="${w}">${n} <small>${S.braids[i]}</small></button>`).join("")}</div></div>`;
+  $("ui").innerHTML=u;
+  document.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{sel=sel===b.dataset.g?null:b.dataset.g;render();});
+  document.querySelectorAll("[data-look]").forEach(b=>b.onclick=()=>{S.look=+b.dataset.look;save();render();});
+  document.querySelectorAll("[data-tray]").forEach(b=>b.onclick=()=>{const i=+b.dataset.tray;S.tray[i]=S.tray[i]?0:1;save();render();});
+  document.querySelectorAll("[data-braid]").forEach(b=>b.onclick=()=>{S.braids[+b.dataset.braid]++;save();render();});
 }
-
-function ui(){
-  $("tabs").innerHTML="";LOOKS.forEach((l,i)=>{const b=document.createElement("button");b.className="pill"+(i===S.look?" on":"");b.textContent=l.name;b.setAttribute("aria-pressed",i===S.look);b.onclick=()=>{S.look=i;save();render();};$("tabs").appendChild(b);});
-  $("zones").innerHTML="";ZONES.forEach(([k,n])=>{const b=document.createElement("button");b.className="pill"+(S.zone===k?" on":"");b.textContent=n;b.setAttribute("aria-pressed",S.zone===k);b.onclick=()=>{S.zone=k;save();render();};$("zones").appendChild(b);});
-  $("tray").innerHTML="";TRAY.forEach((t,i)=>{const b=document.createElement("button");b.className="tray"+(S.tray[i]?" on":"");b.textContent=t;b.setAttribute("aria-pressed",!!S.tray[i]);b.onclick=()=>{S.tray[i]=S.tray[i]?0:1;save();render();};$("tray").appendChild(b);});
-  $("trayDone").textContent=S.tray.filter(Boolean).length+"／6";
-  $("braids").innerHTML="";BRAIDS.forEach(([n,w],i)=>{const b=document.createElement("button");b.className="braid";b.innerHTML=`<span>${n}<span style="font-size:11px;color:#7A5A48">　${w}</span></span><span style="font-size:12px;color:#9A4A2E">${S.braids[i]} 次</span>`;b.onclick=()=>{S.braids[i]++;save();render();};$("braids").appendChild(b);});
-}
-function render(){face();ui();}
-
-function fit(){
-  const vw=innerWidth,vh=innerHeight;
-  const s=Math.min(vw/1680,vh/944);
-  $("stage").style.transform=`scale(${s})`;
-  $("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";
-  const v=$("view");v.scrollLeft=(v.scrollWidth-v.clientWidth)/2;
-}
-addEventListener("resize",fit);
-render();fit();
+function fit(){const s=Math.min(innerWidth/1680,innerHeight/944);$("stage").style.transform=`scale(${s})`;$("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";}
+addEventListener("resize",fit);render();fit();
 $("back").onclick=()=>{location.href="../scenes/?s=glam";};
 </script>
 </body></html>

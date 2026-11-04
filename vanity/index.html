@@ -22,6 +22,7 @@ button{font:inherit;cursor:pointer}
 .g.dim{opacity:.5}
 .dot{position:absolute;width:26px;height:26px;border-radius:50%;background:#3A2A24;color:#FFF6EC;font:700 13px sans-serif;display:grid;place-items:center;transform:translate(-50%,-50%);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none}
 .hd{position:absolute;left:660px;top:24px;width:990px}
+.hd .rd{position:absolute;right:0;top:6px;font-size:14px;font-weight:600;color:#8E2B2B;background:#FFF;border:1px solid #E8C9B8;border-radius:999px;padding:7px 16px;text-decoration:none}
 .hd .kick{font-size:13px;letter-spacing:.4em;color:#A0805A}
 .hd h1{margin:2px 0 4px;font:700 44px/1.1 "Songti TC","Noto Serif TC",serif;letter-spacing:.12em;color:#3A2A24}
 .hd p{margin:0;font-size:15px;line-height:1.7;color:#5A4228}.hd p b{color:#8E2B2B}
@@ -130,7 +131,7 @@ function render(){
   $("sv").innerHTML=g;
   let u=G.map((x,i)=>`<button class="g${sel===x.k?" on":""}${sel&&sel!==x.k?" dim":""}" data-g="${x.k}" style="left:24px;top:${x.y}px"><i style="background:${x.c}">${i+1}</i><b>${x.n}</b></button>`).join("");
   if(sel){const gg=G.find(x=>x.k===sel);gg.steps.forEach(k=>{const st=SM[k],n=STEPS.indexOf(st)+1;u+=`<span class="dot" style="left:${st[7]-470}px;top:${st[8]}px">${n}</span>`;});}
-  u+=`<header class="hd"><div class="kick">梳化間</div><h1>妝台</h1><p><b>化妝＝光影＋顏色</b>。只做四件事，照順序：整理膚色 → 重建立體 → 強化五官 → 一個焦點。<br>選今天要畫的妝，看每一步要注意什麼；點一件事，臉上只畫那一步。</p></header>`;
+  u+=`<header class="hd"><div class="kick">梳化間</div><a class="rd" href="../bedside/#venus">👑 先唸 Addiction・梳化版 ›</a><h1>妝台</h1><p><b>化妝＝光影＋顏色</b>。只做四件事，照順序：整理膚色 → 重建立體 → 強化五官 → 一個焦點。<br>選今天要畫的妝，看每一步要注意什麼；點一件事，臉上只畫那一步。</p></header>`;
   u+=`<div class="col"><div class="card tbl"><div class="mx"><div></div>${LOOKS.map((l,i)=>`<button class="lk${i===S.look?" on":""}" data-look="${i}">${l.name}<small>${l.keys}</small></button>`).join("")}
    ${G.map((x,i)=>`<div class="rh${sel===x.k?" r sel":""}" data-g="${x.k}"><i style="background:${x.c}">${i+1}</i><span><b>${x.n}</b><small>${x.why}</small></span></div>${x.look.map((t,j)=>`<div class="c${j===S.look?" on":""}${sel===x.k?" r sel":""}" data-g="${x.k}">${t}</div>`).join("")}`).join("")}</div></div>`;
   if(sel){const gg=G.find(x=>x.k===sel),gi=G.indexOf(gg);

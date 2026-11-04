@@ -27,6 +27,13 @@ button{font:inherit;cursor:pointer}
 .row .t small{font:400 12.5px "PingFang TC","Noto Sans TC",sans-serif;color:#6A5246;margin-left:10px}
 .row .w{font-size:13px;color:#5A4228;margin-top:2px}.row .w b{color:#8E2B2B;margin-right:6px}
 .row .c{font-size:12px;color:#8A6E4B;white-space:nowrap}
+.spot{position:absolute;display:flex;align-items:center;gap:8px;pointer-events:none;animation:pop .35s ease-out both}
+.sb{width:46px;height:46px;border-radius:50%;background:#FFFAF4;border:2px solid;display:grid;place-items:center;box-shadow:0 3px 10px rgba(40,20,10,.25)}
+.sw{background:rgba(255,250,244,.92);border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600;color:#3A2A24;box-shadow:0 2px 6px rgba(40,20,10,.15)}
+@keyframes pop{from{opacity:0;transform:translate(var(--tx,0),-50%) scale(.6)}}
+.row.sel{background:#FFFAF4;box-shadow:0 0 0 2px #E2B867}
+.row .c{padding:6px 8px;border-radius:999px}.row .c:hover{background:#F3EADF}
+.pill.dim{opacity:.35}
 .left{position:absolute;left:80px;top:190px;width:440px;color:#3A2A24}
 .key{display:grid;grid-template-columns:54px 1fr;gap:10px 12px;align-items:center;margin-top:26px;font-size:13.5px;color:#5A4228}
 .key b{color:#3A2A24}
@@ -153,11 +160,12 @@ function render(){
   // 尺：從心口往右上
   const A=-52*Math.PI/180,pts=RX.map(rx=>[C[0]+rx*Math.cos(A),C[1]+rx*K*Math.sin(A)]);
   g+=`<path d="M${C[0]} ${C[1]} L${pts[5][0]+40} ${pts[5][1]-52}" stroke="#8E2B2B" stroke-width="1.4" stroke-dasharray="5 5"/>`;
+  const SP=spotLayer();g+=SP.g;
   $("sv").innerHTML=g;
-  let u=R.map((r,i)=>`<button class="pill${S.focus===r.k?" focus":""}" data-open="${r.k}" style="left:${pts[i][0]}px;top:${pts[i][1]}px;background:${COL[i]}"><i>${ic(i,"#fff",15)}</i>${r.n}</button>`).join("");
+  let u=R.map((r,i)=>`<button class="pill${S.focus===r.k?" focus":""}${sel&&sel!==r.k?" dim":""}" data-open="${r.k}" style="left:${pts[i][0]}px;top:${pts[i][1]}px;background:${COL[i]}"><i>${ic(i,"#fff",15)}</i>${r.n}</button>`).join("");
   // 左：一句話＋圖例
   u+=`<div class="left"><div class="serif" style="font-size:46px;line-height:1.22;letter-spacing:.08em">由內<br>到外</div>
-   <div style="margin-top:16px;font-size:15px;line-height:1.9;color:#5A4228">中間是摸得到的你，<br>兩邊是你每天做的事，<br>最裡面和最外面，都是看不見的。</div>
+   <div style="margin-top:16px;font-size:15px;line-height:1.9;color:#5A4228">中間是摸得到的你，<br>兩邊是你每天做的事，<br>最裡面和最外面，都是看不見的。</div><div style="margin-top:14px;font-size:13px;color:#8A6E4B">點一層，看它長在身上哪裡 ✦</div>
    <div class="key">
     <svg width="54" height="22"><defs><radialGradient id="k1"><stop offset="0" stop-color="#E98A7A"/><stop offset="1" stop-color="#E98A7A" stop-opacity="0"/></radialGradient></defs><ellipse cx="27" cy="11" rx="24" ry="10" fill="url(#k1)"/></svg><span><b>光＝虛</b>　心、風格｜用感受照顧</span>
     <svg width="54" height="22"><line x1="4" y1="11" x2="50" y2="11" stroke="#9A5444" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round"/></svg><span><b>虛線＝行為</b>　養護、修飾｜每天去做</span>
@@ -169,13 +177,29 @@ function render(){
     if(KIND[i]!==last){h+=`<div class="grp">${gi(KIND[i],"#8A6E4B")}${KIND[i]}</div>`;last=KIND[i];}
     const note=(S.note[r.k]||{})[today()];
     const c=KIND[i]==="虛"?(note?"今天寫了 ✓":"今天一句"):`${d}/${it.length}`;
-    return h+`<button class="row${S.focus===r.k?" focus":""}" data-open="${r.k}"><span class="dot" style="background:${COL[i]}">${ic(i,"#fff",28)}</span><span><div class="t">${i+1}　${r.n}${chips(r,"#7A5A40")}</div><div class="w"><b>軟</b>${r.soft}</div></span><span class="c">${c} ›</span></button>`;}).join("")+`</div>`;
+    return h+`<button class="row${S.focus===r.k?" focus":""}${sel===r.k?" sel":""}" data-open="${r.k}"><span class="dot" style="background:${COL[i]}">${ic(i,"#fff",28)}</span><span><div class="t">${i+1}　${r.n}${chips(r,"#7A5A40")}</div><div class="w"><b>軟</b>${r.soft}</div></span><span class="c" data-more>${c}　詳細 ›</span></button>`;}).join("")+`</div>`;
   const f=R.find(r=>r.k===S.focus);
   u+=`<div class="strip"><span>本月重點：<b style="color:#FFE7C2">${f.n}・${f.sub}</b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>`;
+  u+=SP.u;
   $("ui").innerHTML=u;
-  document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openD(b.dataset.open));
+  document.querySelectorAll("[data-open]").forEach(b=>b.onclick=e=>{if(e.target.closest("[data-more]")){openD(b.dataset.open);return;}sel=sel===b.dataset.open?null:b.dataset.open;render();});
   if(cur)openD(cur);
 }
+
+// 點一層：那層的小項目出現在身上（名稱, 指到的點 x,y, 標籤放左L/右R, 標籤高度）
+const SPOT={
+ heart:[["自信",830,262,"R",210],["從容",800,420,"L",400],["情緒穩定",855,470,"R",470]],
+ care:[["睡眠",812,322,"L",300],["飲食",835,560,"R",560],["喝水",848,600,"L",620],["運動",830,790,"R",780]],
+ body:[["頭髮",785,370,"L",360],["體態",835,420,"R",330],["皮膚",895,430,"R",470],["身材",835,560,"L",560]],
+ frame:[["半永久",818,312,"L",280],["五官比例",842,335,"R",300],["醫美",822,350,"L",400],["臉型",832,380,"R",410]],
+ dress:[["妝",828,355,"R",340],["髮型",780,400,"L",400],["穿搭",835,700,"R",700]],
+ style:[["三殿",835,150,"R",130],["聲音",833,395,"L",390],["香味",842,605,"R",600],["別人感受到的你",1040,470,"R",470]]};
+let sel=null;
+function spotLayer(){if(!sel)return {g:"",u:""};const i=R.findIndex(r=>r.k===sel),c=COL[i];let g="",u="";
+  SPOT[sel].forEach(([w,x,y,side,by])=>{const bx=side==="L"?690:990;
+    g+=`<path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${by}" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/><path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${by}" fill="none" stroke="${c}" stroke-width="1.6"/><circle cx="${x}" cy="${y}" r="5" fill="#fff" stroke="${c}" stroke-width="2"/>`;
+    u+=`<div class="spot" style="left:${bx}px;top:${by}px;flex-direction:${side==="L"?"row-reverse":"row"};transform:translate(${side==="L"?"-100%":"0"},-50%)"><span class="sb" style="border-color:${c}">${mi(w,c).replace('width="17" height="17"','width="26" height="26"')}</span><span class="sw">${w}</span></div>`;});
+  return {g,u};}
 let cur=null;
 function openD(k){cur=k;const r=R.find(x=>x.k===k),i=R.indexOf(r),kind=KIND[i];
   const note=(S.note[k]||{})[today()]||"";

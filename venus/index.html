@@ -9,107 +9,68 @@
 html,body{margin:0;height:100%;background:#2a221c;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
 #view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
 #sizer{position:relative;flex-shrink:0}
-#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:radial-gradient(ellipse at 50% 50%,#E9D9C4,#F3EADF 62%)}
-#fig{position:absolute;left:590px;top:0;width:500px;height:944px;background:url(fig.webp);-webkit-mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
-#sv{position:absolute;inset:0}
+#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:radial-gradient(ellipse at 45% 50%,#E9D9C4,#F3EADF 62%)}
+#fig{position:absolute;left:470px;top:0;width:500px;height:944px;background:url(fig.webp);-webkit-mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
+#sv{position:absolute;inset:0;pointer-events:none}
 button{font:inherit;cursor:pointer}
 .serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
-.pill{position:absolute;transform:translate(-14px,-50%);display:flex;align-items:center;gap:6px;border:0;color:#fff;border-radius:999px;padding:4px 12px 4px 6px;box-shadow:0 2px 8px rgba(40,20,10,.25);white-space:nowrap;font:700 17px "Songti TC","Noto Serif TC",serif;letter-spacing:.1em}
-.pill i{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center}
-.pill.focus{box-shadow:0 0 0 2px #FFE7C2,0 0 14px rgba(226,184,103,.9)}
-.leg{position:absolute;left:1190px;top:96px;width:450px;display:flex;flex-direction:column;gap:6px}
-.grp{font-size:13px;letter-spacing:.25em;color:#8A6E4B;margin:8px 0 0 52px;font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
-.row{all:unset;cursor:pointer;display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;padding:6px 10px;border-radius:14px}
-.row:hover,.row.focus{background:rgba(255,250,244,.7)}
-.row .dot{width:42px;height:42px;border-radius:50%;display:grid;place-items:center}
-.row .t{font:700 19px "Songti TC","Noto Serif TC",serif;color:#3A2A24}
-.mis{display:inline-flex;flex-wrap:wrap;gap:3px 10px;margin-left:12px;vertical-align:2px;font:400 12.5px "PingFang TC","Noto Sans TC",sans-serif;color:#6A5246}.mis span{display:inline-flex;align-items:center;gap:3px}
-.row .t small{font:400 12.5px "PingFang TC","Noto Sans TC",sans-serif;color:#6A5246;margin-left:10px}
-.row .w{font-size:13px;color:#5A4228;margin-top:2px}.row .w b{color:#8E2B2B;margin-right:6px}
-.row .c{font-size:12px;color:#8A6E4B;white-space:nowrap}
-.spot{position:absolute;display:flex;align-items:center;gap:8px;pointer-events:none;animation:pop .35s ease-out both}
-.sb{width:60px;height:60px;border-radius:50%;background:#FFFAF4;border:2px solid;display:grid;place-items:center;box-shadow:0 3px 10px rgba(40,20,10,.25)}
-.sw{background:rgba(255,250,244,.94);border-radius:999px;padding:6px 16px;font-size:18px;font-weight:600;color:#3A2A24;box-shadow:0 2px 6px rgba(40,20,10,.15)}
-@keyframes pop{from{opacity:0;transform:translate(var(--tx,0),-50%) scale(.6)}}
-.row.sel{background:#FFFAF4;box-shadow:0 0 0 2px #E2B867}
-.row .c{padding:6px 8px;border-radius:999px}.row .c:hover{background:#F3EADF}
-.pill.dim{opacity:.35}
-.tri{all:unset;position:absolute;cursor:pointer;box-sizing:border-box}
-.tri .tbg{position:absolute;inset:0;overflow:visible}
-.tin{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;height:100%;box-sizing:border-box}
-.th{display:flex;align-items:center;gap:8px}
-.th .dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;flex:none}
-.tn{font:700 21px "Songti TC","Noto Serif TC",serif;color:#3A2A24;letter-spacing:.06em}
-.tk{font-size:11px;color:#8A6E4B;letter-spacing:.15em;display:inline-flex;align-items:center}
-.tri .mis{justify-content:center;font-size:13.5px;gap:2px 10px}
-.tw{font-size:13.5px;color:#5A4228;margin-top:3px;line-height:1.4}.tw b{color:#8E2B2B;margin-right:5px}
-.tc{margin-top:auto;font-size:11.5px;color:#8A6E4B;padding:1px 10px;border-radius:999px;background:rgba(243,234,223,.8)}
-.tc:hover{background:#F3EADF}
-.tri:hover .tbg{filter:brightness(1.03)}
-.left{position:absolute;left:80px;top:190px;width:440px;color:#3A2A24}
-.key{display:grid;grid-template-columns:54px 1fr;gap:10px 12px;align-items:center;margin-top:26px;font-size:13.5px;color:#5A4228}
-.key b{color:#3A2A24}
-.strip{position:absolute;left:80px;bottom:30px;border-radius:999px;background:rgba(40,28,22,.86);color:#FFF6EC;padding:9px 20px;display:flex;gap:16px;white-space:nowrap;font-size:13px}
-#detail{position:absolute;inset:0;background:rgba(30,20,14,.35);display:none;align-items:center;justify-content:center}
-#detail.on{display:flex}
-#dbox{width:620px;max-height:840px;overflow:auto;border-radius:22px;background:#FFFAF4;padding:26px 28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(30,20,14,.3)}
-.ss{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:14px;line-height:1.6;padding:10px 12px;border-radius:10px;background:#F4EBDF}
-.ss b{color:#8A6E4B}.ss b.x{color:#8E2B2B}
+.hot{position:absolute;border:0;background:none;padding:0;display:flex;align-items:center;gap:8px;transform:translate(0,-50%)}
+.hot.L{flex-direction:row-reverse;transform:translate(-100%,-50%)}
+.hot .b{width:52px;height:52px;border-radius:50%;background:#FFFAF4;border:2px solid #B98F66;display:grid;place-items:center;box-shadow:0 3px 10px rgba(40,20,10,.22);transition:transform .2s}
+.hot .w{background:rgba(255,250,244,.93);border-radius:999px;padding:5px 14px;font:700 17px "Songti TC","Noto Serif TC",serif;color:#3A2A24;box-shadow:0 2px 6px rgba(40,20,10,.15)}
+.hot.on .b{background:#3A2A24;border-color:#E2B867;transform:scale(1.1)}
+.hot.on .w{background:#3A2A24;color:#FFE7C2}
+.hot.dim{opacity:.45}
+.left{position:absolute;left:60px;top:150px;width:330px;color:#3A2A24}
+.f{display:flex;align-items:baseline;gap:8px;font:700 30px "Songti TC","Noto Serif TC",serif;letter-spacing:.06em}
+.f small{font-size:15px;color:#8A6E4B;font-weight:400}
+.g{margin-top:18px;display:grid;gap:10px;font-size:14px;line-height:1.7;color:#5A4228}
+.g b{color:#3A2A24}
+.panel{position:absolute;left:1030px;top:40px;width:620px;bottom:90px;display:flex;flex-direction:column;gap:12px}
+.ph{display:flex;align-items:center;gap:12px}
+.ph .t{font:700 34px "Songti TC","Noto Serif TC",serif;color:#3A2A24}
+.ph .s{font-size:14px;color:#6A5246}
+.grid{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:stretch}
+.ax{font:700 15px "Songti TC","Noto Serif TC",serif;color:#8A6E4B;display:flex;align-items:center;justify-content:center;gap:4px;letter-spacing:.15em}
+.ax.v{writing-mode:vertical-rl;padding:0 4px}
+.cell{border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-height:150px;position:relative}
+.cell.yn{background:rgba(255,250,244,.85);border:2px dashed #9A5444}
+.cell.yt{background:rgba(255,250,244,.85);border:2px solid #9A5444}
+.cell.xn{background:rgba(255,250,244,.85);border:2px dashed #B5894F}
+.cell.xt{background:rgba(255,250,244,.85);border:2px solid #B5894F}
+.cell .h{display:flex;align-items:center;gap:6px;font-size:13px;color:#8A6E4B;letter-spacing:.1em}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid #E2D3C2;background:#fff;border-radius:999px;padding:5px 12px;font-size:15px;color:#3A2A24}
+.chip.on{background:#3A2A24;color:#FFE7C2;border-color:#3A2A24}
+.cell .go{margin-top:auto;align-self:flex-start;font-size:13px;color:#7A5A40;text-decoration:none;border-bottom:1px solid #CDB8A4}
+.empty{color:#B0A090;font-size:14px}
+.soft{font-size:14px;color:#5A4228;background:rgba(244,235,223,.9);border-radius:12px;padding:8px 12px}.soft b{color:#8E2B2B;margin-right:6px}
+.note{font-size:13px;color:#8A6E4B}
+textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1px solid #E2D3C2;padding:10px 12px;background:#fff;resize:vertical}
 .chk{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #EADCCB;background:#fff;color:#2E2420;text-align:left;width:100%;font-size:14px}
 .chk.on{border-color:#C98E80;background:#F7ECE4;color:#7A5A48;text-decoration:line-through}
 .chk i{width:17px;height:17px;border-radius:5px;border:2px solid #C9B6A4;flex-shrink:0}
 .chk.on i{background:#8E2B2B;border-color:#8E2B2B}
 .chk em{margin-left:auto;font-style:normal;font-size:11px;color:#8A6E4B;background:#F3EADF;border-radius:999px;padding:1px 8px;text-decoration:none}
-.go{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid #CDB8A4;background:#fff;color:#3A2A24;text-decoration:none;font-size:14px}
-textarea{font:inherit;font-size:15px;min-height:76px;border-radius:12px;border:1px solid #E2D3C2;padding:10px 12px;background:#fff;resize:vertical}
+.lnk{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid #CDB8A4;background:#fff;color:#3A2A24;text-decoration:none;font-size:14px}
+.fbtn{border:0;border-radius:999px;padding:8px 16px;font-size:13px}
+.strip{position:absolute;left:60px;bottom:30px;border-radius:999px;background:rgba(40,28,22,.86);color:#FFF6EC;padding:9px 20px;display:flex;gap:16px;white-space:nowrap;font-size:13px}
 .back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px}
 @keyframes beat{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.12);opacity:1}}
 .beat{transform-box:fill-box;transform-origin:center;animation:beat 3.2s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){.beat{animation:none}}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}}
+.panel.anim>*{animation:pop .3s ease-out both}
+@media (prefers-reduced-motion:reduce){.beat,.panel>*{animation:none}}
 </style></head><body>
-<button class="back" id="back">← Venus</button>
 <svg width="0" height="0" style="position:absolute"><filter id="mw" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="5"/><feDisplacementMap in="SourceGraphic" scale=".9"/></filter></svg>
+<button class="back" id="back">← Venus</button>
 <div id="view"><div id="sizer"><div id="stage">
   <div id="fig" role="img" aria-label="穿絲質洋裝和針織外套的女生"></div>
   <svg id="sv" viewBox="0 0 1680 944" aria-hidden="true"></svg>
   <div id="ui"></div>
-  <div id="detail"><div id="dbox"></div></div>
 </div></div></div>
 <script>
-const E="../";
-const R=[
- {k:"heart",why:"美的最源頭。放鬆的人才軟，喜歡自己的人才性感。外面做再多，這圈空了，看起來就是緊繃、用力。",n:"心",sub:"自信、情緒穩定、從容",how:"用時間和經歷改",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
-  tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["臥室",E+"bedroom/"]]},
- {k:"frame",why:"天生的形狀：臉、骨架、胸型。自己養不出來，要用錢改：醫美、正顎、半永久。花最多錢、做最少次；先把日常做穩再做，挑讓線條變柔和的。",n:"天生的身",sub:"臉、骨架、胸型",how:"用錢改：醫美、正顎、半永久",soft:"選讓線條變柔和的",sexy:"加強眼神和唇形，不做讓臉變硬的",
-  tasks:[["醫美基金存三千","每月"],["研究霧眉：看店、看作品","每月"]],note:"每月預算：保養品、頭髮、衣服、妝 4,500＋醫美基金 3,000",links:[["身體地圖・醫美",E+"body/?layer=m"],["身體地圖・半永久",E+"body/?layer=p"]]},
- {k:"body",why:"身體現在的狀態：肌肉、體態、皮膚、頭髮。會跟著你怎麼過日子而變，靠養護、健身、半醫美保養就看得到。挺拔的體態、透亮的皮膚、蓬鬆的頭髮，比瘦十公斤更抓眼睛。",n:"養出來的身",sub:"肌肉、體態、皮膚、頭髮",how:"用習慣改：養護、健身、半醫美",soft:"開肩開髖、水潤、頭髮蓬鬆",sexy:"挺拔、腰線、會露的地方也保養",
-  tasks:[["防曬","每天"],["晚上卸妝保養","每天"],["靠牆站五分鐘","每天"],["面膜、去角質、護髮","每週"],["剪髮或護髮","每月"]],links:[["身體地圖・日常",E+"body/?layer=d"],["身體地圖・體態",E+"body/?layer=b"]]},
- {k:"care",why:"身體的原料：食（吃喝）、住（睡）、行（動）。決定氣色、皮膚和體力，是任何化妝品都補不回來的。",n:"養",sub:"食、住、行",how:"每天做：從裡面照顧身心",soft:"睡飽、皮膚有水分",sexy:"有血色、有精神",
-  tasks:[["固定時間睡覺","每天"],["喝水一千五百到兩千",  "每天"],["運動三次","每週"],["少糖、少手搖飲","每週"]],links:[["健身房","https://fuwei0618-cmd.github.io/Gym/"],["臥室",E+"bedroom/"]]},
- {k:"dress",why:"每天把底子拿出來給人看。化妝只做四件事：整理膚色、重建立體、強化五官、設一個焦點。",n:"修",sub:"彩妝、髮型、穿戴、香氛",how:"每天做：從外面打扮",soft:"邊界暈開、蓬鬆、柔軟的布料",sexy:"一個焦點、露一個點、看得到腰線",
-  tasks:[["托盤妝","每天"],["練一種妝或一種編髮","每週"],["週日排好下週穿搭","每週"],["整理五件衣服或化妝品","每月"]],links:[["妝台",E+"vanity/"],["衣櫥",E+"wardrobe/"]]},
- {k:"style",why:"不是做的事，是做完以後的結果。別人用六根感受到的你：眼（眼神姿態）、耳（聲音）、鼻（香味）、舌（口氣、吻）、身（擁抱的柔軟）、意（留在對方心裡的印象）。第 1 層是你心裡的自己，這一層是別人心裡的你。三殿決定今天開多大聲。",n:"風格",sub:"眼、耳、鼻、舌、身、意",how:"不用刻意做：底子加功夫，自然長出來",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
-  tasks:[["拍一張這一季的我","每季"],["找一支招牌香味","每季"],["換季整理衣櫥","每季"]],links:[["衣櫥・三殿",E+"wardrobe/"]]}
-];
-const KIND=["底子","底子","底子","功夫","功夫","呈現"];
-const LOOK=["glow","solid","solid","dash","dash","glow"];
-const COL=["#7A3238","#9A5444","#AE7552","#B98F66","#B5894F","#C9A24A"];
-const IC=[
- // 心：不太對稱的愛心＋內側一道光
- '<path d="M12 20.2c-1.6-1.3-7.6-5.2-7.8-10.1-.1-2.6 1.7-4.6 4-4.5 1.6.1 2.9 1.1 3.7 2.6.8-1.6 2.2-2.7 3.9-2.7 2.3 0 4 2 3.8 4.6-.3 4.8-6 8.8-7.6 10.1z"/><path d="M7.4 9.2c.2-1 .9-1.7 1.8-1.9" stroke-width="1.3"/>',
- // 結構：臉的輪廓、下顎線、鼻樑
- '<path d="M7.2 8.8c-.3-3.3 2-5.6 4.9-5.6s5.1 2.3 4.8 5.8c-.3 3.6-1.6 6.6-3.2 7.9-1 .8-2.3.8-3.3 0-1.7-1.4-3-4.4-3.2-8.1z"/><path d="M12.1 9.3c.3 1.3.4 2.4-.4 3.2" stroke-width="1.2"/><path d="M9.3 8.6h1.4M13.6 8.6h1.4" stroke-width="1.3"/><path d="M10.9 14.2c.7.4 1.5.4 2.2 0" stroke-width="1.2"/><path d="M5.8 20.6c1.6-1.6 3.6-2.4 6.2-2.4s4.6.8 6.2 2.4" stroke-width="1.2"/>',
- // 身體：站姿女生，長髮、S 曲線
- '<circle cx="12.2" cy="4.6" r="2"/><path d="M10.3 4.2c-.6 1.6-.6 3 .1 4.1M14.1 4.3c.5 1.5.4 2.9-.3 3.9" stroke-width="1.2"/><path d="M12.2 6.8c-.4 2.2-1.6 3.2-1.4 5.3.2 1.7 1.6 2.4 1.3 4.4-.2 1.7-.9 3.2-.9 4.8M12.6 12.4c.4 2.6.3 5.6.7 8.4"/><path d="M11.4 8.8c-1.3.9-2.2 2.2-2.6 3.8M13.2 8.7c1.3.8 2 2 2.3 3.5" stroke-width="1.4"/>',
- // 養護：水滴＋裡面一道水波＋小葉子
- '<path d="M12 3.2c1.9 2.6 5.6 6.9 5.6 10.6 0 3.3-2.5 5.9-5.6 5.9s-5.7-2.6-5.7-5.9C6.3 10.1 10 5.8 12 3.2z"/><path d="M8.8 14.2c1-.7 2-.7 3.1 0s2.1.7 3.2 0" stroke-width="1.3"/><path d="M17.8 5.2c1.3-.2 2.4.3 2.8 1.3-1.1.5-2.3.2-2.8-1.3zM17.8 5.2l-1.1 1.2" stroke-width="1.2"/>',
- // 修飾：口紅＋一把小梳子
- '<path d="M6.6 21h5.2v-8.2H6.6z"/><path d="M7.3 12.8V9.6c0-1.6.9-3.6 2.3-5 .5 1.4.8 2.9.6 4.5l-.3 3.7" /><path d="M6.6 15.4h5.2" stroke-width="1.2"/><path d="M14.4 7.2l5.6 3.2-.9 1.6-5.6-3.2zM15.1 9.2l-1.2 2M16.6 10.1l-1.2 2M18.1 11l-1.2 2" stroke-width="1.2"/>',
- // 風格：一圈光
- '<path d="M12 3.2l1.9 5.6 5.7 1.9-5.7 1.9L12 18.4l-1.9-5.8-5.7-1.9 5.7-1.9z"/><path d="M18.6 15.4l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7zM5.4 3.6l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" stroke-width="1.2"/>'];
-const ic=(i,c,z)=>`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><defs><filter id="w${i}${z}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="${i+3}"/><feDisplacementMap in="SourceGraphic" scale=".9"/></filter></defs><g filter="url(#w${i}${z})">${IC[i]}</g><g opacity=".38" transform="translate(.35 .25)">${IC[i]}</g></svg>`;
-
-// 每個小項目的手繪小圖
+const E="../",GH="https://fuwei0618-cmd.github.io/";
 const MI={
 "香氛":'<path d="M8.4 10.2h7.2c1 0 1.8.8 1.8 1.8v6.6c0 1.2-1 2.2-2.2 2.2H8.8c-1.2 0-2.2-1-2.2-2.2V12c0-1 .8-1.8 1.8-1.8zM10.2 10.2V7.4h3.6v2.8"/><path d="M15.6 5.6c.9-.9.9-1.9 0-2.8M18 6.6c1.4-1.4 1.4-3 0-4.4"/>',
 "食":'<path d="M4 12h16a8 6.5 0 0 1-16 0z"/><path d="M9 20h6"/><path d="M13 9.5l6-6M15 10l5.5-4.5"/><path d="M6 7.5c.6-1.6 2-2.4 3.6-2.2" />',
@@ -149,17 +110,63 @@ const MI={
 "聲音":'<path d="M9 17.5V6l9-2v11.5"/><circle cx="6.8" cy="17.6" r="2.3"/><circle cx="15.8" cy="15.6" r="2.3"/>',
 "香味":'<path d="M8.4 10.2h7.2c1 0 1.8.8 1.8 1.8v6.6c0 1.2-1 2.2-2.2 2.2H8.8c-1.2 0-2.2-1-2.2-2.2V12c0-1 .8-1.8 1.8-1.8zM10.2 10.2V7.4h3.6v2.8"/><path d="M15.6 5.6c.9-.9.9-1.9 0-2.8M18 6.6c1.4-1.4 1.4-3 0-4.4"/>',
 "別人感受到的你":'<path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>'};
+const IC=[
+ // 心：不太對稱的愛心＋內側一道光
+ '<path d="M12 20.2c-1.6-1.3-7.6-5.2-7.8-10.1-.1-2.6 1.7-4.6 4-4.5 1.6.1 2.9 1.1 3.7 2.6.8-1.6 2.2-2.7 3.9-2.7 2.3 0 4 2 3.8 4.6-.3 4.8-6 8.8-7.6 10.1z"/><path d="M7.4 9.2c.2-1 .9-1.7 1.8-1.9" stroke-width="1.3"/>',
+ // 結構：臉的輪廓、下顎線、鼻樑
+ '<path d="M7.2 8.8c-.3-3.3 2-5.6 4.9-5.6s5.1 2.3 4.8 5.8c-.3 3.6-1.6 6.6-3.2 7.9-1 .8-2.3.8-3.3 0-1.7-1.4-3-4.4-3.2-8.1z"/><path d="M12.1 9.3c.3 1.3.4 2.4-.4 3.2" stroke-width="1.2"/><path d="M9.3 8.6h1.4M13.6 8.6h1.4" stroke-width="1.3"/><path d="M10.9 14.2c.7.4 1.5.4 2.2 0" stroke-width="1.2"/><path d="M5.8 20.6c1.6-1.6 3.6-2.4 6.2-2.4s4.6.8 6.2 2.4" stroke-width="1.2"/>',
+ // 身體：站姿女生，長髮、S 曲線
+ '<circle cx="12.2" cy="4.6" r="2"/><path d="M10.3 4.2c-.6 1.6-.6 3 .1 4.1M14.1 4.3c.5 1.5.4 2.9-.3 3.9" stroke-width="1.2"/><path d="M12.2 6.8c-.4 2.2-1.6 3.2-1.4 5.3.2 1.7 1.6 2.4 1.3 4.4-.2 1.7-.9 3.2-.9 4.8M12.6 12.4c.4 2.6.3 5.6.7 8.4"/><path d="M11.4 8.8c-1.3.9-2.2 2.2-2.6 3.8M13.2 8.7c1.3.8 2 2 2.3 3.5" stroke-width="1.4"/>',
+ // 養護：水滴＋裡面一道水波＋小葉子
+ '<path d="M12 3.2c1.9 2.6 5.6 6.9 5.6 10.6 0 3.3-2.5 5.9-5.6 5.9s-5.7-2.6-5.7-5.9C6.3 10.1 10 5.8 12 3.2z"/><path d="M8.8 14.2c1-.7 2-.7 3.1 0s2.1.7 3.2 0" stroke-width="1.3"/><path d="M17.8 5.2c1.3-.2 2.4.3 2.8 1.3-1.1.5-2.3.2-2.8-1.3zM17.8 5.2l-1.1 1.2" stroke-width="1.2"/>',
+ // 修飾：口紅＋一把小梳子
+ '<path d="M6.6 21h5.2v-8.2H6.6z"/><path d="M7.3 12.8V9.6c0-1.6.9-3.6 2.3-5 .5 1.4.8 2.9.6 4.5l-.3 3.7" /><path d="M6.6 15.4h5.2" stroke-width="1.2"/><path d="M14.4 7.2l5.6 3.2-.9 1.6-5.6-3.2zM15.1 9.2l-1.2 2M16.6 10.1l-1.2 2M18.1 11l-1.2 2" stroke-width="1.2"/>',
+ // 風格：一圈光
+ '<path d="M12 3.2l1.9 5.6 5.7 1.9-5.7 1.9L12 18.4l-1.9-5.8-5.7-1.9 5.7-1.9z"/><path d="M18.6 15.4l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7zM5.4 3.6l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" stroke-width="1.2"/>'];
+const ic=(i,c,z)=>`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><defs><filter id="w${i}${z}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="${i+3}"/><feDisplacementMap in="SourceGraphic" scale=".9"/></filter></defs><g filter="url(#w${i}${z})">${IC[i]}</g><g opacity=".38" transform="translate(.35 .25)">${IC[i]}</g></svg>`;
 const mi=(k,c,z=19)=>MI[k]?`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><g filter="url(#mw)">${MI[k]}</g></svg>`:"";
-const HINT={"食":"吃喝","住":"睡","行":"動","眼":"看","耳":"聽","鼻":"聞","舌":"嚐","身":"碰","意":"想"};
-const chips=(r,c)=>`<span class="mis">${r.sub.split("、").map(w=>`<span>${mi(w,c)}${w}${HINT[w]?`<em style="font-style:normal;opacity:.6;margin-left:2px">${HINT[w]}</em>`:""}</span>`).join("")}</span>`;
-// 分組小插圖：虛＝一縷光、行為＝一隻手、實體＝一顆石頭
-const GI={"呈現":'<path d="M4 14c2-3 4-3 6 0s4 3 6 0 4-3 5-1"/><path d="M7 8.5c1.2-1.4 2.6-1.4 3.8 0M14 7.5l.6-1.6M17 9l1.4-.9M11 5l-.2-1.6" stroke-width="1.2"/>',
- "功夫":'<path d="M8.5 20c-1.6-1.4-3.4-3.6-4.2-5.4-.4-.9.6-1.7 1.4-1.1l2 1.6V6.2c0-.8.6-1.3 1.3-1.3s1.3.5 1.3 1.3v5.2-6.6c0-.8.6-1.3 1.3-1.3s1.3.5 1.3 1.3v6.6-5.4c0-.8.6-1.3 1.3-1.3s1.3.5 1.3 1.3v5.6-3.4c0-.8.6-1.3 1.3-1.3s1.2.5 1.2 1.3v7.3c0 2.6-1.4 4.6-3.4 5.6"/>',
- "底子":'<path d="M5 16.8c-.6-3.4 1.4-7.4 5.2-8.6 3.6-1.2 7.6.2 8.6 3.6.9 3-1 6-4.6 6.8-3.6.8-8.6.6-9.2-1.8z"/><path d="M9 12.4c1.2-.8 2.6-1 4-.6" stroke-width="1.2"/><path d="M3.5 20.5h17" stroke-width="1.2"/>'};
-const gi=(k,c)=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-6px;margin-right:8px"><defs><filter id="gw${k.length}"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="9"/><feDisplacementMap in="SourceGraphic" scale=".8"/></filter></defs><g filter="url(#gw${k.length})">${GI[k]}</g></svg>`;
+// 心和風格（看不見的兩端）
+const ENDS=[
+ {k:"heart",why:"美的最源頭。放鬆的人才軟，喜歡自己的人才性感。外面做再多，這圈空了，看起來就是緊繃、用力。",n:"心",sub:"自信、情緒穩定、從容",how:"用時間和經歷改",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
+  tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["臥室",E+"bedroom/"]]},
+ {k:"style",why:"不是做的事，是做完以後的結果。別人用六根感受到的你：眼（眼神姿態）、耳（聲音）、鼻（香味）、舌（口氣、吻）、身（擁抱的柔軟）、意（留在對方心裡的印象）。第 1 層是你心裡的自己，這一層是別人心裡的你。三殿決定今天開多大聲。",n:"風格",sub:"眼、耳、鼻、舌、身、意",how:"不用刻意做：底子加功夫，自然長出來",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
+  tasks:[["拍一張這一季的我","每季"],["找一支招牌香味","每季"],["換季整理衣櫥","每季"]],links:[["衣櫥・三殿",E+"wardrobe/"]]}
+];
+// 身的各部位 × 養（自然／科技）× 修（自然／科技）
+const ROOM={
+ yn:[["健身房",GH+"Gym/"],["臥室",E+"bedroom/"]],
+ yt:[["保養廠・日常",E+"body/?layer=d"]],
+ xn:[["妝台",E+"vanity/"],["衣櫥",E+"wardrobe/"]],
+ xt:[["保養廠・醫美",E+"body/?layer=m"],["保養廠・半永久",E+"body/?layer=p"]]};
+const PARTS=[
+ {k:"face",n:"臉",pt:[830,338],side:"R",by:300,base:"天生：五官比例、臉型、骨相",soft:"邊界暈開，讓線條變柔和",
+  yn:["睡飽","吃好","防曬"],yt:["保養品","雷射","電波"],xn:["彩妝","眉型","髮型修臉型"],xt:["填充","正顎","半永久眉"],
+  room:{xn:[["妝台",E+"vanity/"]],xt:[["正顎手冊",GH+"OGS/"],["保養廠・醫美",E+"body/?layer=m"]]}},
+ {k:"hair",n:"頭髮",pt:[782,390],side:"L",by:390,base:"天生：髮量、髮質",soft:"蓬鬆、有光澤",
+  yn:["營養","睡眠"],yt:["護髮療程","頭皮護理"],xn:["髮型","編髮","髮飾"],xt:["植髮","接髮"],
+  room:{xn:[["妝台・編髮",E+"vanity/"]]}},
+ {k:"skin",n:"皮膚",pt:[898,432],side:"R",by:450,base:"天生：膚色、膚質",soft:"水潤、透亮",
+  yn:["喝水","睡眠","防曬"],yt:["保養品","半醫美"],xn:["底妝","身體乳","香氛"],xt:["除斑","除毛"]},
+ {k:"shape",n:"身材",pt:[835,565],side:"L",by:575,base:"天生：骨架、胸型、比例",soft:"看得到腰線、柔軟的曲線",
+  yn:["運動","飲食"],yt:["電波","體雕"],xn:["穿搭","內衣"],xt:["隆乳","抽脂"],
+  room:{xn:[["衣櫥",E+"wardrobe/"]]}},
+ {k:"pose",n:"體態",pt:[835,760],side:"R",by:740,base:"天生：骨盆、脊椎",soft:"開肩開髖、挺拔但放鬆",
+  yn:["伸展","皮拉提斯","重訓"],yt:["整脊","矯正"],xn:["高跟鞋","修身衣"],xt:[],
+  room:{yn:[["健身房",GH+"Gym/"],["身體地圖・體態",E+"body/?layer=b"]]}}];
+const PI={face:"臉",hair:"頭髮",skin:"皮膚",shape:"身材",pose:"體態"};
+const QI={
+ yn:'<path d="M12 21c-4.6 0-7-3.4-7-7.4C5 8 10 4.4 19 3.5c-.6 8.8-3.2 13.6-7 13.6"/><path d="M5 21c2.6-4.4 6-7.6 10-9.6" stroke-width="1.3"/>',
+ yt:'<path d="M9 3h6M10 3v5.2L5.4 17.4A2.4 2.4 0 0 0 7.6 21h8.8a2.4 2.4 0 0 0 2.2-3.6L14 8.2V3"/><path d="M7.4 14h9.2" stroke-width="1.3"/>',
+ xn:'<path d="M8.6 21h5.2v-8.2H8.6z"/><path d="M9.3 12.8V9.6c0-1.6.9-3.6 2.3-5 .5 1.4.8 2.9.6 4.5l-.3 3.7"/><path d="M8.6 15.4h5.2" stroke-width="1.2"/>',
+ xt:MI["醫美"]};
+const qi=(k,c,z=18)=>`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g filter="url(#mw)">${QI[k]}</g></svg>`;
+const QN={yn:"自然的養",yt:"科技的養",xn:"自然的修",xt:"科技的修"};
+const QD={yn:"讓它本身變好",yt:"讓它本身變好",xn:"讓它看起來不一樣・可以卸掉",xt:"讓它看起來不一樣・改了就留著"};
+
+const HINT={"眼":"看","耳":"聽","鼻":"聞","舌":"嚐","身":"碰","意":"想"};
 const KEY="origina-venus-v1";
-let S={focus:"dress",done:{},note:{}};
-try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,{focus:o.focus||S.focus,done:o.done||{},note:o.note||{}});}catch(e){}
+let S={focus:"face",done:{},note:{},pick:{}};
+try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,o);S.pick=S.pick||{};S.note=S.note||{};S.done=S.done||{};}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 const $=id=>document.getElementById(id);
 const today=()=>new Date().toLocaleDateString("sv");
@@ -167,107 +174,70 @@ function period(p){const d=new Date();const y=d.getFullYear(),m=d.getMonth()+1;
   if(p==="每天")return today();
   if(p==="每週"){const t=new Date(d);t.setDate(d.getDate()-((d.getDay()+6)%7));return "W"+t.toLocaleDateString("sv");}
   if(p==="每月")return y+"-"+m;return y+"-Q"+Math.ceil(m/3);}
-function items(r){return r.tasks.map(([t,p],j)=>{const key=r.k+j+"@"+period(p);return {t,p,key,on:!!S.done[key]};});}
-function prog(r){const it=items(r);return it.length?it.filter(x=>x.on).length/it.length:0;}
-function toggle(key){if(S.done[key])delete S.done[key];else S.done[key]=1;save();render();}
-const C=[855,455],RX=[34,78,128,182,240,300],K=1.62;
-function ell(rx){return `M${C[0]-rx} ${C[1]} a${rx} ${rx*K} 0 1 0 ${2*rx} 0 a${rx} ${rx*K} 0 1 0 ${-2*rx} 0`;}
+const C=[735,455];
+let sel=null,lastSel=undefined; // 部位 k、"heart"、"style"
 function render(){
-  const q=R.map(prog);
-  let g=`<defs>
-   <radialGradient id="gh"><stop offset="0" stop-color="#FFE0B0"/><stop offset=".45" stop-color="#E98A7A" stop-opacity=".75"/><stop offset="1" stop-color="#C0505A" stop-opacity="0"/></radialGradient>
-   <radialGradient id="ga" cx="50%" cy="50%" r="50%"><stop offset=".72" stop-color="#F6DC9A" stop-opacity="0"/><stop offset=".88" stop-color="#F6DC9A" stop-opacity="${.35+q[5]*.4}"/><stop offset="1" stop-color="#F6DC9A" stop-opacity="0"/></radialGradient>
-   <filter id="bl"><feGaussianBlur stdDeviation="5"/></filter></defs>`;
-  // 6 風格（虛）：全身外圍的光暈
-  g+=`<ellipse cx="${C[0]}" cy="${C[1]}" rx="${RX[5]+40}" ry="${(RX[5]+40)*K}" fill="url(#ga)"/>`;
-  // 實體：實心輪廓＋淡淡的色面
-  [1,2].forEach(i=>{g+=`<path d="${ell(RX[i])}" fill="${COL[i]}" fill-opacity="${i===1?.18:.1}" style="mix-blend-mode:multiply"/><ellipse cx="${C[0]}" cy="${C[1]}" rx="${RX[i]}" ry="${RX[i]*K}" fill="none" stroke="${COL[i]}" stroke-width="3"/>`;});
-  // 行為：虛線，做越多越亮越粗
-  [3,4].forEach(i=>{if(q[i]>0)g+=`<ellipse cx="${C[0]}" cy="${C[1]}" rx="${RX[i]}" ry="${RX[i]*K}" fill="none" stroke="#FFD58A" stroke-width="${6+q[i]*10}" opacity="${.3+q[i]*.5}" filter="url(#bl)"/>`;
-    g+=`<ellipse cx="${C[0]}" cy="${C[1]}" rx="${RX[i]}" ry="${RX[i]*K}" fill="none" stroke="${q[i]>=1?"#E9A83A":COL[i]}" stroke-width="${2.4+q[i]*2}" stroke-dasharray="9 7" stroke-linecap="round"/>`;});
-  // 1 心（虛）：胸口的光
-  g+=`<circle class="beat" cx="${C[0]}" cy="${C[1]}" r="${46+q[0]*16}" fill="url(#gh)"/><path d="M855 466s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z" fill="#fff"/>`;
-  // 尺：從心口往右上
-  const A=-52*Math.PI/180,pts=RX.map(rx=>[C[0]+rx*Math.cos(A),C[1]+rx*K*Math.sin(A)]);
-  g+=`<path d="M${C[0]} ${C[1]} L${pts[5][0]+40} ${pts[5][1]-52}" stroke="#8E2B2B" stroke-width="1.4" stroke-dasharray="5 5"/>`;
-  const SP=spotLayer();g+=SP.g;
+  // 圖：胸口的光、外圍光暈、選到的部位
+  let g=`<defs><radialGradient id="gh"><stop offset="0" stop-color="#FFE0B0"/><stop offset=".45" stop-color="#E98A7A" stop-opacity=".75"/><stop offset="1" stop-color="#C0505A" stop-opacity="0"/></radialGradient>
+   <radialGradient id="ga"><stop offset=".72" stop-color="#F6DC9A" stop-opacity="0"/><stop offset=".88" stop-color="#F6DC9A" stop-opacity="${sel==="style"?.85:.45}"/><stop offset="1" stop-color="#F6DC9A" stop-opacity="0"/></radialGradient></defs>`;
+  g+=`<ellipse cx="${C[0]}" cy="460" rx="300" ry="486" fill="url(#ga)"/>`;
+  g+=`<circle class="beat" cx="${C[0]}" cy="${C[1]}" r="${sel==="heart"?66:48}" fill="url(#gh)"/><path d="M735 466s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z" fill="#fff"/>`;
+  PARTS.forEach(p=>{const [x,y]=[p.pt[0]-120,p.pt[1]],bx=p.side==="L"?x-120:x+120,on=sel===p.k;
+    g+=`<path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="#fff" stroke-width="3" opacity="${on?.8:.5}"/><path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="${on?"#E2B867":"#B98F66"}" stroke-width="${on?2.4:1.4}"/><circle cx="${x}" cy="${y}" r="${on?7:5}" fill="#fff" stroke="${on?"#E2B867":"#B98F66"}" stroke-width="2"/>`;});
   $("sv").innerHTML=g;
-  let u=R.map((r,i)=>`<button class="pill${S.focus===r.k?" focus":""}${sel&&sel!==r.k?" dim":""}" data-open="${r.k}" style="left:${pts[i][0]}px;top:${pts[i][1]}px;background:${COL[i]}"><i>${ic(i,"#fff",18)}</i>${r.n}</button>`).join("");
-  // 左：一句話＋圖例
-  u+=`<div class="left"><div class="serif" style="font-size:46px;line-height:1.22;letter-spacing:.08em">由內<br>到外</div>
-   <div style="margin-top:16px;font-size:15px;line-height:1.9;color:#5A4228">中間是你本來有的：心和身（底子），<br>外面一層是你每天做的：養和修（功夫），<br>最外圈的光，是別人看到的你（呈現）。</div><div style="margin-top:14px;font-size:13px;color:#8A6E4B">點一層，看它長在身上哪裡 ✦</div>
-   <div class="key">
-    <svg width="54" height="22"><defs><radialGradient id="k1"><stop offset="0" stop-color="#E98A7A"/><stop offset="1" stop-color="#E98A7A" stop-opacity="0"/></radialGradient></defs><ellipse cx="27" cy="11" rx="24" ry="10" fill="url(#k1)"/></svg><span><b>光＝看不見的</b>　心、風格</span>
-    <svg width="54" height="22"><line x1="4" y1="11" x2="50" y2="11" stroke="#9A5444" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round"/></svg><span><b>虛線＝每天做的</b>　養、修</span>
-    <svg width="54" height="22"><line x1="4" y1="11" x2="50" y2="11" stroke="#AE7552" stroke-width="3.5"/></svg><span><b>實線＝摸得到的</b>　天生的身、養出來的身</span>
-   </div></div>`;
-  // 右：倒三角，上面最寬（風格）、下面最窄（心）
-  const TX=1418,TOP=74,RH=128,GAP=6,W0=480,W1=250,TOT=6*RH+5*GAP;
-  const wAt=y=>W0-(y-TOP)*(W0-W1)/TOT;
-  u+=`<div style="position:absolute;left:${TX}px;top:${TOP-34}px;transform:translateX(-50%);font-size:12px;letter-spacing:.2em;color:#8A6E4B">↑ 呈現　・　功夫　・　底子 ↓</div>`;
-  u+=[5,4,3,2,1,0].map((i,n)=>{const r=R[i],it=items(r),d=it.filter(x=>x.on).length,kind=KIND[i];
-    const y0=TOP+n*(RH+GAP),y1=y0+RH,wt=wAt(y0),wb=wAt(y1),L=TX-wt/2;
-    const pts=`0,0 ${wt},0 ${wt-(wt-wb)/2},${RH} ${(wt-wb)/2},${RH}`;
-    const on=sel===r.k,c=COL[i];
-    let shape;
-    if(LOOK[i]==="glow")shape=`<defs><radialGradient id="tg${i}" cx="50%" cy="50%" r="65%"><stop offset="0" stop-color="${c}" stop-opacity="${on?.42:.28}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs><polygon points="${pts}" fill="url(#tg${i})"/>`;
-    else shape=`<polygon points="${pts}" fill="${on?"#FFFAF4":"rgba(255,250,244,.55)"}" stroke="${c}" stroke-width="${LOOK[i]==="solid"?3:2.4}" ${LOOK[i]==="dash"?'stroke-dasharray="9 6" stroke-linecap="round"':""} stroke-linejoin="round"/>`;
-    if(on)shape+=`<polygon points="${pts}" fill="none" stroke="#E2B867" stroke-width="2" transform="translate(0 0)" opacity=".9" stroke-dasharray="${LOOK[i]==="dash"?"9 6":"0"}"/>`;
-    const note=(S.note[r.k]||{})[today()];
-    const cnt=LOOK[i]==="glow"?(note?"今天寫了 ✓":"今天一句"):`${d}/${it.length}`;
-    const pad=(wt-wb)/2+14;
-    return `<button class="tri${on?" sel":""}" data-open="${r.k}" style="left:${L}px;top:${y0}px;width:${wt}px;height:${RH}px">
-      <svg class="tbg" width="${wt}" height="${RH}" viewBox="0 0 ${wt} ${RH}">${shape}</svg>
-      <span class="tin" style="padding:8px ${pad}px 7px">
-        <span class="th"><span class="dot" style="background:${c}">${ic(i,"#fff",22)}</span><span class="tn">${i+1}　${r.n}</span><span class="tk">${gi(kind,"#8A6E4B").replace('width="22" height="22"','width="15" height="15"').replace("margin-right:8px","margin-right:3px")}${kind}</span></span>
-        ${chips(r,"#7A5A40").replace('class="mis"','class="mis" style="margin:4px 0 0"')}
-        <span class="tw"><b>軟</b>${r.soft}</span>
-        <span class="tc" data-more>${cnt}　詳細 ›</span>
-      </span></button>`;}).join("");
-  const f=R.find(r=>r.k===S.focus);
-  u+=`<div class="strip"><span>本月重點：<b style="color:#FFE7C2">${f.n}・${f.sub}</b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>`;
-  u+=SP.u;
+  let u="";
+  PARTS.forEach(p=>{const x=p.pt[0]-120,bx=p.side==="L"?x-120:x+120;
+    u+=`<button class="hot ${p.side}${sel===p.k?" on":""}${sel&&sel!==p.k?" dim":""}" data-sel="${p.k}" style="left:${bx}px;top:${p.by}px"><span class="b">${mi(p.n==="身材"?"身材":p.n,sel===p.k?"#FFE7C2":"#7A5A40",28)}</span><span class="w">${p.n}</span></button>`;});
+  u+=`<button class="hot R${sel==="heart"?" on":""}${sel&&sel!=="heart"?" dim":""}" data-sel="heart" style="left:770px;top:520px"><span class="b" style="border-color:#7A3238">${ic(0,sel==="heart"?"#FFE7C2":"#7A3238",26)}</span><span class="w">心</span></button>`;
+  u+=`<button class="hot L${sel==="style"?" on":""}${sel&&sel!=="style"?" dim":""}" data-sel="style" style="left:500px;top:140px"><span class="b" style="border-color:#C9A24A">${ic(5,sel==="style"?"#FFE7C2":"#B5894F",26)}</span><span class="w">風格</span></button>`;
+  // 左：公式
+  u+=`<div class="left"><div class="f">底子<small>×</small>功夫<small>＝</small>呈現</div>
+    <div class="g"><div><b>底子</b>　你本來有的：心、身</div><div><b>功夫</b>　你每天做的：養、修</div><div><b>呈現</b>　別人感受到的：風格</div></div>
+    <div style="margin-top:22px;font-size:13.5px;line-height:1.8;color:#6A5246">身上每一個部位，都可以用四種功夫：<br>養讓它<b>本身變好</b>，修讓它<b>看起來不一樣</b>；<br>各自又分<b>自然</b>和<b>科技</b>。</div>
+    <div style="margin-top:14px;font-size:13px;color:#8A6E4B">點身上的部位、心或風格 ✦</div></div>`;
+  u+=`<div class="panel${sel!==lastSel?" anim":""}">${panel()}</div>`;lastSel=sel;
+  const fn=S.focus==="heart"?"心":S.focus==="style"?"風格":PI[S.focus]||"還沒選，點一個部位設定";
+  u+=`<div class="strip"><span>本月重點：<b style="color:#FFE7C2">${fn}</b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>`;
   $("ui").innerHTML=u;
-  document.querySelectorAll("[data-open]").forEach(b=>b.onclick=e=>{if(e.target.closest("[data-more]")){openD(b.dataset.open);return;}sel=sel===b.dataset.open?null:b.dataset.open;render();});
-  if(cur)openD(cur);
+  document.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{sel=sel===b.dataset.sel?null:b.dataset.sel;render();});
+  document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{const k=b.dataset.pick;if(S.pick[k])delete S.pick[k];else S.pick[k]=1;save();render();});
+  document.querySelectorAll("[data-key]").forEach(b=>b.onclick=()=>{const k=b.dataset.key;if(S.done[k])delete S.done[k];else S.done[k]=1;save();render();});
+  const nt=$("nt");if(nt)nt.oninput=()=>{(S.note[sel]=S.note[sel]||{})[today()]=nt.value;save();};
+  const fb=$("fb");if(fb)fb.onclick=()=>{S.focus=sel;save();render();};
 }
-
-// 點一層：那層的小項目出現在身上（名稱, 指到的點 x,y, 標籤放左L/右R, 標籤高度）
-const SPOT={
- heart:[["自信",830,262,"R",210],["情緒穩定",855,470,"R",470],["從容",800,420,"L",400]],
- care:[["食",835,560,"R",560],["住",812,322,"L",300],["行",830,790,"R",780]],
- frame:[["臉",832,345,"R",320],["骨架",870,420,"L",420],["胸型",835,470,"R",470]],
- body:[["肌肉",900,600,"R",600],["體態",835,420,"R",360],["皮膚",895,430,"L",470],["頭髮",785,370,"L",350]],
- dress:[["彩妝",828,355,"R",340],["髮型",780,400,"L",400],["穿戴",835,700,"R",700],["香氛",842,605,"L",620]],
- style:[["眼",815,322,"L",250],["耳",800,345,"R",230],["鼻",830,345,"L",330],["舌",830,368,"R",380],["身",870,500,"L",520],["意",1040,600,"R",600]]};
-let sel=null;
-function spotLayer(){if(!sel)return {g:"",u:""};const i=R.findIndex(r=>r.k===sel),c=COL[i];let g="",u="";
-  SPOT[sel].forEach(([w,x,y,side,by])=>{const bx=side==="L"?680:1000;
-    g+=`<path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${by}" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/><path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${by}" fill="none" stroke="${c}" stroke-width="1.6"/><circle cx="${x}" cy="${y}" r="5" fill="#fff" stroke="${c}" stroke-width="2"/>`;
-    u+=`<div class="spot" style="left:${bx}px;top:${by}px;flex-direction:${side==="L"?"row-reverse":"row"};transform:translate(${side==="L"?"-100%":"0"},-50%)"><span class="sb" style="border-color:${c}">${mi(w,c).replace(/width="19" height="19"/,'width="34" height="34"')}</span><span class="sw">${w}</span></div>`;});
-  return {g,u};}
-let cur=null;
-function openD(k){cur=k;const r=R.find(x=>x.k===k),i=R.indexOf(r),kind=KIND[i];
-  const note=(S.note[k]||{})[today()]||"";
-  const body=LOOK[i]==="glow"
-   ?`<div style="font-size:13px;color:#8A6E4B">今天一句（看不見的東西，用一句話照顧它）</div><textarea id="nt" placeholder="${i===0?"今天喜歡自己的一個地方……":"今天別人感受到的我……"}">${note.replace(/</g,"&lt;")}</textarea><div style="display:flex;flex-direction:column;gap:6px">${items(r).map(it=>`<button class="chk${it.on?" on":""}" data-key="${it.key}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("")}</div>`
-   :`<div style="display:flex;flex-direction:column;gap:6px">${items(r).map(it=>`<button class="chk${it.on?" on":""}" data-key="${it.key}"><i></i><span>${it.t}</span><em>${it.p}</em></button>`).join("")}</div>`;
-  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start">
-    <div><div style="font-size:13px;color:#8A6E4B;letter-spacing:.2em">第 ${i+1} 層・${kind}</div><div class="serif" style="font-size:32px;display:flex;align-items:center;gap:10px"><span style="width:40px;height:40px;border-radius:50%;background:${COL[i]};display:grid;place-items:center">${ic(i,"#fff",22)}</span>${r.n}</div><div style="margin-top:6px">${chips(r,"#7A5A40").replace('class="mis"','class="mis" style="margin-left:0;font-size:14px"')}</div></div>
-    <button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;color:#3A2A24;font-size:20px">×</button></div>
-    <div style="font-size:14px;color:#8E2B2B;font-weight:600">${r.how}</div><div style="font-size:15px;line-height:1.8">${r.why}</div>
-    <div class="ss"><b>軟</b><span>${r.soft}</span><b class="x">性感</b><span>${r.sexy}</span></div>
-    ${body}
-    <div style="display:flex;flex-wrap:wrap;gap:8px">${r.links.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div>
-    <button id="f" style="min-height:46px;border-radius:12px;border:0;background:${S.focus===r.k?"#E9D9BE":"#3A2A24"};color:${S.focus===r.k?"#5A4228":"#FFF6EC"};font-size:15px">${S.focus===r.k?"這是這個月的重點":"設成這個月的重點"}</button>`;
-  $("detail").classList.add("on");
-  $("x").onclick=closeD;
-  $("f").onclick=()=>{S.focus=r.k;save();render();};
-  $("dbox").querySelectorAll("[data-key]").forEach(b=>b.onclick=()=>toggle(b.dataset.key));
-  const nt=$("nt");if(nt)nt.oninput=()=>{(S.note[k]=S.note[k]||{})[today()]=nt.value;save();};
-}
-function closeD(){cur=null;$("detail").classList.remove("on");render();}
-$("detail").addEventListener("click",e=>{if(e.target.id==="detail")closeD();});
+function focusBtn(){return `<button class="fbtn" id="fb" style="background:${S.focus===sel?"#E9D9BE":"#3A2A24"};color:${S.focus===sel?"#5A4228":"#FFF6EC"}">${S.focus===sel?"這個月的重點 ✓":"設成這個月的重點"}</button>`;}
+function cell(p,q){const list=p[q],links=(p.room&&p.room[q])||ROOM[q];
+  return `<div class="cell ${q}"><div class="h">${qi(q,"#8A6E4B")}<b style="color:#3A2A24;letter-spacing:.15em">${QN[q]}</b></div>
+   ${list.length?`<div class="chips">${list.map(w=>{const k=p.k+":"+q+":"+w;return `<button class="chip${S.pick[k]?" on":""}" data-pick="${k}">${w}</button>`}).join("")}</div>`:`<div class="empty">目前沒有</div>`}
+   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:auto">${links.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div></div>`;}
+function panel(){
+  if(!sel){ // 總覽：四種功夫
+    return `<div class="ph"><span class="t">四種功夫</span><span class="s">作用在身上的每一個部位</span></div>
+    <div class="grid"><span></span><span class="ax">${qi("yn","#8A6E4B")}自然</span><span class="ax">${qi("yt","#8A6E4B")}科技</span>
+     <span class="ax v">養・本身變好</span>
+     <div class="cell yn"><div class="h">食、住、行</div><div style="font-size:14px;color:#5A4228;line-height:1.7">吃好、睡飽、動一動<br>每天做，慢慢看得到</div><div style="display:flex;gap:10px;margin-top:auto">${ROOM.yn.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div></div>
+     <div class="cell yt"><div class="h">保養品、半醫美</div><div style="font-size:14px;color:#5A4228;line-height:1.7">雷射、電波、護髮療程<br>花一點錢，加速變好</div><div style="display:flex;gap:10px;margin-top:auto">${ROOM.yt.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div></div>
+     <span class="ax v">修・看起來不同</span>
+     <div class="cell xn"><div class="h">彩妝、髮型、穿戴、香氛</div><div style="font-size:14px;color:#5A4228;line-height:1.7">每天可以卸掉、換掉<br>最快看到效果</div><div style="display:flex;gap:10px;margin-top:auto">${ROOM.xn.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div></div>
+     <div class="cell xt"><div class="h">醫美、正顎、半永久</div><div style="font-size:14px;color:#5A4228;line-height:1.7">改了就留著<br>花最多錢、做最少次</div><div style="display:flex;gap:10px;margin-top:auto">${ROOM.xt.map(([t,u])=>`<a class="go" href="${u}">${t} →</a>`).join("")}</div></div>
+    </div>
+    <div class="note">虛線＝自然（每天做）、實線＝科技（交給專業）；紅＝養、金＝修</div>`;}
+  if(sel==="heart"||sel==="style"){const r=ENDS.find(x=>x.k===sel),i=sel==="heart"?0:5;const note=(S.note[sel]||{})[today()]||"";
+    return `<div class="ph"><span style="width:52px;height:52px;border-radius:50%;background:${i?"#C9A24A":"#7A3238"};display:grid;place-items:center">${ic(i,"#fff",28)}</span><span><div class="t">${r.n}</div><div class="s">${i?"呈現：別人心裡的你":"底子：你心裡的自己"}</div></span><span style="margin-left:auto">${focusBtn()}</span></div>
+     <div style="display:flex;flex-wrap:wrap;gap:6px 14px;font-size:15px;color:#5A4228">${r.sub.split("、").map(w=>`<span style="display:inline-flex;align-items:center;gap:4px">${mi(w,"#7A5A40",20)}${w}${(typeof HINT!=="undefined"&&HINT[w])?`<em style="font-style:normal;opacity:.6;font-size:12px">${HINT[w]}</em>`:""}</span>`).join("")}</div>
+     <div style="font-size:14px;color:#8E2B2B;font-weight:600">${r.how}</div>
+     <div style="font-size:14.5px;line-height:1.8;color:#3A2A24">${r.why}</div>
+     <div class="soft"><b>軟</b>${r.soft}　<b style="margin-left:8px">性感</b>${r.sexy}</div>
+     <div class="note">今天一句</div><textarea id="nt" placeholder="${i?"今天別人感受到的我……":"今天喜歡自己的一個地方……"}">${note.replace(/</g,"&lt;")}</textarea>
+     <div style="display:flex;flex-direction:column;gap:6px">${r.tasks.map(([t,pp],j)=>{const key=r.k+j+"@"+period(pp);return `<button class="chk${S.done[key]?" on":""}" data-key="${key}"><i></i><span>${t}</span><em>${pp}</em></button>`;}).join("")}</div>
+     <div style="display:flex;gap:8px;flex-wrap:wrap">${r.links.map(([t,u])=>`<a class="lnk" href="${u}">${t} →</a>`).join("")}</div>`;}
+  const p=PARTS.find(x=>x.k===sel);
+  return `<div class="ph"><span style="width:52px;height:52px;border-radius:50%;background:#B98F66;display:grid;place-items:center">${mi(p.n,"#fff",30)}</span><span><div class="t">${p.n}</div><div class="s">${p.base}</div></span><span style="margin-left:auto">${focusBtn()}</span></div>
+   <div class="soft"><b>軟</b>${p.soft}</div>
+   <div class="grid"><span></span><span class="ax">${qi("yn","#8A6E4B")}自然</span><span class="ax">${qi("yt","#8A6E4B")}科技</span>
+    <span class="ax v">養</span>${cell(p,"yn")}${cell(p,"yt")}
+    <span class="ax v">修</span>${cell(p,"xn")}${cell(p,"xt")}</div>
+   <div class="note">點一個方法，標成「我正在用」；再點一次取消</div>`;}
 function fit(){const s=Math.min(innerWidth/1680,innerHeight/944);$("stage").style.transform=`scale(${s})`;$("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";}
 addEventListener("resize",fit);render();fit();
 $("back").onclick=()=>{location.href="../scenes/?s=beauty";};

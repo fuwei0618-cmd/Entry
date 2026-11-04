@@ -6,11 +6,11 @@
 <link rel="apple-touch-icon" href="../venus/icon-180.png"><link rel="icon" href="../venus/icon-192.png">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#2a221c;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+html,body{margin:0;height:100%;background:#F1E7DA;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
 #view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
 #sizer{position:relative;flex-shrink:0}
 #stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:radial-gradient(ellipse at 45% 50%,#E9D9C4,#F3EADF 62%)}
-#fig{position:absolute;left:50px;top:0;width:500px;height:944px;background:url(fig.webp);-webkit-mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
+#fig{position:absolute;left:50px;top:0;width:500px;height:944px;background:url(fig.webp);-webkit-mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 90%,transparent);-webkit-mask-composite:source-in;mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 90%,transparent);mask-composite:intersect}
 #sv{position:absolute;inset:0;pointer-events:none}
 button{font:inherit;cursor:pointer}
 .serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
@@ -175,7 +175,7 @@ const mi=(k,c,z=19)=>MI[k]?`<svg width="${z}" height="${z}" viewBox="0 0 24 24" 
 // 心和風格（看不見的兩端）
 const ENDS=[
  {k:"heart",why:"美的最源頭。放鬆的人才軟，喜歡自己的人才性感。外面做再多，這圈空了，看起來就是緊繃、用力。",n:"心",sub:"自信、情緒穩定、從容",how:"用時間和經歷改",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
-  tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["臥室",E+"bedroom/"]]},
+  tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["禱告房",E+"?go=attic,ladder"],["三殿",E+"temple/"],["使命板・信念",E+"mission/"],["臥室",E+"bedroom/"]]},
  {k:"style",why:"不是做的事，是做完以後的結果。是你的身和心一起散出去、被別人接收到的東西。前五根（眼耳鼻舌身）接收的是你的身散出去的，最後一根「意」接收的是你的心散出去的，所以靈＝身＋心。心是你心裡的自己，靈是別人心裡的你。三殿決定今天開多大聲。",n:"靈",sub:"眼、耳、鼻、舌、身、意",how:"不用刻意做：底子加功夫，自然長出來",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
   tasks:[["拍一張這一季的我","每季"],["找一支招牌香味","每季"],["換季整理衣櫥","每季"]],links:[["衣櫥・三殿",E+"wardrobe/"]]}
 ];
@@ -239,7 +239,7 @@ function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;ret
 function table(){
   const sub=r=>r.sub.split("、").map(w=>`<span class="tg">${mi(w,"#8A6E4B",18)}${w}${HINT[w]?`<em>${HINT[w]}</em>`:""}</span>`).join("");
   const card=(r,k,c,ii,cap)=>{const nt=(S.note[k==="soul"?"style":k]||{})[today()];
-    return `<button class="cd${sel===k?" on":""}" data-sel="${k}"><span class="ch"><span class="big" style="background:${c}">${ic(ii,"#fff",22)}</span><span><b>${r.n}</b><small>${cap}</small></span><span class="nt">${nt?"今天寫了 ✓":"今天一句 ›"}</span></span>${k==="soul"?`<span class="six">${SIX.map(([g,se,fe,wh],j)=>`<span class="sx${j===5?" yi":""}"><b>${g}</b><i>${se}</i><em>${fe}</em><span>${wh}</span></span>`).join("")}</span>`:`<span class="tgs">${sub(r)}</span>`}<span class="how">${r.how}</span></button>`;};
+    return `<button class="cd${sel===k?" on":""}" data-sel="${k}"><span class="ch"><span class="big" style="background:${c}">${ic(ii,"#fff",22)}</span><span><b>${r.n}</b><small>${cap}${k==="heart"?"・禱告、信念":""}</small></span><span class="nt">${nt?"今天寫了 ✓":"今天一句 ›"}</span></span>${k==="soul"?`<span class="six">${SIX.map(([g,se,fe,wh],j)=>`<span class="sx${j===5?" yi":""}"><b>${g}</b><i>${se}</i><em>${fe}</em><span>${wh}</span></span>`).join("")}</span>`:`<span class="tgs">${sub(r)}</span>`}<span class="how">${r.how}</span></button>`;};
   return `<section class="sb">
     <div class="sh"><span class="big" style="background:#AE7552">${mi("體態","#fff",22)}</span><b>身</b><small>摸得到的你</small></div>
     <div class="mx">
@@ -248,7 +248,7 @@ function table(){
       ${PARTS.map(p=>`<div class="pr${sel===p.k?" on":""}" data-sel="${p.k}">${mi(p.n,sel===p.k?"#8E2B2B":"#7A5A40",22)}<b>${p.n}</b></div><div class="c n${sel===p.k?" on":""}">${items(p,"yn")}</div><div class="c n${sel===p.k?" on":""}">${items(p,"xn")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"yt")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"xt")}</div>`).join("")}
     </div></section>
   <div class="two">${card(HEART,"heart","#7A3238",0,"你心裡的自己")}${card(SOUL,"soul","#C9A24A",5,"身和心散出去的")}</div>
-  <nav class="rooms"><span>去哪裡做</span><a href="${GH}Gym/">健身房</a><a href="${E}bedroom/">臥室</a><a href="${E}vanity/">妝台</a><a href="${E}wardrobe/">衣櫥</a><a href="${E}body/?layer=m">保養廠</a><a href="${GH}OGS/">正顎手冊</a><em>點一個方法＝我正在用</em></nav>`;}
+  <nav class="rooms"><span>去哪裡做</span><a href="${E}?go=attic,ladder">禱告房</a><a href="${E}mission/">使命板</a><a href="${GH}Gym/">健身房</a><a href="${E}bedroom/">臥室</a><a href="${E}vanity/">妝台</a><a href="${E}wardrobe/">衣櫥</a><a href="${E}body/?layer=m">保養廠</a><a href="${GH}OGS/">正顎手冊</a><em>點一個方法＝我正在用</em></nav>`;}
 function openD(k){const r=k==="heart"?HEART:SOUL,i=k==="heart"?0:5,nk=k==="heart"?"heart":"style";const note=(S.note[nk]||{})[today()]||"";
   $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;align-items:center;gap:12px"><span style="width:50px;height:50px;border-radius:50%;background:${i?"#C9A24A":"#7A3238"};display:grid;place-items:center">${ic(i,"#fff",26)}</span><span><div class="serif" style="font-size:32px">${r.n}</div><div style="font-size:13px;color:#8A6E4B">${i?"別人心裡的你":"你心裡的自己"}</div></span></div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:20px">×</button></div>
    <div style="font-size:14px;color:#8E2B2B;font-weight:600">${r.how}</div>

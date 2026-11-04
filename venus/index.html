@@ -252,7 +252,7 @@ function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;ret
 function table(){
   const sub=r=>r.sub.split("、").map(w=>`<span class="tg">${mi(w,"#8A6E4B",18)}${w}${HINT[w]?`<em>${HINT[w]}</em>`:""}</span>`).join("");
   const card=(r,k,c,ii,cap)=>{const nt=(S.note[k==="soul"?"style":k]||{})[today()];
-    return `<div class="cd${sel===k?" on":""}" data-sel="${k}" role="button" tabindex="0"><span class="ch"><span class="big" style="background:${c}">${ic(ii,"#fff",22)}</span><span><b>${r.n}</b><small>${cap}${k==="heart"?"・禱告、信念":""}</small></span><span class="nt">${nt?"今天寫了 ✓":"今天一句 ›"}</span></span>${k==="soul"?`<span class="six">${SIX.map(([g,se,fe,wh],j)=>`<span class="sx${j===5?" yi":""}"><b>${g}</b><i>${se}</i><em>${fe}</em><span>${wh}</span></span>`).join("")}</span>`:`<span class="tgs">${sub(r)}</span>`}<span class="how">${r.how}</span>${k==="heart"?`<span class="cl"><a class="ln" href="${E}temple/">禱告房 ›</a><a class="ln" href="${E}bedside/#all">信念 ›</a></span>`:""}</div>`;};
+    return `<div class="cd${sel===k?" on":""}" data-sel="${k}" role="button" tabindex="0"><span class="ch"><span class="big" style="background:${c}">${ic(ii,"#fff",22)}</span><span><b>${r.n}</b><small>${cap}${k==="heart"?"・禱告、信念":""}</small></span><span class="nt">${nt?"今天寫了 ✓":"今天一句 ›"}</span></span>${k==="soul"?`<span class="six">${SIX.map(([g,se,fe,wh],j)=>`<span class="sx${j===5?" yi":""}"><b>${g}</b><i>${se}</i><em>${fe}</em><span>${wh}</span></span>`).join("")}</span>`:`<span class="tgs">${sub(r)}</span>`}<span class="how">${r.how}</span>${k==="heart"?`<span class="cl"><a class="ln" href="${E}temple/">禱告房 ›</a><a class="ln" href="${E}bedside/#all">信念 Addiction ›</a></span>`:""}</div>`;};
   return `<section class="sb">
     
     <div class="mx">

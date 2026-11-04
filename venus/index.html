@@ -103,6 +103,10 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 .sx i{font-style:normal;font-size:12px;color:#A0805A}
 .sx em{font-style:normal;font-size:12.5px;color:#8E2B2B}
 .sx.yi b{color:#7A3238}
+.ln{display:inline-flex;align-items:center;margin-left:8px;font-size:12.5px;font-weight:600;color:#8E2B2B;background:#FFF;border:1px solid #E8C9B8;border-radius:999px;padding:2px 9px;text-decoration:none;white-space:nowrap;letter-spacing:0}
+.ln:hover{background:#8E2B2B;color:#fff}
+.ln.hd2{font-family:"PingFang TC","Noto Sans TC",sans-serif;margin-left:12px}
+.cl{display:flex;gap:6px;margin-top:2px}.cl .ln{margin-left:0;font-size:13.5px;padding:4px 12px}
 #detail{position:absolute;inset:0;background:rgba(30,20,14,.35);display:none;align-items:center;justify-content:center}
 #detail.on{display:flex}
 #dbox{width:600px;max-height:840px;overflow:auto;border-radius:22px;background:#FFFAF4;padding:24px 26px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(30,20,14,.3)}
@@ -197,6 +201,8 @@ const PARTS=[
  {k:"shape",n:"身材",pt:[295,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭",yt:"電波、體雕",xt:"隆乳、抽脂",cap:"名詞・有什麼"},
  {k:"pose",n:"體態",pt:[295,760],side:"R",by:740,yn:"伸展、皮拉提斯",xn:"高跟鞋、修身衣",yt:"整脊、矯正",xt:"",cap:"動詞・怎麼用"}];
 const pimg=(k,z)=>`<img src="p-${k}.webp" alt="" style="width:${z}px;height:${z}px;mix-blend-mode:multiply;display:block">`;
+const LK={"hair:xn":["妝台",E+"vanity/"],"face:xn":["妝台",E+"vanity/"],"shape:xn":["衣櫥",E+"wardrobe/"],"pose:yn":["健身房",GH+"Gym/"],"pose:xn":["HH",GH+"Gym/hh/"]};
+const lk=(k)=>LK[k]?`<a class="ln" href="${LK[k][1]}">${LK[k][0]} ›</a>`:"";
 const PI={face:"臉",hair:"頭髮",skin:"皮膚",shape:"身材",pose:"體態"};
 MI["眼神"]=MI["眼"];MI["觸感"]=MI["身"];MI["印象"]=MI["意"];
 const HINT={"眼神":"被看到","聲音":"被聽到","香味":"被聞到","觸感":"被碰到","印象":"被記住"};
@@ -239,23 +245,23 @@ function render(){
   const fn=S.focus==="heart"?"心":S.focus==="style"||S.focus==="soul"?"靈":PI[S.focus]||"還沒選";
   u+=`<div class="strip"><span>本月重點：<b style="color:#FFE7C2">${fn}</b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>`;
   $("ui").innerHTML=u;
-  document.querySelectorAll("[data-sel]").forEach(b=>b.onclick=e=>{const k=b.dataset.sel;if(k==="heart"||k==="soul"){sel=k;render();openD(k);return;}if(k==="body"){sel=null;render();return;}sel=sel===k?null:k;render();});
+  document.querySelectorAll("[data-sel]").forEach(b=>b.onclick=e=>{if(e.target.closest("a"))return;const k=b.dataset.sel;if(k==="heart"||k==="soul"){sel=k;render();openD(k);return;}if(k==="body"){sel=null;render();return;}sel=sel===k?null:k;render();});
   document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.pick;if(S.pick[k])delete S.pick[k];else S.pick[k]=1;save();render();});
 }
 function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;return p[q].split("、").map(w=>{const k=p.k+":"+q+":"+w;return `<span class="it${S.pick[k]?" on":""}" data-pick="${k}">${w}</span>`}).join("、");}
 function table(){
   const sub=r=>r.sub.split("、").map(w=>`<span class="tg">${mi(w,"#8A6E4B",18)}${w}${HINT[w]?`<em>${HINT[w]}</em>`:""}</span>`).join("");
   const card=(r,k,c,ii,cap)=>{const nt=(S.note[k==="soul"?"style":k]||{})[today()];
-    return `<button class="cd${sel===k?" on":""}" data-sel="${k}"><span class="ch"><span class="big" style="background:${c}">${ic(ii,"#fff",22)}</span><span><b>${r.n}</b><small>${cap}${k==="heart"?"・禱告、信念":""}</small></span><span class="nt">${nt?"今天寫了 ✓":"今天一句 ›"}</span></span>${k==="soul"?`<span class="six">${SIX.map(([g,se,fe,wh],j)=>`<span class="sx${j===5?" yi":""}"><b>${g}</b><i>${se}</i><em>${fe}</em><span>${wh}</span></span>`).join("")}</span>`:`<span class="tgs">${sub(r)}</span>`}<span class="how">${r.how}</span></button>`;};
+    return `<div class="cd${sel===k?" on":""}" data-sel="${k}" role="button" tabindex="0"><span class="ch"><span class="big" style="background:${c}">${ic(ii,"#fff",22)}</span><span><b>${r.n}</b><small>${cap}${k==="heart"?"・禱告、信念":""}</small></span><span class="nt">${nt?"今天寫了 ✓":"今天一句 ›"}</span></span>${k==="soul"?`<span class="six">${SIX.map(([g,se,fe,wh],j)=>`<span class="sx${j===5?" yi":""}"><b>${g}</b><i>${se}</i><em>${fe}</em><span>${wh}</span></span>`).join("")}</span>`:`<span class="tgs">${sub(r)}</span>`}<span class="how">${r.how}</span>${k==="heart"?`<span class="cl"><a class="ln" href="${E}?go=attic,ladder">禱告房 ›</a><a class="ln" href="${E}mission/">使命板 ›</a><a class="ln" href="${E}temple/">三殿 ›</a></span>`:""}</div>`;};
   return `<section class="sb">
     
     <div class="mx">
-      <div class="sh2"><span class="big" style="background:#AE7552">${mi("體態","#fff",22)}</span><span><b>身</b><small>摸得到的你</small></span></div><div class="mh n" style="grid-column:span 2">${qi("yn","#7A5A40",16)}自然</div><div class="mh t" style="grid-column:span 2">${qi("yt","#7A5A40",16)}科技</div>
+      <div class="sh2"><span class="big" style="background:#AE7552">${mi("體態","#fff",22)}</span><span><b>身</b><small>摸得到的你</small></span></div><div class="mh n" style="grid-column:span 2">${qi("yn","#7A5A40",16)}自然</div><div class="mh t" style="grid-column:span 2">${qi("yt","#7A5A40",16)}科技<a class="ln hd2" href="${E}body/?layer=m">保養廠 ›</a></div>
       <div class="ms n">養</div><div class="ms n">修</div><div class="ms t">養</div><div class="ms t">修</div>
-      ${PARTS.map(p=>`<div class="pr${sel===p.k?" on":""}" data-sel="${p.k}">${pimg(p.k,46)}<span><b>${p.n}</b><small class="cap${p.k==="shape"||p.k==="pose"?" nv":""}">${p.cap}</small></span></div><div class="c n${sel===p.k?" on":""}">${items(p,"yn")}</div><div class="c n${sel===p.k?" on":""}">${items(p,"xn")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"yt")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"xt")}</div>`).join("")}
+      ${PARTS.map(p=>`<div class="pr${sel===p.k?" on":""}" data-sel="${p.k}">${pimg(p.k,46)}<span><b>${p.n}</b><small class="cap${p.k==="shape"||p.k==="pose"?" nv":""}">${p.cap}</small></span></div><div class="c n${sel===p.k?" on":""}">${items(p,"yn")}${lk(p.k+":yn")}</div><div class="c n${sel===p.k?" on":""}">${items(p,"xn")}${lk(p.k+":xn")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"yt")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"xt")}</div>`).join("")}
     </div></section>
   <div class="two">${card(HEART,"heart","#7A3238",0,"你心裡的自己")}${card(SOUL,"soul","#C9A24A",5,"身和心散出去的")}</div>
-  <nav class="rooms"><span>去哪裡做</span><a href="${E}?go=attic,ladder">禱告房</a><a href="${E}mission/">使命板</a><a href="${GH}Gym/">健身房</a><a href="${E}bedroom/">臥室</a><a href="${E}vanity/">妝台</a><a href="${E}wardrobe/">衣櫥</a><a href="${E}body/?layer=m">保養廠</a><a href="${GH}OGS/">正顎手冊</a><em>點一個方法＝我正在用</em></nav>`;}
+  <div class="rooms"><em>點一個方法＝我正在用</em></div>`;}
 function openD(k){const r=k==="heart"?HEART:SOUL,i=k==="heart"?0:5,nk=k==="heart"?"heart":"style";const note=(S.note[nk]||{})[today()]||"";
   $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;align-items:center;gap:12px"><span style="width:50px;height:50px;border-radius:50%;background:${i?"#C9A24A":"#7A3238"};display:grid;place-items:center">${ic(i,"#fff",26)}</span><span><div class="serif" style="font-size:32px">${r.n}</div><div style="font-size:13px;color:#8A6E4B">${i?"別人心裡的你":"你心裡的自己"}</div></span></div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:20px">×</button></div>
    <div style="font-size:14px;color:#8E2B2B;font-weight:600">${r.how}</div>

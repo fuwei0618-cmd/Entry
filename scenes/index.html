@@ -48,7 +48,7 @@ html,body{margin:0;height:100%;background:#1c1814;color:var(--ink);font-family:"
 const GH="https://fuwei0618-cmd.github.io/";
 /* 每個場景：圖片、熱點（x,y 是圖片寬高的百分比） */
 const S={
- beauty:{title:"Beauty",sub:"梳化與保養",img:"img/beauty.webp",fallback:["img/glam.webp","img/spa.webp"],back:null,hots:[
+ beauty:{title:"Venus",sub:"梳化與保養",img:"img/beauty.webp",fallback:["img/glam.webp","img/spa.webp"],back:null,hots:[
    {x:33,y:50,door:1,label:"梳化間",go:"glam"},
    {x:50,y:66,label:"維納斯的桌子",url:"../venus/"},
    {x:67,y:52,door:1,label:"保養廠",go:"spa"}]},
@@ -57,12 +57,12 @@ const S={
    {x:42,y:40,label:"衣櫥",url:"../wardrobe/"},
    {x:46,y:67,label:"行李模板",t:"行李模板",b:"輕／中／重三種行李 × 季節，旅行前一鍵帶出清單。",app:null},
    {x:72,y:83,label:"美甲",t:"美甲",b:"做過的款式、顏色和店家，下次直接指給美甲師看。",app:null},
-   {x:80,y:64,label:"回到 Beauty",go:"beauty",door:1}]},
+   {x:80,y:64,label:"回到 Venus",go:"beauty",door:1}]},
  spa:{title:"保養廠",sub:"醫美・半永久・日常保養",img:"img/spa.webp",back:"beauty",hots:[
    {x:44,y:62,label:"醫美・正顎",url:"../body/?layer=m"},
    {x:66,y:47,label:"半永久",url:"../body/?layer=p"},
    {x:87,y:68,label:"日常保養",url:"../body/?layer=d"},
-   {x:20,y:70,label:"回到 Beauty",go:"beauty",door:1}]},
+   {x:20,y:70,label:"回到 Venus",go:"beauty",door:1}]},
  gym:{title:"健身房",sub:"皮拉提斯・瑜伽・重訓",img:"img/gym.webp",back:null,startX:12,hots:[
    {x:48,y:70,label:"皮拉提斯",t:"皮拉提斯",b:"你最想堅持到底的一件事。記下每堂課練了什麼、哪裡進步。",app:[["打開紀錄",GH+"Gym/#tab=log"],["今日課表",GH+"Gym/#tab=today"]]},
    {x:18,y:76,label:"伸展・柔軟",t:"伸展與柔軟度",b:"開肩、開髖、一字馬：木頭人偶示範每個動作。",app:[["看動作示範",GH+"Gym/#tab=move"]]},

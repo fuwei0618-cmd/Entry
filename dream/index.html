@@ -328,7 +328,7 @@ const CREW=[{k:"teresa",ic:"🎤",n:"Teresa",r:"唱歌・街演・合唱",c:"#D9
   {k:"healer",ic:"🕯️",n:"療癒師",r:"身心・精力・睡眠",c:"#9CC4C0",cat:"life",dq:[["✨","我是誰（主卡）","me","whoami"],["🔍","掃描儀","me","alch"]]}];
 const CREWK=Object.fromEntries(CREW.map(c=>[c.k,c]));
 const CAT2CREW={body:"fox",vocal:"teresa",work:"sales",life:"healer",trip:"leader",make:"butler"};
-const ITEM2CREW={Vocal:"teresa",SV:"teresa",Chorus:"teresa",Yoga:"fox",HH:"fox",WG:"fox",HP:"fox",Beauty:"venus","國泰":"sales",Bangkok:"leader","重慶":"leader",Origina:"butler","洗衣貓":"butler",Eric:"vault",Rest:"healer"};
+const ITEM2CREW={Vocal:"teresa",SV:"teresa",Chorus:"teresa",Yoga:"fox",HH:"fox",WG:"fox",HP:"fox",Beauty:"venus",Venus:"venus","國泰":"sales",Bangkok:"leader","重慶":"leader",Origina:"butler","洗衣貓":"butler",Eric:"vault",Rest:"healer"};
 const PROJ2CREW={Bangkok:"leader","正顎":"venus",Cathay:"sales","重慶":"director","寫程式":"butler",Origina:"butler",Vocal:"teresa","Body/Beauty":"fox","投資":"trader","金庫":"trader","宇宙印鈔機":"trader"};
 const crewOfItem=it=>CREWK[it.crew]?it.crew:(ITEM2CREW[it.name]||CAT2CREW[it.cat]||"butler");
 const crewOfProj=p=>CREWK[p.crew]?p.crew:(PROJ2CREW[p.name]||(()=>{const sd=typeof projSand==="function"&&projSand(p);return sd?crewOfItem(sd):"butler";})());

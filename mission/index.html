@@ -260,10 +260,10 @@ const DEFAULT={v:1,
   recordings:[],
   personas:[
     {id:"teresa",formula:"共鳴・為眾生",give:"給世界",tattoos:["左腕銀杏","左手狼與捕夢網","手背藍色小星星"],place:"營火",go:["stage","back"],text:""},
-    {id:"elva",formula:"慾望・燕尾蝶",give:"給自己",tattoos:["右腕罌粟花","右腰女人與老虎"],place:"Beauty",go:["f1","closet"],text:""},
+    {id:"elva",formula:"慾望・燕尾蝶",give:"給自己",tattoos:["右腕罌粟花","右腰女人與老虎"],place:"Venus",go:["f1","closet"],text:""},
     {id:"chiara",formula:"豐盛・富偉",give:"地基",tattoos:["還沒刻在身上"],place:"噴水池、家（房子、Lucky）",go:["forest","vault"],text:""}]};
 
-let D;try{D=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){D=null;}
+let D;try{D=JSON.parse((localStorage.getItem(KEY)||"null").replace(/"Beauty/g,'"Venus'));}catch(e){D=null;}
 if(!D||!D.alarms)D=JSON.parse(JSON.stringify(DEFAULT));
 else{let j=JSON.stringify(D);const j0=j;[["一生唱","聲音領路"],["一生愛","燕尾蝶"],["一生豐盛","富偉"]].forEach(([a,b])=>{j=j.split(a).join(b);});if(j!==j0)D=JSON.parse(j);}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}};
@@ -425,7 +425,7 @@ const KINDS={god:"使命",idol:"身份",space:"行為",env:"環境",tat:"印記"
    // 照迪爾茲的層次：使命 → 身份 → 行為；印記（刺青）、啟發（電影）是補充
 const KIND_ASK={god:["我相信什麼","第一性原理","先問我真正要什麼，再拆開來做。"],idol:["我想成為誰","開心原則","腳踩穩、頭往上、胸口打開，長成想成為的樣子。"],space:["我每天怎麼做","無痛・輕量原則","先拿掉能拿掉的，再把剩下的順到無痛，每天才做得下去。"],env:["我在哪裡做","同一條：無痛・輕量原則","把每天要回去的地方擺好，打開就能開始。"]};   // 一條線：相信什麼 → 想成為誰 → 每天怎麼做；印記（刺青）、啟發（電影）是補充   // 2026-10-14：前三種是主要的，刺青、電影是補充；「計畫」併進地圖空間
 const KIND_EXTRA={tat:1,film:1,sub:1};
-const MPL={"禱告房":[58,36,"attic","ladder"],"舞台":[22,6,"stage","back"],"世界之門":[62,6,"f1","stage"],"家・老宅":[50,22,"f1","front"],"Beauty":[84,18,"f1","closet"],"健身房":[66,50,"f1","gym"],"Lucky":[40,38,"f1","front"],"攝影棚":[8,44,"forest","studio"],"記錄之河":[9,68,"forest","river"],"金庫":[28,70,"forest","vault"],"日晷":[52,62,"forest","center"],"營火":[78,70,"forest","campfire"]};
+const MPL={"禱告房":[58,36,"attic","ladder"],"舞台":[22,6,"stage","back"],"世界之門":[62,6,"f1","stage"],"家・老宅":[50,22,"f1","front"],"Venus":[84,18,"f1","closet"],"健身房":[66,50,"f1","gym"],"Lucky":[40,38,"f1","front"],"攝影棚":[8,44,"forest","studio"],"記錄之河":[9,68,"forest","river"],"金庫":[28,70,"forest","vault"],"日晷":[52,62,"forest","center"],"營火":[78,70,"forest","campfire"]};
 const VCIR={T:[35,62],E:[50,36],C:[65,62]},VR=27;
 const posTags=it=>{if(typeof it.x!=="number")return it.tags;const inn=["T","E","C"].filter(k=>Math.hypot(it.x-VCIR[k][0],it.y-VCIR[k][1])<=VR);if(inn.length)return inn.join("");return ["T","E","C"].reduce((a,k)=>Math.hypot(it.x-VCIR[k][0],it.y-VCIR[k][1])<Math.hypot(it.x-VCIR[a][0],it.y-VCIR[a][1])?k:a,"T");};
 const VREG={E:[50,25],T:[20,70],C:[80,70],TE:[34,47],EC:[66,47],TC:[50,78],TEC:[50,57]};   // 三個我：Elva 上、左邊（T）給世界＝Shakira、Chiara 右（2026-10-15 Teresa 進中心）
@@ -437,9 +437,9 @@ const GODS=[{id:"g-mazu",n:"媽祖",k:"god",tags:"T",t:"左殿。出發平安：
 function godText(L){(L||[]).forEach(it=>{const g=GODS.find(x=>x.id===it.id);if(g&&it.t&&/^(中殿|龍邊|虎邊|左殿|右殿)。/.test(it.t))it.t=it.t.replace(/^(中殿|龍邊|虎邊|左殿|右殿)。/,g.t.slice(0,3));});return L;}
 function withGods(L){if(L&&!L.some(it=>it.k==="god"))GODS.forEach(g=>L.push(JSON.parse(JSON.stringify(g))));return L;}
 function defaultCollection(){
-  const L=[["鄧麗君","idol","T","Teresa 的名字從她來：用聲音帶路，從台灣唱到世界。",["舞台"]],["鄧紫棋","idol","E","最喜歡的歌手；喜歡，但不是我唱歌的範本。",["舞台"]],["蕭亞軒","idol","E","Elva：允許自己想要、允許被愛。",["Beauty"]],["Chiara","idol","C","Chiara：豐盛是地基，讓想要的東西被允許。",["金庫"]],
-    ["銀杏","tat","T","左腕：為眾生，給世界的那一面。",["舞台"]],["Camino","tat","T","胸口的朝聖之路：聲音在前面帶路。",["舞台","世界之門"]],["狼與捕夢網","tat","T","為很多女性站出來的那股熱血。",["營火"]],["罌粟花","tat","E","右腕：私密的渴望。",["Beauty"]],["女人與老虎","tat","E","右腰：女性的力量，也是 Origina 的 -na。",["Beauty","健身房"]],["藍色小星星","tat","TE","手背的熱情：給世界，也給自己。",["舞台","Beauty"]],
-    ["三個傻瓜","film","TC","追著熱愛走，成功和豐盛會自己跟上來。",["舞台","金庫"]],["來自星星的你","film","E","被一個人全心守護、也全心去愛。",["Beauty"]],["真愛每一天","film","EC","平凡的每一天，和家人、愛人一起，就是最好的人生。",["家・老宅","Lucky"]],
+  const L=[["鄧麗君","idol","T","Teresa 的名字從她來：用聲音帶路，從台灣唱到世界。",["舞台"]],["鄧紫棋","idol","E","最喜歡的歌手；喜歡，但不是我唱歌的範本。",["舞台"]],["蕭亞軒","idol","E","Elva：允許自己想要、允許被愛。",["Venus"]],["Chiara","idol","C","Chiara：豐盛是地基，讓想要的東西被允許。",["金庫"]],
+    ["銀杏","tat","T","左腕：為眾生，給世界的那一面。",["舞台"]],["Camino","tat","T","胸口的朝聖之路：聲音在前面帶路。",["舞台","世界之門"]],["狼與捕夢網","tat","T","為很多女性站出來的那股熱血。",["營火"]],["罌粟花","tat","E","右腕：私密的渴望。",["Venus"]],["女人與老虎","tat","E","右腰：女性的力量，也是 Origina 的 -na。",["Venus","健身房"]],["藍色小星星","tat","TE","手背的熱情：給世界，也給自己。",["舞台","Venus"]],
+    ["三個傻瓜","film","TC","追著熱愛走，成功和豐盛會自己跟上來。",["舞台","金庫"]],["來自星星的你","film","E","被一個人全心守護、也全心去愛。",["Venus"]],["真愛每一天","film","EC","平凡的每一天，和家人、愛人一起，就是最好的人生。",["家・老宅","Lucky"]],
     ["皮拉提斯","plan","TE","想堅持到老的一件事：身體是聲音的家。",["健身房"]],["街頭表演","plan","TC","把歌帶到街上，也是一種經營。",["舞台","記錄之河"]],["旅行","plan","EC","錢換來的自由，和自己想看的世界。",["世界之門"]],
     ["老宅Home","space","C","五年後的家，有 Lucky 和咪咪。",["家・老宅"]],["金庫","space","C","錢是地基，讓想要的東西被允許。",["金庫"]],["Lucky","space","EC","還沒來的家人；一個被愛、也愛人的家。",["Lucky"]],
     ["Getty 那一天","plan","TEC","中間的那一把火：高中在 Getty Center 感覺到心流，想把心裡的樣子變成真的。",["日晷"]]];
@@ -469,11 +469,11 @@ const cIcon=it=>it.ic==="none"?null:CICON[it.ic||CICON_BY_NAME[it.n]];
 let meView="venn",meSel=null,meSelP=null,meEdit=false,meDraft=null,meKinds={god:1,idol:1,space:1,env:1,tat:1,film:1,sub:1};
 let meMulti=false;try{meMulti=localStorage.getItem("mission.meMulti")==="1";}catch(e){}   // 預設單選：點一個分類＝只看那一類
 // 2026-10-14：補上還沒放進來的地圖空間（位置先放大概，之後自己拖）
-const ADD_SPACES=[{n:"日晷",tags:"TEC",x:50,y:52,pl:["日晷"],t:"回到自己的地方：Camino、心流、信仰的交會點"},{n:"自媒體",tags:"T",x:20,y:72,pl:["攝影棚"],t:"把聲音和故事送出去"},{n:"日曆牆",tags:"TEC",x:56,y:62,pl:["家・老宅"],t:"每天、每週、每季：讓三個我都排得進時間"},{n:"Beauty・健身",tags:"E",x:44,y:20,pl:["Beauty","健身房"],t:"身體和美：Elva 的加油站"},{n:"臥室・禱告房",tags:"TEC",x:44,y:62,pl:["禱告房"],t:"自己的空間：休息、禱告、回到中心"}];
+const ADD_SPACES=[{n:"日晷",tags:"TEC",x:50,y:52,pl:["日晷"],t:"回到自己的地方：Camino、心流、信仰的交會點"},{n:"自媒體",tags:"T",x:20,y:72,pl:["攝影棚"],t:"把聲音和故事送出去"},{n:"日曆牆",tags:"TEC",x:56,y:62,pl:["家・老宅"],t:"每天、每週、每季：讓三個我都排得進時間"},{n:"Venus・健身",tags:"E",x:44,y:20,pl:["Venus","健身房"],t:"身體和美：Elva 的加油站"},{n:"臥室・禱告房",tags:"TEC",x:44,y:62,pl:["禱告房"],t:"自己的空間：休息、禱告、回到中心"}];
 // 2026-10-14 照她畫好的對照表一次排好：每一件放到對的方位，計畫類改成地圖空間
 const RE_LAYOUT=[[/Camino|貝殼/,"TEC","god"],[/Getty|心流|建築/,"TEC","god"],[/西藏|Tibet/i,"TEC","god"],[/媽祖/,"T"],[/月老/,"E"],[/財神/,"C"],
  [/Teresa|鄧麗君/,"T"],[/G\.?E\.?M|鄧紫棋/,"E"],[/Elva|蕭亞軒/,"E"],[/Chiara/,"C"],
- [/日晷|日曆|臥室|禱告|老宅|^家/,"TEC"],[/皮拉提斯|冥想|瑜/,"TEC","space"],[/街頭|麥克風|唱/,"TEC","space"],[/營火/,"T"],[/自媒體|攝影/,"T"],[/HH|高跟/,"E","space"],[/Lucky|狗/,"E"],[/Beauty|健身/,"E"],[/金庫/,"C"],[/旅行/,"T","space"],
+ [/日晷|日曆|臥室|禱告|老宅|^家/,"TEC"],[/皮拉提斯|冥想|瑜/,"TEC","space"],[/街頭|麥克風|唱/,"TEC","space"],[/營火/,"T"],[/自媒體|攝影/,"T"],[/HH|高跟/,"E","space"],[/Lucky|狗/,"E"],[/Venus|Beauty|健身/,"E"],[/金庫/,"C"],[/旅行/,"T","space"],
  [/PK|來自星星/,"TEC"],[/About|真愛/i,"TEC"],[/傻瓜|Idiots/i,"T"],
  [/銀杏/,"TE"],[/罌粟/,"EC"],[/老虎/,"C"],[/星/,"T"],[/狼/,"T"]];
 // 同一部電影兩張卡（自己加的「PK」和預設的「來自星星…」）：留 PK 那張
@@ -608,7 +608,7 @@ function collectionDialog(it){const isNew=!it;it=it||{id:"c"+Date.now().toString
 /* ---------- 拆解室：說一個事件 → 帶去 Claude 拆 → 貼回拆解碼 → 存成紀錄 ---------- */
 let roomFrom=null,openPlace=null;
 /* 六步拆解：每一步一個理論、一排燈 */
-const PLACES=[["廚房","食",22,38],["Beauty","衣",78,30],["家・老宅","住",50,22],["世界之門","行",62,12],["記錄之河","育",8,62],["攝影棚","育",22,24],["舞台","樂",40,10],["營火","關係",78,62],["螢火蟲","人脈",62,92],["金庫","錢",26,62],["健身房","身體",70,40],["日晷","自己",50,62],["Lucky","家人",40,32]];
+const PLACES=[["廚房","食",22,38],["Venus","衣",78,30],["家・老宅","住",50,22],["世界之門","行",62,12],["記錄之河","育",8,62],["攝影棚","育",22,24],["舞台","樂",40,10],["營火","關係",78,62],["螢火蟲","人脈",62,92],["金庫","錢",26,62],["健身房","身體",70,40],["日晷","自己",50,62],["Lucky","家人",40,32]];
 const STEPS=[
   {k:"where",n:"在哪裡",q:"發生在生活的哪一塊",lamps:PLACES.map(p=>p[0]),sub:PLACES.map(p=>p[1])},
   {k:"fear",n:"怕什麼",q:"最根本的恐懼",lamps:["生","老","病","死"],sub:["出身・匱乏","時間・年齡","身體・失控","失去・意義"]},

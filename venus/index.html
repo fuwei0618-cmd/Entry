@@ -179,8 +179,8 @@ function render(){
     u+=`<button class="hot R${on?" on":""}" data-sel="${k}" style="left:${x}px;top:${y}px"><span class="b" style="border-color:${c};width:46px;height:46px">${ii>=0?ic(ii,on?"#FFE7C2":c,24):mi("體態",on?"#FFE7C2":c,26)}</span><span class="w" style="font-size:20px">${n}</span></button>`;});
   PARTS.forEach(p=>{const bx=p.side==="L"?p.pt[0]-120:p.pt[0]+120;
     u+=`<button class="hot ${p.side}${sel===p.k?" on":""}${sel&&sel!==p.k&&isP?" dim":""}" data-sel="${p.k}" style="left:${bx}px;top:${p.by}px"><span class="b">${mi(p.n,sel===p.k?"#FFE7C2":"#7A5A40",26)}</span><span class="w">${p.n}</span></button>`;});
-  u+=`<div class="left"><div class="f" style="font-size:40px">心<small>・</small>身<small>・</small>靈</div>
-    <div class="g"><div><b>心</b>　你心裡的自己</div><div><b>身</b>　摸得到的你：臉、頭髮、皮膚、身材、體態</div><div><b>靈</b>　身和心散出去的：眼神、聲音、香味、觸感、印象</div></div>
+  u+=`<div class="left"><div class="f" style="font-size:40px">身<small>・</small>心<small>・</small>靈</div>
+    <div class="g"><div><b>身</b>　摸得到的你：臉、頭髮、皮膚、身材、體態</div><div><b>心</b>　你心裡的自己</div><div><b>靈</b>　身和心散出去的：眼神、聲音、香味、觸感、印象</div></div>
     <div style="margin-top:20px;font-size:13.5px;line-height:1.8;color:#6A5246">由內到外。身上每個部位，都可以<br><b>養</b>（讓它變好）或<b>修</b>（讓它看起來不同），<br>各自分<b>自然</b>和<b>科技</b>。</div></div>`;
   u+=`<div class="panel">${table()}</div>`;
   const fn=S.focus==="heart"?"心":S.focus==="style"||S.focus==="soul"?"靈":PI[S.focus]||"還沒選";

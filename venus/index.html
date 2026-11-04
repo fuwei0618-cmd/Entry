@@ -34,6 +34,18 @@ button{font:inherit;cursor:pointer}
 .row.sel{background:#FFFAF4;box-shadow:0 0 0 2px #E2B867}
 .row .c{padding:6px 8px;border-radius:999px}.row .c:hover{background:#F3EADF}
 .pill.dim{opacity:.35}
+.tri{all:unset;position:absolute;cursor:pointer;box-sizing:border-box}
+.tri .tbg{position:absolute;inset:0;overflow:visible}
+.tin{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;height:100%;box-sizing:border-box}
+.th{display:flex;align-items:center;gap:8px}
+.th .dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;flex:none}
+.tn{font:700 19px "Songti TC","Noto Serif TC",serif;color:#3A2A24;letter-spacing:.06em}
+.tk{font-size:11px;color:#8A6E4B;letter-spacing:.15em;display:inline-flex;align-items:center}
+.tri .mis{justify-content:center;font-size:12px;gap:2px 8px}
+.tw{font-size:12.5px;color:#5A4228;margin-top:3px;line-height:1.4}.tw b{color:#8E2B2B;margin-right:5px}
+.tc{margin-top:auto;font-size:11.5px;color:#8A6E4B;padding:1px 10px;border-radius:999px;background:rgba(243,234,223,.8)}
+.tc:hover{background:#F3EADF}
+.tri:hover .tbg{filter:brightness(1.03)}
 .left{position:absolute;left:80px;top:190px;width:440px;color:#3A2A24}
 .key{display:grid;grid-template-columns:54px 1fr;gap:10px 12px;align-items:center;margin-top:26px;font-size:13.5px;color:#5A4228}
 .key b{color:#3A2A24}
@@ -171,13 +183,29 @@ function render(){
     <svg width="54" height="22"><line x1="4" y1="11" x2="50" y2="11" stroke="#9A5444" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round"/></svg><span><b>虛線＝行為</b>　養護、修飾｜每天去做</span>
     <svg width="54" height="22"><line x1="4" y1="11" x2="50" y2="11" stroke="#AE7552" stroke-width="3.5"/></svg><span><b>實線＝實體</b>　身體、結構｜慢慢養、久久改</span>
    </div></div>`;
-  // 右：對照表，由外到內，依種類分組
-  const order=[5,4,3,2,1,0];let last="";
-  u+=`<div class="leg">`+order.map(i=>{const r=R[i],it=items(r),d=it.filter(x=>x.on).length;let h="";
-    if(KIND[i]!==last){h+=`<div class="grp">${gi(KIND[i],"#8A6E4B")}${KIND[i]}</div>`;last=KIND[i];}
+  // 右：倒三角，上面最寬（風格）、下面最窄（心）
+  const TX=1418,TOP=74,RH=128,GAP=6,W0=480,W1=250,TOT=6*RH+5*GAP;
+  const wAt=y=>W0-(y-TOP)*(W0-W1)/TOT;
+  u+=`<div style="position:absolute;left:${TX}px;top:${TOP-34}px;transform:translateX(-50%);font-size:12px;letter-spacing:.2em;color:#8A6E4B">越外面越快 ↑　↓ 越裡面越根本</div>`;
+  u+=[5,4,3,2,1,0].map((i,n)=>{const r=R[i],it=items(r),d=it.filter(x=>x.on).length,kind=KIND[i];
+    const y0=TOP+n*(RH+GAP),y1=y0+RH,wt=wAt(y0),wb=wAt(y1),L=TX-wt/2;
+    const pts=`0,0 ${wt},0 ${wt-(wt-wb)/2},${RH} ${(wt-wb)/2},${RH}`;
+    const on=sel===r.k,c=COL[i];
+    let shape;
+    if(kind==="虛")shape=`<defs><radialGradient id="tg${i}" cx="50%" cy="50%" r="65%"><stop offset="0" stop-color="${c}" stop-opacity="${on?.42:.28}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs><polygon points="${pts}" fill="url(#tg${i})"/>`;
+    else shape=`<polygon points="${pts}" fill="${on?"#FFFAF4":"rgba(255,250,244,.55)"}" stroke="${c}" stroke-width="${kind==="實體"?3:2.4}" ${kind==="行為"?'stroke-dasharray="9 6" stroke-linecap="round"':""} stroke-linejoin="round"/>`;
+    if(on)shape+=`<polygon points="${pts}" fill="none" stroke="#E2B867" stroke-width="2" transform="translate(0 0)" opacity=".9" stroke-dasharray="${kind==="行為"?"9 6":"0"}"/>`;
     const note=(S.note[r.k]||{})[today()];
-    const c=KIND[i]==="虛"?(note?"今天寫了 ✓":"今天一句"):`${d}/${it.length}`;
-    return h+`<button class="row${S.focus===r.k?" focus":""}${sel===r.k?" sel":""}" data-open="${r.k}"><span class="dot" style="background:${COL[i]}">${ic(i,"#fff",28)}</span><span><div class="t">${i+1}　${r.n}${chips(r,"#7A5A40")}</div><div class="w"><b>軟</b>${r.soft}</div></span><span class="c" data-more>${c}　詳細 ›</span></button>`;}).join("")+`</div>`;
+    const cnt=kind==="虛"?(note?"今天寫了 ✓":"今天一句"):`${d}/${it.length}`;
+    const pad=(wt-wb)/2+14;
+    return `<button class="tri${on?" sel":""}" data-open="${r.k}" style="left:${L}px;top:${y0}px;width:${wt}px;height:${RH}px">
+      <svg class="tbg" width="${wt}" height="${RH}" viewBox="0 0 ${wt} ${RH}">${shape}</svg>
+      <span class="tin" style="padding:8px ${pad}px 7px">
+        <span class="th"><span class="dot" style="background:${c}">${ic(i,"#fff",22)}</span><span class="tn">${i+1}　${r.n}</span><span class="tk">${gi(kind,"#8A6E4B").replace('width="22" height="22"','width="15" height="15"').replace("margin-right:8px","margin-right:3px")}${kind}</span></span>
+        ${chips(r,"#7A5A40").replace('class="mis"','class="mis" style="margin:4px 0 0"')}
+        <span class="tw"><b>軟</b>${r.soft}</span>
+        <span class="tc" data-more>${cnt}　詳細 ›</span>
+      </span></button>`;}).join("");
   const f=R.find(r=>r.k===S.focus);
   u+=`<div class="strip"><span>本月重點：<b style="color:#FFE7C2">${f.n}・${f.sub}</b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>`;
   u+=SP.u;

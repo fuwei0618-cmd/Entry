@@ -183,7 +183,7 @@ const mi=(k,c,z=19)=>MI[k]?`<svg width="${z}" height="${z}" viewBox="0 0 24 24" 
 // 心和風格（看不見的兩端）
 const ENDS=[
  {k:"heart",why:"美的最源頭。放鬆的人才軟，喜歡自己的人才性感。外面做再多，這圈空了，看起來就是緊繃、用力。",n:"心",sub:"自信、情緒穩定、從容",how:"用時間和經歷改",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
-  tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["禱告房",E+"temple/"],["信念",E+"bedside/#all"],["臥室",E+"bedroom/"]]},
+  tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["禱告房",E+"temple/"],["Addiction",E+"bedside/#all"],["臥室",E+"bedroom/"]]},
  {k:"style",why:"不是做的事，是做完以後的結果。是你的身和心一起散出去、被別人接收到的東西。前五根（眼耳鼻舌身）接收的是你的身散出去的，最後一根「意」接收的是你的心散出去的，所以靈＝身＋心。心是你心裡的自己，靈是別人心裡的你。三殿決定今天開多大聲。",n:"靈",sub:"眼、耳、鼻、舌、身、意",how:"不用刻意做：底子加功夫，自然長出來",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
   tasks:[["拍一張這一季的我","每季"],["找一支招牌香味","每季"],["換季整理衣櫥","每季"]],links:[["衣櫥・三殿",E+"wardrobe/"]]}
 ];
@@ -252,7 +252,7 @@ function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;ret
 function table(){
   const sub=r=>r.sub.split("、").map(w=>`<span class="tg">${mi(w,"#8A6E4B",18)}${w}${HINT[w]?`<em>${HINT[w]}</em>`:""}</span>`).join("");
   const card=(r,k,c,ii,cap)=>{const nt=(S.note[k==="soul"?"style":k]||{})[today()];
-    return `<div class="cd${sel===k?" on":""}" data-sel="${k}" role="button" tabindex="0"><span class="ch"><span class="big" style="background:${c}">${ic(ii,"#fff",22)}</span><span><b>${r.n}</b><small>${cap}${k==="heart"?"・禱告、信念":""}</small></span><span class="nt">${nt?"今天寫了 ✓":"今天一句 ›"}</span></span>${k==="soul"?`<span class="six">${SIX.map(([g,se,fe,wh],j)=>`<span class="sx${j===5?" yi":""}"><b>${g}</b><i>${se}</i><em>${fe}</em><span>${wh}</span></span>`).join("")}</span>`:`<span class="tgs">${sub(r)}</span>`}<span class="how">${r.how}</span>${k==="heart"?`<span class="cl"><a class="ln" href="${E}temple/">禱告房 ›</a><a class="ln" href="${E}bedside/#all">信念 Addiction ›</a></span>`:""}</div>`;};
+    return `<div class="cd${sel===k?" on":""}" data-sel="${k}" role="button" tabindex="0"><span class="ch"><span class="big" style="background:${c}">${ic(ii,"#fff",22)}</span><span><b>${r.n}</b><small>${cap}${k==="heart"?"・禱告、信念":""}</small></span><span class="nt">${nt?"今天寫了 ✓":"今天一句 ›"}</span></span>${k==="soul"?`<span class="six">${SIX.map(([g,se,fe,wh],j)=>`<span class="sx${j===5?" yi":""}"><b>${g}</b><i>${se}</i><em>${fe}</em><span>${wh}</span></span>`).join("")}</span>`:`<span class="tgs">${sub(r)}</span>`}<span class="how">${r.how}</span>${k==="heart"?`<span class="cl"><a class="ln" href="${E}temple/">禱告房 ›</a><a class="ln" href="${E}bedside/#all">Addiction ›</a></span>`:""}</div>`;};
   return `<section class="sb">
     
     <div class="mx">

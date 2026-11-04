@@ -66,6 +66,7 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 .panel{position:absolute;left:700px;top:172px;width:950px;display:flex;flex-direction:column;gap:12px}
 .big{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;box-shadow:0 2px 6px rgba(60,30,10,.18)}
 .sb{background:rgba(255,251,246,.82);border-radius:22px;padding:12px 22px 10px;box-shadow:0 6px 24px rgba(60,40,20,.08)}
+.sh2{grid-row:span 2;display:flex;align-items:center;gap:10px;padding:0 4px}.sh2 span{display:flex;flex-direction:column;line-height:1.1}.sh2 b{font:700 26px "Songti TC","Noto Serif TC",serif;color:#3A2A24}.sh2 small{font-size:13px;color:#8A6E4B;margin-top:3px}
 .sh{display:flex;align-items:center;gap:12px;margin-bottom:6px}
 .sh b{font:700 26px "Songti TC","Noto Serif TC",serif;color:#3A2A24}.sh small{font-size:14px;color:#8A6E4B}
 .mx{display:grid;grid-template-columns:150px 1fr 1fr 1fr 1.1fr;column-gap:0;font-size:16px;color:#3A2A24}
@@ -74,7 +75,7 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 .ms{padding:8px 14px 6px;font-size:13px;color:#A0805A;letter-spacing:.25em;text-align:center}
 .mx .n{background:rgba(246,235,220,.55)}.mx .t{background:rgba(236,224,214,.5)}
 .mx .ms.n,.mx .ms.t{background:none}
-.pr{display:flex;align-items:center;gap:6px;padding:4px 4px;border-top:1px solid #EFE3D4;cursor:pointer;font:700 18px "Songti TC","Noto Serif TC",serif}
+.pr{display:flex;align-items:center;gap:6px;padding:8px 4px;border-top:1px solid #EFE3D4;cursor:pointer;font:700 18px "Songti TC","Noto Serif TC",serif}
 .c{text-align:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;padding:10px 12px;border-top:1px solid #EFE3D4;line-height:1.5;font-size:15.5px}
 .pr.on{color:#8E2B2B}.pr span{display:flex;flex-direction:column;line-height:1.15}.cap{font:400 11.5px "PingFang TC","Noto Sans TC",sans-serif;color:#A0805A;margin-top:3px;letter-spacing:.02em}.cap.nv{color:#8E2B2B}.c.on{background:#FFF1DC!important}
 .pr:hover~.c{}
@@ -243,10 +244,10 @@ function table(){
   const card=(r,k,c,ii,cap)=>{const nt=(S.note[k==="soul"?"style":k]||{})[today()];
     return `<button class="cd${sel===k?" on":""}" data-sel="${k}"><span class="ch"><span class="big" style="background:${c}">${ic(ii,"#fff",22)}</span><span><b>${r.n}</b><small>${cap}${k==="heart"?"・禱告、信念":""}</small></span><span class="nt">${nt?"今天寫了 ✓":"今天一句 ›"}</span></span>${k==="soul"?`<span class="six">${SIX.map(([g,se,fe,wh],j)=>`<span class="sx${j===5?" yi":""}"><b>${g}</b><i>${se}</i><em>${fe}</em><span>${wh}</span></span>`).join("")}</span>`:`<span class="tgs">${sub(r)}</span>`}<span class="how">${r.how}</span></button>`;};
   return `<section class="sb">
-    <div class="sh"><span class="big" style="background:#AE7552">${mi("體態","#fff",22)}</span><b>身</b><small>摸得到的你</small></div>
+    
     <div class="mx">
-      <div class="mh"></div><div class="mh n" style="grid-column:span 2">${qi("yn","#7A5A40",16)}自然</div><div class="mh t" style="grid-column:span 2">${qi("yt","#7A5A40",16)}科技</div>
-      <div class="ms"></div><div class="ms n">養</div><div class="ms n">修</div><div class="ms t">養</div><div class="ms t">修</div>
+      <div class="sh2"><span class="big" style="background:#AE7552">${mi("體態","#fff",22)}</span><span><b>身</b><small>摸得到的你</small></span></div><div class="mh n" style="grid-column:span 2">${qi("yn","#7A5A40",16)}自然</div><div class="mh t" style="grid-column:span 2">${qi("yt","#7A5A40",16)}科技</div>
+      <div class="ms n">養</div><div class="ms n">修</div><div class="ms t">養</div><div class="ms t">修</div>
       ${PARTS.map(p=>`<div class="pr${sel===p.k?" on":""}" data-sel="${p.k}">${pimg(p.k,46)}<span><b>${p.n}</b><small class="cap${p.k==="shape"||p.k==="pose"?" nv":""}">${p.cap}</small></span></div><div class="c n${sel===p.k?" on":""}">${items(p,"yn")}</div><div class="c n${sel===p.k?" on":""}">${items(p,"xn")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"yt")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"xt")}</div>`).join("")}
     </div></section>
   <div class="two">${card(HEART,"heart","#7A3238",0,"你心裡的自己")}${card(SOUL,"soul","#C9A24A",5,"身和心散出去的")}</div>

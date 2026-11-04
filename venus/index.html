@@ -10,7 +10,7 @@ html,body{margin:0;height:100%;background:#2a221c;color:#2E2420;font-family:"Pin
 #view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
 #sizer{position:relative;flex-shrink:0}
 #stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:radial-gradient(ellipse at 45% 50%,#E9D9C4,#F3EADF 62%)}
-#fig{position:absolute;left:470px;top:0;width:500px;height:944px;background:url(fig.webp);-webkit-mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
+#fig{position:absolute;left:50px;top:0;width:500px;height:944px;background:url(fig.webp);-webkit-mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
 #sv{position:absolute;inset:0;pointer-events:none}
 button{font:inherit;cursor:pointer}
 .serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
@@ -21,20 +21,20 @@ button{font:inherit;cursor:pointer}
 .hot.on .b{background:#3A2A24;border-color:#E2B867;transform:scale(1.1)}
 .hot.on .w{background:#3A2A24;color:#FFE7C2}
 .hot.dim{opacity:.45}
-.left{position:absolute;left:60px;top:150px;width:330px;color:#3A2A24}
+.left{position:absolute;left:700px;top:36px;width:950px;color:#3A2A24;background:rgba(255,250,244,.6);border-radius:18px;padding:20px 26px;display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 36px;align-items:start}
 .f{display:flex;align-items:baseline;gap:8px;font:700 30px "Songti TC","Noto Serif TC",serif;letter-spacing:.06em}
 .f small{font-size:15px;color:#8A6E4B;font-weight:400}
 .g{margin-top:18px;display:grid;gap:10px;font-size:14px;line-height:1.7;color:#5A4228}
 .g b{color:#3A2A24}
 
-.panel{position:absolute;left:1056px;top:36px;width:600px}
-.tb{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px;color:#3A2A24;background:rgba(255,250,244,.72);border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(40,28,20,.08)}
-.tb th{font-weight:700;font-size:13px;color:#8A6E4B;padding:8px 8px;text-align:left;letter-spacing:.1em}
+.panel{position:absolute;left:700px;top:232px;width:950px}
+.tb{width:100%;border-collapse:separate;border-spacing:0;font-size:16px;color:#3A2A24;background:rgba(255,250,244,.72);border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(40,28,20,.08)}
+.tb th{font-weight:700;font-size:14px;color:#8A6E4B;padding:8px 12px;text-align:left;letter-spacing:.1em}
 .tb th.grp{text-align:center;font:700 15px "Songti TC","Noto Serif TC",serif;color:#3A2A24;letter-spacing:.3em;padding-top:12px}
 .tb th.grp.n{border-bottom:2px dashed #B98F66}.tb th.grp.t{border-bottom:2px solid #B98F66}
-.tb td{padding:10px 8px;border-top:1px solid #EADCCB;vertical-align:top;line-height:1.55}
+.tb td{padding:11px 12px;border-top:1px solid #EADCCB;vertical-align:top;line-height:1.55}
 .tb tr.band td{background:rgba(233,217,196,.45);font:700 13px "Songti TC",serif;color:#8A6E4B;letter-spacing:.3em;padding:6px 12px}
-.tb td.pn{white-space:nowrap;font:700 16px "Songti TC","Noto Serif TC",serif;cursor:pointer}
+.tb td.pn{white-space:nowrap;font:700 18px "Songti TC","Noto Serif TC",serif;cursor:pointer}
 .tb td.pn span{display:inline-flex;align-items:center;gap:6px}
 .tb tr.on td{background:#FFF6E6}.tb tr.on td.pn{color:#8E2B2B}
 .tb tr.row:hover td{background:rgba(255,246,230,.7)}
@@ -59,7 +59,7 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 #detail{position:absolute;inset:0;background:rgba(30,20,14,.35);display:none;align-items:center;justify-content:center}
 #detail.on{display:flex}
 #dbox{width:600px;max-height:840px;overflow:auto;border-radius:22px;background:#FFFAF4;padding:24px 26px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(30,20,14,.3)}
-.strip{position:absolute;left:60px;bottom:30px;border-radius:999px;background:rgba(40,28,22,.86);color:#FFF6EC;padding:9px 20px;display:flex;gap:16px;white-space:nowrap;font-size:13px}
+.strip{position:absolute;right:30px;bottom:24px;border-radius:999px;background:rgba(40,28,22,.86);color:#FFF6EC;padding:9px 20px;display:flex;gap:16px;white-space:nowrap;font-size:13px}
 .back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px}
 @keyframes beat{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.12);opacity:1}}
 .beat{transform-box:fill-box;transform-origin:center;animation:beat 3.2s ease-in-out infinite}
@@ -133,19 +133,20 @@ const mi=(k,c,z=19)=>MI[k]?`<svg width="${z}" height="${z}" viewBox="0 0 24 24" 
 const ENDS=[
  {k:"heart",why:"美的最源頭。放鬆的人才軟，喜歡自己的人才性感。外面做再多，這圈空了，看起來就是緊繃、用力。",n:"心",sub:"自信、情緒穩定、從容",how:"用時間和經歷改",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
   tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["臥室",E+"bedroom/"]]},
- {k:"style",why:"不是做的事，是做完以後的結果。別人用六根感受到的你：眼（眼神姿態）、耳（聲音）、鼻（香味）、舌（口氣、吻）、身（擁抱的柔軟）、意（留在對方心裡的印象）。心是你心裡的自己，靈是別人心裡的你。三殿決定今天開多大聲。",n:"靈",sub:"眼、耳、鼻、舌、身、意",how:"不用刻意做：底子加功夫，自然長出來",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
+ {k:"style",why:"不是做的事，是做完以後的結果。是你的身和心一起散出去、被別人接收到的東西：眼神被看到、聲音被聽到、香味被聞到、觸感被碰到，最後變成留在對方心裡的印象。心是你心裡的自己，靈是別人心裡的你。三殿決定今天開多大聲。",n:"靈",sub:"眼神、聲音、香味、觸感、印象",how:"不用刻意做：底子加功夫，自然長出來",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
   tasks:[["拍一張這一季的我","每季"],["找一支招牌香味","每季"],["換季整理衣櫥","每季"]],links:[["衣櫥・三殿",E+"wardrobe/"]]}
 ];
 
 const HEART=ENDS[0],SOUL=ENDS[1];
 const PARTS=[
- {k:"face",n:"臉",pt:[710,338],side:"R",by:300,yn:"睡飽、吃好",xn:"彩妝",yt:"保養品、雷射",xt:"填充、正顎、半永久眉"},
- {k:"shape",n:"身材",pt:[715,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭",yt:"電波、體雕",xt:"隆乳、抽脂"},
- {k:"skin",n:"皮膚",pt:[778,432],side:"R",by:450,yn:"喝水、睡眠",xn:"底妝、香氛",yt:"保養品、半醫美",xt:"除斑、除毛"},
- {k:"hair",n:"頭髮",pt:[662,390],side:"L",by:390,yn:"營養、睡眠",xn:"髮型、編髮",yt:"護髮療程",xt:"植髮、接髮"},
- {k:"pose",n:"體態",pt:[715,760],side:"R",by:740,yn:"伸展、皮拉提斯",xn:"高跟鞋、修身衣",yt:"整脊、矯正",xt:""}];
+ {k:"face",n:"臉",pt:[290,338],side:"R",by:300,yn:"睡飽、吃好",xn:"彩妝",yt:"保養品、雷射",xt:"填充、正顎、半永久眉"},
+ {k:"shape",n:"身材",pt:[295,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭",yt:"電波、體雕",xt:"隆乳、抽脂"},
+ {k:"skin",n:"皮膚",pt:[358,432],side:"R",by:450,yn:"喝水、睡眠",xn:"底妝、香氛",yt:"保養品、半醫美",xt:"除斑、除毛"},
+ {k:"hair",n:"頭髮",pt:[242,390],side:"L",by:390,yn:"營養、睡眠",xn:"髮型、編髮",yt:"護髮療程",xt:"植髮、接髮"},
+ {k:"pose",n:"體態",pt:[295,760],side:"R",by:740,yn:"伸展、皮拉提斯",xn:"高跟鞋、修身衣",yt:"整脊、矯正",xt:""}];
 const PI={face:"臉",hair:"頭髮",skin:"皮膚",shape:"身材",pose:"體態"};
-const HINT={"眼":"看","耳":"聽","鼻":"聞","舌":"嚐","身":"碰","意":"想"};
+MI["眼神"]=MI["眼"];MI["觸感"]=MI["身"];MI["印象"]=MI["意"];
+const HINT={"眼神":"被看到","聲音":"被聽到","香味":"被聞到","觸感":"被碰到","印象":"被記住"};
 const KEY="origina-venus-v1";
 let S={focus:"face",done:{},note:{},pick:{}};
 try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,o);S.pick=S.pick||{};S.note=S.note||{};S.done=S.done||{};}catch(e){}
@@ -156,7 +157,7 @@ function period(p){const d=new Date();const y=d.getFullYear(),m=d.getMonth()+1;
   if(p==="每天")return today();
   if(p==="每週"){const t=new Date(d);t.setDate(d.getDate()-((d.getDay()+6)%7));return "W"+t.toLocaleDateString("sv");}
   if(p==="每月")return y+"-"+m;return y+"-Q"+Math.ceil(m/3);}
-const C=[715,455],K=1.62;
+const C=[295,455],K=1.62;
 const ell=(rx)=>`M${C[0]-rx} ${C[1]} a${rx} ${rx*K} 0 1 0 ${2*rx} 0 a${rx} ${rx*K} 0 1 0 ${-2*rx} 0`;
 let sel=null;
 function render(){
@@ -167,7 +168,7 @@ function render(){
   g+=`<path d="${ell(330)}" fill="url(#ga)"/>`;
   g+=`<ellipse cx="${C[0]}" cy="${C[1]}" rx="292" ry="${292*K}" fill="none" stroke="#C9A24A" stroke-width="${sel==="soul"?3:1.6}" stroke-dasharray="3 7" stroke-linecap="round"/>`;
   g+=`<path d="${ell(178)}" fill="#AE7552" fill-opacity="${isP?.2:.12}" style="mix-blend-mode:multiply"/><ellipse cx="${C[0]}" cy="${C[1]}" rx="178" ry="${178*K}" fill="none" stroke="#AE7552" stroke-width="${isP?3.2:2.2}"/>`;
-  g+=`<circle class="beat" cx="${C[0]}" cy="${C[1]}" r="${sel==="heart"?70:52}" fill="url(#gh)"/><path d="M715 466s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z" fill="#fff"/>`;
+  g+=`<circle class="beat" cx="${C[0]}" cy="${C[1]}" r="${sel==="heart"?70:52}" fill="url(#gh)"/><path d="M295 466s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z" fill="#fff"/>`;
   PARTS.forEach(p=>{const [x,y]=p.pt,bx=p.side==="L"?x-120:x+120,on=sel===p.k;
     g+=`<path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/><path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="${on?2.4:1.4}"/><circle cx="${x}" cy="${y}" r="${on?7:5}" fill="#fff" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="2"/>`;});
   $("sv").innerHTML=g;
@@ -179,7 +180,7 @@ function render(){
   PARTS.forEach(p=>{const bx=p.side==="L"?p.pt[0]-120:p.pt[0]+120;
     u+=`<button class="hot ${p.side}${sel===p.k?" on":""}${sel&&sel!==p.k&&isP?" dim":""}" data-sel="${p.k}" style="left:${bx}px;top:${p.by}px"><span class="b">${mi(p.n,sel===p.k?"#FFE7C2":"#7A5A40",26)}</span><span class="w">${p.n}</span></button>`;});
   u+=`<div class="left"><div class="f" style="font-size:40px">心<small>・</small>身<small>・</small>靈</div>
-    <div class="g"><div><b>心</b>　你心裡的自己</div><div><b>身</b>　摸得到的你：臉、頭髮、皮膚、身材、體態</div><div><b>靈</b>　別人感受到的你：六根</div></div>
+    <div class="g"><div><b>心</b>　你心裡的自己</div><div><b>身</b>　摸得到的你：臉、頭髮、皮膚、身材、體態</div><div><b>靈</b>　身和心散出去的：眼神、聲音、香味、觸感、印象</div></div>
     <div style="margin-top:20px;font-size:13.5px;line-height:1.8;color:#6A5246">由內到外。身上每個部位，都可以<br><b>養</b>（讓它變好）或<b>修</b>（讓它看起來不同），<br>各自分<b>自然</b>和<b>科技</b>。</div></div>`;
   u+=`<div class="panel">${table()}</div>`;
   const fn=S.focus==="heart"?"心":S.focus==="style"||S.focus==="soul"?"靈":PI[S.focus]||"還沒選";

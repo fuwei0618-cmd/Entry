@@ -402,7 +402,7 @@ let OPEN0=new URLSearchParams(location.search).get("open");const OPEN_T=Date.now
 function openDeep(){if(!OPEN0||Date.now()>OPEN_T)return;const k=OPEN0;openN++;const sel={queen:"#queenTx",svc:"#svcTx",alch:"#alchTx",cq:"#cqTx",sq:"#sqTx",hq:"#hqTx",whoami:".whoami"}[k]||`[data-decl="${k}"]`;
   const el=document.querySelector(sel);if(!el)return;const d=el.closest("details")||el;d.open=true;d.dispatchEvent(new Event("toggle"));if(openN===1)setTimeout(()=>d.scrollIntoView({behavior:"smooth",block:"start"}),120);else d.scrollIntoView({block:"start"});d.classList.add("flash");setTimeout(()=>d.classList.remove("flash"),2200);}
 /* 10/31：每一版宣言標上音檔檔名（0 每天、1 看場合、2 錢） */
-const AFILE={queenTx:"02世界版",sqTx:"03Vocal",menq:"04Men",hqTx:"11高跟鞋版",wq:"12自媒體版",cqTx:"21客戶版",svcTx:"22服務件",mq:"23投資版"};
+const AFILE={queenTx:"02世界版",sqTx:"03Vocal",menq:"04Men",hqTx:"11高跟鞋版",wq:"12自媒體版",cqTx:"21客戶版",svcTx:"22服務件",mq:"23投資版",gq:"13梳化版"};
 function tagFiles(){Object.entries(AFILE).forEach(([k,f])=>{const el=document.getElementById(k)||document.querySelector(`[data-decl="${k}"]`);if(!el)return;const sm=el.closest("details").querySelector("summary");if(!sm||sm.querySelector(".afile"))return;sm.insertAdjacentHTML("beforeend",`<span class="afile">🎧 ${f}</span>`);});}
 function render(){setTimeout(loadVisB,0);setTimeout(openDeep,60);setTimeout(tagFiles,30);$("#app").classList.toggle("wide",mode==="all");
   document.body.classList.toggle("night",mode==="night");

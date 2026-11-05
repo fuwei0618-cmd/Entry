@@ -201,7 +201,7 @@ const PARTS=[
  {k:"shape",n:"身材",pt:[295,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭",yt:"電波、體雕",xt:"隆乳、抽脂",cap:"名詞・有什麼"},
  {k:"pose",n:"體態",pt:[295,760],side:"R",by:740,yn:"伸展、皮拉提斯",xn:"高跟鞋、修身衣",yt:"整脊、矯正",xt:"",cap:"動詞・怎麼用"}];
 const pimg=(k,z)=>`<img src="p-${k}.webp" alt="" style="width:${z}px;height:${z}px;mix-blend-mode:multiply;display:block">`;
-const LK={"hair:xn":["妝台",E+"vanity/"],"face:xn":["妝台",E+"vanity/"],"shape:xn":["衣櫥",E+"wardrobe/"],"pose:yn":["健身房",GH+"Gym/"],"pose:xn":["HH",GH+"Gym/hh/"]};
+const LK={"hair:xn":["妝台",E+"vanity/"],"face:xn":["妝台",E+"vanity/"],"skin:xn":["底妝筆記",E+"vanity/base.html"],"shape:xn":["衣櫥",E+"wardrobe/"],"pose:yn":["健身房",GH+"Gym/"],"pose:xn":["HH",GH+"Gym/hh/"]};
 const lk=(k)=>LK[k]?`<a class="ln" href="${LK[k][1]}">${LK[k][0]} ›</a>`:"";
 const PI={face:"臉",hair:"頭髮",skin:"皮膚",shape:"身材",pose:"體態"};
 MI["眼神"]=MI["眼"];MI["觸感"]=MI["身"];MI["印象"]=MI["意"];

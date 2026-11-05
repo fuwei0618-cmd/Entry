@@ -36,6 +36,22 @@ html,body{margin:0;height:100%;background:#F1E7DA;color:#3A2A24;font-family:"Pin
 .ft{position:absolute;left:680px;right:30px;bottom:22px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .ft div{background:#FFFBF6;border-radius:14px;padding:9px 12px;font-size:13.5px;line-height:1.5;box-shadow:0 3px 10px rgba(60,40,20,.05)}
 .ft b{color:#8E2B2B;display:block;font-size:14px}
+
+/* 窄螢幕（直放、分割畫面）：臉在上、卡片在下，可以往下滑 */
+html:has(body.narrow),body.narrow{overflow:auto;height:auto}
+body.narrow #view{position:static;display:block}
+body.narrow #sizer{width:auto!important;height:auto!important}
+body.narrow #stage{position:static;width:auto;height:auto;transform:none!important;overflow:visible;padding:calc(env(safe-area-inset-top) + 60px) 16px 30px}
+body.narrow #face{position:static;display:block;width:100%;height:auto;aspect-ratio:430/560;max-height:62vh;border-radius:22px;margin:0 auto 16px}
+body.narrow .hd,body.narrow .lead,body.narrow .grp,body.narrow .ft{position:static;top:auto!important}
+body.narrow .hd{flex-wrap:wrap;gap:10px}
+body.narrow .hd h1{font-size:32px}
+body.narrow .hd .k span{font-size:15px;padding:6px 12px}
+body.narrow .lead{margin:8px 0 16px;font-size:15px}
+body.narrow .grp{margin-bottom:16px}
+body.narrow .cards{grid-template-columns:1fr!important}
+body.narrow .ft{grid-template-columns:1fr 1fr;margin-top:6px}
+body.narrow #face.stick{position:sticky;top:8px;z-index:2;max-height:38vh;box-shadow:0 8px 24px rgba(40,20,10,.2)}
 </style></head><body>
 <a class="back" id="back" href="../venus/">← 維納斯的桌子</a>
 <div id="view"><div id="sizer"><div id="stage">
@@ -77,9 +93,10 @@ function render(){
   const h0=$("g0").parentNode.getBoundingClientRect(),sc=h0.height/ (parseFloat(getComputedStyle($("stage")).transform.split(",")[3])||1);
   layout();
   document.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;sel=sel===i?null:i;render();});
+  $("face").classList.toggle("stick",document.body.classList.contains("narrow")&&sel!==null);
 }
-function layout(){const p0=$("g0").parentNode,p1=$("gp1"),p2=$("gp2");const t0=130+p0.offsetHeight+14;p1.style.top=t0+"px";p2.style.top=(t0+p1.offsetHeight+14)+"px";}
-function fit(){const s=Math.min(innerWidth/1680,innerHeight/944);$("stage").style.transform=`scale(${s})`;$("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";}
+function layout(){if(document.body.classList.contains("narrow")){["gp1","gp2"].forEach(i=>$(i).style.top="");return;}const p0=$("g0").parentNode,p1=$("gp1"),p2=$("gp2");const t0=130+p0.offsetHeight+14;p1.style.top=t0+"px";p2.style.top=(t0+p1.offsetHeight+14)+"px";}
+function fit(){const nar=innerWidth/innerHeight<1.25||innerWidth<760;document.body.classList.toggle("narrow",nar);if(nar){layout();return;}const s=Math.min(innerWidth/1680,innerHeight/944);$("stage").style.transform=`scale(${s})`;$("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";}
 addEventListener("resize",fit);render();fit();
 if(document.referrer.includes("/vanity/")&&!document.referrer.includes("base")){const b=$("back");b.href="./";b.textContent="← 妝台";}
 </script>

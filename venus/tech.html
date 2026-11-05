@@ -6,29 +6,34 @@
 <link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:#F1E7DA;color:#3A2A24;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif}
+html,body{margin:0;height:100%;background:#F1E7DA;color:#3A2A24;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+#view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#sizer{position:relative;flex-shrink:0}
+#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:#F3EADF}
 .back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px;text-decoration:none}
-.wrap{max-width:1560px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 64px) 28px 40px}
+.wrap{padding:26px 40px 0 170px}
 .serif,h1,h2,h3{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
 .hd{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
 .hd h1{margin:0;font-size:40px;letter-spacing:.06em}
 .k{display:flex;gap:10px;flex-wrap:wrap}
 .k span{background:#FFFBF6;border-radius:999px;padding:7px 16px;font:700 17px "Songti TC",serif;color:#8E2B2B;box-shadow:0 3px 10px rgba(60,40,20,.07)}
-.lead{margin:12px 0 22px;font-size:15.5px;color:#6A5246;line-height:1.6}
+.lead{margin:8px 0 18px;font-size:15.5px;color:#6A5246;line-height:1.6}
 .lead b{color:#8E2B2B}
-.cols{display:grid;grid-template-columns:1.05fr 1fr 1.05fr;gap:20px;align-items:start}
-.card{background:#FFFBF6;border-radius:22px;padding:18px 20px;box-shadow:0 5px 18px rgba(60,40,20,.07);margin-bottom:18px}
+.cols{position:absolute;left:40px;right:40px;top:150px;bottom:24px;display:grid;grid-template-columns:1fr 1fr 1.02fr;gap:20px}
+.cols>div{display:flex;flex-direction:column;gap:16px;min-height:0}
+.cols .card{margin:0}.cols .grow{flex:1}
+.card{background:#FFFBF6;border-radius:22px;padding:15px 20px;box-shadow:0 5px 18px rgba(60,40,20,.07);margin-bottom:18px}
 .card h2{margin:0 0 4px;font-size:23px;display:flex;align-items:center;gap:10px}
 .card h2 em{font:600 12.5px "PingFang TC",sans-serif;font-style:normal;color:#8A5A20;background:#FFF1DC;border-radius:999px;padding:3px 10px;margin-left:auto}
-.card .sub{font-size:13.5px;color:#8A6E4B;margin-bottom:12px}
-p,li{font-size:15px;line-height:1.65}
+.card .sub{font-size:13px;color:#8A6E4B;margin-bottom:9px}
+p,li{font-size:14.5px;line-height:1.55}
 ul{margin:0;padding-left:20px}
 li b,p b{color:#8E2B2B}
 
 /* 時間線 */
 .tl{position:relative;padding-left:26px}
 .tl:before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:#E2D3C2}
-.st{position:relative;margin-bottom:16px}
+.st{position:relative;margin-bottom:12px}
 .st:last-child{margin-bottom:0}
 .st:before{content:"";position:absolute;left:-23px;top:6px;width:14px;height:14px;border-radius:50%;background:#FFFBF6;border:3px solid #C9A27A}
 .st.now:before{background:#8E2B2B;border-color:#8E2B2B}
@@ -44,11 +49,14 @@ li b,p b{color:#8E2B2B}
 /* 表 */
 table{width:100%;border-collapse:collapse;font-size:14.5px}
 th{font:700 13px "PingFang TC",sans-serif;color:#8A6E4B;text-align:left;padding:6px 8px;border-bottom:1px solid #E2D3C2}
-td{padding:8px;border-bottom:1px solid #F0E5D8;vertical-align:top;line-height:1.5}
+td{padding:6px 8px;border-bottom:1px solid #F0E5D8;vertical-align:top;line-height:1.5}
 td:first-child{font-weight:700;white-space:nowrap}
 tr:last-child td{border-bottom:none}
 .pill{display:inline-block;font-size:12px;border-radius:999px;padding:1px 8px;margin-left:4px;background:#F6EBDC;color:#7A5A40;white-space:nowrap}
 
+.vv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vv div{background:#F8EFE3;border-radius:12px;padding:7px 11px;font-size:13.5px;line-height:1.45;color:#5A4228}
+.vv b{display:block;font:700 16px "Songti TC",serif;color:#3A2A24}
 /* 設計師說明 */
 .brief{background:#3A2A24;color:#F7EADB;border-radius:18px;padding:14px 18px;margin-bottom:14px}
 .brief h3{margin:0 0 6px;font-size:17px;color:#FFE7C2}
@@ -57,11 +65,16 @@ tr:last-child td{border-bottom:none}
 ol{margin:0;padding-left:22px}
 .note{margin-top:12px;border-top:1px dashed #E2D3C2;padding-top:10px;font-size:14px;color:#5A4228}
 
-@media (max-width:1100px){.cols{grid-template-columns:1fr 1fr}.c3{grid-column:span 2}}
-@media (max-width:760px){.wrap{padding:calc(env(safe-area-inset-top) + 60px) 16px 30px}.cols{grid-template-columns:1fr}.c3{grid-column:auto}.hd h1{font-size:32px}.k span{font-size:15px;padding:6px 12px}}
+html:has(body.narrow),body.narrow{overflow:auto;height:auto}
+body.narrow #view{position:static;display:block}
+body.narrow #sizer{width:auto!important;height:auto!important}
+body.narrow #stage{position:static;width:auto;height:auto;transform:none!important;overflow:visible}
+body.narrow .wrap{padding:calc(env(safe-area-inset-top) + 60px) 16px 30px}
+body.narrow .cols{position:static;grid-template-columns:1fr}
+body.narrow .hd h1{font-size:32px}body.narrow .k span{font-size:15px;padding:6px 12px}
 </style></head><body>
 <a class="back" href="./">← 維納斯的桌子</a>
-<div class="wrap">
+<div id="view"><div id="sizer"><div id="stage"><div class="wrap">
   <div class="hd"><h1>科技美筆記</h1><div class="k"><span>由深到淺</span><span>臉等正顎</span><span>先挑性價比</span></div></div>
   <div class="lead">骨架先，再來是肉和脂肪，然後是皮膚，最後才是表面的妝感。<b>臉的結構一律等正顎做完</b>，不然做了可能要重來。先挑「費用低、每天看得到、能省時間」的。</div>
 
@@ -77,23 +90,22 @@ ol{margin:0;padding-left:22px}
           <div class="st big"><h3>下一個<small>腹部抽脂</small></h3>
             <p style="margin:0">改變的是脂肪的<b>量</b>，形狀還是要靠運動和體態雕。跟正顎的恢復期錯開，先找醫師評估。</p></div>
           <div class="st big"><h3>正顎</h3>
-            <p style="margin:0">記得告訴醫師你在吃治療掉髮的藥，它會影響血壓。</p></div>
+            <p style="margin:0">如果那時在吃治療掉髮的藥，記得告訴醫師，它會影響血壓。</p></div>
           <div class="st"><h3>正顎後<small>新臉型穩定再評估</small></h3>
             <div class="tags"><span class="tag">臥蠶</span><span class="tag">眼線</span><span class="tag">黑眼圈、眼袋</span><span class="tag">拉皮</span><span class="tag">霧唇<i>若要改唇形</i></span></div></div>
         </div>
       </div>
-      <div class="card">
+      <div class="card grow">
         <h2>性價比最高</h2>
         <div class="sub">花得少，氛圍感提升最多</div>
-        <table>
-          <tr><th>項目</th><th>為什麼</th></tr>
-          <tr><td>體態<span class="pill">自然</span></td><td>重訓、瑜伽、皮拉提斯、HH。已經在做，不用另外花錢</td></tr>
-          <tr><td>頭髮<span class="pill">科技</span></td><td>燙大波浪加頭頂蓬鬆，髮量看起來多一倍</td></tr>
-          <tr><td>香味</td><td>靠近才聞得到，最便宜的氛圍感</td></tr>
-          <tr><td>種睫毛<span class="pill">科技</span></td><td>不用夾、不用刷，幾週補一次</td></tr>
-          <tr><td>霧眉<span class="pill">科技</span></td><td>維持一兩年，補色另計，每天省最多時間</td></tr>
-          <tr><td>霧唇<span class="pill">科技</span></td><td>唇色決定氣色，照片裡最明顯</td></tr>
-        </table>
+        <div class="vv">
+          <div><b>體態</b>已經在做的重訓、瑜伽、皮拉提斯、HH</div>
+          <div><b>頭髮</b>燙大波浪，髮量看起來多一倍</div>
+          <div><b>香味</b>靠近才聞得到的氛圍感</div>
+          <div><b>種睫毛</b>不用夾、不用刷</div>
+          <div><b>霧眉</b>維持一兩年，每天省時間</div>
+          <div><b>霧唇</b>唇色決定氣色</div>
+        </div>
       </div>
     </div>
 
@@ -111,27 +123,28 @@ ol{margin:0;padding-left:22px}
         </table>
         <div class="note">膠原蛋白不是吃或擦進去的，要<b>刺激皮膚自己長</b>。最便宜的基本功是每天防曬、晚上擦 A醇（從低濃度開始）。醫美大多要定期回去做，是長期花費，不要一次買一堆療程。</div>
       </div>
-      <div class="card">
+      <div class="card grow">
         <h2>頭髮的醫療面<em>雄性禿</em></h2>
         <ul>
-          <li><b>不要自己停藥。</b>在意身體多毛，回診直接問：「有沒有外用、或其他選擇？」</li>
+          <li><b>已經停藥一段時間：先回診重新評估</b>，不要自己恢復以前的藥量。</li>
+          <li><b>台北定方向，桃園顧日常。</b>台北醫師決定治療方式，之後在桃園拿藥、追蹤；或問台北能不能一次開久一點、改視訊回診。</li>
+          <li>回診直接說：「我在意身體多毛，所以停了。有沒有外用或其他選擇？」</li>
           <li>可以問的路：外用的只擦頭皮、女性常用的另一類口服藥、頭皮注射療程。</li>
-          <li>通常要<b>三到六個月</b>才看得出效果，前一兩個月可能會先多掉，那是在換新毛。</li>
-          <li>停藥後，身上多長的毛大多會退回去，除毛不會白做。</li>
+          <li>通常要<b>三到六個月</b>才看得出效果，前一兩個月可能會先多掉。</li>
         </ul>
       </div>
     </div>
 
     <!-- 右：設計師 -->
     <div class="c3">
-      <div class="card">
+      <div class="card grow">
         <h2>找髮型設計師</h2>
         <div class="sub">看設計師前打開這張</div>
         <div class="brief">
           <h3>給設計師看的說明</h3>
           <ul>
             <li>想要：<b>長髮、浪漫大波浪、高顱頂</b></li>
-            <li>髮量越來越少、髮質細，正在治療雄性禿，有吃藥</li>
+            <li>髮量越來越少、髮質細，有雄性禿，準備回診治療</li>
             <li>常運動流汗、不喜歡每天洗頭和整理</li>
             <li>希望洗完吹乾就有型，不用每天捲</li>
             <li>藥劑請用溫和一點的</li>
@@ -153,5 +166,9 @@ ol{margin:0;padding-left:22px}
       </div>
     </div>
   </div>
-</div>
+</div></div></div></div>
+<script>
+function fit(){const nar=innerWidth/innerHeight<1.25||innerWidth<760;document.body.classList.toggle("narrow",nar);const st=document.getElementById("stage"),sz=document.getElementById("sizer");if(nar){st.style.transform="";return;}const s=Math.min(innerWidth/1680,innerHeight/944);st.style.transform=`scale(${s})`;sz.style.width=1680*s+"px";sz.style.height=944*s+"px";}
+addEventListener("resize",fit);fit();
+</script>
 </body></html>

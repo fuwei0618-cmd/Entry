@@ -68,6 +68,7 @@ const LOOKS=[
  {name:"混血",keys:"深・立體・對比",who:"Shakira",focus:"修容深、濃眉、上揚眼線",blush:"#D07A62",bop:.4,bx:712,by:476,brx:58,bry:18,rot:-24,cop:.5,hop:.75,eop:.45,lip:"rgba(190,110,100,0.55)",gloss:0,brow:"#2E1C12",bw:7,lw:3,wing:1}
 ];
 const STEPS=[
+ ["base","hydrate","妝前保濕","化妝水・精華・乳液","化妝水拍到吸收，乳液薄薄一層，等三分鐘","皮膚喝飽水，粉底才不會浮、不會卡","L",880,470],
  ["base","primer","妝前乳","espoir 粉色","只擦額頭、鼻子、下巴","皮膚平了，粉才不會卡","L",790,300],
  ["base","foundation","粉底","Lancome・粉底刷","從臉中間往外推，越外越薄","統一膚色，不是蓋住","L",700,470],
  ["base","conceal","遮瑕","遮瑕盤・斜角刷","只點眼下三角和泛紅的點","哪裡不均就點哪裡","L",745,428],
@@ -85,7 +86,7 @@ const STEPS=[
 
 // 化妝只做四件事
 const G=[
- {k:"skin",n:"整理膚色",c:"#C9A27A",pt:[290,470],y:470,why:"先把膚色統一，臉才乾淨",steps:["primer","foundation","conceal","setting"],
+ {k:"skin",n:"整理膚色",c:"#C9A27A",pt:[290,470],y:470,why:"先把膚色統一，臉才乾淨",steps:["hydrate","primer","foundation","conceal","setting"],
   look:["霧面、薄透","光澤、水潤","精緻無瑕、半霧","健康膚色、不要太白"]},
  {k:"shape",n:"重建立體",c:"#8A6448",pt:[205,520],y:560,why:"亮的往前凸，暗的往後退",steps:["contour","highlight"],
   look:["幾乎不修，鼻樑一點光","只打亮：顴骨、鼻樑","輕輕修臉的外圈","修容深、高光亮"]},

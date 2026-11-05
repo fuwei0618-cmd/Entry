@@ -43,6 +43,7 @@ button{font:inherit;cursor:pointer}
 .tb tr.row:hover td{background:rgba(255,246,230,.7)}
 .it{cursor:pointer;border-radius:6px;padding:1px 3px;margin:-1px -3px}
 .it.on{background:#3A2A24;color:#FFE7C2}
+.it.lt{color:#A8927E}.it sup{font-size:10px;color:#C08A5A;margin-left:1px}
 .tb td.sep{border-left:1px dashed #E2D3C2}
 .endrow td{cursor:pointer}
 .endrow .sub{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:14px}
@@ -195,10 +196,10 @@ const qi=(k,c,z=18)=>`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="
 const SIX=[["眼","視覺","被看到","眼神、姿態"],["耳","聽覺","被聽到","聲音、語速"],["鼻","嗅覺","被聞到","香味、髮香"],["舌","味覺","被嚐到","口氣、吻"],["身","觸覺","被碰到","肌膚、擁抱"],["意","知覺","被記住","印象、氣質"]];
 const HEART=ENDS[0],SOUL=ENDS[1];
 const PARTS=[
- {k:"hair",n:"頭髮",pt:[288,298],side:"L",by:390,yn:"營養、睡眠",xn:"髮型、編髮",yt:"護髮療程",xt:"植髮、接髮",cap:"髮量、髮質"},
- {k:"face",n:"臉",pt:[318,352],side:"R",by:300,yn:"睡飽、吃好",xn:"彩妝",yt:"保養品、雷射",xt:"填充、正顎、半永久眉",cap:"五官、臉型"},
- {k:"skin",n:"皮膚",pt:[358,432],side:"R",by:450,yn:"喝水、睡眠",xn:"底妝、香氛",yt:"保養品、半醫美",xt:"除斑、除毛",cap:"膚色、膚質"},
- {k:"shape",n:"身材",pt:[295,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭",yt:"電波、體雕",xt:"隆乳、抽脂",cap:"名詞・有什麼"},
+ {k:"hair",n:"頭髮",pt:[288,298],side:"L",by:390,yn:"營養、睡眠",xn:"髮型、編髮",yt:"護髮、頭皮治療",xt:"燙髮、植髮、接髮",cap:"髮量、髮質"},
+ {k:"face",n:"臉",pt:[318,352],side:"R",by:300,yn:"睡飽、吃好",xn:"彩妝",yt:"保養品、雷射",xt:"正顎、霧眉、霧唇、種睫毛、臥蠶*、眼線*、眼袋*、拉皮*",cap:"五官、臉型"},
+ {k:"skin",n:"皮膚",pt:[358,432],side:"R",by:450,yn:"喝水、睡眠",xn:"底妝、香氛",yt:"A醇、防曬、水光、電波",xt:"皮秒、飛梭、除毛、腋下除臭",cap:"膚色、膚質"},
+ {k:"shape",n:"身材",pt:[295,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭",yt:"電波、體雕",xt:"抽脂、隆乳",cap:"名詞・有什麼"},
  {k:"pose",n:"體態",pt:[295,760],side:"R",by:740,yn:"伸展、皮拉提斯",xn:"高跟鞋、修身衣",yt:"整脊、矯正",xt:"",cap:"動詞・怎麼用"}];
 const pimg=(k,z)=>`<img src="p-${k}.webp" alt="" style="width:${z}px;height:${z}px;mix-blend-mode:multiply;display:block">`;
 const LK={"hair:xn":["妝台",E+"vanity/"],"face:xn":["妝台",E+"vanity/"],"skin:xn":["底妝筆記",E+"vanity/base.html"],"shape:xn":["衣櫥",E+"wardrobe/"],"pose:yn":["健身房",GH+"Gym/"],"pose:xn":["HH",GH+"Gym/hh/"]};
@@ -248,7 +249,7 @@ function render(){
   document.querySelectorAll("[data-sel]").forEach(b=>b.onclick=e=>{if(e.target.closest("a"))return;const k=b.dataset.sel;if(k==="heart"||k==="soul"){sel=k;render();openD(k);return;}if(k==="body"){sel=null;render();return;}sel=sel===k?null:k;render();});
   document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.pick;if(S.pick[k])delete S.pick[k];else S.pick[k]=1;save();render();});
 }
-function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;return p[q].split("、").map(w=>{const k=p.k+":"+q+":"+w;return `<span class="it${S.pick[k]?" on":""}" data-pick="${k}">${w}</span>`}).join("、");}
+function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;return p[q].split("、").map(w=>{const lt=w.endsWith("*");w=w.replace("*","");const k=p.k+":"+q+":"+w;return `<span class="it${lt?" lt":""}${S.pick[k]?" on":""}" data-pick="${k}"${lt?' title="正顎後"':""}>${w}${lt?"<sup>後</sup>":""}</span>`}).join("、");}
 function table(){
   const sub=r=>r.sub.split("、").map(w=>`<span class="tg">${mi(w,"#8A6E4B",18)}${w}${HINT[w]?`<em>${HINT[w]}</em>`:""}</span>`).join("");
   const card=(r,k,c,ii,cap)=>{const nt=(S.note[k==="soul"?"style":k]||{})[today()];
@@ -256,7 +257,7 @@ function table(){
   return `<section class="sb">
     
     <div class="mx">
-      <div class="sh2"><span class="big" style="background:#AE7552">${mi("體態","#fff",22)}</span><span><b>身</b><small>摸得到的你</small></span></div><div class="mh n" style="grid-column:span 2">${qi("yn","#7A5A40",16)}自然</div><div class="mh t" style="grid-column:span 2">${qi("yt","#7A5A40",16)}科技<a class="ln hd2" href="${E}body/?layer=m">保養廠 ›</a></div>
+      <div class="sh2"><span class="big" style="background:#AE7552">${mi("體態","#fff",22)}</span><span><b>身</b><small>摸得到的你</small></span></div><div class="mh n" style="grid-column:span 2">${qi("yn","#7A5A40",16)}自然</div><div class="mh t" style="grid-column:span 2">${qi("yt","#7A5A40",16)}科技<a class="ln hd2" href="tech.html">科技美筆記 ›</a><a class="ln" href="${E}body/?layer=m">保養廠 ›</a></div>
       <div class="ms n">養</div><div class="ms n">修</div><div class="ms t">養</div><div class="ms t">修</div>
       ${PARTS.map(p=>`<div class="pr${sel===p.k?" on":""}" data-sel="${p.k}">${pimg(p.k,46)}<span><b>${p.n}</b><small class="cap${p.k==="shape"||p.k==="pose"?" nv":""}">${p.cap}</small></span></div><div class="c n${sel===p.k?" on":""}">${items(p,"yn")}${lk(p.k+":yn")}</div><div class="c n${sel===p.k?" on":""}">${items(p,"xn")}${lk(p.k+":xn")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"yt")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"xt")}</div>`).join("")}
     </div></section>

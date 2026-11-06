@@ -54,3 +54,6 @@ function quadSVG(H0){const W=600,H=H0||460,x0=50,x1=W-16,y0=44,y1=H-46,pw=x1-x0,
   const used={};TECH.filter(t=>t.c).forEach(t=>{const k=t.c+"-"+t.v,n=used[k]=(used[k]||0)+1,y=Y(t.v)-12+(n-1)*19,x=X(t.c)-40;const col=TIER.find(z=>z[0]===tier(t))[3];
     g+=`<g data-qt="${t.id}" style="cursor:pointer"><circle cx="${x}" cy="${y-4.5}" r="4.5" fill="${col}"/><text x="${x+8}" y="${y}" font-size="13.5" fill="#3A2A24">${tShort(t)}${t.after?`<tspan fill="#A0805A" font-size="11">・後</tspan>`:""}</text></g>`;});
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="font-family:PingFang TC,sans-serif;display:block">${g}</svg>`;}
+
+// 性價比排名：美感提升×2－花費，越高越先做
+function tRank(){const L=TECH.filter(t=>t.c).slice().sort((a,b)=>(b.v*2-b.c)-(a.v*2-a.c)||b.v-a.v||a.c-b.c);const R={};L.forEach((t,i)=>R[t.id]=i+1);return R;}

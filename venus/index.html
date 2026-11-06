@@ -127,6 +127,7 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 .tcard .th b{font:700 17px "Songti TC","Noto Serif TC",serif;color:#3A2A24}.tcard .th b{white-space:nowrap}.tcard .th small{font-size:11px;color:#8A6E4B;white-space:nowrap}
 .tcs{display:flex;flex-wrap:wrap;gap:5px}
 .tc{border:1px solid #E6D6C4;background:#fff;border-radius:999px;padding:3px 10px;font-size:14px;color:#3A2A24}
+.tc .rn{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;color:#fff;font-size:11px;margin:0 5px 0 -5px;vertical-align:1px}
 .tc:hover{border-color:#8E2B2B;background:#FFF4E8}.tc sup{font-size:10px;color:#C08A5A;margin-left:1px}
 .tc em{font-style:normal;font-size:10.5px;color:#8A6E4B;margin-left:4px}.tc.d{background:#3A2A24;color:#FFE7C2;border-color:#3A2A24}.tc.d em{color:#E8CFA0}
 .tl2{position:absolute;transform:translateY(-50%);border:1px solid #E2CDB6;background:rgba(255,251,246,.95);border-radius:999px;padding:4px 12px 4px 10px;display:flex;align-items:center;gap:7px;font:700 15px "Songti TC","Noto Serif TC",serif;color:#3A2A24;white-space:nowrap;box-shadow:0 2px 8px rgba(40,20,10,.14)}
@@ -272,10 +273,16 @@ function render(){
   let u="";
   if(TM){const VM=TM==="value",TC=Object.fromEntries(TIER.map(x=>[x[0],x]));const act=VM?[]:TECH.filter(t=>t.pt&&t.when===TM&&(!sel||!PI[sel]||t.part===sel));
     if(VM){const ok=t=>!sel||!PI[sel]||t.part===sel;
-      TECH.filter(t=>t.pt&&t.c).forEach(t=>{const col=TC[tier(t)][3];g+=`<circle id="td-${t.id}" cx="${t.pt[0]}" cy="${t.pt[1]}" r="${2.5+t.v*.7}" fill="${col}" fill-opacity="${ok(t)?.9:.25}" stroke="#fff" stroke-width="1.5"/>`;});
+      const RK=tRank(),B=TECH.filter(t=>t.pt&&t.c).map(t=>({t,x:t.pt[0],y:t.pt[1]}));
+      for(let it=0;it<120;it++){for(let i=0;i<B.length;i++)for(let j=i+1;j<B.length;j++){const A=B[i],C=B[j];let dx=C.x-A.x,dy=C.y-A.y,d=Math.hypot(dx,dy)||.01;if(d<26){const m=(26-d)/2;dx/=d;dy/=d;A.x-=dx*m;A.y-=dy*m;C.x+=dx*m;C.y+=dy*m;}}
+        B.forEach(b=>{b.x+=(b.t.pt[0]-b.x)*.02;b.y+=(b.t.pt[1]-b.y)*.02;});}
+      B.forEach(b=>{const t=b.t,col=TC[tier(t)][3],f=ok(t)?1:.25,mv=Math.hypot(b.x-t.pt[0],b.y-t.pt[1])>7;
+        if(mv)g+=`<g opacity="${f}"><path d="M${t.pt[0]} ${t.pt[1]} L${b.x} ${b.y}" stroke="#fff" stroke-width="2.6"/><path d="M${t.pt[0]} ${t.pt[1]} L${b.x} ${b.y}" stroke="${col}" stroke-width="1.2"/><circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="2.6" fill="${col}" stroke="#fff" stroke-width="1"/></g>`;});
+      B.forEach(b=>{const t=b.t,col=TC[tier(t)][3],f=ok(t)?1:.25;
+        g+=`<g id="td-${t.id}" opacity="${f}" data-tech="${t.id}" style="cursor:pointer;pointer-events:auto"><circle cx="${b.x}" cy="${b.y}" r="11.5" fill="${col}" stroke="#fff" stroke-width="2"/><text x="${b.x}" y="${b.y+4.5}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff" font-family="PingFang TC,sans-serif">${RK[t.id]}</text></g>`;});
       const POS={best:[30,140],save:[392,140],easy:[30,520],later:[392,520]};
-      TIER.forEach(([k,n,sub,col])=>{const L=TECH.filter(t=>t.c&&tier(t)===k&&ok(t));const [x,y]=POS[k];
-        u+=`<div class="tcard" style="left:${x}px;top:${y}px"><div class="th"><i style="background:${col}"></i><b>${n}</b></div><div style="font-size:11.5px;color:#8A6E4B;margin:-4px 0 7px 17px">${sub}</div><div class="tcs">${L.map(t=>{const st=TS[t.id]||0;return `<button class="tc${st>=3?" d":""}" data-tech="${t.id}" data-hov="${t.id}">${tShort(t)}${t.after?"<sup>後</sup>":""}${st?`<em>${STAT[st]}</em>`:""}</button>`;}).join("")||`<span style="font-size:12px;color:#A0907F">—</span>`}</div></div>`;});}
+      TIER.forEach(([k,n,sub,col])=>{const L=TECH.filter(t=>t.c&&tier(t)===k&&ok(t)).sort((a,b)=>RK[a.id]-RK[b.id]);const [x,y]=POS[k];
+        u+=`<div class="tcard" style="left:${x}px;top:${y}px"><div class="th"><i style="background:${col}"></i><b>${n}</b></div><div style="font-size:11.5px;color:#8A6E4B;margin:-4px 0 7px 17px">${sub}</div><div class="tcs">${L.map(t=>{const st=TS[t.id]||0;return `<button class="tc${st>=3?" d":""}" data-tech="${t.id}" data-hov="${t.id}"><b class="rn" style="background:${col}">${RK[t.id]}</b>${tShort(t)}${t.after?"<sup>後</sup>":""}${st?`<em>${STAT[st]}</em>`:""}</button>`;}).join("")||`<span style="font-size:12px;color:#A0907F">—</span>`}</div></div>`;});}
     if(!VM)TECH.forEach(t=>{if(!t.pt||act.includes(t))return;g+=`<circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="3" fill="#fff" stroke="#AE7552" stroke-width="1.2" opacity=".55"/>`;});
     const side={L:[],R:[]};act.forEach(t=>side[t.pt[0]<290?"L":"R"].push(t));
     ["L","R"].forEach(sd=>{let prev=-99;side[sd].sort((a,b)=>a.pt[1]-b.pt[1]);
@@ -288,7 +295,7 @@ function render(){
         g+=`<path d="M${t.pt[0]} ${t.pt[1]} L${sd==="L"?lx+6:lx-6} ${ly}" stroke="#fff" stroke-width="3" opacity=".7"/><path d="M${t.pt[0]} ${t.pt[1]} L${sd==="L"?lx+6:lx-6} ${ly}" stroke="${col}" stroke-width="1.3"/><circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="${VM?3+t.v*1.3:5.5}" fill="${VM?col:d?"#3A2A24":"#fff"}" fill-opacity="${VM?.9:1}" stroke="${VM?"#fff":"#8E2B2B"}" stroke-width="${VM?1.5:2.2}"/>`;
         u+=`<button class="tl2 ${sd}${d?" d":""}" data-tech="${t.id}" style="left:${lx}px;top:${ly}px"><i style="background:${col}"></i>${t.n}<em>${d?STAT[st]:VM?tr[1]:ex+STAT[st]}</em></button>`;});});
     u+=`<div class="tmseg"><b>科技</b><button class="${VM?"on":""}" data-when="value">性價比</button><span class="sep"></span>${WHEN.map(([k,n])=>`<button class="${TM===k?"on":""}" data-when="${k}">${n}</button>`).join("")}<button class="x" data-when="">✕</button></div>`;
-    u+=VM?`<div class="tmleg">${TIER.map(x=>`<span><i style="background:${x[3]}"></i>${x[1]}</span>`).join("")}<button data-quad>四象限 ›</button></div>`:`<div class="tmleg"><span>${WHEN.find(w=>w[0]===TM)[2]}</span></div>`;}
+    u+=VM?`<div class="tmleg"><span>號碼＝先做的順序</span>${TIER.map(x=>`<span><i style="background:${x[3]}"></i>${x[1]}</span>`).join("")}<button data-quad>四象限 ›</button></div>`:`<div class="tmleg"><span>${WHEN.find(w=>w[0]===TM)[2]}</span></div>`;}
   $("sv").innerHTML=g;
   // 三層的名牌：沿著同一條斜線往外
   const lay=[["heart","心","#7A3238",0,C[0]+40,C[1]-70],["body","身","#AE7552",-1,C[0]-178*.5-56,C[1]-178*K*.866],["soul","靈","#C9A24A",5,C[0]+292*.62,C[1]-292*K*.79]];
@@ -304,7 +311,7 @@ function render(){
   document.querySelectorAll("[data-sel]").forEach(b=>b.onclick=e=>{if(e.target.closest("a"))return;const k=b.dataset.sel;if(k==="heart"||k==="soul"){sel=k;render();openD(k);return;}if(k==="body"){sel=null;render();return;}sel=sel===k?null:k;render();});
   document.querySelectorAll("[data-when]").forEach(b=>b.onclick=()=>{TM=b.dataset.when||null;render();syncURL();});
   document.querySelectorAll("[data-tm]").forEach(b=>b.onclick=e=>{e.stopPropagation();TM=TM?null:"value";render();syncURL();});
-  document.querySelectorAll("[data-hov]").forEach(b=>{const c=()=>document.getElementById("td-"+b.dataset.hov);b.onmouseenter=()=>{const d=c();if(d){d.setAttribute("stroke","#3A2A24");d.setAttribute("stroke-width","4");}};b.onmouseleave=()=>{const d=c();if(d){d.setAttribute("stroke","#fff");d.setAttribute("stroke-width","1.5");}};});
+  document.querySelectorAll("[data-hov]").forEach(b=>{const c=()=>document.getElementById("td-"+b.dataset.hov);b.onmouseenter=()=>{const d=c();if(d){const k=d.querySelector("circle");k.setAttribute("stroke","#3A2A24");k.setAttribute("stroke-width","4");k.setAttribute("r","14");}};b.onmouseleave=()=>{const d=c();if(d){const k=d.querySelector("circle");k.setAttribute("stroke","#fff");k.setAttribute("stroke-width","2");k.setAttribute("r","11.5");}};});
   document.querySelectorAll("[data-quad]").forEach(b=>b.onclick=e=>{e.stopPropagation();openQ();});
   document.querySelectorAll("[data-tech]").forEach(b=>b.onclick=e=>{e.stopPropagation();openT(b.dataset.tech);});
   document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.pick;if(S.pick[k])delete S.pick[k];else S.pick[k]=1;save();render();});

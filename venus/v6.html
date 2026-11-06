@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c1814">
+<title>維納斯的桌子</title>
+<link rel="apple-touch-icon" href="../venus/icon-180.png"><link rel="icon" href="../venus/icon-192.png">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#F1E7DA;color:#2E2420;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+#view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#sizer{position:relative;flex-shrink:0}
+#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:radial-gradient(ellipse at 45% 50%,#E9D9C4,#F3EADF 62%)}
+#fig{position:absolute;left:50px;top:0;width:500px;height:944px;background:url(fig.webp);-webkit-mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 90%,transparent);-webkit-mask-composite:source-in;mask:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 90%,transparent);mask-composite:intersect}
+#sv{position:absolute;inset:0;pointer-events:none}
+button{font:inherit;cursor:pointer}
+.serif{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
+.hot{position:absolute;border:0;background:none;padding:0;display:flex;align-items:center;gap:8px;transform:translate(0,-50%)}
+.hot.L{flex-direction:row-reverse;transform:translate(-100%,-50%)}
+.hot .b{width:52px;height:52px;border-radius:50%;background:#FFFAF4;border:2px solid #B98F66;display:grid;place-items:center;box-shadow:0 3px 10px rgba(40,20,10,.22);transition:transform .2s}
+.hot .w{background:rgba(255,250,244,.93);border-radius:999px;padding:5px 14px;font:700 17px "Songti TC","Noto Serif TC",serif;color:#3A2A24;box-shadow:0 2px 6px rgba(40,20,10,.15)}
+.hot.on .b{background:#3A2A24;border-color:#E2B867;transform:scale(1.1)}
+.hot .b.pb{width:62px;height:62px;overflow:hidden;background:#FFFCF8}.hot.on .b.pb{background:#FFF3E0;border-width:3px}
+.hot.on .w{background:#3A2A24;color:#FFE7C2}
+.hot.dim{opacity:.45}
+.hot.pt{transform:translate(-31px,-50%)}
+.hot.lay.on .b,.hot.lay.on .w{box-shadow:0 0 0 3px #E2B867,0 3px 10px rgba(40,20,10,.25)}
+.left{position:absolute;left:700px;top:36px;width:950px;color:#3A2A24;background:rgba(255,250,244,.6);border-radius:18px;padding:20px 26px;display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 36px;align-items:start}
+.f{display:flex;align-items:baseline;gap:8px;font:700 30px "Songti TC","Noto Serif TC",serif;letter-spacing:.06em}
+.f small{font-size:15px;color:#8A6E4B;font-weight:400}
+.g{margin-top:18px;display:grid;gap:10px;font-size:14px;line-height:1.7;color:#5A4228}
+.g b{color:#3A2A24}
+
+.panel{position:absolute;left:700px;top:232px;width:950px}
+.tb{width:100%;border-collapse:separate;border-spacing:0;font-size:16px;color:#3A2A24;background:rgba(255,250,244,.72);border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(40,28,20,.08)}
+.tb th{font-weight:700;font-size:14px;color:#8A6E4B;padding:8px 12px;text-align:left;letter-spacing:.1em}
+.tb th.grp{text-align:center;font:700 15px "Songti TC","Noto Serif TC",serif;color:#3A2A24;letter-spacing:.3em;padding-top:12px}
+.tb th.grp.n{border-bottom:2px dashed #B98F66}.tb th.grp.t{border-bottom:2px solid #B98F66}
+.tb td{padding:11px 12px;border-top:1px solid #EADCCB;vertical-align:top;line-height:1.55}
+.tb tr.band td{background:rgba(233,217,196,.45);font:700 13px "Songti TC",serif;color:#8A6E4B;letter-spacing:.3em;padding:6px 12px}
+.tb td.pn{white-space:nowrap;font:700 18px "Songti TC","Noto Serif TC",serif;cursor:pointer}
+.tb td.pn span{display:inline-flex;align-items:center;gap:6px}
+.tb tr.on td{background:#FFF6E6}.tb tr.on td.pn{color:#8E2B2B}
+.tb tr.row:hover td{background:rgba(255,246,230,.7)}
+.it{cursor:pointer;border-radius:6px;padding:1px 3px;margin:-1px -3px}
+.it.on{background:#3A2A24;color:#FFE7C2}
+.it.lt{color:#A8927E}.it sup{font-size:10px;color:#C08A5A;margin-left:1px}
+.tb td.sep{border-left:1px dashed #E2D3C2}
+.endrow td{cursor:pointer}
+.endrow .sub{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:14px}
+.endrow .sub span{display:inline-flex;align-items:center;gap:3px}
+.endrow .tag{font-size:12.5px;color:#8E2B2B;font-weight:600}
+.endrow .go2{font-size:12.5px;color:#8A6E4B;white-space:nowrap}
+.foot{margin-top:10px;font-size:12.5px;color:#8A6E4B;display:flex;gap:16px;flex-wrap:wrap}
+.foot a{color:#7A5A40}
+.soft{font-size:14px;color:#5A4228;background:rgba(244,235,223,.9);border-radius:12px;padding:8px 12px}.soft b{color:#8E2B2B;margin-right:6px}
+textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1px solid #E2D3C2;padding:10px 12px;background:#fff;resize:vertical}
+.chk{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #EADCCB;background:#fff;color:#2E2420;text-align:left;width:100%;font-size:14px}
+.chk.on{border-color:#C98E80;background:#F7ECE4;color:#7A5A48;text-decoration:line-through}
+.chk i{width:17px;height:17px;border-radius:5px;border:2px solid #C9B6A4;flex-shrink:0}
+.chk.on i{background:#8E2B2B;border-color:#8E2B2B}
+.chk em{margin-left:auto;font-style:normal;font-size:11px;color:#8A6E4B;background:#F3EADF;border-radius:999px;padding:1px 8px;text-decoration:none}
+.lnk{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid #CDB8A4;background:#fff;color:#3A2A24;text-decoration:none;font-size:14px}
+
+.hd{position:absolute;left:700px;top:22px;width:950px;color:#3A2A24}
+.hd .kick{font-size:13px;letter-spacing:.4em;color:#A0805A}
+.hd h1{margin:2px 0 4px;font:700 46px/1.1 "Songti TC","Noto Serif TC",serif;letter-spacing:.12em}
+.hd h1 i{font-style:normal;color:#C9A24A;margin:0 .05em;font-size:.55em;vertical-align:.35em}
+.hd p{margin:0;font-size:15px;line-height:1.7;color:#5A4228}.hd p b{color:#8E2B2B}
+.panel{position:absolute;left:700px;top:172px;width:950px;display:flex;flex-direction:column;gap:12px}
+.big{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;box-shadow:0 2px 6px rgba(60,30,10,.18)}
+.sb{background:rgba(255,251,246,.82);border-radius:22px;padding:12px 22px 10px;box-shadow:0 6px 24px rgba(60,40,20,.08)}
+.sh2{grid-row:span 2;display:flex;align-items:center;gap:10px;padding:0 4px}.sh2 span{display:flex;flex-direction:column;line-height:1.1}.sh2 b{font:700 26px "Songti TC","Noto Serif TC",serif;color:#3A2A24}.sh2 small{font-size:13px;color:#8A6E4B;margin-top:3px}
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.sh b{font:700 26px "Songti TC","Noto Serif TC",serif;color:#3A2A24}.sh small{font-size:14px;color:#8A6E4B}
+.mx{display:grid;grid-template-columns:150px 1fr 1fr 1fr 1.1fr;column-gap:0;font-size:16px;color:#3A2A24}
+.mh{padding:8px 14px 4px;font:700 16px "Songti TC","Noto Serif TC",serif;letter-spacing:.35em;display:flex;align-items:center;justify-content:center;gap:6px}
+.mh.n{border-bottom:2px dashed #C9A27A}.mh.t{border-bottom:2px solid #AE7552;border-left:10px solid transparent;background-clip:padding-box}
+.ms{padding:8px 14px 6px;font-size:13px;color:#A0805A;letter-spacing:.25em;text-align:center}
+.mx .n{background:rgba(246,235,220,.55)}.mx .t{background:rgba(236,224,214,.5)}
+.mx .ms.n,.mx .ms.t{background:none}
+.pr{display:flex;align-items:center;gap:6px;padding:8px 4px;border-top:1px solid #EFE3D4;cursor:pointer;font:700 18px "Songti TC","Noto Serif TC",serif}
+.c{text-align:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;padding:10px 12px;border-top:1px solid #EFE3D4;line-height:1.5;font-size:15.5px}
+.pr.on{color:#8E2B2B}.pr span{display:flex;flex-direction:column;line-height:1.15}.cap{font:400 11.5px "PingFang TC","Noto Sans TC",sans-serif;color:#A0805A;margin-top:3px;letter-spacing:.02em}.cap.nv{color:#8E2B2B}.c.on{background:#FFF1DC!important}
+.pr:hover~.c{}
+.it{cursor:pointer;border-radius:6px;padding:1px 4px;margin:-1px -2px}
+.it.on{background:#3A2A24;color:#FFE7C2}
+.two{display:grid;grid-template-columns:.78fr 1.22fr;gap:16px}
+.cd{all:unset;cursor:pointer;box-sizing:border-box;background:rgba(255,251,246,.82);border-radius:22px;padding:12px 20px;display:flex;flex-direction:column;gap:7px;box-shadow:0 6px 24px rgba(60,40,20,.08);border:2px solid transparent}
+.cd.on{border-color:#E2B867}
+.ch{display:flex;align-items:center;gap:12px}.ch b{display:block;font:700 26px "Songti TC","Noto Serif TC",serif;color:#3A2A24;line-height:1}.ch small{font-size:13.5px;color:#8A6E4B}
+.ch .nt{margin-left:auto;font-size:13px;color:#7A5A40;background:#F3E7D8;border-radius:999px;padding:5px 12px}
+.tgs{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:16px;color:#3A2A24}
+.tg{display:inline-flex;align-items:center;gap:5px}.tg em{font-style:normal;font-size:12px;color:#A0805A}
+.how{font-size:13.5px;color:#8E2B2B}
+.rooms{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13.5px;color:#8A6E4B}
+.rooms span{letter-spacing:.2em;margin-right:4px}
+.rooms a{color:#3A2A24;text-decoration:none;background:rgba(255,251,246,.85);border:1px solid #E2D3C2;border-radius:999px;padding:6px 14px}
+.rooms a:hover{border-color:#B98F66}
+.rooms em{font-style:normal;margin-left:auto;font-size:12.5px}
+.strip{position:absolute;left:40px;bottom:24px;right:auto}
+.six{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px}
+.sx{display:grid;grid-template-columns:22px 34px 52px 1fr;white-space:nowrap;align-items:baseline;gap:4px;font-size:14.5px;color:#3A2A24;padding:1px 0;border-bottom:1px dashed #EADCCB}
+.sx b{font:700 17px "Songti TC","Noto Serif TC",serif;color:#8A6E4B}
+.sx i{font-style:normal;font-size:12px;color:#A0805A}
+.sx em{font-style:normal;font-size:12.5px;color:#8E2B2B}
+.sx.yi b{color:#7A3238}
+.ln{display:inline-flex;align-items:center;margin-left:8px;font-size:12.5px;font-weight:600;color:#8E2B2B;background:#FFF;border:1px solid #E8C9B8;border-radius:999px;padding:2px 9px;text-decoration:none;white-space:nowrap;letter-spacing:0}
+.ln:hover{background:#8E2B2B;color:#fff}
+.ln.hd2{font-family:"PingFang TC","Noto Sans TC",sans-serif;margin-left:12px}
+.cl{display:flex;gap:6px;margin-top:2px}.cl .ln{margin-left:0;font-size:13.5px;padding:4px 12px}
+#detail{position:absolute;inset:0;background:rgba(30,20,14,.35);display:none;align-items:center;justify-content:center}
+#detail.on{display:flex}
+#dbox{width:660px;max-height:840px;overflow:auto;border-radius:22px;background:#FFFAF4;padding:24px 26px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(30,20,14,.3)}
+.strip{position:absolute;bottom:24px;border-radius:999px;background:rgba(40,28,22,.86);color:#FFF6EC;padding:9px 20px;display:flex;gap:16px;white-space:nowrap;font-size:13px}
+.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px}
+.tmseg{position:absolute;left:150px;top:22px;display:flex;align-items:center;gap:6px;background:rgba(255,251,246,.92);border-radius:999px;padding:5px;box-shadow:0 4px 16px rgba(40,20,10,.14)}
+.tmseg button{border:0;background:none;border-radius:999px;padding:7px 14px;font:700 15px "Songti TC","Noto Serif TC",serif;color:#7A5A40}
+.tmseg button.on{background:#3A2A24;color:#FFE7C2}
+.tmseg button.x{font:400 13px "PingFang TC",sans-serif;color:#8A6E4B;padding:7px 10px}
+.tmseg b{font:700 13px "PingFang TC",sans-serif;color:#AE7552;letter-spacing:.2em;padding:0 6px 0 10px}
+.tmseg .sep{width:1px;height:20px;background:#E2D3C2;margin:0 2px}
+.tmleg{position:absolute;left:160px;top:76px;display:flex;align-items:center;gap:12px;font-size:13px;color:#5A4228;background:rgba(255,251,246,.85);border-radius:999px;padding:5px 14px}
+.tmleg span{display:inline-flex;align-items:center;gap:5px}.tmleg i{width:10px;height:10px;border-radius:50%}
+.tmleg button{border:0;background:#3A2A24;color:#FFE7C2;border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600}
+.tcard{position:absolute;width:186px;background:rgba(255,251,246,.94);border-radius:16px;padding:10px 12px 11px;box-shadow:0 4px 16px rgba(40,20,10,.14)}
+.tcard .th{display:flex;align-items:center;gap:6px;margin-bottom:7px}.tcard .th i{width:11px;height:11px;border-radius:50%;flex:none}
+.tcard .th b{font:700 17px "Songti TC","Noto Serif TC",serif;color:#3A2A24}.tcard .th b{white-space:nowrap}.tcard .th small{font-size:11px;color:#8A6E4B;white-space:nowrap}
+.tcs{display:flex;flex-wrap:wrap;gap:5px}
+.tc{border:1px solid #E6D6C4;background:#fff;border-radius:999px;padding:3px 10px;font-size:14px;color:#3A2A24}
+.tc:hover{border-color:#8E2B2B;background:#FFF4E8}.tc sup{font-size:10px;color:#C08A5A;margin-left:1px}
+.tc em{font-style:normal;font-size:10.5px;color:#8A6E4B;margin-left:4px}.tc.d{background:#3A2A24;color:#FFE7C2;border-color:#3A2A24}.tc.d em{color:#E8CFA0}
+.tl2{position:absolute;transform:translateY(-50%);border:1px solid #E2CDB6;background:rgba(255,251,246,.95);border-radius:999px;padding:4px 12px 4px 10px;display:flex;align-items:center;gap:7px;font:700 15px "Songti TC","Noto Serif TC",serif;color:#3A2A24;white-space:nowrap;box-shadow:0 2px 8px rgba(40,20,10,.14)}
+.tl2.L{transform:translate(-100%,-50%);flex-direction:row-reverse;padding:4px 10px 4px 12px}
+.tl2 i{width:9px;height:9px;border-radius:50%;background:#C9A27A;flex:none}
+.tl2 em{font:400 11.5px "PingFang TC",sans-serif;font-style:normal;color:#8A6E4B}
+.tl2.d{background:#3A2A24;color:#FFE7C2;border-color:#3A2A24}.tl2.d em{color:#E8CFA0}.tl2.d i{background:#E2B867}
+.tl2:hover{border-color:#8E2B2B}
+.it.tk{background:#F6EBDC;border:1px solid #E6D3BE;border-radius:999px;padding:1px 8px;margin:1px 0;display:inline-block;line-height:1.5}
+.it.tk:hover{border-color:#8E2B2B;background:#FFF4E8}
+.it.tk:after{content:"›";color:#B98F66;margin-left:3px;font-size:.85em}
+.it.hl{background:#FFE2B8}
+.it.on.hl{background:#3A2A24}
+.st5{display:flex;gap:6px;flex-wrap:wrap}
+.st5 button{border:1px solid #E2D3C2;background:#fff;border-radius:999px;padding:7px 14px;font-size:14px;color:#5A4228}
+.st5 button.on{background:#3A2A24;color:#FFE7C2;border-color:#3A2A24}
+.wchip{display:inline-block;font-size:12.5px;border-radius:999px;padding:3px 10px;background:#FFF1DC;color:#8A5A20;margin-right:6px}
+@keyframes beat{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.12);opacity:1}}
+.beat{transform-box:fill-box;transform-origin:center;animation:beat 3.2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.beat{animation:none}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><filter id="mw" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="5"/><feDisplacementMap in="SourceGraphic" scale=".9"/></filter></svg>
+<button class="back" id="back">← Venus</button>
+<div id="view"><div id="sizer"><div id="stage">
+  <div id="fig" role="img" aria-label="穿絲質洋裝和針織外套的女生"></div>
+  <svg id="sv" viewBox="0 0 1680 944" aria-hidden="true"></svg>
+  <div id="ui"></div>
+  <div id="detail"><div id="dbox"></div></div>
+</div></div></div>
+<script src="tech-data.js"></script>
+<script>
+const E="../",GH="https://fuwei0618-cmd.github.io/";
+const MI={
+"香氛":'<path d="M8.4 10.2h7.2c1 0 1.8.8 1.8 1.8v6.6c0 1.2-1 2.2-2.2 2.2H8.8c-1.2 0-2.2-1-2.2-2.2V12c0-1 .8-1.8 1.8-1.8zM10.2 10.2V7.4h3.6v2.8"/><path d="M15.6 5.6c.9-.9.9-1.9 0-2.8M18 6.6c1.4-1.4 1.4-3 0-4.4"/>',
+"食":'<path d="M4 12h16a8 6.5 0 0 1-16 0z"/><path d="M9 20h6"/><path d="M13 9.5l6-6M15 10l5.5-4.5"/><path d="M6 7.5c.6-1.6 2-2.4 3.6-2.2" />',
+"住":'<path d="M3 18v-6.5a1.5 1.5 0 0 1 1.5-1.5h15a1.5 1.5 0 0 1 1.5 1.5V18M3 15h18M3 18v2M21 18v2"/><path d="M5.5 10V8a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 11.5 8v2"/><path d="M17 3.2a2.6 2.6 0 0 0 2.6 3.6 2.6 2.6 0 1 1-2.6-3.6z" stroke-width="1.2"/>',
+"行":'<circle cx="13.5" cy="4" r="1.8"/><path d="M12.6 7.4l-2.4 5 3.2 2.4-1 5.8M10.2 12.4l-3.4 2M12.9 8.2l3.6 2.6 2.6-1.4M13.4 14.8l3.4 1.6 1 3.6"/>',
+"臉":'<path d="M6.5 8.5c0-3.2 2.4-5 5.5-5s5.5 1.8 5.5 5c0 4.6-3 10.5-5.5 10.5S6.5 13.1 6.5 8.5z"/><path d="M6.5 9.6h11M12 4v15" stroke-dasharray="1.4 1.4"/><path d="M9.3 9.6h.01M14.7 9.6h.01M10.8 14.6h2.4"/>',
+"骨架":'<circle cx="12" cy="3.8" r="1.8"/><path d="M12 5.6v10.4M7 8h10M8.5 8l-.6 5M15.5 8l.6 5M8.6 16h6.8M10 16l-.8 5M14 16l.8 5"/><path d="M12 9.6h.01M12 12h.01"/>',
+"胸型":'<path d="M4 6c.4 4 1.6 7.4 4.2 8.6 1.8.8 3-.4 3.8-1.6.8 1.2 2 2.4 3.8 1.6C18.4 13.4 19.6 10 20 6"/><path d="M4 18.5c2.6 1.2 5.2 1.8 8 1.8s5.4-.6 8-1.8" stroke-width="1.2"/>',
+"肌肉":'<path d="M5 15.5c0-3 2-5.4 4.6-6.4.6-2.4 2.4-4.1 4.4-4.1 1 0 1.6.8 1.4 1.8l-.6 2.2c2.2.6 4.2 2.8 4.2 6.2 0 2.6-2.2 4.3-6 4.3H9.4C6.8 19.5 5 17.8 5 15.5z"/><path d="M10 13.4c1.4.8 3 .8 4.4 0" stroke-width="1.2"/>',
+"彩妝":'<circle cx="9" cy="14" r="5.5"/><path d="M6.5 13.2c.8-1.4 2.2-2 3.6-1.8"/><path d="M14.5 9.5l6-6M16.5 4.5c1.2 0 3 1.8 3 3"/>',
+"穿戴":'<path d="M12 3.5a1.6 1.6 0 1 1 1.6 1.6c-.9 0-1.6.7-1.6 1.6v.6M12 7.3L4 12.5h16z"/><path d="M8.5 12.5L6.5 21h11l-2-8.5"/><circle cx="19" cy="18" r="1.6" stroke-width="1.2"/>',
+"眼":'<path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>',
+"耳":'<path d="M7 9a5 5 0 0 1 10 0c0 3-2.6 4-3 6.4-.3 2-1.6 3.6-3.6 3.6A3 3 0 0 1 7.6 17"/><path d="M10 9.4a2 2 0 0 1 4 0c0 1.4-1.6 1.8-1.6 3.2" stroke-width="1.2"/>',
+"鼻":'<path d="M12 4c-.6 4-2.6 7-3.6 9.6-.6 1.6.6 3 2.2 2.6.6.8 2.2.8 2.8 0 1.6.4 2.8-1 2.2-2.6"/><path d="M17 5c1-.9 1-1.9 0-2.8M19.4 6.4c1.4-1.4 1.4-3 0-4.4" stroke-width="1.2"/>',
+"舌":'<path d="M4 11c2.4-2.6 5-3 8-1 3-2 5.6-1.6 8 1-2.4 4.6-5 6.4-8 6.4S6.4 15.6 4 11z"/><path d="M4 11c3 1.4 5.6 1.6 8 1.6s5-.2 8-1.6" stroke-width="1.2"/>',
+"身":'<path d="M8.5 20c-1.6-1.4-3.4-3.6-4.2-5.4-.4-.9.6-1.7 1.4-1.1l2 1.6V6.2c0-.8.6-1.3 1.3-1.3s1.3.5 1.3 1.3v5.2-6.6c0-.8.6-1.3 1.3-1.3s1.3.5 1.3 1.3v6.6-5.4c0-.8.6-1.3 1.3-1.3s1.3.5 1.3 1.3v5.6-3.4c0-.8.6-1.3 1.3-1.3s1.2.5 1.2 1.3v7.3c0 2.6-1.4 4.6-3.4 5.6"/>',
+"意":'<path d="M5 13a7 6 0 1 1 4 5.4L5.5 20l1-3.2A6 6 0 0 1 5 13z"/><path d="M12 15.4s-3-1.9-3-4a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 2.1-3 4-3 4z" stroke-width="1.2"/>',
+"自信":'<path d="M4 17l1.6-9 4 4.4L12 6l2.4 6.4 4-4.4L20 17z"/><path d="M4.5 19.5h15"/>',
+"從容":'<path d="M5 10h11v3.5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 11.5h1.5a2 2 0 0 1 0 4H16"/><path d="M9 7c-.8-1 .8-2 0-3M12.5 7c-.8-1 .8-2 0-3"/>',
+"情緒穩定":'<ellipse cx="12" cy="18.5" rx="6.5" ry="2"/><ellipse cx="12" cy="13.6" rx="4.6" ry="1.8"/><ellipse cx="12" cy="9.4" rx="3" ry="1.5"/><ellipse cx="12" cy="6" rx="1.8" ry="1.1"/>',
+"睡眠":'<path d="M15.5 18.5A7 7 0 0 1 10 6a7 7 0 1 0 8.6 9.6 6.8 6.8 0 0 1-3.1 2.9z"/><path d="M15 5h3l-3 3.5h3"/>',
+"飲食":'<path d="M4 12h16a8 6.5 0 0 1-16 0z"/><path d="M9 20h6"/><path d="M13 9.5l6-6M15 10l5.5-4.5"/>',
+"喝水":'<path d="M7 4h10l-1.4 15.4a1.8 1.8 0 0 1-1.8 1.6H10.2a1.8 1.8 0 0 1-1.8-1.6z"/><path d="M7.8 10.5c1.4-.8 2.8-.8 4.2 0s2.8.8 4.2 0"/>',
+"運動":'<path d="M4 12h16"/><path d="M6 8.5v7M8.5 7v10M18 8.5v7M15.5 7v10"/>',
+"體態":'<circle cx="12" cy="5" r="1.8"/><path d="M12 7v13M8 9.5h8"/><path d="M12 2.2V1" stroke-dasharray="1 1.2"/>',
+"皮膚":'<circle cx="11" cy="13" r="6.5"/><path d="M8 11c.6-1.4 1.8-2.2 3.2-2.3"/><path d="M18 3.5l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6z"/>',
+"頭髮":'<path d="M7 4c-1.8 4 1.6 6.4 0 10.4S8 19 7 21M12 3c-1.8 4 1.6 6.4 0 10.4S13 19 12 21M17 4c-1.8 4 1.6 6.4 0 10.4S18 19 17 21"/>',
+"身材":'<path d="M8 3c0 4 3 5.5 3 9s-3 5-3 9M16 3c0 4-3 5.5-3 9s3 5 3 9"/>',
+"五官比例":'<ellipse cx="12" cy="12" rx="6" ry="8"/><path d="M6 10h12M12 4v16" stroke-dasharray="1.6 1.6"/><path d="M9 10h.01M15 10h.01M10.5 15.5h3"/>',
+"臉型":'<path d="M6.5 8.5c0-3.2 2.4-5 5.5-5s5.5 1.8 5.5 5c0 4.6-3 10.5-5.5 10.5S6.5 13.1 6.5 8.5z"/><path d="M8 14.5l4 4.5 4-4.5" stroke-dasharray="1.4 1.4"/>',
+"醫美":'<path d="M17 3l4 4M19 5l-9.5 9.5M14 6l4 4M12.5 7.5l4 4M9.5 14.5L5.5 18.5M3 21l2.5-2.5"/><path d="M11 9l4 4"/>',
+"半永久":'<path d="M4 12c3-4.4 9-5.4 14-2.4"/><path d="M5.5 11.2l.6-1.4M8 9.8l.4-1.5M10.5 9l.3-1.5M13 8.8l.1-1.5M15.5 9.2l-.1-1.5"/><path d="M14 20l6-6 1.5 1.5-6 6H14z"/>',
+"妝":'<circle cx="9" cy="14" r="5.5"/><path d="M6.5 13.2c.8-1.4 2.2-2 3.6-1.8"/><path d="M14.5 9.5l6-6M16.5 4.5c1.2 0 3 1.8 3 3"/>',
+"髮型":'<path d="M12 3c-3 2.4-3 4.6 0 6.6s3 4.2 0 6.4-3 3.6 0 5M12 3c3 2.4 3 4.6 0 6.6s-3 4.2 0 6.4 3 3.6 0 5"/>',
+"穿搭":'<path d="M12 3.5a1.6 1.6 0 1 1 1.6 1.6c-.9 0-1.6.7-1.6 1.6v.6M12 7.3L4 12.5h16z"/><path d="M8.5 12.5L6.5 21h11l-2-8.5"/>',
+"三殿":'<path d="M3 10.5L12 4l9 6.5"/><path d="M5 9.5c-.4 1-1.2 1.6-2 1.8M19 9.5c.4 1 1.2 1.6 2 1.8"/><path d="M6.5 11v8.5M17.5 11v8.5M10 19.5v-5h4v5M4.5 19.5h15"/>',
+"聲音":'<path d="M9 17.5V6l9-2v11.5"/><circle cx="6.8" cy="17.6" r="2.3"/><circle cx="15.8" cy="15.6" r="2.3"/>',
+"香味":'<path d="M8.4 10.2h7.2c1 0 1.8.8 1.8 1.8v6.6c0 1.2-1 2.2-2.2 2.2H8.8c-1.2 0-2.2-1-2.2-2.2V12c0-1 .8-1.8 1.8-1.8zM10.2 10.2V7.4h3.6v2.8"/><path d="M15.6 5.6c.9-.9.9-1.9 0-2.8M18 6.6c1.4-1.4 1.4-3 0-4.4"/>',
+"別人感受到的你":'<path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>'};
+const IC=[
+ // 心：不太對稱的愛心＋內側一道光
+ '<path d="M12 20.2c-1.6-1.3-7.6-5.2-7.8-10.1-.1-2.6 1.7-4.6 4-4.5 1.6.1 2.9 1.1 3.7 2.6.8-1.6 2.2-2.7 3.9-2.7 2.3 0 4 2 3.8 4.6-.3 4.8-6 8.8-7.6 10.1z"/><path d="M7.4 9.2c.2-1 .9-1.7 1.8-1.9" stroke-width="1.3"/>',
+ // 結構：臉的輪廓、下顎線、鼻樑
+ '<path d="M7.2 8.8c-.3-3.3 2-5.6 4.9-5.6s5.1 2.3 4.8 5.8c-.3 3.6-1.6 6.6-3.2 7.9-1 .8-2.3.8-3.3 0-1.7-1.4-3-4.4-3.2-8.1z"/><path d="M12.1 9.3c.3 1.3.4 2.4-.4 3.2" stroke-width="1.2"/><path d="M9.3 8.6h1.4M13.6 8.6h1.4" stroke-width="1.3"/><path d="M10.9 14.2c.7.4 1.5.4 2.2 0" stroke-width="1.2"/><path d="M5.8 20.6c1.6-1.6 3.6-2.4 6.2-2.4s4.6.8 6.2 2.4" stroke-width="1.2"/>',
+ // 身體：站姿女生，長髮、S 曲線
+ '<circle cx="12.2" cy="4.6" r="2"/><path d="M10.3 4.2c-.6 1.6-.6 3 .1 4.1M14.1 4.3c.5 1.5.4 2.9-.3 3.9" stroke-width="1.2"/><path d="M12.2 6.8c-.4 2.2-1.6 3.2-1.4 5.3.2 1.7 1.6 2.4 1.3 4.4-.2 1.7-.9 3.2-.9 4.8M12.6 12.4c.4 2.6.3 5.6.7 8.4"/><path d="M11.4 8.8c-1.3.9-2.2 2.2-2.6 3.8M13.2 8.7c1.3.8 2 2 2.3 3.5" stroke-width="1.4"/>',
+ // 養護：水滴＋裡面一道水波＋小葉子
+ '<path d="M12 3.2c1.9 2.6 5.6 6.9 5.6 10.6 0 3.3-2.5 5.9-5.6 5.9s-5.7-2.6-5.7-5.9C6.3 10.1 10 5.8 12 3.2z"/><path d="M8.8 14.2c1-.7 2-.7 3.1 0s2.1.7 3.2 0" stroke-width="1.3"/><path d="M17.8 5.2c1.3-.2 2.4.3 2.8 1.3-1.1.5-2.3.2-2.8-1.3zM17.8 5.2l-1.1 1.2" stroke-width="1.2"/>',
+ // 修飾：口紅＋一把小梳子
+ '<path d="M6.6 21h5.2v-8.2H6.6z"/><path d="M7.3 12.8V9.6c0-1.6.9-3.6 2.3-5 .5 1.4.8 2.9.6 4.5l-.3 3.7" /><path d="M6.6 15.4h5.2" stroke-width="1.2"/><path d="M14.4 7.2l5.6 3.2-.9 1.6-5.6-3.2zM15.1 9.2l-1.2 2M16.6 10.1l-1.2 2M18.1 11l-1.2 2" stroke-width="1.2"/>',
+ // 風格：一圈光
+ '<path d="M12 3.2l1.9 5.6 5.7 1.9-5.7 1.9L12 18.4l-1.9-5.8-5.7-1.9 5.7-1.9z"/><path d="M18.6 15.4l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7zM5.4 3.6l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" stroke-width="1.2"/>'];
+const ic=(i,c,z)=>`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><defs><filter id="w${i}${z}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="${i+3}"/><feDisplacementMap in="SourceGraphic" scale=".9"/></filter></defs><g filter="url(#w${i}${z})">${IC[i]}</g><g opacity=".38" transform="translate(.35 .25)">${IC[i]}</g></svg>`;
+const mi=(k,c,z=19)=>MI[k]?`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><g filter="url(#mw)">${MI[k]}</g></svg>`:"";
+// 心和風格（看不見的兩端）
+const ENDS=[
+ {k:"heart",why:"美的最源頭。放鬆的人才軟，喜歡自己的人才性感。外面做再多，這圈空了，看起來就是緊繃、用力。",n:"心",sub:"自信、情緒穩定、從容",how:"用時間和經歷改",soft:"放鬆了，表情和動作自然就軟",sexy:"喜歡自己，眼神才出得來",
+  tasks:[["每天留十分鐘放空","每天"],["對鏡子說一句喜歡自己的話","每天"],["說話時看著對方的眼睛","每週"]],links:[["禱告房",E+"temple/"],["Addiction",E+"bedside/#all"],["臥室",E+"bedroom/"]]},
+ {k:"style",why:"不是做的事，是做完以後的結果。是你的身和心一起散出去、被別人接收到的東西。前五根（眼耳鼻舌身）接收的是你的身散出去的，最後一根「意」接收的是你的心散出去的，所以靈＝身＋心。心是你心裡的自己，靈是別人心裡的你。三殿決定今天開多大聲。",n:"靈",sub:"眼、耳、鼻、舌、身、意",how:"不用刻意做：底子加功夫，自然長出來",soft:"溫柔、語速慢、皮膚感的香味",sexy:"一個暖色重點、靠近才聞得到的香",
+  tasks:[["拍一張這一季的我","每季"],["找一支招牌香味","每季"],["換季整理衣櫥","每季"]],links:[["衣櫥・三殿",E+"wardrobe/"]]}
+];
+
+const QI={
+ yn:'<path d="M12 21c-4.6 0-7-3.4-7-7.4C5 8 10 4.4 19 3.5c-.6 8.8-3.2 13.6-7 13.6"/><path d="M5 21c2.6-4.4 6-7.6 10-9.6" stroke-width="1.3"/>',
+ yt:'<path d="M9 3h6M10 3v5.2L5.4 17.4A2.4 2.4 0 0 0 7.6 21h8.8a2.4 2.4 0 0 0 2.2-3.6L14 8.2V3"/><path d="M7.4 14h9.2" stroke-width="1.3"/>'};
+const qi=(k,c,z=18)=>`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g filter="url(#mw)">${QI[k]}</g></svg>`;
+const SIX=[["眼","視覺","被看到","眼神、姿態"],["耳","聽覺","被聽到","聲音、語速"],["鼻","嗅覺","被聞到","香味、髮香"],["舌","味覺","被嚐到","口氣、吻"],["身","觸覺","被碰到","肌膚、擁抱"],["意","知覺","被記住","印象、氣質"]];
+const HEART=ENDS[0],SOUL=ENDS[1];
+const PARTS=[
+ {k:"hair",n:"頭髮",pt:[288,298],side:"L",by:390,yn:"營養、睡眠",xn:"髮型、編髮",yt:"護髮、頭皮治療",xt:"燙髮、植髮、接髮",cap:"髮量、髮質"},
+ {k:"face",n:"臉",pt:[318,352],side:"R",by:300,yn:"睡飽、吃好",xn:"彩妝",yt:"保養品、雷射",xt:"正顎、霧眉、霧唇、種睫毛、美白牙齒*、臥蠶*、眼線*、眼袋*、拉皮*",cap:"五官、臉型"},
+ {k:"skin",n:"皮膚",pt:[358,432],side:"R",by:450,yn:"喝水、睡眠",xn:"底妝、香氛",yt:"A醇、防曬、水光、電波",xt:"皮秒、飛梭、除毛、腋下除臭、Desire",cap:"膚色、膚質"},
+ {k:"shape",n:"身材",pt:[295,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭、美甲",yt:"電波、體雕",xt:"抽脂、隆乳",cap:"名詞・有什麼"},
+ {k:"pose",n:"體態",pt:[295,760],side:"R",by:740,yn:"伸展、皮拉提斯",xn:"高跟鞋、修身衣",yt:"整脊、矯正",xt:"",cap:"動詞・怎麼用"}];
+const pimg=(k,z)=>`<img src="p-${k}.webp" alt="" style="width:${z}px;height:${z}px;mix-blend-mode:multiply;display:block">`;
+const LK={"hair:xn":["妝台",E+"vanity/"],"face:xn":["妝台",E+"vanity/"],"skin:xn":[["底妝筆記",E+"vanity/base.html"],["香氛筆記","scent.html"]],"shape:xn":["衣櫥",E+"wardrobe/"],"pose:yn":["健身房",GH+"Gym/"],"pose:xn":["HH",GH+"Gym/hh/"]};
+const lk=(k)=>{const v=LK[k];if(!v)return "";return (Array.isArray(v[0])?v:[v]).map(x=>`<a class="ln" href="${x[1]}">${x[0]} ›</a>`).join("");};
+const PI={face:"臉",hair:"頭髮",skin:"皮膚",shape:"身材",pose:"體態"};
+MI["眼神"]=MI["眼"];MI["觸感"]=MI["身"];MI["印象"]=MI["意"];
+const HINT={"眼神":"被看到","聲音":"被聽到","香味":"被聞到","觸感":"被碰到","印象":"被記住"};
+const KEY="origina-venus-v1";
+let S={focus:"face",done:{},note:{},pick:{}};
+try{const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)S=Object.assign(S,o);S.pick=S.pick||{};S.note=S.note||{};S.done=S.done||{};}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toLocaleDateString("sv");
+function period(p){const d=new Date();const y=d.getFullYear(),m=d.getMonth()+1;
+  if(p==="每天")return today();
+  if(p==="每週"){const t=new Date(d);t.setDate(d.getDate()-((d.getDay()+6)%7));return "W"+t.toLocaleDateString("sv");}
+  if(p==="每月")return y+"-"+m;return y+"-Q"+Math.ceil(m/3);}
+const C=[295,455],K=1.62;
+const ell=(rx)=>`M${C[0]-rx} ${C[1]} a${rx} ${rx*K} 0 1 0 ${2*rx} 0 a${rx} ${rx*K} 0 1 0 ${-2*rx} 0`;
+let sel=null;
+const QS=new URLSearchParams(location.search);
+let TM=QS.get("mode")==="tech"?(QS.get("when")||"value"):null;if(TM&&TM!=="value"&&!WHEN.some(w=>w[0]===TM))TM="value";
+let TS=tLoad();
+const PT={};TECH.forEach(t=>PT[t.part]=1);
+function render(){
+  const isP=sel&&PI[sel];
+  // 三層：心（胸口的光）、身（貼著身體的實心層）、靈（外圍的光暈）
+  let g=`<defs><radialGradient id="gh"><stop offset="0" stop-color="#FFE0B0"/><stop offset=".45" stop-color="#E98A7A" stop-opacity=".8"/><stop offset="1" stop-color="#C0505A" stop-opacity="0"/></radialGradient>
+   <radialGradient id="ga"><stop offset=".66" stop-color="#F6DC9A" stop-opacity="0"/><stop offset=".86" stop-color="#F6DC9A" stop-opacity="${sel==="soul"?.95:.55}"/><stop offset="1" stop-color="#F6DC9A" stop-opacity="0"/></radialGradient></defs>`;
+  g+=`<path d="${ell(330)}" fill="url(#ga)"/>`;
+  g+=`<ellipse cx="${C[0]}" cy="${C[1]}" rx="292" ry="${292*K}" fill="none" stroke="#C9A24A" stroke-width="${sel==="soul"?3:1.6}" stroke-dasharray="3 7" stroke-linecap="round"/>`;
+  g+=`<path d="${ell(178)}" fill="#AE7552" fill-opacity="${isP?.2:.12}" style="mix-blend-mode:multiply"/><ellipse cx="${C[0]}" cy="${C[1]}" rx="178" ry="${178*K}" fill="none" stroke="#AE7552" stroke-width="${isP?3.2:2.2}"/>`;
+  g+=`<circle class="beat" cx="${C[0]}" cy="${C[1]}" r="${sel==="heart"?70:52}" fill="url(#gh)"/><path d="M295 466s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z" fill="#fff"/>`;
+  const ANG=[-62,-31,0,31,62],RB=178;
+  const bpos=i=>{const a=ANG[i]*Math.PI/180;return [C[0]+RB*Math.cos(a),C[1]+RB*K*Math.sin(a)];};
+  if(!TM)PARTS.forEach((p,i)=>{const [x,y]=p.pt,[bx,by]=bpos(i),on=sel===p.k;p.by=by;
+    g+=`<path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/><path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="${on?2.4:1.4}"/><circle cx="${x}" cy="${y}" r="${on?7:5}" fill="#fff" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="2"/>`;});
+  let u="";
+  if(TM){const VM=TM==="value",TC=Object.fromEntries(TIER.map(x=>[x[0],x]));const act=VM?[]:TECH.filter(t=>t.pt&&t.when===TM&&(!sel||!PI[sel]||t.part===sel));
+    if(VM){const ok=t=>!sel||!PI[sel]||t.part===sel;
+      TECH.filter(t=>t.pt&&t.c).forEach(t=>{const col=TC[tier(t)][3];g+=`<circle id="td-${t.id}" cx="${t.pt[0]}" cy="${t.pt[1]}" r="${2.5+t.v*.7}" fill="${col}" fill-opacity="${ok(t)?.9:.25}" stroke="#fff" stroke-width="1.5"/>`;});
+      const POS={best:[30,140],save:[392,140],easy:[30,520],later:[392,520]};
+      TIER.forEach(([k,n,sub,col])=>{const L=TECH.filter(t=>t.c&&tier(t)===k&&ok(t));const [x,y]=POS[k];
+        u+=`<div class="tcard" style="left:${x}px;top:${y}px"><div class="th"><i style="background:${col}"></i><b>${n}</b></div><div style="font-size:11.5px;color:#8A6E4B;margin:-4px 0 7px 17px">${sub}</div><div class="tcs">${L.map(t=>{const st=TS[t.id]||0;return `<button class="tc${st>=3?" d":""}" data-tech="${t.id}" data-hov="${t.id}">${tShort(t)}${t.after?"<sup>後</sup>":""}${st?`<em>${STAT[st]}</em>`:""}</button>`;}).join("")||`<span style="font-size:12px;color:#A0907F">—</span>`}</div></div>`;});}
+    if(!VM)TECH.forEach(t=>{if(!t.pt||act.includes(t))return;g+=`<circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="3" fill="#fff" stroke="#AE7552" stroke-width="1.2" opacity=".55"/>`;});
+    const side={L:[],R:[]};act.forEach(t=>side[t.pt[0]<290?"L":"R"].push(t));
+    ["L","R"].forEach(sd=>{let prev=-99;side[sd].sort((a,b)=>a.pt[1]-b.pt[1]);
+      const ys=[];side[sd].forEach((t,j)=>{ys.push(Math.max(t.pt[1],j?ys[j-1]+38:70));});
+      const ov=ys.length?ys[ys.length-1]-905:0;if(ov>0)for(let j=ys.length-1;j>=0;j--){ys[j]-=ov;if(j&&ys[j-1]>ys[j]-38)ys[j-1]=ys[j]-38;}
+      const shift=ys.length>2?Math.min(ys.reduce((a,b)=>a+b,0)/ys.length-side[sd].reduce((a,t)=>a+t.pt[1],0)/ys.length,ys[0]-70):0;
+      side[sd].forEach((t,j)=>{const ly=ys[j]-shift;
+        const lx=sd==="L"?210:378,st=TS[t.id]||0,d=st>=3,tr=TC[tier(t)],col=VM?tr[3]:"#8E2B2B";
+        const ex=(t.after?"正顎後・":"")+(t.nx?"下一個・":"");
+        g+=`<path d="M${t.pt[0]} ${t.pt[1]} L${sd==="L"?lx+6:lx-6} ${ly}" stroke="#fff" stroke-width="3" opacity=".7"/><path d="M${t.pt[0]} ${t.pt[1]} L${sd==="L"?lx+6:lx-6} ${ly}" stroke="${col}" stroke-width="1.3"/><circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="${VM?3+t.v*1.3:5.5}" fill="${VM?col:d?"#3A2A24":"#fff"}" fill-opacity="${VM?.9:1}" stroke="${VM?"#fff":"#8E2B2B"}" stroke-width="${VM?1.5:2.2}"/>`;
+        u+=`<button class="tl2 ${sd}${d?" d":""}" data-tech="${t.id}" style="left:${lx}px;top:${ly}px"><i style="background:${col}"></i>${t.n}<em>${d?STAT[st]:VM?tr[1]:ex+STAT[st]}</em></button>`;});});
+    u+=`<div class="tmseg"><b>科技</b><button class="${VM?"on":""}" data-when="value">性價比</button><span class="sep"></span>${WHEN.map(([k,n])=>`<button class="${TM===k?"on":""}" data-when="${k}">${n}</button>`).join("")}<button class="x" data-when="">✕</button></div>`;
+    u+=VM?`<div class="tmleg">${TIER.map(x=>`<span><i style="background:${x[3]}"></i>${x[1]}</span>`).join("")}<button data-quad>四象限 ›</button></div>`:`<div class="tmleg"><span>${WHEN.find(w=>w[0]===TM)[2]}</span></div>`;}
+  $("sv").innerHTML=g;
+  // 三層的名牌：沿著同一條斜線往外
+  const lay=[["heart","心","#7A3238",0,C[0]+40,C[1]-70],["body","身","#AE7552",-1,C[0]-178*.5-56,C[1]-178*K*.866],["soul","靈","#C9A24A",5,C[0]+292*.62,C[1]-292*K*.79]];
+  lay.forEach(([k,n,c,ii,x,y])=>{const on=sel===k||(k==="body"&&isP);
+    if(!TM)u+=`<button class="hot R lay${on?" on":""}" data-sel="${k}" style="left:${x}px;top:${y}px;--c:${c}"><span class="b" style="background:${c};border-color:#fff;width:46px;height:46px">${ii>=0?ic(ii,"#fff",24):mi("體態","#fff",26)}</span><span class="w" style="font-size:20px;background:${c};color:#fff">${n}</span></button>`;});
+  PARTS.forEach((p,i)=>{const [bx,by]=bpos(i);
+    if(!TM)u+=`<button class="hot R pt${sel===p.k?" on":""}${sel&&sel!==p.k&&isP?" dim":""}" data-sel="${p.k}" style="left:${bx}px;top:${by}px"><span class="b pb">${pimg(p.k,50)}</span><span class="w">${p.n}</span></button>`;});
+  u+=`<header class="hd"><div class="kick">維納斯的桌子</div><h1>身<i>・</i>心<i>・</i>靈</h1><p>身上每個部位，可以<b>養</b>，讓它本身變好；也可以<b>修</b>，讓它看起來不同。<br>兩種都分<b>自然</b>和<b>科技</b>。身和心顧好了，靈會自己散出來。</p></header>`;
+  u+=`<div class="panel">${table()}</div>`;
+  const fn=S.focus==="heart"?"心":S.focus==="style"||S.focus==="soul"?"靈":PI[S.focus]||"還沒選";
+  u+=`<div class="strip"><span>本月重點：<b style="color:#FFE7C2">${fn}</b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>`;
+  $("ui").innerHTML=u;
+  document.querySelectorAll("[data-sel]").forEach(b=>b.onclick=e=>{if(e.target.closest("a"))return;const k=b.dataset.sel;if(k==="heart"||k==="soul"){sel=k;render();openD(k);return;}if(k==="body"){sel=null;render();return;}sel=sel===k?null:k;render();});
+  document.querySelectorAll("[data-when]").forEach(b=>b.onclick=()=>{TM=b.dataset.when||null;render();syncURL();});
+  document.querySelectorAll("[data-tm]").forEach(b=>b.onclick=e=>{e.stopPropagation();TM=TM?null:"value";render();syncURL();});
+  document.querySelectorAll("[data-hov]").forEach(b=>{const c=()=>document.getElementById("td-"+b.dataset.hov);b.onmouseenter=()=>{const d=c();if(d){d.setAttribute("stroke","#3A2A24");d.setAttribute("stroke-width","4");}};b.onmouseleave=()=>{const d=c();if(d){d.setAttribute("stroke","#fff");d.setAttribute("stroke-width","1.5");}};});
+  document.querySelectorAll("[data-quad]").forEach(b=>b.onclick=e=>{e.stopPropagation();openQ();});
+  document.querySelectorAll("[data-tech]").forEach(b=>b.onclick=e=>{e.stopPropagation();openT(b.dataset.tech);});
+  document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.pick;if(S.pick[k])delete S.pick[k];else S.pick[k]=1;save();render();});
+}
+function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;return p[q].split("、").map(w=>{const lt=w.endsWith("*");w=w.replace("*","");const k=p.k+":"+q+":"+w;
+  let t=(q==="yt"||q==="xt")?tByName(w):null;if(t&&t.part!==p.k)t=null;
+  if(t){const st=TS[t.id]||0;return `<span class="it tk${lt?" lt":""}${st>=3?" on":""}${TM&&(TM==="value"?tier(t)==="best":t.when===TM)?" hl":""}" data-tech="${t.id}" title="${STAT[st]}">${w}${lt?"<sup>後</sup>":""}</span>`;}
+  return `<span class="it${lt?" lt":""}${S.pick[k]?" on":""}" data-pick="${k}"${lt?' title="正顎後"':""}>${w}${lt?"<sup>後</sup>":""}</span>`}).join("、");}
+function openQ(){  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div class="serif" style="font-size:28px">性價比四象限</div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:18px">✕</button></div>
+   <div style="font-size:13.5px;color:#8A6E4B">左上角最划算：花得少、美感提升多。「後」是正顎後才做。點一項看細節。</div>
+   ${quadSVG()}`;
+  $("detail").classList.add("on");$("x").onclick=closeD;
+  $("dbox").querySelectorAll("[data-qt]").forEach(b=>b.onclick=()=>openT(b.dataset.qt));}
+function syncURL(){try{const u=new URL(location.href);if(TM){u.searchParams.set("mode","tech");u.searchParams.set("when",TM);}else{u.searchParams.delete("mode");u.searchParams.delete("when");}u.searchParams.delete("item");history.replaceState(null,"",u);}catch(e){}}
+function openT(id){const t=TECH.find(x=>x.id===id);if(!t)return;const st=TS[id]||0,wn=WHEN.find(w=>w[0]===t.when);
+  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="serif" style="font-size:32px">${t.n}</div><div style="margin-top:6px"><span class="wchip">${PI[t.part]}・科技${t.kind==="yt"?"養":"修"}</span><span class="wchip">${wn[1]}</span>${t.c?`<span class="wchip" style="background:${TIER.find(x=>x[0]===tier(t))[3]};color:#fff">${TIER.find(x=>x[0]===tier(t))[1]}</span>`:""}${t.after?`<span class="wchip">正顎後</span>`:""}${t.nx?`<span class="wchip">下一個</span>`:""}${t.cost?`<span class="wchip" style="background:#F3EADF;color:#5A4228">${t.cost}</span>`:""}</div></div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:18px">✕</button></div>
+   ${t.why?`<div style="font-size:15px;line-height:1.75">${t.why}</div>`:""}
+   ${t.tip?`<div class="soft" style="line-height:1.7">${t.tip}</div>`:""}
+   <div style="font-size:13px;color:#8A6E4B">進度</div>
+   <div class="st5">${STAT.map((n,j)=>`<button class="${j===st?"on":""}" data-st="${j}">${n}</button>`).join("")}</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="lnk" href="tech.html">科技美筆記 →</a><a class="lnk" href="drawer.html">小抽屜 →</a></div>`;
+  $("detail").classList.add("on");$("x").onclick=closeD;
+  $("dbox").querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{TS[id]=+b.dataset.st;tSave(TS);openT(id);render();});}
+function table(){
+  const sub=r=>r.sub.split("、").map(w=>`<span class="tg">${mi(w,"#8A6E4B",18)}${w}${HINT[w]?`<em>${HINT[w]}</em>`:""}</span>`).join("");
+  const card=(r,k,c,ii,cap)=>{const nt=(S.note[k==="soul"?"style":k]||{})[today()];
+    return `<div class="cd${sel===k?" on":""}" data-sel="${k}" role="button" tabindex="0"><span class="ch"><span class="big" style="background:${c}">${ic(ii,"#fff",22)}</span><span><b>${r.n}</b><small>${cap}${k==="heart"?"・禱告、信念":""}</small></span><span class="nt">${nt?"今天寫了 ✓":"今天一句 ›"}</span></span>${k==="soul"?`<span class="six">${SIX.map(([g,se,fe,wh],j)=>`<span class="sx${j===5?" yi":""}"><b>${g}</b><i>${se}</i><em>${fe}</em><span>${wh}</span></span>`).join("")}</span>`:`<span class="tgs">${sub(r)}</span>`}<span class="how">${r.how}</span>${k==="heart"?`<span class="cl"><a class="ln" href="${E}temple/">禱告房 ›</a><a class="ln" href="${E}bedside/#all">Addiction ›</a></span>`:""}</div>`;};
+  return `<section class="sb">
+    
+    <div class="mx">
+      <div class="sh2"><span class="big" style="background:#AE7552">${mi("體態","#fff",22)}</span><span><b>身</b><small>摸得到的你</small></span></div><div class="mh n" style="grid-column:span 2">${qi("yn","#7A5A40",16)}自然</div><div class="mh t" style="grid-column:span 2">${qi("yt","#7A5A40",16)}科技<button class="ln hd2" data-tm style="cursor:pointer">${TM?"收起":"畫在身上"}</button><a class="ln" href="tech.html">筆記 ›</a></div>
+      <div class="ms n">養</div><div class="ms n">修</div><div class="ms t">養</div><div class="ms t">修</div>
+      ${PARTS.map(p=>`<div class="pr${sel===p.k?" on":""}" data-sel="${p.k}">${pimg(p.k,46)}<span><b>${p.n}</b><small class="cap${p.k==="shape"||p.k==="pose"?" nv":""}">${p.cap}</small></span></div><div class="c n${sel===p.k?" on":""}">${items(p,"yn")}${lk(p.k+":yn")}</div><div class="c n${sel===p.k?" on":""}">${items(p,"xn")}${lk(p.k+":xn")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"yt")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"xt")}</div>`).join("")}
+    </div></section>
+  <div class="two">${card(HEART,"heart","#7A3238",0,"你心裡的自己")}${card(SOUL,"soul","#C9A24A",5,"身和心散出去的")}</div>
+  <div class="rooms"><em>點一個方法＝我正在用</em></div>`;}
+function openD(k){const r=k==="heart"?HEART:SOUL,i=k==="heart"?0:5,nk=k==="heart"?"heart":"style";const note=(S.note[nk]||{})[today()]||"";
+  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;align-items:center;gap:12px"><span style="width:50px;height:50px;border-radius:50%;background:${i?"#C9A24A":"#7A3238"};display:grid;place-items:center">${ic(i,"#fff",26)}</span><span><div class="serif" style="font-size:32px">${r.n}</div><div style="font-size:13px;color:#8A6E4B">${i?"別人心裡的你":"你心裡的自己"}</div></span></div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:20px">×</button></div>
+   <div style="font-size:14px;color:#8E2B2B;font-weight:600">${r.how}</div>
+   <div style="font-size:14.5px;line-height:1.8">${r.why}</div>
+   <div class="soft"><b>軟</b>${r.soft}　<b style="margin-left:8px">性感</b>${r.sexy}</div>
+   <div style="font-size:13px;color:#8A6E4B">今天一句</div><textarea id="nt" placeholder="${i?"今天別人感受到的我……":"今天喜歡自己的一個地方……"}">${note.replace(/</g,"&lt;")}</textarea>
+   <div style="display:flex;flex-direction:column;gap:6px">${r.tasks.map(([t,pp],j)=>{const key=r.k+j+"@"+period(pp);return `<button class="chk${S.done[key]?" on":""}" data-key="${key}"><i></i><span>${t}</span><em>${pp}</em></button>`;}).join("")}</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap">${r.links.map(([t,u])=>`<a class="lnk" href="${u}">${t} →</a>`).join("")}</div>`;
+  $("detail").classList.add("on");
+  $("x").onclick=closeD;
+  $("dbox").querySelectorAll("[data-key]").forEach(b=>b.onclick=()=>{const kk=b.dataset.key;if(S.done[kk])delete S.done[kk];else S.done[kk]=1;save();openD(k);});
+  const nt=$("nt");nt.oninput=()=>{(S.note[nk]=S.note[nk]||{})[today()]=nt.value;save();};}
+function closeD(){$("detail").classList.remove("on");if(!TM)sel=null;render();}
+$("detail").addEventListener("click",e=>{if(e.target.id==="detail")closeD();});
+function fit(){const s=Math.min(innerWidth/1680,innerHeight/944);$("stage").style.transform=`scale(${s})`;$("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";}
+addEventListener("resize",fit);render();fit();
+if(QS.get("item"))openT(QS.get("item"));
+$("back").onclick=()=>{location.href="../scenes/?s=beauty";};
+</script>
+</body></html>

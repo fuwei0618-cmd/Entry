@@ -27,6 +27,9 @@ html,body{margin:0;height:100%;background:#1c1814;color:var(--ink);font-family:"
 .layer em{font-style:normal;font-size:12px;opacity:.85}
 .ogs{display:none;align-self:flex-start;border:1px solid var(--gold);background:var(--glass);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:13px;text-decoration:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .ogs.on{display:inline-block}
+.ogs.all{display:inline-block}
+.dot{position:fixed;right:6px;bottom:calc(env(safe-area-inset-bottom) + 6px);width:32px;height:32px;display:grid;place-items:center}
+.dot i{width:7px;height:7px;border-radius:50%;background:rgba(244,238,230,.4)}
 </style></head><body>
 <div id="bg"></div>
 <div id="view"><div id="stage">
@@ -96,8 +99,10 @@ html,body{margin:0;height:100%;background:#1c1814;color:var(--ink);font-family:"
     <small>點圖層打開或關掉，可以疊在一起看</small>
     <div id="layers"></div>
   </div>
+  <a class="ogs all" href="../venus/tech.html">科技美筆記 →</a>
   <a class="ogs" id="ogs" href="https://fuwei0618-cmd.github.io/OGS/">打開正顎手冊 →</a>
 </div>
+<a class="dot" href="../venus/drawer.html" aria-label="小抽屜"><i></i></a>
 
 <script>
 const NS="http://www.w3.org/2000/svg";

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F3EADF">
+<meta name="robots" content="noindex,nofollow">
+<title>小抽屜</title>
+<link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:#F3EADF;color:#3A2A24;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif}
+.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px;text-decoration:none}
+#lock{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+form{width:100%;max-width:340px;background:#FFFBF6;border-radius:22px;padding:24px;box-shadow:0 5px 18px rgba(60,40,20,.07);display:flex;flex-direction:column;gap:12px}
+input{font-size:16px;padding:12px 14px;border:1px solid #E2D3C2;border-radius:12px;background:#fff;color:#3A2A24;width:100%}
+button{font:inherit;font-size:15px;min-height:44px;border:0;border-radius:999px;background:#3A2A24;color:#FFE7C2;cursor:pointer}
+#msg{min-height:20px;margin:0;font-size:14px;color:#8E2B2B}
+#note{display:none;max-width:680px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 64px) 16px 40px}
+#note h1{font:700 34px "Songti TC","Noto Serif TC",serif;letter-spacing:.06em;margin:0 0 8px}
+.lead{font-size:16px;line-height:1.7;color:#5A4228;margin:0 0 18px}.lead b,li b,p b{color:#8E2B2B}
+section{background:#FFFBF6;border-radius:22px;padding:18px 22px;margin-bottom:16px;box-shadow:0 5px 18px rgba(60,40,20,.07)}
+h2{font:700 22px "Songti TC","Noto Serif TC",serif;margin:0 0 8px}
+p,li{font-size:15.5px;line-height:1.7}p{margin:0 0 8px}ul{margin:0;padding-left:20px}
+.w{margin-top:12px;background:#F8EFE3;border-radius:14px;padding:12px 16px}.w>b{color:#3A2A24}
+.src a{display:block;font-size:14px;color:#7A5A40;padding:5px 0}
+</style></head><body>
+<a class="back" href="./">← 維納斯的桌子</a>
+<div id="lock"><form id="f"><label for="p">密語</label><input id="p" type="password" autocomplete="current-password" required><p id="msg" role="status"></p><button>打開</button></form></div>
+<main id="note"></main>
+<script>
+const D={s:"c597xKQK8lpUA5ZBEayndg==",i:"c/+iYEQIzNwOKii2",c:"YQsDYjQDQDwCXnQ2ZbhKR6MF+LSJ6/Q0tt3uXT6ls1m34AiXX+sUKsBGGdVTKw+3x8JXUlkYnpm5qyQqR03Ie2im88MpQfH+8EXI99cTS3igF5yk6TxS5yvOTvFn4RiKlWfyytvQL1yaH4nRQYXhOdOHYWJeqWX1L798lsITHwJamUExK5G7bTYhM2ASBXGvoN+EckZomchIN05ixIK/CB1BVGeEGnATi/DTxxcQVaUGNGzmo41ZFcPgqYsH1RUYM/HqlKqFI9RujvZ50UoVTHSFb5Gnwl6MPnirCpslK8I6xj/suH3o3w6HLiILHIBYnvtoZGykNxhKkyNMZ2fxQXNPKzXxHXtCzqA3y2CAMR4PdnqiD1iAC5JYa/H/fWiz+1zZM24DoU4Kgw7HVdfC+OkiQ6/oHB7HYtS4bS9gBbkK11CzCVtixMwP6KvJiZP8gcir3tfBjj5L0M/rFavZqDeM4RrkNTSgQzXzbj1a8nbGA2f3pdLwJO1OZ543x4aNcDvsF3+lecEQVluDAsZTs0R4fIEnbYp1tJ/NWv3SXii/sQGEmcpzjsCqG11lWKZZvVDOI3pYCAeMzs6EEfGlmAXK+1zk1desBAXtN8Hnp3nUg8wZYMCY6PMvwai/NUdd+v1+eN+P3QwCJG7nYl3DHGplmQI+w2eGLF5YdyhD/PVeSktana5dHY67u3xrRJk1CkcC7ROYXsjNGhYQDiMmNkn+X+4htImAWHe3kFeVlm01Zb0ma5kBlbI1LtWcSitzz4t+hskuKqSR29VgXWSy2zeyiT6bpsirTqreLJd3/TUcBuzfBNpRPW57uRhKAqjF3R3ujmU1CQM1Lwf9istXt5oGGF8YxV65jhU4T/7WuRJCuOQWuJSk/mmpP8PUfWpCZBfJJ3LAoWvAdeEZsZEyzCXBFyVl9MgEJ6Cq/6cUiCAu8GqBUxpKpsGWcj2wA49dqPmvdG+IReIF3KQg0AtojS5r6JtVbLim6Iiu5KWf/fweVbyDS+SYN5SthICr4gCQeX3GXHnXC3Xi/F6kKZf9XO7uSLpJzHXuK1+WBncvUB82teqHe5HR4mRKJ7CM6qJvtR2xVJoXtthxysx6loRE/6ejjesrhIAitZOLcxJOtNcupShla2jFX83KDGqTWsgSBRTD8V6XCVphOqIo3affCHkfld2r1JcmGEtf3T77q0gtQYo/mwbKNGLV/fmOVfhU7+Mf6O4DvLjCzHj8jLvM8l286MAmkrxcXbNI4YGRMqaaT4g7Ci+bggLhc5yNzKNsK15CgmUdBoei95tsMAoFjfk8mfRRucqLO7vaWyNsnwF7keLzVQIO0GgYKtwrosGinJkTC8PzXXYRsPNEDJA0/JJkrL2GRgoYwigpGyhfyRy3AOWAeBc3dzf3M9X0Ok7uNAuq4ZdtmqJZkka8w/hi0YiAf2hmDwA6s4XOyjoG4dFVPr2+fnFvA+VUXn8Ax7Ok/oL6QpZ8Ff44turYDJfKtfvGhO0MgzVGzK0yZOVXX3m/CvPGa8TuhSAJG4qof/F+65ARyJAx8jpXqE4bAjiYV5xfOiuCujFF3hcLjk2WlSssWmSdNqrdar0vW2tVkYzdxzxyDRksOFP4UFTedh4ioB7S9PtPjzWuoI/w0hKYr6XSMFZgzYdJu0vf3bhcYQMQiiFyRu+l4EMwHpsTdfhq2pK6cvwWfux3hAehRcSYo5VSUE1DidCAuM0mOAHBbEaqsqaNlIMjLPpGNo0Hk2d7dKMtT4vkJPboqDJeKyxMeqkj8Ludz77DMlj9LFWTS0tSqsO7LQVi898wYHTd0dfpF4HXSvU1saelGEN1dBD6sIt8tuvKEdqjnGiTZXsTu1m7p7GbHuEQ2GGlnvv7MDfJDO9pmPjFXkaI5QVRY8eAzN2QW3ct5MQcaLKXwfJm21qVjC76d3WdzpWraiEtkqA736PvQLsg++LAPLmyytfvNxlQsuBahr2JFD2XmfteDfEXgUGc62NQvfgbkp5jt8WWM975FOggEf3DEUCMQmo/fPCb3Q8dVoDbYA8qZv+M3jiauOXLMLAPnVK3EtVjkN2EnJfx7DcynNZQjL9rfHIPVwypD4ojuYwWMJMDbbMvN+qKc7pfIMjba6p8SbYiPPGX6DxgCyxxE8cqj87GuCFDYaTAaqI9Lg3AJkJcnRRKI3CPhpoGZ9mt4x6xkfdYqdwdfD9yJCixnghQbQ2Q2IynIGz0LQQdAgHM2fikq09Tq8Ed5oosu3aLrBAyR3lA+RiQF3EVZxU189uh8f2dLxbBO9GIbWu2Pk+Chb6wxpS3m2WBEa5mCycMJ2xv5WPTcvUZ+rAXX5iL4uKe1ecDLnZYfhRQq9Px7Your2zQevEsXOiCB9x5urByb4OZ1nuhvO9aE6gND+NlcDUUBkedmKmCyBxjEefZMleq4dsQ54veHWZYDFby7kOCvvCN+piKwIJks6Rj4t3bULj1nuu3eGZe8oYdmsMTx9aUc1Nhccpwi7DKqS7YcC8hL27zfDpnQR47qjsMpeX5Y51SHo9qlsjgruzDUtxhkadooLvGyDibocob28lG93mEzJAWj5wAgLqtj+ZpWQGwPx67mVspPQtPd1tpk2ByB3TIV6kpEkisu39MCS6CH8S5Plsj8cBDWXFVTSb3F3bHNRZq6bKLNkRuVBFhTOV54kQU6WWUXtjS91dU8ibW0b7cQiDZaHR3hvf1NhcvqfHdbdC8n8PQPfn4tZKDD46sLX1ReVpJ1djXBmk2SUL23V5uok+SQ4201+abYeISid7K1qN01l14ZlYmSNhKFvRkKB+NRmpPG1XkhfC1wcNZhqhTyn6HZ1oOJetG4kSqFS4Ptp1OU2ldfzWBz8tB9xmRYVAqXfPogSQ9vVAAIeuMLuNu1x8x45sXgdEkZGU09pc2BiDs+xJkOeW9BbLFZFccYb6iCX6CVoFUMOgMOelXaEhhlEUhxEAf7tETpiDpHr4rlnNaXMkwPikfUm2uOb9n5HW1vo8WvzYmzUc9VZLxR1WJQIvFWmnJMdzOnDN9XE8wAGWz69GUFaR0b3x5EKXUf9cjw4usR9tvecBBUvEbGsw/+s/wzxja8NaSVidz8UMRQE7bn2cUqb11ATdT3fIx2kNa01Mp7tgHZpekSp2Nb/uULNSggXwWZSskz/qI0tqoMxrdPPSuRQgPB/DHDeLBLxeJUX+LTjIpDID7+n8ZCeNUrvJ69f39yof8CutXdKk6kKRC21nq+OiXbCQcwHcQCCSd1eSrwcwv1vfDoeXLIGDvfN6agtdVcvcLc/d72z21FZYe4PuB5bT8+vJQ3bnubsV4uWUc1HeA",n:600000};
+const u=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+document.getElementById("f").onsubmit=async e=>{e.preventDefault();const m=document.getElementById("msg");m.textContent="打開中……";
+ try{const pw=document.getElementById("p").value.trim().toLowerCase();
+  const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+  const a=await crypto.subtle.deriveKey({name:"PBKDF2",salt:u(D.s),iterations:D.n,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["decrypt"]);
+  const t=await crypto.subtle.decrypt({name:"AES-GCM",iv:u(D.i)},a,u(D.c));
+  const n=document.getElementById("note");n.innerHTML=new TextDecoder().decode(t);n.style.display="block";document.getElementById("lock").style.display="none";
+ }catch(x){m.textContent="密語不對，再試一次";}};
+</script>
+</body></html>

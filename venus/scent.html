@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F3EADF">
+<title>香氛筆記</title>
+<link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#F1E7DA;color:#3A2A24;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+#view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#sizer{position:relative;flex-shrink:0}
+#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:#F3EADF}
+.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px;text-decoration:none}
+.wrap{padding:26px 40px 0 170px}
+.serif,h1,h2,h3{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
+.hd{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.hd h1{margin:0;font-size:40px;letter-spacing:.06em}
+.k{display:flex;gap:10px;flex-wrap:wrap}
+.k span{background:#FFFBF6;border-radius:999px;padding:7px 16px;font:700 17px "Songti TC",serif;color:#8E2B2B;box-shadow:0 3px 10px rgba(60,40,20,.07)}
+.lead{margin:8px 0 18px;font-size:15.5px;color:#6A5246;line-height:1.6}
+.lead b{color:#8E2B2B}
+.cols{position:absolute;left:40px;right:40px;top:150px;bottom:24px;display:grid;grid-template-columns:1fr 1fr 1.02fr;gap:20px}
+.cols>div{display:flex;flex-direction:column;gap:16px;min-height:0}
+.cols .card{margin:0}.cols .grow{flex:1}
+.card{background:#FFFBF6;border-radius:22px;padding:15px 20px;box-shadow:0 5px 18px rgba(60,40,20,.07);margin-bottom:18px}
+.card h2{margin:0 0 4px;font-size:23px;display:flex;align-items:center;gap:10px}
+.card h2 em{font:600 12.5px "PingFang TC",sans-serif;font-style:normal;color:#8A5A20;background:#FFF1DC;border-radius:999px;padding:3px 10px;margin-left:auto}
+.card .sub{font-size:13px;color:#8A6E4B;margin-bottom:9px}
+p,li{font-size:14.5px;line-height:1.55}
+ul{margin:0;padding-left:20px}
+li b,p b{color:#8E2B2B}
+
+/* 時間線 */
+.tl{position:relative;padding-left:26px}
+.tl:before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:#E2D3C2}
+.st{position:relative;margin-bottom:12px}
+.st:last-child{margin-bottom:0}
+.st:before{content:"";position:absolute;left:-23px;top:6px;width:14px;height:14px;border-radius:50%;background:#FFFBF6;border:3px solid #C9A27A}
+.st.now:before{background:#8E2B2B;border-color:#8E2B2B}
+.st.big:before{background:#E2B867;border-color:#E2B867}
+.st h3{margin:0 0 6px;font-size:19px}
+.st h3 small{font:400 13px "PingFang TC",sans-serif;color:#8A6E4B;margin-left:8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:#F6EBDC;border-radius:999px;padding:4px 11px;font-size:14px}
+.tag.hi{background:#3A2A24;color:#FFE7C2}
+.tag i{font-style:normal;font-size:12px;color:#A0805A;margin-left:4px}
+.tag.hi i{color:#E8CFA0}
+
+/* 表 */
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{font:700 13px "PingFang TC",sans-serif;color:#8A6E4B;text-align:left;padding:6px 8px;border-bottom:1px solid #E2D3C2}
+td{padding:6px 8px;border-bottom:1px solid #F0E5D8;vertical-align:top;line-height:1.5}
+td:first-child{font-weight:700;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+.pill{display:inline-block;font-size:12px;border-radius:999px;padding:1px 8px;margin-left:4px;background:#F6EBDC;color:#7A5A40;white-space:nowrap}
+
+.vv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vv div{background:#F8EFE3;border-radius:12px;padding:7px 11px;font-size:13.5px;line-height:1.45;color:#5A4228}
+.vv b{display:block;font:700 16px "Songti TC",serif;color:#3A2A24}
+/* 設計師說明 */
+.brief{background:#3A2A24;color:#F7EADB;border-radius:18px;padding:14px 18px;margin-bottom:14px}
+.brief h3{margin:0 0 6px;font-size:17px;color:#FFE7C2}
+.brief li{font-size:14.5px}
+.brief li b{color:#FFE7C2}
+ol{margin:0;padding-left:22px}
+.note{margin-top:12px;border-top:1px dashed #E2D3C2;padding-top:10px;font-size:14px;color:#5A4228}
+
+html:has(body.narrow),body.narrow{overflow:auto;height:auto}
+body.narrow #view{position:static;display:block}
+body.narrow #sizer{width:auto!important;height:auto!important}
+body.narrow #stage{position:static;width:auto;height:auto;transform:none!important;overflow:visible}
+body.narrow .wrap{padding:calc(env(safe-area-inset-top) + 60px) 16px 30px}
+body.narrow .cols{position:static;grid-template-columns:1fr}
+body.narrow .hd h1{font-size:32px}body.narrow .k span{font-size:15px;padding:6px 12px}
+
+/* 香調 */
+.py{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.ly{border-radius:16px;padding:10px 14px}
+.ly h3{margin:0 0 6px;font-size:17px;display:flex;align-items:baseline;gap:8px}
+.ly h3 small{font:400 12.5px "PingFang TC",sans-serif;color:#8A6E4B}
+.ly.t{background:#FBF1DF}.ly.m{background:#F7E6E2}.ly.b{background:#EADBCB}
+.nt{display:flex;flex-wrap:wrap;gap:6px}
+.nt span{background:#FFFBF6;border-radius:999px;padding:3px 10px;font-size:13.5px}
+.nt span.x3{background:#3A2A24;color:#FFE7C2;font-weight:600}
+.nt span i{font-style:normal;font-size:11.5px;opacity:.7;margin-left:3px}
+.id{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px;margin:2px 0 10px}
+.id dt{color:#8A6E4B}.id dd{margin:0;font-weight:600}
+/* 步驟 */
+.ck{display:flex;flex-direction:column;gap:6px}
+.ck label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;line-height:1.45;cursor:pointer;padding:6px 10px;border-radius:12px;background:#F8EFE3}
+.ck input{margin-top:3px;accent-color:#8E2B2B;width:16px;height:16px;flex:none}
+.ck label.done{opacity:.5;text-decoration:line-through}
+.ck small{display:block;color:#8A6E4B;font-size:12.5px;text-decoration:none}
+.msg{background:#3A2A24;color:#F7EADB;border-radius:16px;padding:12px 16px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;position:relative;margin-top:10px}
+.cp{position:absolute;right:10px;top:10px;all:unset;cursor:pointer;background:#FFE7C2;color:#3A2A24;border-radius:999px;padding:3px 12px;font-size:12.5px;font-weight:600;position:absolute;right:10px;top:10px}
+.big{white-space:nowrap;font:700 28px "Songti TC",serif;color:#8E2B2B}
+.ln2{color:#8E2B2B;font-weight:600;text-decoration:none}
+</style></head><body>
+<a class="back" href="./">← 維納斯的桌子</a>
+<div id="view"><div id="sizer"><div id="stage"><div class="wrap">
+  <div class="hd"><h1>香氛筆記</h1><div class="k"><span>溫暖柔軟的木質麝香</span><span>靠近才聞得到</span></div></div>
+  <div class="lead">我在格拉斯的 Galimard 調的那支。主角在後調：<b>檀香、麝香、雪松各三份</b>；前面是水果茶的清爽，中間是鈴蘭花香。</div>
+
+  <div class="cols">
+    <!-- 左：我的香水 -->
+    <div>
+      <div class="card">
+        <h2>我的香水<em>Galimard・格拉斯</em></h2>
+        <dl class="id">
+          <dt>名字</dt><dd>Fuwei</dd>
+          <dt>製作日期</dt><dd>2016 年 7 月 13 日</dd>
+          <dt>配方編號</dt><dd>108415</dd>
+        </dl>
+        <div class="py">
+          <div class="ly t"><h3>前調<small>剛噴的前幾分鐘・清爽</small></h3>
+            <div class="nt"><span>芒果<i>1</i></span><span>柚子<i>1</i></span><span>英式茶<i>1</i></span><span>綠茶<i>1</i></span><span>荔枝<i>1</i></span></div></div>
+          <div class="ly m"><h3>中調<small>半小時後・花和果</small></h3>
+            <div class="nt"><span>鈴蘭<i>1</i></span><span>綜合水果<i>1</i></span><span>萊姆<i>1</i></span><span>石榴花<i>1</i></span><span>竹子<i>1</i></span></div></div>
+          <div class="ly b"><h3>後調<small>留在皮膚上最久・這支的主角</small></h3>
+            <div class="nt"><span class="x3">檀香<i>3</i></span><span class="x3">麝香<i>3</i></span><span class="x3">雪松木<i>3</i></span><span>香草<i>1</i></span></div></div>
+        </div>
+        <div class="note"><b>怎麼噴比較持久</b>：先擦乳液再噴；噴在頸後、手腕內側、頭髮和衣服上。香水比淡香精濃，留香比較久。</div>
+      </div>
+      <div class="card grow">
+        <h2>還沒到之前</h2>
+        <div style="font-size:14px;line-height:1.55"><b style="color:#8E2B2B">Maison Margiela 慵懶週末</b>：鈴蘭、白麝香，乾淨柔軟。小樹購 100ml 約 2,599 元，也有 10ml。先到百貨專櫃噴在手腕上，等兩小時再聞。</div>
+        <div style="font-size:13px;color:#8A6E4B;margin-top:6px">其他可以試聞：Byredo 莫哈維之魂、Le Labo 檀香 33、Diptyque 譚道、Hermès 尼羅河花園</div>
+      </div>
+    </div>
+
+    <!-- 中：這次的訂單 -->
+    <div>
+      <div class="card grow">
+        <h2>這次訂 500ml<em>補充罐</em></h2>
+        <div style="display:flex;flex-direction:column;gap:2px;margin:2px 0 10px"><span class="big">約 8,100～8,500 元</span><span style="font-size:13.5px;color:#8A6E4B">每 1ml 約 16 元（100ml 每 1ml 約 34 元）</span></div>
+        <div class="ck" id="ck"></div>
+        <div class="msg" id="msg"><button class="cp" id="cp">複製</button>您好～想請您幫我代訂法國 Galimard 的香水 🙏
+
+・官網「你的創作」頁面，用配方編號下單
+・配方編號：108415（2016 年 7 月 13 日製作）
+・品項：香水 500 毫升補充裝（159 歐元）一罐
+
+想請問：
+1. 商品費、服務費、運費大概多少？
+2. 500 毫升的罐子寄回台灣沒問題嗎？
+3. 從下單到收到大概多久？
+
+謝謝您！</div>
+      </div>
+    </div>
+
+    <!-- 右：參考 -->
+    <div>
+      <div class="card">
+        <h2>代購</h2>
+        <dl class="id">
+          <dt>人在</dt><dd>巴黎，直寄台灣</dd>
+          <dt>LINE</dt><dd>findmeinfrance</dd>
+          <dt>IG</dt><dd><a class="ln2" href="https://www.instagram.com/paris_buyandsend/">paris_buyandsend ›</a></dd>
+          <dt>付款</dt><dd>台灣銀行帳戶轉台幣</dd>
+          <dt>流程</dt><dd style="font-weight:400">先付商品費 → 買到後依包裹報運費 → 付運費和服務費 → 寄出</dd>
+        </dl>
+        <div style="font-size:13px;color:#8A6E4B">之前問過英國的代購：商品費加 1.5% 刷卡手續費、匯率 38；服務費兩成，最低 20 歐元；一公斤內運費 500 元。比巴黎多一筆法國寄英國的運費。</div>
+      </div>
+      <div class="card grow">
+        <h2>500ml 可以用多久</h2>
+        <table>
+          <tr><th>每天</th><th>100ml</th><th>500ml</th></tr>
+          <tr><td>2～4 下</td><td>八個月～一年多</td><td>三年半～七年</td></tr>
+          <tr><td>6～8 下</td><td>四～五個半月</td><td>一年半～兩年多</td></tr>
+          <tr><td>10 下以上</td><td>三個月</td><td>一年多</td></tr>
+        </table>
+        <div class="note" style="margin-top:8px">開封後大約三到五年會慢慢變味。<b>收到就分裝成兩三瓶，裝到幾乎全滿</b>，放陰涼的抽屜，平常只開一瓶。</div>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+<script>
+const KEY="origina-scent-v1";let D={};try{D=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
+const STEPS=[["msg","傳訊息給代購問報價","用下面那段，複製貼到 LINE"],["pay1","付商品費","台灣銀行帳戶轉台幣"],["pay2","收到報價，付運費和服務費",""],["get","收到香水",""],["bottle","買分裝瓶，分裝成兩三瓶","一個 100ml 噴瓶、一兩個隨身小瓶"]];
+function draw(){document.getElementById("ck").innerHTML=STEPS.map(([k,t,s])=>`<label class="${D[k]?"done":""}"><input type="checkbox" data-k="${k}" ${D[k]?"checked":""}><span>${t}${s?`<small>${s}</small>`:""}</span></label>`).join("");
+document.querySelectorAll("#ck input").forEach(i=>i.onchange=()=>{D[i.dataset.k]=i.checked;try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){};draw();});}
+draw();
+document.getElementById("cp").onclick=()=>{const t=document.getElementById("msg").innerText.replace(/^複製\s*/,"").replace(/^已複製\s*/,"");navigator.clipboard&&navigator.clipboard.writeText(t);const b=document.getElementById("cp");b.textContent="已複製";setTimeout(()=>b.textContent="複製",1500);};
+function fit(){const nar=innerWidth/innerHeight<1.25||innerWidth<760;document.body.classList.toggle("narrow",nar);const st=document.getElementById("stage"),sz=document.getElementById("sizer");if(nar){st.style.transform="";return;}const s=Math.min(innerWidth/1680,innerHeight/944);st.style.transform=`scale(${s})`;sz.style.width=1680*s+"px";sz.style.height=944*s+"px";}
+addEventListener("resize",fit);fit();
+</script>
+</body></html>

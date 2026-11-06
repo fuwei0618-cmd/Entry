@@ -113,6 +113,24 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 #dbox{width:600px;max-height:840px;overflow:auto;border-radius:22px;background:#FFFAF4;padding:24px 26px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(30,20,14,.3)}
 .strip{position:absolute;bottom:24px;border-radius:999px;background:rgba(40,28,22,.86);color:#FFF6EC;padding:9px 20px;display:flex;gap:16px;white-space:nowrap;font-size:13px}
 .back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px}
+.tmseg{position:absolute;left:150px;top:22px;display:flex;align-items:center;gap:6px;background:rgba(255,251,246,.92);border-radius:999px;padding:5px;box-shadow:0 4px 16px rgba(40,20,10,.14)}
+.tmseg button{border:0;background:none;border-radius:999px;padding:7px 14px;font:700 15px "Songti TC","Noto Serif TC",serif;color:#7A5A40}
+.tmseg button.on{background:#3A2A24;color:#FFE7C2}
+.tmseg button.x{font:400 13px "PingFang TC",sans-serif;color:#8A6E4B;padding:7px 10px}
+.tmseg b{font:700 13px "PingFang TC",sans-serif;color:#AE7552;letter-spacing:.2em;padding:0 6px 0 10px}
+.tl2{position:absolute;transform:translateY(-50%);border:1px solid #E2CDB6;background:rgba(255,251,246,.95);border-radius:999px;padding:4px 12px 4px 10px;display:flex;align-items:center;gap:7px;font:700 15px "Songti TC","Noto Serif TC",serif;color:#3A2A24;white-space:nowrap;box-shadow:0 2px 8px rgba(40,20,10,.14)}
+.tl2.L{transform:translate(-100%,-50%);flex-direction:row-reverse;padding:4px 10px 4px 12px}
+.tl2 i{width:9px;height:9px;border-radius:50%;background:#C9A27A;flex:none}
+.tl2 em{font:400 11.5px "PingFang TC",sans-serif;font-style:normal;color:#8A6E4B}
+.tl2.d{background:#3A2A24;color:#FFE7C2;border-color:#3A2A24}.tl2.d em{color:#E8CFA0}.tl2.d i{background:#E2B867}
+.tl2:hover{border-color:#8E2B2B}
+.it.tk{text-decoration:underline dotted #C9A27A;text-underline-offset:4px}
+.it.hl{background:#FFE2B8}
+.it.on.hl{background:#3A2A24}
+.st5{display:flex;gap:6px;flex-wrap:wrap}
+.st5 button{border:1px solid #E2D3C2;background:#fff;border-radius:999px;padding:7px 14px;font-size:14px;color:#5A4228}
+.st5 button.on{background:#3A2A24;color:#FFE7C2;border-color:#3A2A24}
+.wchip{display:inline-block;font-size:12.5px;border-radius:999px;padding:3px 10px;background:#FFF1DC;color:#8A5A20;margin-right:6px}
 @keyframes beat{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.12);opacity:1}}
 .beat{transform-box:fill-box;transform-origin:center;animation:beat 3.2s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.beat{animation:none}}
@@ -125,6 +143,7 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
   <div id="ui"></div>
   <div id="detail"><div id="dbox"></div></div>
 </div></div></div>
+<script src="tech-data.js"></script>
 <script>
 const E="../",GH="https://fuwei0618-cmd.github.io/";
 const MI={
@@ -220,6 +239,10 @@ function period(p){const d=new Date();const y=d.getFullYear(),m=d.getMonth()+1;
 const C=[295,455],K=1.62;
 const ell=(rx)=>`M${C[0]-rx} ${C[1]} a${rx} ${rx*K} 0 1 0 ${2*rx} 0 a${rx} ${rx*K} 0 1 0 ${-2*rx} 0`;
 let sel=null;
+const QS=new URLSearchParams(location.search);
+let TM=QS.get("mode")==="tech"?(QS.get("when")||"now"):null;
+let TS=tLoad();
+const PT={};TECH.forEach(t=>PT[t.part]=1);
 function render(){
   const isP=sel&&PI[sel];
   // 三層：心（胸口的光）、身（貼著身體的實心層）、靈（外圍的光暈）
@@ -231,25 +254,53 @@ function render(){
   g+=`<circle class="beat" cx="${C[0]}" cy="${C[1]}" r="${sel==="heart"?70:52}" fill="url(#gh)"/><path d="M295 466s-11-7-11-15a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z" fill="#fff"/>`;
   const ANG=[-62,-31,0,31,62],RB=178;
   const bpos=i=>{const a=ANG[i]*Math.PI/180;return [C[0]+RB*Math.cos(a),C[1]+RB*K*Math.sin(a)];};
-  PARTS.forEach((p,i)=>{const [x,y]=p.pt,[bx,by]=bpos(i),on=sel===p.k;p.by=by;
+  if(!TM)PARTS.forEach((p,i)=>{const [x,y]=p.pt,[bx,by]=bpos(i),on=sel===p.k;p.by=by;
     g+=`<path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/><path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="${on?2.4:1.4}"/><circle cx="${x}" cy="${y}" r="${on?7:5}" fill="#fff" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="2"/>`;});
-  $("sv").innerHTML=g;
   let u="";
+  if(TM){const act=TECH.filter(t=>t.when===TM&&(!sel||!PI[sel]||t.part===sel));
+    TECH.forEach(t=>{if(act.includes(t))return;g+=`<circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="3" fill="#fff" stroke="#AE7552" stroke-width="1.2" opacity=".55"/>`;});
+    const side={L:[],R:[]};act.forEach(t=>side[t.pt[0]<290?"L":"R"].push(t));
+    ["L","R"].forEach(sd=>{let prev=-99;side[sd].sort((a,b)=>a.pt[1]-b.pt[1]);
+      const ys=[];side[sd].forEach((t,j)=>{ys.push(Math.max(t.pt[1],j?ys[j-1]+38:70));});
+      const ov=ys.length?ys[ys.length-1]-905:0;if(ov>0)for(let j=ys.length-1;j>=0;j--){ys[j]-=ov;if(j&&ys[j-1]>ys[j]-38)ys[j-1]=ys[j]-38;}
+      const shift=ys.length>2?Math.min(ys.reduce((a,b)=>a+b,0)/ys.length-side[sd].reduce((a,t)=>a+t.pt[1],0)/ys.length,ys[0]-70):0;
+      side[sd].forEach((t,j)=>{const ly=ys[j]-shift;
+        const lx=sd==="L"?210:378,st=TS[t.id]||0,d=st>=3;
+        g+=`<path d="M${t.pt[0]} ${t.pt[1]} L${sd==="L"?lx+6:lx-6} ${ly}" stroke="#fff" stroke-width="3" opacity=".7"/><path d="M${t.pt[0]} ${t.pt[1]} L${sd==="L"?lx+6:lx-6} ${ly}" stroke="#8E2B2B" stroke-width="1.3"/><circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="5.5" fill="${d?"#3A2A24":"#fff"}" stroke="#8E2B2B" stroke-width="2.2"/>`;
+        u+=`<button class="tl2 ${sd}${d?" d":""}" data-tech="${t.id}" style="left:${lx}px;top:${ly}px"><i></i>${t.n}<em>${STAT[st]}</em></button>`;});});
+    u+=`<div class="tmseg"><b>科技</b>${WHEN.map(([k,n])=>`<button class="${TM===k?"on":""}" data-when="${k}">${n}</button>`).join("")}<button class="x" data-when="">收起 ✕</button></div>`;}
+  $("sv").innerHTML=g;
   // 三層的名牌：沿著同一條斜線往外
   const lay=[["heart","心","#7A3238",0,C[0]+40,C[1]-70],["body","身","#AE7552",-1,C[0]-178*.5-56,C[1]-178*K*.866],["soul","靈","#C9A24A",5,C[0]+292*.62,C[1]-292*K*.79]];
   lay.forEach(([k,n,c,ii,x,y])=>{const on=sel===k||(k==="body"&&isP);
-    u+=`<button class="hot R lay${on?" on":""}" data-sel="${k}" style="left:${x}px;top:${y}px;--c:${c}"><span class="b" style="background:${c};border-color:#fff;width:46px;height:46px">${ii>=0?ic(ii,"#fff",24):mi("體態","#fff",26)}</span><span class="w" style="font-size:20px;background:${c};color:#fff">${n}</span></button>`;});
+    if(!TM)u+=`<button class="hot R lay${on?" on":""}" data-sel="${k}" style="left:${x}px;top:${y}px;--c:${c}"><span class="b" style="background:${c};border-color:#fff;width:46px;height:46px">${ii>=0?ic(ii,"#fff",24):mi("體態","#fff",26)}</span><span class="w" style="font-size:20px;background:${c};color:#fff">${n}</span></button>`;});
   PARTS.forEach((p,i)=>{const [bx,by]=bpos(i);
-    u+=`<button class="hot R pt${sel===p.k?" on":""}${sel&&sel!==p.k&&isP?" dim":""}" data-sel="${p.k}" style="left:${bx}px;top:${by}px"><span class="b pb">${pimg(p.k,50)}</span><span class="w">${p.n}</span></button>`;});
+    if(!TM)u+=`<button class="hot R pt${sel===p.k?" on":""}${sel&&sel!==p.k&&isP?" dim":""}" data-sel="${p.k}" style="left:${bx}px;top:${by}px"><span class="b pb">${pimg(p.k,50)}</span><span class="w">${p.n}</span></button>`;});
   u+=`<header class="hd"><div class="kick">維納斯的桌子</div><h1>身<i>・</i>心<i>・</i>靈</h1><p>身上每個部位，可以<b>養</b>，讓它本身變好；也可以<b>修</b>，讓它看起來不同。<br>兩種都分<b>自然</b>和<b>科技</b>。身和心顧好了，靈會自己散出來。</p></header>`;
   u+=`<div class="panel">${table()}</div>`;
   const fn=S.focus==="heart"?"心":S.focus==="style"||S.focus==="soul"?"靈":PI[S.focus]||"還沒選";
   u+=`<div class="strip"><span>本月重點：<b style="color:#FFE7C2">${fn}</b></span><span style="opacity:.85">每月預算 4,500＋醫美基金 3,000</span></div>`;
   $("ui").innerHTML=u;
   document.querySelectorAll("[data-sel]").forEach(b=>b.onclick=e=>{if(e.target.closest("a"))return;const k=b.dataset.sel;if(k==="heart"||k==="soul"){sel=k;render();openD(k);return;}if(k==="body"){sel=null;render();return;}sel=sel===k?null:k;render();});
+  document.querySelectorAll("[data-when]").forEach(b=>b.onclick=()=>{TM=b.dataset.when||null;render();syncURL();});
+  document.querySelectorAll("[data-tm]").forEach(b=>b.onclick=e=>{e.stopPropagation();TM=TM?null:"now";render();syncURL();});
+  document.querySelectorAll("[data-tech]").forEach(b=>b.onclick=e=>{e.stopPropagation();openT(b.dataset.tech);});
   document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.pick;if(S.pick[k])delete S.pick[k];else S.pick[k]=1;save();render();});
 }
-function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;return p[q].split("、").map(w=>{const lt=w.endsWith("*");w=w.replace("*","");const k=p.k+":"+q+":"+w;return `<span class="it${lt?" lt":""}${S.pick[k]?" on":""}" data-pick="${k}"${lt?' title="正顎後"':""}>${w}${lt?"<sup>後</sup>":""}</span>`}).join("、");}
+function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;return p[q].split("、").map(w=>{const lt=w.endsWith("*");w=w.replace("*","");const k=p.k+":"+q+":"+w;
+  let t=(q==="yt"||q==="xt")?tByName(w):null;if(t&&t.part!==p.k)t=null;
+  if(t){const st=TS[t.id]||0;return `<span class="it tk${lt?" lt":""}${st>=3?" on":""}${TM&&t.when===TM?" hl":""}" data-tech="${t.id}" title="${STAT[st]}">${w}${lt?"<sup>後</sup>":""}</span>`;}
+  return `<span class="it${lt?" lt":""}${S.pick[k]?" on":""}" data-pick="${k}"${lt?' title="正顎後"':""}>${w}${lt?"<sup>後</sup>":""}</span>`}).join("、");}
+function syncURL(){try{const u=new URL(location.href);if(TM){u.searchParams.set("mode","tech");u.searchParams.set("when",TM);}else{u.searchParams.delete("mode");u.searchParams.delete("when");}u.searchParams.delete("item");history.replaceState(null,"",u);}catch(e){}}
+function openT(id){const t=TECH.find(x=>x.id===id);if(!t)return;const st=TS[id]||0,wn=WHEN.find(w=>w[0]===t.when);
+  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="serif" style="font-size:32px">${t.n}</div><div style="margin-top:6px"><span class="wchip">${PI[t.part]}・科技${t.kind==="yt"?"養":"修"}</span><span class="wchip">${wn[1]}</span>${t.cost?`<span class="wchip" style="background:#F3EADF;color:#5A4228">${t.cost}</span>`:""}</div></div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:18px">✕</button></div>
+   ${t.why?`<div style="font-size:15px;line-height:1.75">${t.why}</div>`:""}
+   ${t.tip?`<div class="soft" style="line-height:1.7">${t.tip}</div>`:""}
+   <div style="font-size:13px;color:#8A6E4B">進度</div>
+   <div class="st5">${STAT.map((n,j)=>`<button class="${j===st?"on":""}" data-st="${j}">${n}</button>`).join("")}</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="lnk" href="tech.html">科技美筆記 →</a><a class="lnk" href="drawer.html">小抽屜 →</a></div>`;
+  $("detail").classList.add("on");$("x").onclick=closeD;
+  $("dbox").querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{TS[id]=+b.dataset.st;tSave(TS);openT(id);render();});}
 function table(){
   const sub=r=>r.sub.split("、").map(w=>`<span class="tg">${mi(w,"#8A6E4B",18)}${w}${HINT[w]?`<em>${HINT[w]}</em>`:""}</span>`).join("");
   const card=(r,k,c,ii,cap)=>{const nt=(S.note[k==="soul"?"style":k]||{})[today()];
@@ -257,7 +308,7 @@ function table(){
   return `<section class="sb">
     
     <div class="mx">
-      <div class="sh2"><span class="big" style="background:#AE7552">${mi("體態","#fff",22)}</span><span><b>身</b><small>摸得到的你</small></span></div><div class="mh n" style="grid-column:span 2">${qi("yn","#7A5A40",16)}自然</div><div class="mh t" style="grid-column:span 2">${qi("yt","#7A5A40",16)}科技<a class="ln hd2" href="${E}body/?layer=m">保養廠 ›</a></div>
+      <div class="sh2"><span class="big" style="background:#AE7552">${mi("體態","#fff",22)}</span><span><b>身</b><small>摸得到的你</small></span></div><div class="mh n" style="grid-column:span 2">${qi("yn","#7A5A40",16)}自然</div><div class="mh t" style="grid-column:span 2">${qi("yt","#7A5A40",16)}科技<button class="ln hd2" data-tm style="cursor:pointer">${TM?"收起":"畫在身上"}</button><a class="ln" href="tech.html">筆記 ›</a></div>
       <div class="ms n">養</div><div class="ms n">修</div><div class="ms t">養</div><div class="ms t">修</div>
       ${PARTS.map(p=>`<div class="pr${sel===p.k?" on":""}" data-sel="${p.k}">${pimg(p.k,46)}<span><b>${p.n}</b><small class="cap${p.k==="shape"||p.k==="pose"?" nv":""}">${p.cap}</small></span></div><div class="c n${sel===p.k?" on":""}">${items(p,"yn")}${lk(p.k+":yn")}</div><div class="c n${sel===p.k?" on":""}">${items(p,"xn")}${lk(p.k+":xn")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"yt")}</div><div class="c t${sel===p.k?" on":""}">${items(p,"xt")}</div>`).join("")}
     </div></section>
@@ -275,10 +326,11 @@ function openD(k){const r=k==="heart"?HEART:SOUL,i=k==="heart"?0:5,nk=k==="heart
   $("x").onclick=closeD;
   $("dbox").querySelectorAll("[data-key]").forEach(b=>b.onclick=()=>{const kk=b.dataset.key;if(S.done[kk])delete S.done[kk];else S.done[kk]=1;save();openD(k);});
   const nt=$("nt");nt.oninput=()=>{(S.note[nk]=S.note[nk]||{})[today()]=nt.value;save();};}
-function closeD(){$("detail").classList.remove("on");sel=null;render();}
+function closeD(){$("detail").classList.remove("on");if(!TM)sel=null;render();}
 $("detail").addEventListener("click",e=>{if(e.target.id==="detail")closeD();});
 function fit(){const s=Math.min(innerWidth/1680,innerHeight/944);$("stage").style.transform=`scale(${s})`;$("sizer").style.width=1680*s+"px";$("sizer").style.height=944*s+"px";}
 addEventListener("resize",fit);render();fit();
+if(QS.get("item"))openT(QS.get("item"));
 $("back").onclick=()=>{location.href="../scenes/?s=beauty";};
 </script>
 </body></html>

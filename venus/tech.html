@@ -45,6 +45,8 @@ li b,p b{color:#8E2B2B}
 .tag.hi{background:#3A2A24;color:#FFE7C2}
 .tag i{font-style:normal;font-size:12px;color:#A0805A;margin-left:4px}
 .tag.hi i{color:#E8CFA0}
+a.tag{text-decoration:none;color:inherit}a.tag:hover{outline:2px solid #E2B867}
+.tag.ok{background:#E9DCC8;color:#7A5A40}.tag.ok:before{content:"✓ ";color:#8E2B2B}
 
 /* 表 */
 table{width:100%;border-collapse:collapse;font-size:14.5px}
@@ -73,7 +75,7 @@ body.narrow .wrap{padding:calc(env(safe-area-inset-top) + 60px) 16px 30px}
 body.narrow .cols{position:static;grid-template-columns:1fr}
 body.narrow .hd h1{font-size:32px}body.narrow .k span{font-size:15px;padding:6px 12px}
 </style></head><body>
-<a class="back" href="../body/?layer=m">← 保養廠</a>
+<a class="back" href="./?mode=tech">← 維納斯的桌子</a>
 <div id="view"><div id="sizer"><div id="stage"><div class="wrap">
   <div class="hd"><h1>科技美筆記</h1><div class="k"><span>由深到淺</span><span>臉等正顎</span><span>先挑性價比</span></div></div>
   <div class="lead">骨架先，再來是肉和脂肪，然後是皮膚，最後才是表面的妝感。<b>臉的結構一律等正顎做完</b>，不然做了可能要重來。先挑「費用低、每天看得到、能省時間」的。</div>
@@ -83,16 +85,16 @@ body.narrow .hd h1{font-size:32px}body.narrow .k span{font-size:15px;padding:6px
     <div>
       <div class="card">
         <h2>順序</h2>
-        <div class="sub">深色是現在就可以做的</div>
+        <div class="sub">點一項，到維納斯的桌子看它在身上哪裡、改進度</div>
         <div class="tl">
           <div class="st now"><h3>現在<small>每天、費用低</small></h3>
-            <div class="tags"><span class="tag hi">防曬＋A醇</span><span class="tag hi">燙髮</span><span class="tag hi">頭皮治療</span><span class="tag hi">種睫毛</span><span class="tag hi">霧眉<i>六千到一萬</i></span><span class="tag">霧唇<i>先問正顎醫師</i></span><span class="tag">皮膚療程<i>依瑕疵挑</i></span><span class="tag">腋下除臭</span></div></div>
-          <div class="st big"><h3>下一個<small>腹部抽脂</small></h3>
+            <div class="tags" data-w="now"></div></div>
+          <div class="st big"><h3 style="display:flex;align-items:center;gap:10px">下一個<span class="tags" data-w="next"></span></h3>
             <p style="margin:0">改變的是脂肪的<b>量</b>，形狀還是要靠運動和體態雕。跟正顎的恢復期錯開，先找醫師評估。</p></div>
-          <div class="st big"><h3>正顎</h3>
+          <div class="st big"><h3 style="display:flex;align-items:center;gap:10px">正顎<span class="tags" data-w="ojaw"></span></h3>
             <p style="margin:0">如果那時在吃治療掉髮的藥，記得告訴醫師，它會影響血壓。</p></div>
           <div class="st"><h3>正顎後<small>新臉型穩定再評估</small></h3>
-            <div class="tags"><span class="tag">臥蠶</span><span class="tag">眼線</span><span class="tag">黑眼圈、眼袋</span><span class="tag">拉皮</span><span class="tag">霧唇<i>若要改唇形</i></span></div></div>
+            <div class="tags" data-w="after"></div></div>
         </div>
       </div>
       <div class="card grow">
@@ -167,7 +169,10 @@ body.narrow .hd h1{font-size:32px}body.narrow .k span{font-size:15px;padding:6px
     </div>
   </div>
 </div></div></div></div>
+<script src="tech-data.js"></script>
 <script>
+(function(){const S=tLoad();document.querySelectorAll("[data-w]").forEach(box=>{const w=box.dataset.w;
+  box.innerHTML=TECH.filter(t=>t.when===w).map(t=>{const st=S[t.id]||0;return `<a class="tag${st>=3?" ok":w==="now"?" hi":""}" href="./?mode=tech&when=${w}&item=${t.id}">${t.n}${st&&st<3?`<i>${STAT[st]}</i>`:""}</a>`;}).join("");});})();
 function fit(){const nar=innerWidth/innerHeight<1.25||innerWidth<760;document.body.classList.toggle("narrow",nar);const st=document.getElementById("stage"),sz=document.getElementById("sizer");if(nar){st.style.transform="";return;}const s=Math.min(innerWidth/1680,innerHeight/944);st.style.transform=`scale(${s})`;sz.style.width=1680*s+"px";sz.style.height=944*s+"px";}
 addEventListener("resize",fit);fit();
 </script>

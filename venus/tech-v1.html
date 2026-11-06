@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F3EADF">
+<title>科技美筆記</title>
+<link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#F1E7DA;color:#3A2A24;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+#view{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#sizer{position:relative;flex-shrink:0}
+#stage{position:absolute;left:0;top:0;width:1680px;height:944px;transform-origin:0 0;overflow:hidden;background:#F3EADF}
+.back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px;text-decoration:none}
+.wrap{padding:26px 40px 0 170px}
+.serif,h1,h2,h3{font-family:"Songti TC","Noto Serif TC",serif;font-weight:700}
+.hd{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.hd h1{margin:0;font-size:40px;letter-spacing:.06em}
+.k{display:flex;gap:10px;flex-wrap:wrap}
+.k span{background:#FFFBF6;border-radius:999px;padding:7px 16px;font:700 17px "Songti TC",serif;color:#8E2B2B;box-shadow:0 3px 10px rgba(60,40,20,.07)}
+.lead{margin:8px 0 18px;font-size:15.5px;color:#6A5246;line-height:1.6}
+.lead b{color:#8E2B2B}
+.cols{position:absolute;left:40px;right:40px;top:150px;bottom:24px;display:grid;grid-template-columns:1fr 1fr 1.02fr;gap:20px}
+.cols>div{display:flex;flex-direction:column;gap:16px;min-height:0}
+.cols .card{margin:0}.cols .grow{flex:1}
+.card{background:#FFFBF6;border-radius:22px;padding:15px 20px;box-shadow:0 5px 18px rgba(60,40,20,.07);margin-bottom:18px}
+.card h2{margin:0 0 4px;font-size:23px;display:flex;align-items:center;gap:10px}
+.card h2 em{font:600 12.5px "PingFang TC",sans-serif;font-style:normal;color:#8A5A20;background:#FFF1DC;border-radius:999px;padding:3px 10px;margin-left:auto}
+.card .sub{font-size:13px;color:#8A6E4B;margin-bottom:9px}
+p,li{font-size:14.5px;line-height:1.55}
+ul{margin:0;padding-left:20px}
+li b,p b{color:#8E2B2B}
+
+/* 時間線 */
+.tl{position:relative;padding-left:26px}
+.tl:before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:#E2D3C2}
+.st{position:relative;margin-bottom:12px}
+.st:last-child{margin-bottom:0}
+.st:before{content:"";position:absolute;left:-23px;top:6px;width:14px;height:14px;border-radius:50%;background:#FFFBF6;border:3px solid #C9A27A}
+.st.now:before{background:#8E2B2B;border-color:#8E2B2B}
+.st.big:before{background:#E2B867;border-color:#E2B867}
+.st h3{margin:0 0 6px;font-size:19px}
+.st h3 small{font:400 13px "PingFang TC",sans-serif;color:#8A6E4B;margin-left:8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:#F6EBDC;border-radius:999px;padding:4px 11px;font-size:14px}
+.tag.hi{background:#3A2A24;color:#FFE7C2}
+.tag i{font-style:normal;font-size:12px;color:#A0805A;margin-left:4px}
+.tag.hi i{color:#E8CFA0}
+
+/* 表 */
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{font:700 13px "PingFang TC",sans-serif;color:#8A6E4B;text-align:left;padding:6px 8px;border-bottom:1px solid #E2D3C2}
+td{padding:6px 8px;border-bottom:1px solid #F0E5D8;vertical-align:top;line-height:1.5}
+td:first-child{font-weight:700;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+.pill{display:inline-block;font-size:12px;border-radius:999px;padding:1px 8px;margin-left:4px;background:#F6EBDC;color:#7A5A40;white-space:nowrap}
+
+.vv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vv div{background:#F8EFE3;border-radius:12px;padding:7px 11px;font-size:13.5px;line-height:1.45;color:#5A4228}
+.vv b{display:block;font:700 16px "Songti TC",serif;color:#3A2A24}
+/* 設計師說明 */
+.brief{background:#3A2A24;color:#F7EADB;border-radius:18px;padding:14px 18px;margin-bottom:14px}
+.brief h3{margin:0 0 6px;font-size:17px;color:#FFE7C2}
+.brief li{font-size:14.5px}
+.brief li b{color:#FFE7C2}
+ol{margin:0;padding-left:22px}
+.note{margin-top:12px;border-top:1px dashed #E2D3C2;padding-top:10px;font-size:14px;color:#5A4228}
+
+html:has(body.narrow),body.narrow{overflow:auto;height:auto}
+body.narrow #view{position:static;display:block}
+body.narrow #sizer{width:auto!important;height:auto!important}
+body.narrow #stage{position:static;width:auto;height:auto;transform:none!important;overflow:visible}
+body.narrow .wrap{padding:calc(env(safe-area-inset-top) + 60px) 16px 30px}
+body.narrow .cols{position:static;grid-template-columns:1fr}
+body.narrow .hd h1{font-size:32px}body.narrow .k span{font-size:15px;padding:6px 12px}
+</style></head><body>
+<a class="back" href="../body/?layer=m">← 保養廠</a>
+<div id="view"><div id="sizer"><div id="stage"><div class="wrap">
+  <div class="hd"><h1>科技美筆記</h1><div class="k"><span>由深到淺</span><span>臉等正顎</span><span>先挑性價比</span></div></div>
+  <div class="lead">骨架先，再來是肉和脂肪，然後是皮膚，最後才是表面的妝感。<b>臉的結構一律等正顎做完</b>，不然做了可能要重來。先挑「費用低、每天看得到、能省時間」的。</div>
+
+  <div class="cols">
+    <!-- 左：時間線 -->
+    <div>
+      <div class="card">
+        <h2>順序</h2>
+        <div class="sub">深色是現在就可以做的</div>
+        <div class="tl">
+          <div class="st now"><h3>現在<small>每天、費用低</small></h3>
+            <div class="tags"><span class="tag hi">防曬＋A醇</span><span class="tag hi">燙髮</span><span class="tag hi">頭皮治療</span><span class="tag hi">種睫毛</span><span class="tag hi">霧眉<i>六千到一萬</i></span><span class="tag">霧唇<i>先問正顎醫師</i></span><span class="tag">皮膚療程<i>依瑕疵挑</i></span><span class="tag">腋下除臭</span></div></div>
+          <div class="st big"><h3>下一個<small>腹部抽脂</small></h3>
+            <p style="margin:0">改變的是脂肪的<b>量</b>，形狀還是要靠運動和體態雕。跟正顎的恢復期錯開，先找醫師評估。</p></div>
+          <div class="st big"><h3>正顎</h3>
+            <p style="margin:0">如果那時在吃治療掉髮的藥，記得告訴醫師，它會影響血壓。</p></div>
+          <div class="st"><h3>正顎後<small>新臉型穩定再評估</small></h3>
+            <div class="tags"><span class="tag">臥蠶</span><span class="tag">眼線</span><span class="tag">黑眼圈、眼袋</span><span class="tag">拉皮</span><span class="tag">霧唇<i>若要改唇形</i></span></div></div>
+        </div>
+      </div>
+      <div class="card grow">
+        <h2>性價比最高</h2>
+        <div class="sub">花得少，氛圍感提升最多</div>
+        <div class="vv">
+          <div><b>體態</b>已經在做的重訓、瑜伽、皮拉提斯、HH</div>
+          <div><b>頭髮</b>燙大波浪，髮量看起來多一倍</div>
+          <div><b>香味</b>靠近才聞得到的氛圍感</div>
+          <div><b>種睫毛</b>不用夾、不用刷</div>
+          <div><b>霧眉</b>維持一兩年，每天省時間</div>
+          <div><b>霧唇</b>唇色決定氣色</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中：皮膚 -->
+    <div>
+      <div class="card">
+        <h2>水煮蛋肌<em>皮膚好，底妝就能越薄越快</em></h2>
+        <div class="sub">＝表面平滑＋顏色均勻＋有光澤。先分清楚最在意哪一種</div>
+        <table>
+          <tr><th>在意的</th><th>每天</th><th>醫美可以問</th></tr>
+          <tr><td>斑點、痘疤</td><td>防曬、維生素C</td><td>皮秒</td></tr>
+          <tr><td>毛孔、凹凸</td><td>A醇</td><td>飛梭</td></tr>
+          <tr><td>鬆、沒彈性</td><td>A醇、防曬</td><td>音波、電波</td></tr>
+          <tr><td>乾、暗沉</td><td>洗澡後趁濕保濕</td><td>水光</td></tr>
+        </table>
+        <div class="note">膠原蛋白不是吃或擦進去的，要<b>刺激皮膚自己長</b>。最便宜的基本功是每天防曬、晚上擦 A醇（從低濃度開始）。醫美大多要定期回去做，是長期花費，不要一次買一堆療程。</div>
+      </div>
+      <div class="card grow">
+        <h2>頭髮的醫療面<em>雄性禿</em></h2>
+        <ul>
+          <li><b>已經停藥一段時間：先回診重新評估</b>，不要自己恢復以前的藥量。</li>
+          <li><b>台北定方向，桃園顧日常。</b>台北醫師決定治療方式，之後在桃園拿藥、追蹤；或問台北能不能一次開久一點、改視訊回診。</li>
+          <li>回診直接說：「我在意身體多毛，所以停了。有沒有外用或其他選擇？」</li>
+          <li>可以問的路：外用的只擦頭皮、女性常用的另一類口服藥、頭皮注射療程。</li>
+          <li>通常要<b>三到六個月</b>才看得出效果，前一兩個月可能會先多掉。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 右：設計師 -->
+    <div class="c3">
+      <div class="card grow">
+        <h2>找髮型設計師</h2>
+        <div class="sub">看設計師前打開這張</div>
+        <div class="brief">
+          <h3>給設計師看的說明</h3>
+          <ul>
+            <li>想要：<b>長髮、浪漫大波浪、高顱頂</b></li>
+            <li>髮量越來越少、髮質細，有雄性禿，準備回診治療</li>
+            <li>常運動流汗、不喜歡每天洗頭和整理</li>
+            <li>希望洗完吹乾就有型，不用每天捲</li>
+            <li>藥劑請用溫和一點的</li>
+          </ul>
+        </div>
+        <h3 style="margin:4px 0 8px;font-size:18px">挑設計師</h3>
+        <ol>
+          <li><b>看作品，不只看店。</b>找很多「細軟髮、髮量少、大波浪」作品的人。</li>
+          <li><b>找擅長燙的人。</b>看是自然的大波浪，還是很捲、像泡麵。</li>
+          <li><b>看洗完、過幾週的樣子。</b>剛吹好的照片不準。</li>
+          <li><b>諮詢時說清楚你的生活。</b>好的設計師會照你的生活調整，而不是只照照片做。</li>
+          <li><b>會勸退你的比較可靠。</b>髮量少燙太捲、漂太多，頭髮會更少。</li>
+          <li><b>先小改再大改。</b>第一次先剪層次或只燙下半部，合得來再完整燙。</li>
+        </ol>
+        <div class="note">
+          <b>每天的小撇步</b><br>
+          運動流汗的日子用乾洗髮撒在髮根，撐到隔天再洗。洗頭只洗頭皮，先吹髮根。根部燙不要太常做，髮根比較脆弱。帶兩三張髮量跟你差不多的人的照片。
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div></div></div>
+<script>
+function fit(){const nar=innerWidth/innerHeight<1.25||innerWidth<760;document.body.classList.toggle("narrow",nar);const st=document.getElementById("stage"),sz=document.getElementById("sizer");if(nar){st.style.transform="";return;}const s=Math.min(innerWidth/1680,innerHeight/944);st.style.transform=`scale(${s})`;sz.style.width=1680*s+"px";sz.style.height=944*s+"px";}
+addEventListener("resize",fit);fit();
+</script>
+</body></html>

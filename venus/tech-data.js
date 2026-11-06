@@ -38,7 +38,7 @@ const TECH=[
  {id:"lift",n:"拉皮",part:"face",kind:"xt",when:"surgery",c:5,v:2,after:1,pt:[314,342],cost:"",why:"",tip:"等新臉型穩定再評估。"},
  {id:"teeth",n:"美白牙齒",part:"face",kind:"xt",when:"regular",c:3,v:4,after:1,pt:[290,345],cost:"每一兩年做一次",
   why:"笑起來整個人亮起來，照片裡很明顯。",tip:"正顎前後通常要戴牙套，等牙套拆掉、牙齒排好再美白，不然要重做。"},
- {id:"garden",n:"秘密花園",part:"skin",kind:"xt",when:"regular",cost:"",why:"只有自己知道的地方。",tip:"想做什麼再寫進來。"},
+ {id:"garden",n:"Desire",part:"skin",kind:"xt",when:"regular",cost:"",why:"只有自己知道的地方。",tip:"想做什麼再寫進來。"},
  {id:"breast",n:"隆乳",part:"shape",kind:"xt",when:"surgery",c:5,v:2,after:1,pt:[322,438],cost:"",why:"",tip:"還沒細聊。"}
 ];
 const TKEY="origina-tech-v1";

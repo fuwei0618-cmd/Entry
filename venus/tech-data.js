@@ -39,7 +39,7 @@ const TECH=[
  {id:"teeth",n:"美白牙齒",part:"face",kind:"xt",when:"regular",c:3,v:4,after:1,pt:[290,345],cost:"每一兩年做一次",
   why:"笑起來整個人亮起來，照片裡很明顯。",tip:"正顎前後通常要戴牙套，等牙套拆掉、牙齒排好再美白，不然要重做。"},
  {id:"garden",n:"Desire",part:"skin",kind:"xt",when:"regular",cost:"",why:"只有自己知道的地方。",tip:"想做什麼再寫進來。"},
- {id:"breast",n:"隆乳",part:"shape",kind:"xt",when:"surgery",c:5,v:2,after:1,pt:[322,438],cost:"",why:"",tip:"還沒細聊。"}
+ {id:"breast",n:"隆乳",part:"shape",kind:"xt",when:"surgery",c:5,v:2,after:1,pt:[322,438],cost:"跟抽脂差不多大筆",why:"美感會提升，但不一定是我要的那種。",tip:"可能吸引不想要的注意，運動、穿衣也可能不方便。抽脂比較不會造成困擾，所以排在抽脂後面。"}
 ];
 const TKEY="origina-tech-v1";
 function tLoad(){try{return JSON.parse(localStorage.getItem(TKEY)||"{}")||{}}catch(e){return {}}}

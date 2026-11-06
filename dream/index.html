@@ -318,7 +318,7 @@ const CATS={body:{n:"身體",c:"#3A2F27"},vocal:{n:"Vocal",c:"#D9604A"},work:{n:
 /* 10/30：工具人。七位＋執行長（原管家）、療癒師，照禱告圖的座位排。每位管一把常態的沙子（週表）和自己的專案抽屜 */
 const CREW=[{k:"teresa",ic:"🎤",n:"Teresa",r:"唱歌・街演・合唱",c:"#D9604A",cat:"vocal",dq:[["🎶","Vocal版","vocal","sq"]]},
   {k:"director",ic:"🎬",n:"導演",r:"拍片・剪片・發文",c:"#7C93A8",cat:"make",dq:[["🎥","自媒體版","media","wq"]]},
-  {k:"leader",ic:"🧭",n:"領隊",r:"旅行",c:"#D9A23A",cat:"trip",dq:[]},
+  {k:"leader",ic:"🧭",n:"導遊",r:"安排怎麼享受人生：生活團・旅行團",c:"#D9A23A",cat:"trip",dq:[]},
   {k:"venus",ic:"💄",n:"維納斯",r:"變美：穿搭・妝髮・保養・醫美",c:"#B5546F",cat:"body",dq:[["🌏","世界版","me","queen"]]},
   {k:"fox",ic:"🦊",n:"Fox",r:"性感的身體：HH・瑜伽・重訓",c:"#3A2F27",cat:"body",dq:[["💋","男人版","hh","menq"],["👠","高跟鞋版","hh","hq"]]},
   {k:"sales",ic:"🏆",n:"銷冠",r:"國泰業務",c:"#A08C72",cat:"work",dq:[["🤝","客戶版","cathay","cq"],["📅","服務件","cathay","svc"]]},
@@ -714,7 +714,7 @@ function crewHTML(wkMode){D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=month
       ${c.plain?"":(()=>{const as=autosFix().filter(a=>a.crew===c.k).sort(aSort);return `<div class="crl">⏰ 鬧鐘提醒</div><div class="alist2">${as.map(aChip).join("")}<button class="aadd" data-addauto="${c.k}">＋ 鬧鐘提醒</button></div>`;})()}
       ${c.dq.length?`<div class="crl">📣 宣言</div><div class="crs">${c.dq.map(([ic,t,m,k])=>`<a class="dqb" href="../bedside/?open=${k}#${m}">${ic} ${esc(t)}</a>`).join("")}</div>`:""}
       <div class="crl">📁 專案</div>${[...ps.filter(p=>!p.folded),...ps.filter(p=>p.folded)].map(proj).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>`;};
-  const HALLS=[[["媽祖殿・Shakira",["teresa","director","leader"]],["月老殿・Sánchez",["venus","fox"]],["財神殿・金庫",["sales","trader","vault"]]],[["跟在你身邊",["butler","healer"]]]];
+  const HALLS=[[["媽祖殿・Shakira",["teresa","director"]],["月老殿・Sánchez",["venus","fox"]],["財神殿・金庫",["sales","trader","vault"]]],[["跟在你身邊・司機、褓姆、導遊",["butler","healer","leader"]]]];
   const cards=HALLS.map(row=>`<div class="crow board">${row.map(([t,ks])=>`<div class="chall"><h4>${t}</h4><div>${ks.map(k=>card(CREWK[k])).join("")}</div></div>`).join("")}</div>`).join("");
   return `<section><h2>工具人<small>常態的沙子＋專案抽屜・月／週／日／下＝本月、本週、今日、下週・按住一件事可以拖到別的專案</small></h2>${cards}
     <div class="crfoot"><button class="chip2 add" data-additem>＋ 新的沙子</button><button class="chip2 add" data-addproj>＋ 新專案</button></div></section>${doneHTML()}`;}
@@ -977,5 +977,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202611032311";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202611062151";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

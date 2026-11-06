@@ -110,7 +110,7 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 .cl{display:flex;gap:6px;margin-top:2px}.cl .ln{margin-left:0;font-size:13.5px;padding:4px 12px}
 #detail{position:absolute;inset:0;background:rgba(30,20,14,.35);display:none;align-items:center;justify-content:center}
 #detail.on{display:flex}
-#dbox{width:600px;max-height:840px;overflow:auto;border-radius:22px;background:#FFFAF4;padding:24px 26px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(30,20,14,.3)}
+#dbox{width:660px;max-height:840px;overflow:auto;border-radius:22px;background:#FFFAF4;padding:24px 26px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(30,20,14,.3)}
 .strip{position:absolute;bottom:24px;border-radius:999px;background:rgba(40,28,22,.86);color:#FFF6EC;padding:9px 20px;display:flex;gap:16px;white-space:nowrap;font-size:13px}
 .back{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:5;border:1px solid rgba(244,238,230,.3);background:rgba(28,24,20,.72);color:#F4EEE6;border-radius:999px;padding:8px 14px;font-size:13px}
 .tmseg{position:absolute;left:150px;top:22px;display:flex;align-items:center;gap:6px;background:rgba(255,251,246,.92);border-radius:999px;padding:5px;box-shadow:0 4px 16px rgba(40,20,10,.14)}
@@ -118,6 +118,10 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 .tmseg button.on{background:#3A2A24;color:#FFE7C2}
 .tmseg button.x{font:400 13px "PingFang TC",sans-serif;color:#8A6E4B;padding:7px 10px}
 .tmseg b{font:700 13px "PingFang TC",sans-serif;color:#AE7552;letter-spacing:.2em;padding:0 6px 0 10px}
+.tmseg .sep{width:1px;height:20px;background:#E2D3C2;margin:0 2px}
+.tmleg{position:absolute;left:160px;top:76px;display:flex;align-items:center;gap:12px;font-size:13px;color:#5A4228;background:rgba(255,251,246,.85);border-radius:999px;padding:5px 14px}
+.tmleg span{display:inline-flex;align-items:center;gap:5px}.tmleg i{width:10px;height:10px;border-radius:50%}
+.tmleg button{border:0;background:#3A2A24;color:#FFE7C2;border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600}
 .tl2{position:absolute;transform:translateY(-50%);border:1px solid #E2CDB6;background:rgba(255,251,246,.95);border-radius:999px;padding:4px 12px 4px 10px;display:flex;align-items:center;gap:7px;font:700 15px "Songti TC","Noto Serif TC",serif;color:#3A2A24;white-space:nowrap;box-shadow:0 2px 8px rgba(40,20,10,.14)}
 .tl2.L{transform:translate(-100%,-50%);flex-direction:row-reverse;padding:4px 10px 4px 12px}
 .tl2 i{width:9px;height:9px;border-radius:50%;background:#C9A27A;flex:none}
@@ -240,7 +244,7 @@ const C=[295,455],K=1.62;
 const ell=(rx)=>`M${C[0]-rx} ${C[1]} a${rx} ${rx*K} 0 1 0 ${2*rx} 0 a${rx} ${rx*K} 0 1 0 ${-2*rx} 0`;
 let sel=null;
 const QS=new URLSearchParams(location.search);
-let TM=QS.get("mode")==="tech"?(QS.get("when")||"now"):null;
+let TM=QS.get("mode")==="tech"?(QS.get("when")||"value"):null;if(TM&&TM!=="value"&&!WHEN.some(w=>w[0]===TM))TM="value";
 let TS=tLoad();
 const PT={};TECH.forEach(t=>PT[t.part]=1);
 function render(){
@@ -257,7 +261,7 @@ function render(){
   if(!TM)PARTS.forEach((p,i)=>{const [x,y]=p.pt,[bx,by]=bpos(i),on=sel===p.k;p.by=by;
     g+=`<path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/><path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="${on?2.4:1.4}"/><circle cx="${x}" cy="${y}" r="${on?7:5}" fill="#fff" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="2"/>`;});
   let u="";
-  if(TM){const act=TECH.filter(t=>t.when===TM&&(!sel||!PI[sel]||t.part===sel));
+  if(TM){const VM=TM==="value",TC=Object.fromEntries(TIER.map(x=>[x[0],x]));const act=TECH.filter(t=>(VM||t.when===TM)&&(!sel||!PI[sel]||t.part===sel));
     TECH.forEach(t=>{if(act.includes(t))return;g+=`<circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="3" fill="#fff" stroke="#AE7552" stroke-width="1.2" opacity=".55"/>`;});
     const side={L:[],R:[]};act.forEach(t=>side[t.pt[0]<290?"L":"R"].push(t));
     ["L","R"].forEach(sd=>{let prev=-99;side[sd].sort((a,b)=>a.pt[1]-b.pt[1]);
@@ -265,10 +269,12 @@ function render(){
       const ov=ys.length?ys[ys.length-1]-905:0;if(ov>0)for(let j=ys.length-1;j>=0;j--){ys[j]-=ov;if(j&&ys[j-1]>ys[j]-38)ys[j-1]=ys[j]-38;}
       const shift=ys.length>2?Math.min(ys.reduce((a,b)=>a+b,0)/ys.length-side[sd].reduce((a,t)=>a+t.pt[1],0)/ys.length,ys[0]-70):0;
       side[sd].forEach((t,j)=>{const ly=ys[j]-shift;
-        const lx=sd==="L"?210:378,st=TS[t.id]||0,d=st>=3;
-        g+=`<path d="M${t.pt[0]} ${t.pt[1]} L${sd==="L"?lx+6:lx-6} ${ly}" stroke="#fff" stroke-width="3" opacity=".7"/><path d="M${t.pt[0]} ${t.pt[1]} L${sd==="L"?lx+6:lx-6} ${ly}" stroke="#8E2B2B" stroke-width="1.3"/><circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="5.5" fill="${d?"#3A2A24":"#fff"}" stroke="#8E2B2B" stroke-width="2.2"/>`;
-        u+=`<button class="tl2 ${sd}${d?" d":""}" data-tech="${t.id}" style="left:${lx}px;top:${ly}px"><i></i>${t.n}<em>${STAT[st]}</em></button>`;});});
-    u+=`<div class="tmseg"><b>科技</b>${WHEN.map(([k,n])=>`<button class="${TM===k?"on":""}" data-when="${k}">${n}</button>`).join("")}<button class="x" data-when="">收起 ✕</button></div>`;}
+        const lx=sd==="L"?210:378,st=TS[t.id]||0,d=st>=3,tr=TC[tier(t)],col=VM?tr[3]:"#8E2B2B";
+        const ex=(t.after?"正顎後・":"")+(t.nx?"下一個・":"");
+        g+=`<path d="M${t.pt[0]} ${t.pt[1]} L${sd==="L"?lx+6:lx-6} ${ly}" stroke="#fff" stroke-width="3" opacity=".7"/><path d="M${t.pt[0]} ${t.pt[1]} L${sd==="L"?lx+6:lx-6} ${ly}" stroke="${col}" stroke-width="1.3"/><circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="${VM?3+t.v*1.3:5.5}" fill="${VM?col:d?"#3A2A24":"#fff"}" fill-opacity="${VM?.9:1}" stroke="${VM?"#fff":"#8E2B2B"}" stroke-width="${VM?1.5:2.2}"/>`;
+        u+=`<button class="tl2 ${sd}${d?" d":""}" data-tech="${t.id}" style="left:${lx}px;top:${ly}px"><i style="background:${col}"></i>${t.n}<em>${d?STAT[st]:VM?tr[1]:ex+STAT[st]}</em></button>`;});});
+    u+=`<div class="tmseg"><b>科技</b><button class="${VM?"on":""}" data-when="value">性價比</button><span class="sep"></span>${WHEN.map(([k,n])=>`<button class="${TM===k?"on":""}" data-when="${k}">${n}</button>`).join("")}<button class="x" data-when="">✕</button></div>`;
+    u+=VM?`<div class="tmleg">${TIER.map(x=>`<span><i style="background:${x[3]}"></i>${x[1]}</span>`).join("")}<button data-quad>四象限 ›</button></div>`:`<div class="tmleg"><span>${WHEN.find(w=>w[0]===TM)[2]}</span></div>`;}
   $("sv").innerHTML=g;
   // 三層的名牌：沿著同一條斜線往外
   const lay=[["heart","心","#7A3238",0,C[0]+40,C[1]-70],["body","身","#AE7552",-1,C[0]-178*.5-56,C[1]-178*K*.866],["soul","靈","#C9A24A",5,C[0]+292*.62,C[1]-292*K*.79]];
@@ -283,17 +289,23 @@ function render(){
   $("ui").innerHTML=u;
   document.querySelectorAll("[data-sel]").forEach(b=>b.onclick=e=>{if(e.target.closest("a"))return;const k=b.dataset.sel;if(k==="heart"||k==="soul"){sel=k;render();openD(k);return;}if(k==="body"){sel=null;render();return;}sel=sel===k?null:k;render();});
   document.querySelectorAll("[data-when]").forEach(b=>b.onclick=()=>{TM=b.dataset.when||null;render();syncURL();});
-  document.querySelectorAll("[data-tm]").forEach(b=>b.onclick=e=>{e.stopPropagation();TM=TM?null:"now";render();syncURL();});
+  document.querySelectorAll("[data-tm]").forEach(b=>b.onclick=e=>{e.stopPropagation();TM=TM?null:"value";render();syncURL();});
+  document.querySelectorAll("[data-quad]").forEach(b=>b.onclick=e=>{e.stopPropagation();openQ();});
   document.querySelectorAll("[data-tech]").forEach(b=>b.onclick=e=>{e.stopPropagation();openT(b.dataset.tech);});
   document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.pick;if(S.pick[k])delete S.pick[k];else S.pick[k]=1;save();render();});
 }
 function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;return p[q].split("、").map(w=>{const lt=w.endsWith("*");w=w.replace("*","");const k=p.k+":"+q+":"+w;
   let t=(q==="yt"||q==="xt")?tByName(w):null;if(t&&t.part!==p.k)t=null;
-  if(t){const st=TS[t.id]||0;return `<span class="it tk${lt?" lt":""}${st>=3?" on":""}${TM&&t.when===TM?" hl":""}" data-tech="${t.id}" title="${STAT[st]}">${w}${lt?"<sup>後</sup>":""}</span>`;}
+  if(t){const st=TS[t.id]||0;return `<span class="it tk${lt?" lt":""}${st>=3?" on":""}${TM&&(TM==="value"?tier(t)==="best":t.when===TM)?" hl":""}" data-tech="${t.id}" title="${STAT[st]}">${w}${lt?"<sup>後</sup>":""}</span>`;}
   return `<span class="it${lt?" lt":""}${S.pick[k]?" on":""}" data-pick="${k}"${lt?' title="正顎後"':""}>${w}${lt?"<sup>後</sup>":""}</span>`}).join("、");}
+function openQ(){  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div class="serif" style="font-size:28px">性價比四象限</div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:18px">✕</button></div>
+   <div style="font-size:13.5px;color:#8A6E4B">左上角最划算：花得少、美感提升多。「後」是正顎後才做。點一項看細節。</div>
+   ${quadSVG()}`;
+  $("detail").classList.add("on");$("x").onclick=closeD;
+  $("dbox").querySelectorAll("[data-qt]").forEach(b=>b.onclick=()=>openT(b.dataset.qt));}
 function syncURL(){try{const u=new URL(location.href);if(TM){u.searchParams.set("mode","tech");u.searchParams.set("when",TM);}else{u.searchParams.delete("mode");u.searchParams.delete("when");}u.searchParams.delete("item");history.replaceState(null,"",u);}catch(e){}}
 function openT(id){const t=TECH.find(x=>x.id===id);if(!t)return;const st=TS[id]||0,wn=WHEN.find(w=>w[0]===t.when);
-  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="serif" style="font-size:32px">${t.n}</div><div style="margin-top:6px"><span class="wchip">${PI[t.part]}・科技${t.kind==="yt"?"養":"修"}</span><span class="wchip">${wn[1]}</span>${t.cost?`<span class="wchip" style="background:#F3EADF;color:#5A4228">${t.cost}</span>`:""}</div></div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:18px">✕</button></div>
+  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="serif" style="font-size:32px">${t.n}</div><div style="margin-top:6px"><span class="wchip">${PI[t.part]}・科技${t.kind==="yt"?"養":"修"}</span><span class="wchip">${wn[1]}</span><span class="wchip" style="background:${TIER.find(x=>x[0]===tier(t))[3]};color:#fff">${TIER.find(x=>x[0]===tier(t))[1]}</span>${t.after?`<span class="wchip">正顎後</span>`:""}${t.nx?`<span class="wchip">下一個</span>`:""}${t.cost?`<span class="wchip" style="background:#F3EADF;color:#5A4228">${t.cost}</span>`:""}</div></div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:18px">✕</button></div>
    ${t.why?`<div style="font-size:15px;line-height:1.75">${t.why}</div>`:""}
    ${t.tip?`<div class="soft" style="line-height:1.7">${t.tip}</div>`:""}
    <div style="font-size:13px;color:#8A6E4B">進度</div>

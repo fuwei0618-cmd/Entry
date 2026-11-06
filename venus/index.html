@@ -122,6 +122,13 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 .tmleg{position:absolute;left:160px;top:76px;display:flex;align-items:center;gap:12px;font-size:13px;color:#5A4228;background:rgba(255,251,246,.85);border-radius:999px;padding:5px 14px}
 .tmleg span{display:inline-flex;align-items:center;gap:5px}.tmleg i{width:10px;height:10px;border-radius:50%}
 .tmleg button{border:0;background:#3A2A24;color:#FFE7C2;border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600}
+.tcard{position:absolute;width:186px;background:rgba(255,251,246,.94);border-radius:16px;padding:10px 12px 11px;box-shadow:0 4px 16px rgba(40,20,10,.14)}
+.tcard .th{display:flex;align-items:center;gap:6px;margin-bottom:7px}.tcard .th i{width:11px;height:11px;border-radius:50%;flex:none}
+.tcard .th b{font:700 17px "Songti TC","Noto Serif TC",serif;color:#3A2A24}.tcard .th b{white-space:nowrap}.tcard .th small{font-size:11px;color:#8A6E4B;white-space:nowrap}
+.tcs{display:flex;flex-wrap:wrap;gap:5px}
+.tc{border:1px solid #E6D6C4;background:#fff;border-radius:999px;padding:3px 10px;font-size:14px;color:#3A2A24}
+.tc:hover{border-color:#8E2B2B;background:#FFF4E8}.tc sup{font-size:10px;color:#C08A5A;margin-left:1px}
+.tc em{font-style:normal;font-size:10.5px;color:#8A6E4B;margin-left:4px}.tc.d{background:#3A2A24;color:#FFE7C2;border-color:#3A2A24}.tc.d em{color:#E8CFA0}
 .tl2{position:absolute;transform:translateY(-50%);border:1px solid #E2CDB6;background:rgba(255,251,246,.95);border-radius:999px;padding:4px 12px 4px 10px;display:flex;align-items:center;gap:7px;font:700 15px "Songti TC","Noto Serif TC",serif;color:#3A2A24;white-space:nowrap;box-shadow:0 2px 8px rgba(40,20,10,.14)}
 .tl2.L{transform:translate(-100%,-50%);flex-direction:row-reverse;padding:4px 10px 4px 12px}
 .tl2 i{width:9px;height:9px;border-radius:50%;background:#C9A27A;flex:none}
@@ -220,9 +227,9 @@ const SIX=[["眼","視覺","被看到","眼神、姿態"],["耳","聽覺","被�
 const HEART=ENDS[0],SOUL=ENDS[1];
 const PARTS=[
  {k:"hair",n:"頭髮",pt:[288,298],side:"L",by:390,yn:"營養、睡眠",xn:"髮型、編髮",yt:"護髮、頭皮治療",xt:"燙髮、植髮、接髮",cap:"髮量、髮質"},
- {k:"face",n:"臉",pt:[318,352],side:"R",by:300,yn:"睡飽、吃好",xn:"彩妝",yt:"保養品、雷射",xt:"正顎、霧眉、霧唇、種睫毛、臥蠶*、眼線*、眼袋*、拉皮*",cap:"五官、臉型"},
- {k:"skin",n:"皮膚",pt:[358,432],side:"R",by:450,yn:"喝水、睡眠",xn:"底妝、香氛",yt:"A醇、防曬、水光、電波",xt:"皮秒、飛梭、除毛、腋下除臭",cap:"膚色、膚質"},
- {k:"shape",n:"身材",pt:[295,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭",yt:"電波、體雕",xt:"抽脂、隆乳",cap:"名詞・有什麼"},
+ {k:"face",n:"臉",pt:[318,352],side:"R",by:300,yn:"睡飽、吃好",xn:"彩妝",yt:"保養品、雷射",xt:"正顎、霧眉、霧唇、種睫毛、美白牙齒*、臥蠶*、眼線*、眼袋*、拉皮*",cap:"五官、臉型"},
+ {k:"skin",n:"皮膚",pt:[358,432],side:"R",by:450,yn:"喝水、睡眠",xn:"底妝、香氛",yt:"A醇、防曬、水光、電波",xt:"皮秒、飛梭、除毛、腋下除臭、秘密花園",cap:"膚色、膚質"},
+ {k:"shape",n:"身材",pt:[295,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭、美甲",yt:"電波、體雕",xt:"抽脂、隆乳",cap:"名詞・有什麼"},
  {k:"pose",n:"體態",pt:[295,760],side:"R",by:740,yn:"伸展、皮拉提斯",xn:"高跟鞋、修身衣",yt:"整脊、矯正",xt:"",cap:"動詞・怎麼用"}];
 const pimg=(k,z)=>`<img src="p-${k}.webp" alt="" style="width:${z}px;height:${z}px;mix-blend-mode:multiply;display:block">`;
 const LK={"hair:xn":["妝台",E+"vanity/"],"face:xn":["妝台",E+"vanity/"],"skin:xn":[["底妝筆記",E+"vanity/base.html"],["香氛筆記","scent.html"]],"shape:xn":["衣櫥",E+"wardrobe/"],"pose:yn":["健身房",GH+"Gym/"],"pose:xn":["HH",GH+"Gym/hh/"]};
@@ -261,8 +268,13 @@ function render(){
   if(!TM)PARTS.forEach((p,i)=>{const [x,y]=p.pt,[bx,by]=bpos(i),on=sel===p.k;p.by=by;
     g+=`<path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/><path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="${on?2.4:1.4}"/><circle cx="${x}" cy="${y}" r="${on?7:5}" fill="#fff" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="2"/>`;});
   let u="";
-  if(TM){const VM=TM==="value",TC=Object.fromEntries(TIER.map(x=>[x[0],x]));const act=TECH.filter(t=>(VM||t.when===TM)&&(!sel||!PI[sel]||t.part===sel));
-    TECH.forEach(t=>{if(act.includes(t))return;g+=`<circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="3" fill="#fff" stroke="#AE7552" stroke-width="1.2" opacity=".55"/>`;});
+  if(TM){const VM=TM==="value",TC=Object.fromEntries(TIER.map(x=>[x[0],x]));const act=VM?[]:TECH.filter(t=>t.pt&&t.when===TM&&(!sel||!PI[sel]||t.part===sel));
+    if(VM){const ok=t=>!sel||!PI[sel]||t.part===sel;
+      TECH.filter(t=>t.pt&&t.c).forEach(t=>{const col=TC[tier(t)][3];g+=`<circle id="td-${t.id}" cx="${t.pt[0]}" cy="${t.pt[1]}" r="${2.5+t.v*.7}" fill="${col}" fill-opacity="${ok(t)?.9:.25}" stroke="#fff" stroke-width="1.5"/>`;});
+      const POS={best:[30,140],save:[392,140],easy:[30,520],later:[392,520]};
+      TIER.forEach(([k,n,sub,col])=>{const L=TECH.filter(t=>t.c&&tier(t)===k&&ok(t));const [x,y]=POS[k];
+        u+=`<div class="tcard" style="left:${x}px;top:${y}px"><div class="th"><i style="background:${col}"></i><b>${n}</b></div><div style="font-size:11.5px;color:#8A6E4B;margin:-4px 0 7px 17px">${sub}</div><div class="tcs">${L.map(t=>{const st=TS[t.id]||0;return `<button class="tc${st>=3?" d":""}" data-tech="${t.id}" data-hov="${t.id}">${tShort(t)}${t.after?"<sup>後</sup>":""}${st?`<em>${STAT[st]}</em>`:""}</button>`;}).join("")||`<span style="font-size:12px;color:#A0907F">—</span>`}</div></div>`;});}
+    if(!VM)TECH.forEach(t=>{if(!t.pt||act.includes(t))return;g+=`<circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="3" fill="#fff" stroke="#AE7552" stroke-width="1.2" opacity=".55"/>`;});
     const side={L:[],R:[]};act.forEach(t=>side[t.pt[0]<290?"L":"R"].push(t));
     ["L","R"].forEach(sd=>{let prev=-99;side[sd].sort((a,b)=>a.pt[1]-b.pt[1]);
       const ys=[];side[sd].forEach((t,j)=>{ys.push(Math.max(t.pt[1],j?ys[j-1]+38:70));});
@@ -290,6 +302,7 @@ function render(){
   document.querySelectorAll("[data-sel]").forEach(b=>b.onclick=e=>{if(e.target.closest("a"))return;const k=b.dataset.sel;if(k==="heart"||k==="soul"){sel=k;render();openD(k);return;}if(k==="body"){sel=null;render();return;}sel=sel===k?null:k;render();});
   document.querySelectorAll("[data-when]").forEach(b=>b.onclick=()=>{TM=b.dataset.when||null;render();syncURL();});
   document.querySelectorAll("[data-tm]").forEach(b=>b.onclick=e=>{e.stopPropagation();TM=TM?null:"value";render();syncURL();});
+  document.querySelectorAll("[data-hov]").forEach(b=>{const c=()=>document.getElementById("td-"+b.dataset.hov);b.onmouseenter=()=>{const d=c();if(d){d.setAttribute("stroke","#3A2A24");d.setAttribute("stroke-width","4");}};b.onmouseleave=()=>{const d=c();if(d){d.setAttribute("stroke","#fff");d.setAttribute("stroke-width","1.5");}};});
   document.querySelectorAll("[data-quad]").forEach(b=>b.onclick=e=>{e.stopPropagation();openQ();});
   document.querySelectorAll("[data-tech]").forEach(b=>b.onclick=e=>{e.stopPropagation();openT(b.dataset.tech);});
   document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.pick;if(S.pick[k])delete S.pick[k];else S.pick[k]=1;save();render();});
@@ -305,7 +318,7 @@ function openQ(){  $("dbox").innerHTML=`<div style="display:flex;justify-content
   $("dbox").querySelectorAll("[data-qt]").forEach(b=>b.onclick=()=>openT(b.dataset.qt));}
 function syncURL(){try{const u=new URL(location.href);if(TM){u.searchParams.set("mode","tech");u.searchParams.set("when",TM);}else{u.searchParams.delete("mode");u.searchParams.delete("when");}u.searchParams.delete("item");history.replaceState(null,"",u);}catch(e){}}
 function openT(id){const t=TECH.find(x=>x.id===id);if(!t)return;const st=TS[id]||0,wn=WHEN.find(w=>w[0]===t.when);
-  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="serif" style="font-size:32px">${t.n}</div><div style="margin-top:6px"><span class="wchip">${PI[t.part]}・科技${t.kind==="yt"?"養":"修"}</span><span class="wchip">${wn[1]}</span><span class="wchip" style="background:${TIER.find(x=>x[0]===tier(t))[3]};color:#fff">${TIER.find(x=>x[0]===tier(t))[1]}</span>${t.after?`<span class="wchip">正顎後</span>`:""}${t.nx?`<span class="wchip">下一個</span>`:""}${t.cost?`<span class="wchip" style="background:#F3EADF;color:#5A4228">${t.cost}</span>`:""}</div></div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:18px">✕</button></div>
+  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="serif" style="font-size:32px">${t.n}</div><div style="margin-top:6px"><span class="wchip">${PI[t.part]}・科技${t.kind==="yt"?"養":"修"}</span><span class="wchip">${wn[1]}</span>${t.c?`<span class="wchip" style="background:${TIER.find(x=>x[0]===tier(t))[3]};color:#fff">${TIER.find(x=>x[0]===tier(t))[1]}</span>`:""}${t.after?`<span class="wchip">正顎後</span>`:""}${t.nx?`<span class="wchip">下一個</span>`:""}${t.cost?`<span class="wchip" style="background:#F3EADF;color:#5A4228">${t.cost}</span>`:""}</div></div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:18px">✕</button></div>
    ${t.why?`<div style="font-size:15px;line-height:1.75">${t.why}</div>`:""}
    ${t.tip?`<div class="soft" style="line-height:1.7">${t.tip}</div>`:""}
    <div style="font-size:13px;color:#8A6E4B">進度</div>

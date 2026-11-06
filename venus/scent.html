@@ -185,7 +185,7 @@ body.narrow .hd h1{font-size:32px}body.narrow .k span{font-size:15px;padding:6px
 </div></div></div></div>
 <script>
 const KEY="origina-scent-v1";let D={};try{D=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
-const STEPS=[["msg","傳訊息給代購問報價","用下面那段，複製貼到 LINE"],["pay1","付商品費","台灣銀行帳戶轉台幣"],["pay2","收到報價，付運費和服務費",""],["get","收到香水",""],["bottle","買分裝瓶，分裝成兩三瓶","一個 100ml 噴瓶、一兩個隨身小瓶"]];
+const STEPS=[["msg","傳訊息給代購問報價","用下面那段，複製貼到 LINE"],["pay1","付商品費","台灣銀行帳戶轉台幣"],["pay2","收到報價，付運費和服務費",""],["get","收到香水",""],["bottle","買分裝瓶、分裝","扁四方 100ml 螺口瓶每天用、10ml 兩支隨身；原本的棕色瓶存放，鋁罐收抽屜"]];
 function draw(){document.getElementById("ck").innerHTML=STEPS.map(([k,t,s])=>`<label class="${D[k]?"done":""}"><input type="checkbox" data-k="${k}" ${D[k]?"checked":""}><span>${t}${s?`<small>${s}</small>`:""}</span></label>`).join("");
 document.querySelectorAll("#ck input").forEach(i=>i.onchange=()=>{D[i.dataset.k]=i.checked;try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){};draw();});}
 draw();

@@ -5,7 +5,7 @@
 // pt：在桌子那張人物圖上的位置；names：表格裡對應到這一項的字
 const WHEN=[["daily","每天小錢","便宜、天天用"],["regular","定期花費","每隔一段時間回去做"],["once","維持幾年","一次付清，維持一兩年"],["surgery","大手術","一次付清，大筆存錢"]];
 const TIER=[["best","最划算","花得少、美感提升多","#8E2B2B"],["save","值得存錢","貴，但提升很多","#C9A24A"],["easy","順手做","便宜，提升普通","#AE8A6A"],["later","先不急","貴，提升普通","#B8A898"]];
-function tier(t){return t.c<=2?(t.v>=3?"best":"easy"):(t.v>=3?"save":"later");}
+function tier(t){if(!t.c)return "later";return t.c<=2?(t.v>=3?"best":"easy"):(t.v>=3?"save":"later");}
 const tShort=t=>t.s||t.n;
 const STAT=["想做","研究中","預約","做完","回診"];
 const TECH=[
@@ -36,6 +36,9 @@ const TECH=[
  {id:"liner",n:"眼線",part:"face",kind:"xt",when:"once",c:2,v:2,after:1,pt:[276,318],cost:"",why:"",tip:"等新臉型穩定再評估。"},
  {id:"bags",n:"眼袋、黑眼圈",s:"眼袋",names:["眼袋"],part:"face",kind:"xt",when:"surgery",c:4,v:2,after:1,pt:[270,330],cost:"",why:"",tip:"等新臉型穩定再評估。"},
  {id:"lift",n:"拉皮",part:"face",kind:"xt",when:"surgery",c:5,v:2,after:1,pt:[314,342],cost:"",why:"",tip:"等新臉型穩定再評估。"},
+ {id:"teeth",n:"美白牙齒",part:"face",kind:"xt",when:"regular",c:3,v:4,after:1,pt:[290,345],cost:"每一兩年做一次",
+  why:"笑起來整個人亮起來，照片裡很明顯。",tip:"正顎前後通常要戴牙套，等牙套拆掉、牙齒排好再美白，不然要重做。"},
+ {id:"garden",n:"秘密花園",part:"skin",kind:"xt",when:"regular",cost:"",why:"只有自己知道的地方。",tip:"想做什麼再寫進來。"},
  {id:"breast",n:"隆乳",part:"shape",kind:"xt",when:"surgery",c:5,v:2,after:1,pt:[322,438],cost:"",why:"",tip:"還沒細聊。"}
 ];
 const TKEY="origina-tech-v1";
@@ -48,6 +51,6 @@ function quadSVG(H0){const W=600,H=H0||460,x0=50,x1=W-16,y0=44,y1=H-46,pw=x1-x0,
   let g=`<rect x="${x0}" y="${y0}" width="${mx-x0}" height="${my-y0}" fill="#FBEDEA"/><rect x="${mx}" y="${y0}" width="${x1-mx}" height="${my-y0}" fill="#FBF3DF"/><rect x="${x0}" y="${my}" width="${mx-x0}" height="${y1-my}" fill="#F6EFE6"/><rect x="${mx}" y="${my}" width="${x1-mx}" height="${y1-my}" fill="#F1ECE6"/>`;
   [["最划算",x0,y0-12,"#8E2B2B","start"],["值得存錢",x1,y0-12,"#A8842E","end"],["順手做",x0,y1+24,"#8A6E4B","start"],["先不急",x1,y1+24,"#9A8C80","end"]].forEach(([n,x,y,c,an])=>g+=`<text x="${x}" y="${y}" font-size="16" font-weight="700" fill="${c}" text-anchor="${an}" font-family="Songti TC,serif">${n}</text>`);
   g+=`<text x="${(x0+x1)/2}" y="${y1+24}" font-size="12.5" fill="#8A6E4B" text-anchor="middle">花費高 →</text><text x="18" y="${(y0+y1)/2}" font-size="12.5" fill="#8A6E4B" text-anchor="middle" transform="rotate(-90 18 ${(y0+y1)/2})">美感提升多 →</text>`;
-  const used={};TECH.forEach(t=>{const k=t.c+"-"+t.v,n=used[k]=(used[k]||0)+1,y=Y(t.v)-12+(n-1)*19,x=X(t.c)-40;const col=TIER.find(z=>z[0]===tier(t))[3];
+  const used={};TECH.filter(t=>t.c).forEach(t=>{const k=t.c+"-"+t.v,n=used[k]=(used[k]||0)+1,y=Y(t.v)-12+(n-1)*19,x=X(t.c)-40;const col=TIER.find(z=>z[0]===tier(t))[3];
     g+=`<g data-qt="${t.id}" style="cursor:pointer"><circle cx="${x}" cy="${y-4.5}" r="4.5" fill="${col}"/><text x="${x+8}" y="${y}" font-size="13.5" fill="#3A2A24">${tShort(t)}${t.after?`<tspan fill="#A0805A" font-size="11">・後</tspan>`:""}</text></g>`;});
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="font-family:PingFang TC,sans-serif;display:block">${g}</svg>`;}

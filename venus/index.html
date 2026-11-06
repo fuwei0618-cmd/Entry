@@ -125,6 +125,10 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 .lens{position:absolute;border-radius:50%;background-image:url(fig.webp);box-shadow:0 0 0 4px #fff,0 8px 24px rgba(40,20,10,.3);overflow:visible}
 .lens svg{position:absolute;inset:0;overflow:visible}
 .lens span{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:#3A2A24;color:#FFE7C2;border-radius:999px;padding:2px 12px;font:700 14px "Songti TC",serif}
+.tcard .th{all:unset;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:7px;width:100%}
+.tcard .th em{margin-left:auto;font-style:normal;font-size:11px;color:#8A6E4B;border:1px solid #E6D6C4;border-radius:999px;padding:1px 8px}
+.tcard.on{box-shadow:0 0 0 3px #E2B867,0 4px 16px rgba(40,20,10,.18)}.tcard.on .th em{background:#3A2A24;color:#FFE7C2;border-color:#3A2A24}
+.tcard.off{opacity:.5}
 .tcol{position:absolute;left:24px;top:128px;width:200px;display:flex;flex-direction:column;gap:10px}
 .tcard{position:relative;background:rgba(255,251,246,.94);border-radius:16px;padding:10px 12px 11px;box-shadow:0 4px 16px rgba(40,20,10,.14)}
 .tcard .th{display:flex;align-items:center;gap:6px;margin-bottom:7px}.tcard .th i{width:11px;height:11px;border-radius:50%;flex:none}
@@ -259,7 +263,7 @@ const ell=(rx)=>`M${C[0]-rx} ${C[1]} a${rx} ${rx*K} 0 1 0 ${2*rx} 0 a${rx} ${rx*
 let sel=null;
 const QS=new URLSearchParams(location.search);
 let TM=QS.get("mode")==="tech"?(QS.get("when")||"value"):null;if(TM&&TM!=="value"&&!WHEN.some(w=>w[0]===TM))TM="value";
-let TS=tLoad();
+let TS=tLoad(),TT=null;
 const PT={};TECH.forEach(t=>PT[t.part]=1);
 function render(){
   const isP=sel&&PI[sel];
@@ -276,7 +280,7 @@ function render(){
     g+=`<path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/><path d="M${x} ${y} Q${(x+bx)/2} ${y} ${bx} ${p.by}" fill="none" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="${on?2.4:1.4}"/><circle cx="${x}" cy="${y}" r="${on?7:5}" fill="#fff" stroke="${on?"#E2B867":"#AE7552"}" stroke-width="2"/>`;});
   let u="";
   if(TM){const VM=TM==="value",TC=Object.fromEntries(TIER.map(x=>[x[0],x]));const act=VM?[]:TECH.filter(t=>t.pt&&t.when===TM&&(!sel||!PI[sel]||t.part===sel));
-    if(VM){const ok=t=>!sel||!PI[sel]||t.part===sel;
+    if(VM){const ok=t=>(!sel||!PI[sel]||t.part===sel)&&(!TT||tier(t)===TT);
       const RK=tRank(),FC=[292,326],Z=3.3,D=250,LX=372,LY=150,LC=[LX+D/2,LY+D/2];
       const isF=t=>Math.hypot(t.pt[0]-FC[0],t.pt[1]-FC[1])<48;
       const relax=(B,md,clamp)=>{for(let it=0;it<160;it++){for(let i=0;i<B.length;i++)for(let j=i+1;j<B.length;j++){const A=B[i],C=B[j];let dx=C.x-A.x,dy=C.y-A.y,d=Math.hypot(dx,dy)||.01;if(d<md){const m=(md-d)/2;dx/=d;dy/=d;A.x-=dx*m;A.y-=dy*m;C.x+=dx*m;C.y+=dy*m;}}B.forEach(b=>{b.x+=(b.ox-b.x)*.03;b.y+=(b.oy-b.y)*.03;if(clamp)clamp(b);});}};
@@ -284,16 +288,16 @@ function render(){
       const tick=(t,ox,oy,x,y,f)=>{const col=TC[tier(t)][3];return Math.hypot(x-ox,y-oy)>8?`<g opacity="${f}"><path d="M${ox} ${oy} L${x} ${y}" stroke="#fff" stroke-width="2.6"/><path d="M${ox} ${oy} L${x} ${y}" stroke="${col}" stroke-width="1.2"/><circle cx="${ox}" cy="${oy}" r="2.8" fill="${col}" stroke="#fff" stroke-width="1"/></g>`:"";};
       // 身上：臉以外的項目
       const BB=TECH.filter(t=>t.pt&&t.c&&!isF(t)).map(t=>({t,x:t.pt[0],y:t.pt[1],ox:t.pt[0],oy:t.pt[1]}));relax(BB,28);
-      BB.forEach(b=>g+=tick(b.t,b.ox,b.oy,b.x,b.y,ok(b.t)?1:.25));BB.forEach(b=>g+=badge(b.t,b.x,b.y,ok(b.t)?1:.25));
+      BB.forEach(b=>g+=tick(b.t,b.ox,b.oy,b.x,b.y,ok(b.t)?1:.12));BB.forEach(b=>g+=badge(b.t,b.x,b.y,ok(b.t)?1:.12));
       // 臉：放大鏡
       g+=`<circle cx="${FC[0]}" cy="${FC[1]}" r="48" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="4 4"/><path d="M${FC[0]+46} ${FC[1]-12} L${LC[0]-D/2+6} ${LC[1]}" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/>`;
       const FB=TECH.filter(t=>t.pt&&t.c&&isF(t)).map(t=>{const x=D/2+(t.pt[0]-FC[0])*Z,y=D/2+(t.pt[1]-FC[1])*Z;return {t,x,y,ox:x,oy:y};});
       relax(FB,29,b=>{const dx=b.x-D/2,dy=b.y-D/2,d=Math.hypot(dx,dy),R=D/2-16;if(d>R){b.x=D/2+dx/d*R;b.y=D/2+dy/d*R;}});
-      let lg="";FB.forEach(b=>lg+=tick(b.t,b.ox,b.oy,b.x,b.y,ok(b.t)?1:.25));FB.forEach(b=>lg+=badge(b.t,b.x,b.y,ok(b.t)?1:.25));
+      let lg="";FB.forEach(b=>lg+=tick(b.t,b.ox,b.oy,b.x,b.y,ok(b.t)?1:.12));FB.forEach(b=>lg+=badge(b.t,b.x,b.y,ok(b.t)?1:.12));
       u+=`<div class="lens" style="left:${LX}px;top:${LY}px;width:${D}px;height:${D}px;background-size:${500*Z}px ${944*Z}px;background-position:${-((FC[0]-50)*Z-D/2)}px ${-(FC[1]*Z-D/2)}px"><svg viewBox="0 0 ${D} ${D}" width="${D}" height="${D}">${lg}</svg><span>臉</span></div>`;
       let TCs="";
-      TIER.forEach(([k,n,sub,col])=>{const L=TECH.filter(t=>t.c&&tier(t)===k&&ok(t)).sort((a,b)=>RK[a.id]-RK[b.id]);
-        TCs+=`<div class="tcard"><div class="th"><i style="background:${col}"></i><b>${n}</b></div><div style="font-size:11.5px;color:#8A6E4B;margin:-4px 0 7px 17px">${sub}</div><div class="tcs">${L.map(t=>{const st=TS[t.id]||0;return `<button class="tc${st>=3?" d":""}" data-tech="${t.id}" data-hov="${t.id}"><b class="rn" style="background:${col}">${RK[t.id]}</b>${tShort(t)}${t.after?"<sup>後</sup>":""}${st?`<em>${STAT[st]}</em>`:""}</button>`;}).join("")||`<span style="font-size:12px;color:#A0907F">—</span>`}</div></div>`;});u+=`<div class="tcol">${TCs}</div>`;}
+      TIER.forEach(([k,n,sub,col])=>{const L=TECH.filter(t=>t.c&&tier(t)===k&&(!sel||!PI[sel]||t.part===sel)).sort((a,b)=>RK[a.id]-RK[b.id]);
+        TCs+=`<div class="tcard${TT===k?" on":TT?" off":""}"><button class="th" data-tier="${k}"><i style="background:${col}"></i><b>${n}</b><em>${TT===k?"全部 ✕":"只看這張"}</em></button><div style="font-size:11.5px;color:#8A6E4B;margin:-4px 0 7px 17px">${sub}</div><div class="tcs">${L.map(t=>{const st=TS[t.id]||0;return `<button class="tc${st>=3?" d":""}" data-tech="${t.id}" data-hov="${t.id}"><b class="rn" style="background:${col}">${RK[t.id]}</b>${tShort(t)}${t.after?"<sup>後</sup>":""}${st?`<em>${STAT[st]}</em>`:""}</button>`;}).join("")||`<span style="font-size:12px;color:#A0907F">—</span>`}</div></div>`;});u+=`<div class="tcol">${TCs}</div>`;}
     if(!VM)TECH.forEach(t=>{if(!t.pt||act.includes(t))return;g+=`<circle cx="${t.pt[0]}" cy="${t.pt[1]}" r="3" fill="#fff" stroke="#AE7552" stroke-width="1.2" opacity=".55"/>`;});
     const side={L:[],R:[]};act.forEach(t=>side[t.pt[0]<290?"L":"R"].push(t));
     ["L","R"].forEach(sd=>{let prev=-99;side[sd].sort((a,b)=>a.pt[1]-b.pt[1]);
@@ -323,6 +327,7 @@ function render(){
   document.querySelectorAll("[data-when]").forEach(b=>b.onclick=()=>{TM=b.dataset.when||null;render();syncURL();});
   document.querySelectorAll("[data-tm]").forEach(b=>b.onclick=e=>{e.stopPropagation();TM=TM?null:"value";render();syncURL();});
   document.querySelectorAll("[data-hov]").forEach(b=>{const c=()=>document.getElementById("td-"+b.dataset.hov);b.onmouseenter=()=>{const d=c();if(d){const k=d.querySelector("circle");k.setAttribute("stroke","#3A2A24");k.setAttribute("stroke-width","4");k.setAttribute("r","14");}};b.onmouseleave=()=>{const d=c();if(d){const k=d.querySelector("circle");k.setAttribute("stroke","#fff");k.setAttribute("stroke-width","2");k.setAttribute("r","11.5");}};});
+  document.querySelectorAll("[data-tier]").forEach(b=>b.onclick=e=>{e.stopPropagation();TT=TT===b.dataset.tier?null:b.dataset.tier;render();});
   document.querySelectorAll("[data-quad]").forEach(b=>b.onclick=e=>{e.stopPropagation();openQ();});
   document.querySelectorAll("[data-tech]").forEach(b=>b.onclick=e=>{e.stopPropagation();openT(b.dataset.tech);});
   document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.pick;if(S.pick[k])delete S.pick[k];else S.pick[k]=1;save();render();});

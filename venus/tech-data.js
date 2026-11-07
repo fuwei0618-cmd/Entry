@@ -57,3 +57,34 @@ function quadSVG(H0){const W=600,H=H0||460,x0=50,x1=W-16,y0=44,y1=H-46,pw=x1-x0,
 
 // 性價比排名：美感提升×2－花費，越高越先做
 function tRank(){const L=TECH.filter(t=>t.c).slice().sort((a,b)=>(b.v*2-b.c)-(a.v*2-a.c)||b.v-a.v||a.c-b.c);const R={};L.forEach((t,i)=>R[t.id]=i+1);return R;}
+
+// ── 部位排名：氛圍感是由遠到近被看見的 ──
+const PRANK=[
+ ["pose","體態","十公尺外就看得到你怎麼站、怎麼走",[262,720]],
+ ["hair","頭髮","整個人的輪廓，也是臉的畫框",[338,300]],
+ ["skin","皮膚","有光澤整個人就亮，底妝也能變薄",[246,418]],
+ ["shape","身材","穿搭就能修飾很多",[330,560]],
+ ["face","臉","要很近才看得清楚，結構等正顎",[292,326]]
+];
+// 自然的項目（不花錢或花很少）：kind yn 自然・養 / xn 自然・修
+const NAT=[
+ {id:"n-braid",n:"編髮",part:"hair",kind:"xn",c:1,v:5,why:"幾乎不花錢，換造型很快。",tip:"運動流汗時編起來就不亂；不想天天洗頭，編髮能遮住髮根出油；蓬鬆一點的編法讓髮量看起來比較多。代價是要花時間練。"},
+ {id:"n-cut",n:"剪對髮型",names:["髮型"],part:"hair",kind:"xn",c:2,v:5,why:"剪對了，每天不整理也好看。",tip:"找擅長細軟髮的設計師，剪層次讓頭頂蓬鬆。"},
+ {id:"n-hfood",n:"營養、睡眠",names:["營養"],part:"hair",kind:"yn",c:1,v:2,why:"頭髮是從裡面長出來的。",tip:""},
+ {id:"n-mk",n:"彩妝",part:"face",kind:"xn",c:1,v:4,why:"每天都能用，技術是自己的。",tip:"現在先練底妝，彩妝等正顎後。"},
+ {id:"n-fsleep",n:"睡飽、吃好",names:["睡飽","吃好"],part:"face",kind:"yn",c:1,v:2,why:"",tip:""},
+ {id:"n-base",n:"底妝",part:"skin",kind:"xn",c:1,v:3,why:"皮膚看起來乾淨，整個人就亮。",tip:"看底妝筆記・琳琳。"},
+ {id:"n-scent",n:"香氛",part:"skin",kind:"xn",c:2,v:4,why:"靠近才聞得到的氛圍感。",tip:"Fuwei 500ml 訂購中，看香氛筆記。"},
+ {id:"n-water",n:"喝水、睡眠",names:["喝水"],part:"skin",kind:"yn",c:1,v:2,why:"",tip:""},
+ {id:"n-dress",n:"穿搭",part:"shape",kind:"xn",c:2,v:5,why:"不用動身體，就能修飾身形。",tip:"看衣櫥。"},
+ {id:"n-train",n:"運動、飲食",names:["運動","飲食"],part:"shape",kind:"yn",c:1,v:4,why:"重訓讓線條出來。",tip:""},
+ {id:"n-nail",n:"美甲",part:"shape",kind:"xn",c:2,v:2,why:"",tip:""},
+ {id:"n-pila",n:"伸展、皮拉提斯",names:["伸展","皮拉提斯"],part:"pose",kind:"yn",c:2,v:5,why:"體態的根本，你最想堅持到底的事。",tip:"在家瑜伽，明年開始上皮拉提斯。"},
+ {id:"n-heel",n:"高跟鞋",part:"pose",kind:"xn",c:2,v:4,why:"走路的樣子會變。",tip:"看 HH。"},
+ {id:"n-shapew",n:"修身衣",part:"pose",kind:"xn",c:1,v:2,why:"",tip:""},
+ {id:"n-spine",n:"整脊、矯正",names:["整脊","矯正"],part:"pose",kind:"yt",tech:1,c:3,v:3,why:"",tip:""},
+ {id:"n-care",n:"護髮",part:"hair",kind:"yt",tech:1,c:2,v:2,why:"",tip:""}
+];
+const isNat=t=>!!t.kind&&t.kind[1]==="n";
+const tScore=t=>t.v*2-t.c;
+function partItems(k){return TECH.concat(NAT).filter(t=>t.c&&t.part===k).sort((a,b)=>tScore(b)-tScore(a)||b.v-a.v||a.c-b.c||(isNat(b)-isNat(a)));}

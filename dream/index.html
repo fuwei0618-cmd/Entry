@@ -9,7 +9,7 @@
   --koi:#D9604A;--koi2:#F3C8BC;--gold:#D9A23A;--gold2:#F6E3B4;--water:#CFE3E0;--water2:#9CC4C0;--forest:#5E7A55;
   --shadow:0 1px 2px rgba(58,47,39,.06),0 6px 18px rgba(58,47,39,.07);--f:"PingFang TC","Noto Sans TC",system-ui,sans-serif}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);line-height:1.6}
+html,body{overflow-x:clip;margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);line-height:1.6}
 body{background:linear-gradient(180deg,#EDE6DA 0,var(--bg) 220px);min-height:100vh}
 button,input,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -246,7 +246,7 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .col.folded{flex:0 0 150px;opacity:.72;background:transparent;box-shadow:none;border-style:dashed}
 .col.folded .colh small{display:none}
 .col.folded .fcount{font-size:12px;color:var(--muted);border:0;background:none;padding:0;text-align:left;cursor:pointer}
-.crow{display:flex;gap:18px;overflow-x:auto;align-items:flex-start;padding-bottom:8px;margin-bottom:10px}.chall{flex:none;display:grid;gap:6px}.chall>h4{margin:0;font-size:12.5px;letter-spacing:.12em;color:var(--muted);font-weight:500;padding-left:4px}.chall>div{display:flex;gap:10px;align-items:flex-start}.chall .crew{width:228px}
+.crow{display:flex;gap:18px;overflow-x:auto;align-items:flex-start;padding-bottom:8px;margin-bottom:10px}.crow.board{margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);padding-left:16px;padding-right:16px;scroll-padding-left:16px}.chall{flex:none;display:grid;gap:6px}.chall>h4{margin:0;font-size:12.5px;letter-spacing:.12em;color:var(--muted);font-weight:500;padding-left:4px}.chall>div{display:flex;gap:10px;align-items:flex-start}.chall .crew{width:228px}
 .crew{padding:14px;display:grid;gap:8px;border-top:4px solid var(--c)}
 .crh{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}.crh i{width:12px;height:12px;border-radius:4px;background:var(--c);align-self:center}.crh b{font-size:16px}.crh small{color:var(--muted);font-size:12px}.crh .crn{margin-left:auto;font-size:12px;color:var(--c);font-weight:700;filter:brightness(.8)}
 .crl{font-size:12px;letter-spacing:.08em;color:var(--ink);opacity:.7;margin-top:4px;font-weight:600}.cric{font-size:20px;line-height:1}.cvh{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}.cvh h2{margin:0}.cvs{flex:0 0 auto}.cvs button{flex:none;white-space:nowrap;padding:6px 14px}
@@ -436,7 +436,7 @@ function at80Dialog(){const A=D.at80||{};let img=A.img||"";
     box.querySelector("#a8f").onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const N=900,sc=Math.min(1,N/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);keep();D.at80.img=c.toDataURL("image/jpeg",.8);at80Dialog();};im.src=u;};
     const x=box.querySelector("#a8x");if(x)x.onclick=()=>{keep();D.at80.img="";at80Dialog();};
     box.querySelector("[data-ok]").onclick=()=>{keep();save();closeDlg();render();};});}
-async function render(){
+async function render(){const _sx=[...document.querySelectorAll(".crow")].map(e=>e.scrollLeft);
   const cs=curSeason(),tf=seasonFish(cs);
   // 上一季有魚卻還沒回顧：提醒翻面
   const ps=prevSeason(cs),pf=seasonFish(ps),needReview=sCmp(ps,START)>=0&&pf&&!(D.seasons[ps].review||"").trim();
@@ -452,6 +452,7 @@ async function render(){
   <section id="studySec"><h2>今日三題<small>${tf?`「${esc(tf.name)}」的旅行 QA・連續 7 天蓋一個章`:"魚缸有魚時才會出題"}</small></h2><div id="study"></div></section>
   <section><h2>許願池<small>點一條魚，放進這一季的魚缸</small></h2>${poolCard()}</section>`}`;
   bind();
+  document.querySelectorAll(".crow").forEach((e,i)=>{if(_sx[i])e.scrollLeft=_sx[i];});
   if(tab==="todo")bind4();else if(tab==="week")bind3();else if(tab==="two")bind2();else await renderStudy(tf);}
 
 /* ---------- 第二層：每季力氣 ---------- */
@@ -1018,5 +1019,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202611090130";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202611090135";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

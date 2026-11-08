@@ -628,6 +628,9 @@ function taskById(tid){for(const p of D.todo.projects){const t=p.tasks.find(x=>x
 let weekCnt={};
 /* 11/6：工具人切換視圖：平常／🎯 目標（五年・這一季・這個月）／🎬 導演（每位要拍什麼）。內容可以直接改 */
 const CG_DEF={"teresa": ["", "", "11/28 街演", "街演、唱歌的片段"], "director": ["我享受人生的影片系列", "定好風格、拍第一支", "", "幕後：我怎麼拍、怎麼剪"], "leader": ["百萬環遊世界一年", "一趟台灣練習旅行", "選好地點", "生活團、旅行團、出發前的台灣練習"], "venus": ["自己的風格：軟軟的性感", "盡簡衣櫥、打扮五分鐘（含一款五分鐘編髮）", "學會一款編髮", "穿搭、妝髮、變美"], "fox": ["皮拉提斯上到老", "晨晚瑜伽、HH", "一字馬第一課", "瑜伽、HH、身體線條"], "sales": ["", "", "服務件寄信", "（工作的事，可以不拍）"], "trader": ["存到一百萬", "每月存兩萬不中斷", "設好自動轉帳", "百萬存錢進度"], "vault": ["", "", "", ""], "butler": ["享受人生", "系統順到無痛", "", "我怎麼用 Origina 把日子過順（口播系列）"], "healer": ["心穩、身體健康", "正顎手術、復健", "", "保養、獨處、心情、照顧自己的小時刻"]};
+/* 11/8：Teresa 五年目標加「簽一份非獨家經紀合約」，只加一次，保留她自己寫過的 */
+function cgMig(){if(D.cg1108)return;D.cg1108=1;D.crewGoals=D.crewGoals||{};const g=D.crewGoals.teresa=D.crewGoals.teresa||[0,1,2,3].map(j=>(CG_DEF.teresa||[])[j]||"");
+  const t="簽一份非獨家經紀合約";if(!(g[0]||"").includes("非獨家"))g[0]=g[0]?g[0]+"；"+t:t;save();}
 const cgGet=(k,i)=>{const g=(D.crewGoals||{})[k];return g&&g[i]!==undefined?g[i]:(CG_DEF[k]||["","","",""])[i];};
 let crewView="main";try{crewView=localStorage.getItem("dream-crewview")||"main";}catch(e){}
 /* 10/31：做完的事不刪，收進「完成紀錄」，記下完成的日子 */
@@ -713,7 +716,7 @@ function doneHTML(){const T=D.todo,L=[];T.projects.forEach(p=>p.tasks.forEach(t=
   const groups=[...CREW.map(c=>({k:c.k,ic:c.ic,n:c.n,c:c.c})),{k:"chore",ic:"🧺",n:"雜事",c:"#C9BBA5"}].map(g=>({...g,xs:L.filter(x=>x.k===g.k).sort((a,b)=>(b.t.doneAt||"")<(a.t.doneAt||"")?-1:1)})).filter(g=>g.xs.length);
   return `<section><details class="donelog" id="donelog" ${op?"open":""}><summary><h2>完成紀錄<small>做完的事都收在這裡・共 ${L.length} 件・照工具人分・點一件可以改回沒做完</small></h2></summary>
     <div class="dgrid">${groups.map(g=>`<div class="card dmon" style="--c:${g.c}"><div class="dgh">${g.ic} <b>${esc(g.n)}</b><span>${g.xs.length} 件</span></div>${g.xs.map(({p,t,chore})=>`<button class="dline" ${chore?"disabled":`data-task="${t.id}"`}><span class="dd">${dt(t)}</span><span class="dt">${esc(t.text)}</span>${chore?"":`<span class="dw">${esc(p.name)}</span>`}</button>`).join("")}</div>`).join("")}</div></details></section>`;}
-function crewHTML(wkMode){D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();T.month[mk]=T.month[mk]||[];T.week[wk]=T.week[wk]||[];T.week[nk]=T.week[nk]||[];
+function crewHTML(wkMode){cgMig();D.todo=D.todo||TODO();const T=D.todo,W=D.week,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();T.month[mk]=T.month[mk]||[];T.week[wk]=T.week[wk]||[];T.week[nk]=T.week[nk]||[];
   const task=t=>`<div class="task${t.done?" done":""}" data-dtask="${t.id}"><button class="ttx" data-task="${t.id}">${esc(t.text)}</button><div class="bt bt4"><button data-tm="${t.id}" aria-pressed="${T.month[mk].includes(t.id)}" title="本月">月</button><button data-tw="${t.id}" aria-pressed="${T.week[wk].includes(t.id)}" title="本週">週</button><button data-td="${t.id}" aria-pressed="${dayList().some(x=>x.task===t.id)}" title="今日">日</button><button data-tn="${t.id}" aria-pressed="${T.week[nk].includes(t.id)}" title="下週">下</button></div></div>`;
   const proj=p=>`<div class="cproj${p.folded?" folded":""}" data-dcol="${p.id}"><div class="colhw"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button><button class="fold" data-fold="${p.id}" title="${p.folded?"打開":"先收起來，不會刪掉"}">${p.folded?"▸":"▾"}</button></div>${p.folded?`<button class="fcount" data-fold="${p.id}">${p.tasks.length} 件・先收起來</button>`:p.tasks.filter(t=>!t.done).map(task).join("")+(p.tasks.some(t=>t.done)?`<span class="dcount">✓ 已完成 ${p.tasks.filter(t=>t.done).length} 件，在完成紀錄</span>`:"")+`<button class="tadd" data-addtask="${p.id}">＋ 新增一件</button>`}</div>`;
   const card=c=>{const its=W.items.filter(i=>crewOfItem(i)===c.k),ps=T.projects.filter(p=>crewOfProj(p)===c.k);const n=Math.round((weekCnt[c.k]||0)*10)/10;
@@ -991,5 +994,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202611062222";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202611080957";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

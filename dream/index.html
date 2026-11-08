@@ -275,7 +275,7 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 .atime{flex:none;min-width:58px;font-weight:700;font-size:14px;color:var(--c);filter:brightness(.85)}.awhat{flex:1;display:grid;gap:2px;min-width:0}.awhat b{font-weight:500;font-size:14px}.awhat small{color:var(--muted);font-size:12.5px}
 .ameta{flex:none;display:grid;gap:3px;justify-items:end;font-size:12px;color:var(--muted)}.acrew i{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--c);margin-right:4px}
 .bt4 button{min-width:34px;padding-left:0;padding-right:0;text-align:center}
-.atbl{padding:10px 12px;overflow-x:auto}.atbl table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}.atbl th{font-size:12px;color:var(--muted);font-weight:500;text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}.atbl td{padding:7px 6px;border-bottom:1px solid #F1EADF;vertical-align:middle}.atbl td.ti{font-size:16px}.atbl tr.aset td{color:var(--muted)}.atbl input{width:18px;height:18px}.atbl .ain{width:100%;border:1px solid transparent;background:transparent;border-radius:8px;padding:5px 6px;font:inherit;color:var(--ink)}.atbl .ain:hover{border-color:var(--line)}.atbl .ain:focus{border-color:var(--ink);background:#fff;outline:none}.atbl .ain.tm{width:76px;font-weight:700}.atbl .tib{border:0;background:none;font-size:16px;padding:2px;cursor:pointer}.atbl .tib.dy{font-size:13.5px;color:var(--ink);text-decoration:underline dotted;text-underline-offset:3px}.devb{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer;min-width:56px}
+.atbl{padding:10px 12px;overflow-x:auto}.atbl table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}.atbl th{font-size:12px;color:var(--muted);font-weight:500;text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}.atbl td{padding:7px 6px;border-bottom:1px solid #F1EADF;vertical-align:middle}.atbl td.ti{font-size:16px}.atbl tr.aset td{color:var(--muted)}.atbl input{width:18px;height:18px}.atbl .ain{width:100%;border:1px solid transparent;background:transparent;border-radius:8px;padding:5px 6px;font:inherit;color:var(--ink)}.atbl .ain:hover{border-color:var(--line)}.atbl .ain:focus{border-color:var(--ink);background:#fff;outline:none}.atbl .ain.tm{width:76px;font-weight:700}.atbl .tib{border:0;background:none;font-size:16px;padding:2px;cursor:pointer}.atbl .tib.dy{font-size:13.5px;color:var(--ink);text-decoration:underline dotted;text-underline-offset:3px}.atbl tr.vgh td{font-size:12px;font-weight:700;color:var(--muted);padding-top:12px;border-bottom:1px solid var(--line)}.atbl .vsel{width:auto;max-width:170px;cursor:pointer}#vgtbl .devb{white-space:nowrap}#vgtbl table{min-width:760px}#vgtbl [data-vf="what"]{min-width:230px}#vgtbl [data-vf="days"]{width:84px}.devb{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer;min-width:56px}
 .dcount{font-size:12px;color:var(--muted);padding:2px 4px}
 .crpick{display:flex;flex-wrap:wrap;gap:6px}
 .addcol{border-style:dashed;background:transparent;color:var(--muted);min-height:80px;font-size:14px;box-shadow:none}
@@ -534,7 +534,7 @@ function layer3(){
   const state=S.tpl?`<p class="hint">這是範本：每一週一開始都長這樣。改範本，還沒調整過的週都會跟著變。</p>`:S.own?`<p class="hint">這週有自己的安排。<button class="linkbtn" data-reset>還原成範本</button></p>`:`<p class="hint">這週目前跟範本一樣；一改就會變成這週專屬的安排，不影響範本。</p>`;
   return top3+`<section><h2>一週的樣子<small>點格子放沙子（一格最多三件）・按住拖曳換位置・沙子前後的小圖示是鬧鐘提醒（前面＝開始前，後面＝結束後），點圖示看幾點、做什麼</small></h2>${nav}
     <div class="card wk"><div class="wkscroll"><div class="tframe" hidden></div><table><thead><tr><th></th>${DAYS.map((d,i)=>{if(S.tpl)return `<th>${d}</th>`;const [y,m,dd]=wkKeyOff(wkView).split("-").map(Number),x=new Date(y,m-1,dd+i),today=ymd(x)===ymd(new Date());return `<th${today?' class="today"':''}>${d}<small class="wkd">${x.getMonth()+1}/${x.getDate()}</small></th>`;}).join("")}</tr></thead><tbody>${rows}${outfit}</tbody></table></div>${state}</div></section>
-  ${alarmTable()}
+  ${alarmTable()}${vgTable()}
   <section><h2>這週的沙<small>每一格是一把沙，看看哪位工具人最忙、哪位被冷落</small></h2><div class="card wk">${sand}</div></section>
   ${crewHTML(1)}`;}
 function bind3(){
@@ -682,6 +682,30 @@ function alarmTable(){const L=autosFix().slice().sort((x,y)=>{const t=a=>a.time|
   return `<section><details class="donelog" id="alarmtbl" ${op?"open":""}><summary><h2>📋 鬧鐘總表<small>點格子就能直接改・哪台點一下切換・📝＝有捷徑步驟筆記，點圖示看・設好打勾（${ok}／${L.length}）</small></h2></summary>
     <div class="card atbl"><table><thead><tr><th>設好</th><th></th><th>時間</th><th>哪幾天</th><th>做什麼</th><th>音檔</th><th>哪台</th></tr></thead><tbody>${L.map(a=>`<tr class="${a.set?"aset":""}"><td><input type="checkbox" data-aset="${a.id}" ${a.set?"checked":""}></td><td class="ti"><button class="tib" data-auto="${a.id}" title="點開完整設定">${aIcon(a)}</button></td><td><input class="ain tm" data-af="time" data-aid="${a.id}" value="${esc(a.time||"")}" placeholder="${PARTN[a.part]}"></td><td><button class="tib dy" data-auto="${a.id}">${aDays(a)}</button></td><td><div style="display:flex;align-items:center;gap:4px"><input class="ain" data-af="what" data-aid="${a.id}" value="${esc(a.what)}">${a.note?`<button class="tib" data-auto="${a.id}" title="看捷徑步驟">📝</button>`:""}</div></td><td><input class="ain" data-af="audio" data-aid="${a.id}" value="${esc(a.audio||"")}" placeholder="—"></td><td><button class="devb" data-adevt="${a.id}">${esc(a.dev)}</button></td></tr>`).join("")}</tbody></table>
     <button class="tadd" data-addauto="butler">＋ 新增鬧鐘</button></div></details></section>`;}
+/* 11/9：Venus＋Gym 日程總表（體態・妝髮衣・保養放同一張） */
+const GYMU="https://fuwei0618-cmd.github.io/Gym/";
+const VGL={yoga:["🧘 瑜伽",GYMU+"#tab=yoga"],posture:["🪞 體態桌",GYMU+"posture.html"],hh:["👠 HH",GYMU+"hh/"],vanity:["💄 妝台","../vanity/"],body:["🧴 保養廠","../body/"],wardrobe:["👗 衣櫥","../wardrobe/"],venus:["🌺 維納斯的桌子","../venus/"],"":["—",""]};
+const VGG=["早上","晚上","每週"];
+function VG(){let n=0;const r=(g,time,days,who,what,lk,al)=>({id:"v"+(n++)+Date.now().toString(36),g,time,days,who,what,lk,al});
+  return[r(0,"07:30","每天","fox","起床瑜伽（每日瑜伽）","yoga","起床"),r(0,"08:00","每天","venus","打扮五分鐘：妝前保濕＋底妝","vanity","打扮"),
+    r(1,"洗澡後","每天","venus","拍臉＋身體乳","body",""),r(1,"21:30","每天","fox","氛圍感：穿高跟鞋走路","hh","氛圍感"),r(1,"22:00","每天","fox","睡前體態：鬆 → 伸 → 醒（靠牆拉腿）","posture","睡前"),
+    r(2,"","上課那天","fox","重訓課（體態桌的重訓日流程）","posture",""),r(2,"","上課那天","fox","HH","hh","HH"),r(2,"","","venus","排下週穿搭","wardrobe","")];}
+function vgFix(){if(!D.vg){D.vg=VG();const A=autosFix();D.vg.forEach(v=>{const a=v.al&&A.find(x=>x.s===v.al);v.aid=a?a.id:"";delete v.al;});save();}return D.vg;}
+function vgTable(){const L=vgFix(),A=autosFix();let op=false;try{op=localStorage.getItem("dream-vg")==="1";}catch(e){}
+  const who=v=>{const c=CREWK[v.who]||{};return `<button class="devb" data-vgwho="${v.id}" style="border-color:${c.c||"#ddd"}">${c.ic||""} ${esc(c.n||"")}</button>`;};
+  const al=v=>`<select class="ain vsel" data-vgal="${v.id}"><option value="">不掛</option>${A.slice().sort(aSort).map(a=>`<option value="${a.id}" ${v.aid===a.id?"selected":""}>${aIcon(a)} ${esc(a.time||PARTN[a.part])} ${esc(a.s||a.what)}</option>`).join("")}</select>`;
+  const lk=v=>`<div style="display:flex;align-items:center;gap:4px"><select class="ain vsel" data-vglk="${v.id}">${Object.entries(VGL).map(([k,[n]])=>`<option value="${k}" ${v.lk===k?"selected":""}>${n}</option>`).join("")}</select>${v.lk&&VGL[v.lk]?`<a class="tib" href="${VGL[v.lk][1]}" title="打開">↗</a>`:""}</div>`;
+  const row=v=>`<tr><td><input class="ain tm" data-vf="time" data-vid="${v.id}" value="${esc(v.time||"")}" placeholder="幾點"></td><td><input class="ain" data-vf="days" data-vid="${v.id}" value="${esc(v.days||"")}" placeholder="哪幾天"></td><td><input class="ain" data-vf="what" data-vid="${v.id}" value="${esc(v.what)}"></td><td>${who(v)}</td><td>${lk(v)}</td><td>${al(v)}</td><td><button class="tib" data-vgdel="${v.id}" title="刪掉這一列">✕</button></td></tr>`;
+  return `<section><details class="donelog" id="vgtbl" ${op?"open":""}><summary><h2>🪞 Venus＋Gym 日程總表<small>體態・妝髮衣・保養排在同一張・點格子直接改・人名點一下換 Fox／維納斯・「去哪」是做的時候打開的頁面・「鬧鐘」掛上鬧鐘總表的哪一條</small></h2></summary>
+    <div class="card atbl"><table><thead><tr><th>時間</th><th>哪幾天</th><th>做什麼</th><th>誰</th><th>去哪</th><th>鬧鐘</th><th></th></tr></thead><tbody>${VGG.map((g,i)=>{const xs=L.filter(v=>v.g===i);return `<tr class="vgh"><td colspan="7">${g}</td></tr>${xs.map(row).join("")}<tr><td colspan="7"><button class="tadd" data-vgadd="${i}">＋ ${g}加一件</button></td></tr>`;}).join("")}</tbody></table></div></details></section>`;}
+function bindVG(){const F=id=>D.vg.find(x=>x.id===id);
+  document.querySelectorAll("[data-vf]").forEach(inp=>{inp.onkeydown=e=>{if(e.key==="Enter")inp.blur();};inp.onchange=()=>{const v=F(inp.dataset.vid),x=inp.value.trim();if(inp.dataset.vf==="what"&&!x){inp.value=v.what;return;}v[inp.dataset.vf]=x;save();};});
+  document.querySelectorAll("[data-vgwho]").forEach(b=>b.onclick=()=>{const v=F(b.dataset.vgwho);v.who=v.who==="fox"?"venus":"fox";save();render();});
+  document.querySelectorAll("[data-vglk]").forEach(s=>s.onchange=()=>{F(s.dataset.vglk).lk=s.value;save();render();});
+  document.querySelectorAll("[data-vgal]").forEach(s=>s.onchange=()=>{F(s.dataset.vgal).aid=s.value;save();});
+  document.querySelectorAll("[data-vgdel]").forEach(b=>b.onclick=()=>{const v=F(b.dataset.vgdel);D.vg=D.vg.filter(x=>x!==v);save();render();});
+  document.querySelectorAll("[data-vgadd]").forEach(b=>b.onclick=()=>{D.vg.push({id:nid(),g:+b.dataset.vgadd,time:"",days:"每天",who:"venus",what:"新的一件",lk:"",aid:""});save();render();});
+  const d=document.getElementById("vgtbl");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-vg",d.open?"1":"0");}catch(e){}});}
 function autoDialog(a,pre){pre=pre||{};let item=a?a.item||"":"",pos=a?a.pos||"pre":"pre",aic=a?aIcon(a):"⏰",crew=a?a.crew:(pre.crew||"butler"),dev=a?a.dev:"iPad",part=a?a.part:(pre.part??0),days=a?a.days.slice():(pre.days||ALLD.slice());
   dialog(`<h3>${a?"改這個自動化":"新增自動化"}</h3>
     <label class="field">會發生什麼<input id="awt" maxlength="40" value="${esc(a?a.what:"")}"></label>
@@ -752,7 +776,7 @@ function bindCrew(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
   document.querySelectorAll("[data-aset]").forEach(c=>c.onchange=()=>{const a=D.autos.find(x=>x.id===c.dataset.aset);a.set=c.checked;save();render();});
   document.querySelectorAll("[data-af]").forEach(inp=>{inp.onkeydown=e=>{if(e.key==="Enter")inp.blur();};inp.onchange=()=>{const a=D.autos.find(x=>x.id===inp.dataset.aid);const v=inp.value.trim();if(inp.dataset.af==="what"&&!v){inp.value=a.what;return;}a[inp.dataset.af]=v;if(inp.dataset.af==="time"){const h=parseInt(v,10);if(!isNaN(h))a.part=h<11?0:h<17?1:2;}save();render();};});
   document.querySelectorAll("[data-adevt]").forEach(b=>b.onclick=()=>{const a=D.autos.find(x=>x.id===b.dataset.adevt);a.dev=a.dev==="手機"?"iPad":"手機";save();render();});
-  {const d=document.getElementById("alarmtbl");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-alarms",d.open?"1":"0");}catch(e){}});}
+  bindVG();{const d=document.getElementById("alarmtbl");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-alarms",d.open?"1":"0");}catch(e){}});}
   document.querySelectorAll("[data-cview]").forEach(b=>b.onclick=()=>{crewView=b.dataset.cview;try{localStorage.setItem("dream-crewview",crewView);}catch(e){}render();});
   document.querySelectorAll("[data-cg]").forEach(t=>t.onchange=()=>{const [k,i]=t.dataset.cg.split("|");D.crewGoals=D.crewGoals||{};const g=D.crewGoals[k]=D.crewGoals[k]||[0,1,2,3].map(j=>cgGet(k,j));g[+i]=t.value.trim();save();});
   document.querySelectorAll("[data-addauto]").forEach(b=>b.onclick=()=>autoDialog(null,{crew:b.dataset.addauto}));
@@ -994,5 +1018,5 @@ new ResizeObserver(()=>{const f=$("#flip");if(!f)return;const bk=f.querySelector
 render();
 </script>
 <script>/* 10/31：主畫面 App 會暫存舊版，打開時檢查有沒有新版，有就重新整理 */
-const PAGE_V="202611080957";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
+const PAGE_V="202611090130";(async()=>{try{const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});const t=await r.text();const m=/PAGE_V="(\d+)"/.exec(t);if(m&&m[1]!==PAGE_V&&!sessionStorage.getItem("pv-"+m[1])){sessionStorage.setItem("pv-"+m[1],"1");location.reload();}}catch(e){}})();</script>
 </body></html>

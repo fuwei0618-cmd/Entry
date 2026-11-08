@@ -82,6 +82,7 @@ const NAT=[
  {id:"n-pila",n:"伸展、皮拉提斯",names:["伸展","皮拉提斯"],part:"pose",kind:"yn",c:2,v:5,why:"體態的根本，你最想堅持到底的事。",tip:"在家瑜伽，明年開始上皮拉提斯。"},
  {id:"n-heel",n:"高跟鞋",part:"pose",kind:"xn",c:2,v:4,why:"走路的樣子會變。",tip:"看 HH。"},
  {id:"n-shapew",n:"修身衣",part:"pose",kind:"xn",c:1,v:2,why:"",tip:""},
+ {id:"n-mchair",n:"全身按摩椅",part:"pose",kind:"yt",tech:1,c:4,v:2,why:"夢想清單。背、腿、腳一次包好，不用喬位置；但按不到胸前和髂腰肌，那 5 分鐘還是要自己做。",tip:"比較像「恢復」的享受：好放鬆、好睡。預算和空間允許再買。"},
  {id:"n-spine",n:"整脊、矯正",names:["整脊","矯正"],part:"pose",kind:"yt",tech:1,c:3,v:3,why:"",tip:""},
  {id:"n-care",n:"護髮",part:"hair",kind:"yt",tech:1,c:2,v:2,why:"",tip:""}
 ];

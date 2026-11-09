@@ -632,7 +632,7 @@ const CG_DEF={"teresa": ["", "", "11/28 街演", "街演、唱歌的片段"], "d
 /* 11/8：Teresa 五年目標加「簽一份非獨家經紀合約」，只加一次，保留她自己寫過的 */
 function cgMig(){if(D.cg1108)return;D.cg1108=1;D.crewGoals=D.crewGoals||{};const g=D.crewGoals.teresa=D.crewGoals.teresa||[0,1,2,3].map(j=>(CG_DEF.teresa||[])[j]||"");
   const t="簽一份非獨家經紀合約";if(!(g[0]||"").includes("非獨家"))g[0]=g[0]?g[0]+"；"+t:t;save();}
-const cgGet=(k,i)=>{const g=(D.crewGoals||{})[k];return g&&g[i]!==undefined?g[i]:(CG_DEF[k]||["","","",""])[i];};
+const cgGet=(k,i)=>{const g=(D.crewGoals||{})[k];return g&&g[i]!==undefined?g[i]:((CG_DEF[k]||[])[i]||"");};
 let crewView="main";try{crewView=localStorage.getItem("dream-crewview")||"main";}catch(e){}
 /* 10/31：做完的事不刪，收進「完成紀錄」，記下完成的日子 */
 /* 10/31：今日三件。可以直接寫雜事，也可以從本週三件放一件進來。每天自動換新的一天，做完的雜事會進完成紀錄 */
@@ -746,7 +746,7 @@ function crewHTML(wkMode){cgMig();D.todo=D.todo||TODO();const T=D.todo,W=D.week,
   const proj=p=>`<div class="cproj${p.folded?" folded":""}" data-dcol="${p.id}"><div class="colhw"><button class="colh" data-proj="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}<small>${esc(p.note||"")}</small></button><button class="fold" data-fold="${p.id}" title="${p.folded?"打開":"先收起來，不會刪掉"}">${p.folded?"▸":"▾"}</button></div>${p.folded?`<button class="fcount" data-fold="${p.id}">${p.tasks.length} 件・先收起來</button>`:p.tasks.filter(t=>!t.done).map(task).join("")+(p.tasks.some(t=>t.done)?`<span class="dcount">✓ 已完成 ${p.tasks.filter(t=>t.done).length} 件，在完成紀錄</span>`:"")+`<button class="tadd" data-addtask="${p.id}">＋ 新增一件</button>`}</div>`;
   const card=c=>{const its=W.items.filter(i=>crewOfItem(i)===c.k),ps=T.projects.filter(p=>crewOfProj(p)===c.k);const n=Math.round((weekCnt[c.k]||0)*10)/10;
     return `<div class="card crew" style="--c:${c.c}"><div class="crh"><span class="cric">${c.ic}</span><b>${esc(c.n)}</b>${c.nm?`<small class="crnm">${esc(c.nm)}</small>`:""}${wkMode&&n?`<span class="crn">這週 ${n} 格</span>`:""}</div><div class="crr">${esc(c.r)}</div>
-      ${crewView==="goal"?`<div class="cgl"><label>五年</label><textarea data-cg="${c.k}|0" rows="2" placeholder="還沒寫">${esc(cgGet(c.k,0))}</textarea><label>這一季</label><textarea data-cg="${c.k}|1" rows="2" placeholder="還沒寫">${esc(cgGet(c.k,1))}</textarea><label>這個月</label><textarea data-cg="${c.k}|2" rows="2" placeholder="還沒寫">${esc(cgGet(c.k,2))}</textarea></div>`:crewView==="film"?`<div class="cgl"><label>🎬 導演拍什麼</label><textarea data-cg="${c.k}|3" rows="3" placeholder="還沒想">${esc(cgGet(c.k,3))}</textarea></div>`:`
+      ${crewView==="goal"?`<div class="cgl"><label>五年</label><textarea data-cg="${c.k}|0" rows="2" placeholder="還沒寫">${esc(cgGet(c.k,0))}</textarea><label>兩年</label><textarea data-cg="${c.k}|4" rows="2" placeholder="還沒寫">${esc(cgGet(c.k,4))}</textarea><label>這一季</label><textarea data-cg="${c.k}|1" rows="2" placeholder="還沒寫">${esc(cgGet(c.k,1))}</textarea><label>這個月</label><textarea data-cg="${c.k}|2" rows="2" placeholder="還沒寫">${esc(cgGet(c.k,2))}</textarea></div>`:crewView==="film"?`<div class="cgl"><label>🎬 導演拍什麼</label><textarea data-cg="${c.k}|3" rows="3" placeholder="還沒想">${esc(cgGet(c.k,3))}</textarea></div>`:`
       <div class="crl">🔁 每週固定</div><div class="crs">${its.map(i=>`<button class="chip3" data-item="${i.id}" style="--c:${c.c}"><i></i>${esc(i.name)}</button>`).join("")||'<span class="muted" style="font-size:12.5px">還沒有</span>'}</div>
       ${c.plain?"":(()=>{const as=autosFix().filter(a=>a.crew===c.k).sort(aSort);return `<div class="crl">⏰ 鬧鐘提醒</div><div class="alist2">${as.map(aChip).join("")}<button class="aadd" data-addauto="${c.k}">＋ 鬧鐘提醒</button></div>`;})()}
       ${c.dq.length?`<div class="crl">📣 宣言</div><div class="crs">${c.dq.map(([ic,t,m,k])=>`<a class="dqb" href="../bedside/?open=${k}#${m}">${ic} ${esc(t)}</a>`).join("")}</div>`:""}
@@ -779,7 +779,7 @@ function bindCrew(){const T=D.todo,mk=monthKey(),wk=weekKey(),nk=nextWeekKey();
   document.querySelectorAll("[data-adevt]").forEach(b=>b.onclick=()=>{const a=D.autos.find(x=>x.id===b.dataset.adevt);a.dev=a.dev==="手機"?"iPad":"手機";save();render();});
   bindVG();{const d=document.getElementById("alarmtbl");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-alarms",d.open?"1":"0");}catch(e){}});}
   document.querySelectorAll("[data-cview]").forEach(b=>b.onclick=()=>{crewView=b.dataset.cview;try{localStorage.setItem("dream-crewview",crewView);}catch(e){}render();});
-  document.querySelectorAll("[data-cg]").forEach(t=>t.onchange=()=>{const [k,i]=t.dataset.cg.split("|");D.crewGoals=D.crewGoals||{};const g=D.crewGoals[k]=D.crewGoals[k]||[0,1,2,3].map(j=>cgGet(k,j));g[+i]=t.value.trim();save();});
+  document.querySelectorAll("[data-cg]").forEach(t=>t.onchange=()=>{const [k,i]=t.dataset.cg.split("|");D.crewGoals=D.crewGoals||{};const g=D.crewGoals[k]=D.crewGoals[k]||[0,1,2,3,4].map(j=>cgGet(k,j));g[+i]=t.value.trim();save();});
   document.querySelectorAll("[data-addauto]").forEach(b=>b.onclick=()=>autoDialog(null,{crew:b.dataset.addauto}));
   {const d=document.getElementById("donelog");if(d)d.addEventListener("toggle",()=>{try{localStorage.setItem("dream-donelog",d.open?"1":"0");}catch(e){}});}
   dragBoard();}

@@ -77,7 +77,7 @@ const NAT=[
  {id:"n-scent",n:"香氛",part:"skin",kind:"xn",c:2,v:4,why:"靠近才聞得到的氛圍感。",tip:"Fuwei 500ml 訂購中，看香氛筆記。"},
  {id:"n-water",n:"喝水、睡眠",names:["喝水"],part:"skin",kind:"yn",c:1,v:2,why:"",tip:""},
  {id:"n-dress",n:"穿搭",part:"shape",kind:"xn",c:2,v:5,why:"不用動身體，就能修飾身形。",tip:"看衣櫥。"},
- {id:"n-train",n:"運動、飲食",names:["運動","飲食"],part:"shape",kind:"yn",c:1,v:4,why:"重訓讓線條出來。",tip:""},
+ {id:"n-train",n:"運動、飲食",names:["運動","飲食"],part:"shape",kind:"yn",c:1,v:4,why:"重訓讓線條出來。",tip:"想吃東西的時候，先打開表格「身材・自然養」裡的想吃對照表。"},
  {id:"n-nail",n:"美甲",part:"shape",kind:"xn",c:2,v:2,why:"",tip:""},
  {id:"n-pila",n:"伸展、皮拉提斯",names:["伸展","皮拉提斯"],part:"pose",kind:"yn",c:2,v:5,why:"體態的根本，你最想堅持到底的事。",tip:"在家瑜伽，明年開始上皮拉提斯。"},
  {id:"n-heel",n:"高跟鞋",part:"pose",kind:"xn",c:2,v:4,why:"走路的樣子會變。",tip:"看 HH。"},

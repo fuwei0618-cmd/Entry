@@ -136,6 +136,10 @@ textarea{font:inherit;font-size:15px;min-height:70px;border-radius:12px;border:1
 .tc.more{color:#8A6E4B;background:#F6EBDC}
 .ir{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;color:#fff;font:700 10.5px "PingFang TC",sans-serif;margin-right:4px;vertical-align:1px}
 .pr{position:relative}.prk{position:absolute;left:-14px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#3A2A24;color:#FFE7C2;font:700 15px "Songti TC",serif;box-shadow:0 2px 6px rgba(40,20,10,.25)}
+.fd{display:flex;flex-direction:column;gap:8px}.fr{display:flex;gap:12px;align-items:flex-start;background:#FBF5EC;border-radius:14px;padding:10px 14px}
+.fn{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#7E8E5E;color:#fff;font:700 14px "Songti TC",serif;margin-top:2px}
+.fa{font:700 17px "Songti TC","Noto Serif TC",serif;color:#3A2A24}.fa span{font:600 14px "PingFang TC",sans-serif;color:#8E2B2B;margin-left:8px}
+.fc{font-size:14.5px;color:#5A4228;margin-top:2px}.fx{font-size:12.5px;color:#8A5A20;background:#FFF1DC;border-radius:10px;padding:5px 9px;margin-top:6px;line-height:1.55}
 .tcol{position:absolute;left:20px;top:122px;width:214px;display:flex;flex-direction:column;gap:8px}
 .tcard{position:relative;background:rgba(255,251,246,.94);border-radius:16px;padding:10px 12px 11px;box-shadow:0 4px 16px rgba(40,20,10,.14)}
 .tcard .th{display:flex;align-items:center;gap:6px;margin-bottom:7px}.tcard .th i{width:11px;height:11px;border-radius:50%;flex:none}
@@ -250,8 +254,8 @@ const PARTS=[
  {k:"shape",n:"身材",pt:[295,565],side:"L",by:575,yn:"運動、飲食",xn:"穿搭、美甲",yt:"電波、體雕",xt:"抽脂、隆乳",cap:"名詞・有什麼"},
  {k:"pose",n:"體態",pt:[295,760],side:"R",by:740,yn:"伸展、皮拉提斯",xn:"高跟鞋、修身衣",yt:"整脊、矯正、全身按摩椅",xt:"",cap:"動詞・怎麼用"}];
 const pimg=(k,z)=>`<img src="p-${k}.webp" alt="" style="width:${z}px;height:${z}px;mix-blend-mode:multiply;display:block">`;
-const LK={"hair:xn":["妝台",E+"vanity/"],"face:xn":["妝台",E+"vanity/"],"skin:xn":[["底妝筆記",E+"vanity/base.html"],["香氛筆記","scent.html"]],"shape:xn":["衣櫥",E+"wardrobe/"],"pose:yn":["健身房",GH+"Gym/"],"pose:xn":["HH",GH+"Gym/hh/"]};
-const lk=(k)=>{const v=LK[k];if(!v)return "";return (Array.isArray(v[0])?v:[v]).map(x=>`<a class="ln" href="${x[1]}">${x[0]} ›</a>`).join("");};
+const LK={"shape:yn":["想吃對照表","#food"],"hair:xn":["妝台",E+"vanity/"],"face:xn":["妝台",E+"vanity/"],"skin:xn":[["底妝筆記",E+"vanity/base.html"],["香氛筆記","scent.html"]],"shape:xn":["衣櫥",E+"wardrobe/"],"pose:yn":["健身房",GH+"Gym/"],"pose:xn":["HH",GH+"Gym/hh/"]};
+const lk=(k)=>{const v=LK[k];if(!v)return "";return (Array.isArray(v[0])?v:[v]).map(x=>x[1]==="#food"?`<button class="ln" data-food style="cursor:pointer">${x[0]} ›</button>`:`<a class="ln" href="${x[1]}">${x[0]} ›</a>`).join("");};
 const PI={face:"臉",hair:"頭髮",skin:"皮膚",shape:"身材",pose:"體態"};
 MI["眼神"]=MI["眼"];MI["觸感"]=MI["身"];MI["印象"]=MI["意"];
 const HINT={"眼神":"被看到","聲音":"被聽到","香味":"被聞到","觸感":"被碰到","印象":"被記住"};
@@ -342,6 +346,7 @@ function render(){
   document.querySelectorAll("[data-nf]").forEach(b=>b.onclick=e=>{e.stopPropagation();window.NF=b.dataset.nf;render();});
   document.querySelectorAll("[data-part]").forEach(b=>b.onclick=e=>{e.stopPropagation();TT=b.dataset.part;render();});
   document.querySelectorAll("[data-tier]").forEach(b=>b.onclick=e=>{e.stopPropagation();TT=TT===b.dataset.tier?null:b.dataset.tier;render();});
+  document.querySelectorAll("[data-food]").forEach(b=>b.onclick=e=>{e.stopPropagation();openFood();});
   document.querySelectorAll("[data-quad]").forEach(b=>b.onclick=e=>{e.stopPropagation();openQ();});
   document.querySelectorAll("[data-tech]").forEach(b=>b.onclick=e=>{e.stopPropagation();openT(b.dataset.tech);});
   document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.pick;if(S.pick[k])delete S.pick[k];else S.pick[k]=1;save();render();});
@@ -351,6 +356,12 @@ function items(p,q){if(!p[q])return `<span style="color:#C0B0A0">—</span>`;ret
   let t=(q==="yt"||q==="xt")?tByName(w):null;if(t&&t.part!==p.k)t=null;
   if(t){const st=TS[t.id]||0;return `<span class="it tk${lt?" lt":""}${st>=3?" on":""}${TM&&(TM==="value"?tier(t)==="best":t.when===TM)?" hl":""}" data-tech="${t.id}" title="${STAT[st]}">${irk(p,w)}${w}${lt?"<sup>後</sup>":""}</span>`;}
   return `<span class="it${lt?" lt":""}${S.pick[k]?" on":""}" data-pick="${k}"${lt?' title="正顎後"':""}>${irk(p,w)}${w}${lt?"<sup>後</sup>":""}</span>`}).join("、");}
+const FOOD=[["想吃甜的","缺覺","先去睡 20 分鐘"],["想吃鹹的、炸的","壓力大","喝點淡鹽水，散步 5 分鐘"],["想喝冰的","缺水","喝一杯溫水",'如果是很常想<b>嚼冰塊</b>，比較常見的原因是<b>缺鐵</b>。缺鐵也會掉髮，看皮膚科時可以問要不要驗鐵蛋白。'],["想吃撐、想吃澱粉","心裡空","找人聊聊天"],["想喝奶茶","缺獎勵","換一種不是吃的方式犒賞自己"],["半夜想吃宵夜","白天缺蛋白質","晚餐多加一顆蛋或一份肉"]];
+function openFood(){$("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="serif" style="font-size:30px">想吃東西＝身體在報警</div><div style="font-size:13.5px;color:#8A6E4B;margin-top:4px">身材・自然養・飲食　先看懂身體在說什麼，再決定要不要吃</div></div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:18px;flex:none">✕</button></div>
+  <div class="fd">${FOOD.map(([a,b,c,n],i)=>`<div class="fr"><b class="fn">${i+1}</b><div><div class="fa">${a}<span>→ ${b}</span></div><div class="fc">${c}</div>${n?`<div class="fx">${n}</div>`:""}</div></div>`).join("")}</div>
+  <div class="soft" style="line-height:1.7">一日三餐，慢慢把日子過暖。飯要好好吃，自己也要好好疼。</div>
+  <div style="font-size:12.5px;color:#A0907F">這是生活提醒，不是醫學上的對照：當成「先試這個，看有沒有好一點」。</div>`;
+  $("detail").classList.add("on");$("x").onclick=closeD;}
 function openQ(){  $("dbox").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div class="serif" style="font-size:28px">性價比四象限</div><button id="x" aria-label="關閉" style="width:44px;height:44px;border-radius:50%;border:1px solid #D8C6B4;background:#fff;font-size:18px">✕</button></div>
    <div style="font-size:13.5px;color:#8A6E4B">左上角最划算：花得少、美感提升多。「後」是正顎後才做。點一項看細節。</div>
    ${quadSVG()}`;
